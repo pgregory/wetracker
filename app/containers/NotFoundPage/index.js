@@ -2,37 +2,24 @@
  * NotFoundPage
  *
  * This is the page we show when the user visits a url that doesn't have a route
+ *
+ * NOTE: while this component should technically be a stateless functional
+ * component (SFC), hot reloading does not currently support SFCs. If hot
+ * reloading is not a necessity for you then you can refactor it and remove
+ * the linting exception.
  */
 
 import React from 'react';
-import { connect } from 'react-redux';
-import { push } from 'react-router-redux';
-
-import messages from './messages';
 import { FormattedMessage } from 'react-intl';
-import Button from 'components/Button';
-import H1 from 'components/H1';
+import messages from './messages';
 
-export function NotFound(props) {
-  return (
-    <article>
-      <H1>
+export default class NotFound extends React.Component { // eslint-disable-line react/prefer-stateless-function
+
+  render() {
+    return (
+      <h1>
         <FormattedMessage {...messages.header} />
-      </H1>
-      <Button
-        handleRoute={function redirect() {
-          props.dispatch(push('/'));
-        }}
-      >
-        <FormattedMessage {...messages.homeButton} />
-      </Button>
-    </article>
-  );
+      </h1>
+    );
+  }
 }
-
-NotFound.propTypes = {
-  dispatch: React.PropTypes.func,
-};
-
-// Wrap the component to inject dispatch and state into it
-export default connect()(NotFound);
