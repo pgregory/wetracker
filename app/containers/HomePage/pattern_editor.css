@@ -1,0 +1,112 @@
+/* app css stylesheet */
+
+.pattern-editor {
+  border: 2px solid #fff;
+  height: 100%;
+}
+
+.trackview {
+  display: flex;
+  background-color: #000;
+  color: #fff;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  flex: 1 1 auto;
+  height: 100%;
+}
+
+.tracks {
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex: 1 1 auto;
+}
+
+.track {
+  flex: 0 0 auto;
+  border: 1px solid #fff;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+}
+
+.track-header {
+  flex: 0 0 auto;
+  display: flex;
+}
+
+.track-header span {
+  width: 100%;
+  text-align: center;
+}
+
+.track-time {
+  flex: 0 0 auto;
+  border: 1px solid #fff;
+  padding: 5px;
+}
+
+.track-time .tick {
+  color: #999;
+}
+
+.track-time .line.current-row .tick {
+  color: #fff;
+}
+
+.current-row {
+  background-color: #131;
+}
+
+.line {
+  font-family: monospace;
+}
+
+.line .note {
+  color: #669;
+}
+
+.line.current-row .note {
+  color: #ccf;
+}
+
+.line .instrument {
+  color: #966;
+}
+
+.line.current-row .instrument {
+  color: #fcc;
+}
+
+.line .volume {
+  color: #666;
+}
+
+.line.current-row .volume {
+  color: #ccc;
+}
+
+.line .panning {
+  color: #969;
+}
+
+.line.current-row .panning {
+  color: #fcf;
+}
+
+.line .delay {
+  color: #996;
+}
+
+.line.current-row .delay {
+  color: #ffc;
+}
+
+
+
+
