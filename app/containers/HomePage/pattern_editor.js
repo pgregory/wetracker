@@ -2,20 +2,41 @@ import React from 'react';
 
 import '!style!css!./pattern_editor.css';
 
-var PatternEvent = React.createClass({
-  render: function() {
-    return (
-      <div className="line">
-        <div className="note">C-5</div>
-        <div className="instrument">00</div>
-        <div className="volume">00</div>
-        <div className="panning">00</div>
-        <div className="delay">00</div>
-        <div className="fx">0000</div>
-      </div>
-    );
+function padDigits(event, item, digits) {
+  if(event && event[item]) {
+    return Array(Math.max(digits - String(event[item]).length + 1, 0)).join(0) + event[item];
+  } else {
+    return '----------'.slice(0,digits);
   }
-});
+}
+
+function PatternEvent(props) {
+  let note = '---';
+  let instrument = padDigits(props.event, 'instrument', 2);
+  let volume = padDigits(props.event, 'volume', 2);
+  let panning = padDigits(props.event, 'panning', 2);
+  let delay = padDigits(props.event, 'delay', 2);
+  let fx = padDigits(props.event, 'fx', 4);
+  if(props.event){
+    if(props.event.note) {
+      if(props.event.note.length === 3) {
+        note = props.event.note;
+      } else {
+        note = [props.event.note.slice(0,1), '-', props.event.note.slice(1)].join('');
+      }
+    }
+  }
+  return (
+    <div className="line">
+      <div className="note">{ note }</div>
+      <div className="instrument">{ instrument }</div>
+      <div className="volume">{ volume }</div>
+      <div className="panning">{ panning }</div>
+      <div className="delay">{ delay }</div>
+      <div className="fx">{ fx }</div>
+    </div>
+  );
+};
 
 
 export default class PatternEditor extends React.Component { // eslint-disable-line react/prefer-stateless-function

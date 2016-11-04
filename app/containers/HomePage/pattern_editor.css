@@ -32,7 +32,7 @@
 
 
 .track-header {
-  width: 145px;
+  width: 150px;
   box-sizing: border-box;
   height: 24px;
 }
@@ -45,12 +45,6 @@
 .track-header span {
   width: 100%;
   text-align: center;
-}
-
-.track-time {
-  flex: 0 0 auto;
-  border: 1px solid #FFF;
-  padding: 5px;
 }
 
 .tick {
@@ -71,7 +65,7 @@
 
 .line {
   font-family: monospace;
-  width: 145px;
+  width: 150px;
   line-height: 1.0;
 }
 
@@ -88,6 +82,7 @@
 .line .note {
   color: #669;
   width: 25px;
+  margin-left: 5px;
 }
 
 .line.current-row .note {
@@ -142,7 +137,7 @@
 
 .xscroll div#leftSideTable,
 .xscroll div#sideTable {
-  width: 900px;
+  width: 930px;
   overflow: auto;
 }
 
