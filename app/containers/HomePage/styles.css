@@ -56,3 +56,9 @@
 .react-grid-dragHandleExample {
   cursor: grab;
 }
+
+.widget-container {
+  height: 100%;
+  border: 10px solid white;
+  overflow: hidden;
+}

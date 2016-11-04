@@ -1,7 +1,21 @@
 import React from 'react';
-import { PatternEvent } from './pattern_event';
 
 import '!style!css!./pattern_editor.css';
+
+var PatternEvent = React.createClass({
+  render: function() {
+    return (
+      <div className="line">
+        <div className="note">C-5</div>
+        <div className="instrument">00</div>
+        <div className="volume">00</div>
+        <div className="panning">00</div>
+        <div className="delay">00</div>
+        <div className="fx">0000</div>
+      </div>
+    );
+  }
+});
 
 
 export default class PatternEditor extends React.Component { // eslint-disable-line react/prefer-stateless-function
@@ -421,31 +435,74 @@ export default class PatternEditor extends React.Component { // eslint-disable-l
         ],
       }],
     };
+
+    this.onScroll = this.onScroll.bind(this);
+  }
+
+  onScroll(e) {
+    var target = document.getElementById("sideTable");
+    var col1 = document.getElementById("col1");
+    col1.scrollTop = target.scrollTop;
   }
 
   render() {
+    console.log('Rendering Pattern Editor');
+    const width = parseInt(this.props.width.slice(0,-2));
+    const height = parseInt(this.props.height.slice(0,-2));
     return (
-      <div className="pattern-editor">
-        <table>
-          <thead>
-            <tr>
-              <th></th>
-              { this.song.tracks && this.song.tracks.map((track, index) => (
-                <th key={index}>{track.name}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            { [...Array(this.song.patterns[0].rows)].map((x, row) => (
-              <tr key={row}>
-                <th className="tick">{row}</th>
-                { this.song.patterns[0] && this.song.patterns[0].trackdata.map((track, index) => (
-                  <td key={index}><PatternEvent key={index} event={track[row]} /></td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="widget-container">
+        <div className='pattern-editor'>
+          <div style={{float: 'left'}}>
+            <div>
+              <table>
+                <thead>
+                  <tr>
+                    <th className="tick"><div className="time-header"><br/></div></th>
+                  </tr>
+                </thead>
+              </table>
+            </div>
+
+            <div id='col1' style={{height: height-48}}>
+              <table>
+                <tbody>
+                  { [...Array(this.song.patterns[0].rows)].map((x, row) => (
+                    <tr key={row}>
+                      <th className='tick'>{row}</th>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div style={{float: 'left'}} className='xscroll' style={{width: width - 63}}>
+            <div id='leftSideTable'>
+              <table>
+                <thead>
+                  <tr>
+                    { this.song.tracks && this.song.tracks.map((track, index) => (
+                      <th key={index}><div className='track-header'>{track.name}</div></th>
+                    ))}
+                  </tr>
+                </thead>
+              </table>
+            </div>
+            <div style={{height: height-48}} id='sideTable' onWheel={this.onScroll}>
+              <table>
+                <tbody>
+                  { [...Array(this.song.patterns[0].rows)].map((x, row) => (
+                    <tr key={row}>
+                      { this.song.patterns[0] && this.song.patterns[0].trackdata.map((track, index) => (
+                        <td key={index}><PatternEvent key={index} event={track[row]} /></td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

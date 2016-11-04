@@ -1,5 +1,10 @@
 /* app css stylesheet */
 
+.pattern-editor {
+  height: 100%;
+  overflow: hidden;
+}
+
 .pattern-editor table {
   background: black;
 }
@@ -25,29 +30,16 @@
   height: 100%;
 }
 
-.tracks {
-  display: flex;
-  overflow-x: auto;
-  overflow-y: hidden;
-  flex: 1 1 auto;
-}
-
-.track {
-  flex: 0 0 auto;
-  border: 1px solid #FFF;
-  padding: 5px;
-  display: flex;
-  flex-direction: column;
-}
-
-.header {
-  display: flex;
-  flex-direction: row;
-}
 
 .track-header {
-  flex: 0 0 auto;
-  display: flex;
+  width: 145px;
+  box-sizing: border-box;
+  height: 24px;
+}
+
+.time-header {
+  box-sizing: border-box;
+  height: 24px;
 }
 
 .track-header span {
@@ -64,6 +56,8 @@
 .tick {
   color: #999;
   font-family: monospace;
+  width: 40px;
+  line-height: 1.0;
 }
 
 .track-time .line.current-row .tick {
@@ -74,12 +68,26 @@
   background-color: #131;
 }
 
+
 .line {
   font-family: monospace;
+  width: 145px;
+  line-height: 1.0;
+}
+
+.line .note,
+.line .instrument,
+.line .volume,
+.line .panning,
+.line .delay,
+.line .fx {
+  margin-right: 2px;
+  display: inline-block;
 }
 
 .line .note {
   color: #669;
+  width: 25px;
 }
 
 .line.current-row .note {
@@ -88,6 +96,7 @@
 
 .line .instrument {
   color: #966;
+  width: 18px;
 }
 
 .line.current-row .instrument {
@@ -96,6 +105,7 @@
 
 .line .volume {
   color: #666;
+  width: 18px;
 }
 
 .line.current-row .volume {
@@ -104,6 +114,7 @@
 
 .line .panning {
   color: #969;
+  width: 18px;
 }
 
 .line.current-row .panning {
@@ -112,8 +123,33 @@
 
 .line .delay {
   color: #996;
+  width: 18px;
 }
 
 .line.current-row .delay {
   color: #FFC;
+}
+
+.line .fx {
+  color: #888;
+  width: 36px;
+}
+
+.line.current-row .fx {
+  color: #FFF;
+  box-sizing: border-box;
+}
+
+.xscroll div#leftSideTable,
+.xscroll div#sideTable {
+  width: 900px;
+  overflow: auto;
+}
+
+.xscroll {
+  overflow: auto;
+}
+
+#col1 {
+  overflow: hidden;
 }
