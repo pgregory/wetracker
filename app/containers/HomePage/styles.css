@@ -1,31 +1,38 @@
 .react-grid-layout {
-  background: #eee;
+  background: #EEE;
 }
+
 .layoutJSON {
-  background: #ddd;
+  background: #DDD;
   border: 1px solid black;
   margin-top: 10px;
   padding: 10px;
 }
+
 .columns {
   -moz-columns: 120px;
   -webkit-columns: 120px;
   columns: 120px;
 }
+
 .react-grid-item {
   box-sizing: border-box;
-  overflow-y: hidden;
+  overflow-y: auto;
 }
+
 .react-grid-item:not(.react-grid-placeholder) {
-  background: #ccc;
+  background: #CCC;
   border: 1px solid black;
 }
+
 .react-grid-item.resizing {
   opacity: 0.9;
 }
+
 .react-grid-item.static {
-  background: #cce;
+  background: #CCE;
 }
+
 .react-grid-item .text {
   font-size: 24px;
   text-align: center;
@@ -37,15 +44,15 @@
   margin: auto;
   height: 24px;
 }
+
 .react-grid-item .minMax {
   font-size: 12px;
 }
+
 .react-grid-item .add {
   cursor: pointer;
 }
-.react-grid-dragHandleExample{
-  cursor: move; /* fallback if grab cursor is unsupported */
+
+.react-grid-dragHandleExample {
   cursor: grab;
-  cursor: -moz-grab;
-  cursor: -webkit-grab;
 }

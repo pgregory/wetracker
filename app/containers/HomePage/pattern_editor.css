@@ -1,14 +1,24 @@
 /* app css stylesheet */
 
-.pattern-editor {
-  border: 2px solid #fff;
-  height: 100%;
+.pattern-editor table {
+  background: black;
+}
+
+.pattern-editor th,
+.pattern-editor td {
+  white-space: nowrap;
+  border-right: 1px solid white;
+  color: white;
+}
+
+.pattern-editor td {
+  font-family: monospace;
 }
 
 .trackview {
   display: flex;
   background-color: #000;
-  color: #fff;
+  color: #FFF;
   overflow-x: hidden;
   overflow-y: hidden;
   flex: 1 1 auto;
@@ -24,7 +34,7 @@
 
 .track {
   flex: 0 0 auto;
-  border: 1px solid #fff;
+  border: 1px solid #FFF;
   padding: 5px;
   display: flex;
   flex-direction: column;
@@ -47,16 +57,17 @@
 
 .track-time {
   flex: 0 0 auto;
-  border: 1px solid #fff;
+  border: 1px solid #FFF;
   padding: 5px;
 }
 
-.track-time .tick {
+.tick {
   color: #999;
+  font-family: monospace;
 }
 
 .track-time .line.current-row .tick {
-  color: #fff;
+  color: #FFF;
 }
 
 .current-row {
@@ -72,7 +83,7 @@
 }
 
 .line.current-row .note {
-  color: #ccf;
+  color: #CCF;
 }
 
 .line .instrument {
@@ -80,7 +91,7 @@
 }
 
 .line.current-row .instrument {
-  color: #fcc;
+  color: #FCC;
 }
 
 .line .volume {
@@ -88,7 +99,7 @@
 }
 
 .line.current-row .volume {
-  color: #ccc;
+  color: #CCC;
 }
 
 .line .panning {
@@ -96,7 +107,7 @@
 }
 
 .line.current-row .panning {
-  color: #fcf;
+  color: #FCF;
 }
 
 .line .delay {
@@ -104,9 +115,5 @@
 }
 
 .line.current-row .delay {
-  color: #ffc;
+  color: #FFC;
 }
-
-
-
-
