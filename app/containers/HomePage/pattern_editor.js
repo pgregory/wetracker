@@ -3,31 +3,30 @@ import React from 'react';
 import '!style!css!./pattern_editor.css';
 
 function padDigits(value, digits) {
-  return Array(Math.max(digits - String(value).length + 1, 0)).join(0) + value;
+  return Array(Math.max((digits - String(value).length) + 1, 0)).join(0) + value;
 }
 
 function padEventProperty(event, item, digits) {
-  if(event && event[item]) {
+  if (event && event[item]) {
     return padDigits(event[item], digits);
-  } else {
-    return '----------'.slice(0,digits);
   }
+  return '----------'.slice(0, digits);
 }
 
 
 function PatternEvent(props) {
   let note = '---';
-  let instrument = padEventProperty(props.event, 'instrument', 2);
-  let volume = padEventProperty(props.event, 'volume', 2);
-  let panning = padEventProperty(props.event, 'panning', 2);
-  let delay = padEventProperty(props.event, 'delay', 2);
-  let fx = padEventProperty(props.event, 'fx', 4);
-  if(props.event){
-    if(props.event.note) {
-      if(props.event.note.length === 3) {
+  const instrument = padEventProperty(props.event, 'instrument', 2);
+  const volume = padEventProperty(props.event, 'volume', 2);
+  const panning = padEventProperty(props.event, 'panning', 2);
+  const delay = padEventProperty(props.event, 'delay', 2);
+  const fx = padEventProperty(props.event, 'fx', 4);
+  if (props.event) {
+    if (props.event.note) {
+      if (props.event.note.length === 3) {
         note = props.event.note;
       } else {
-        note = [props.event.note.slice(0,1), '-', props.event.note.slice(1)].join('');
+        note = [props.event.note.slice(0, 1), '-', props.event.note.slice(1)].join('');
       }
     }
   }
@@ -41,6 +40,11 @@ function PatternEvent(props) {
       <div className="fx">{ fx }</div>
     </div>
   );
+}
+
+
+PatternEvent.propTypes = {
+  event: React.PropTypes.object,
 };
 
 
@@ -468,59 +472,57 @@ export default class PatternEditor extends React.Component { // eslint-disable-l
   }
 
   onScroll(e) {
-    var vert_target = document.getElementById("sideTable");
-    var horiz_target = document.getElementsByClassName("xscroll")[0];
-    var col1 = document.getElementById("col1");
+    const vertTarget = document.getElementById('sideTable');
+    const horizTarget = document.getElementsByClassName('xscroll')[0];
+    const col1 = document.getElementById('col1');
 
     this.yoff += e.deltaY;
-    vert_target.scrollTop = Math.round((this.yoff)/15.0)*15.0;
+    vertTarget.scrollTop = Math.round((this.yoff) / 15.0) * 15.0;
 
-    horiz_target.scrollLeft += e.deltaX;
-    col1.scrollTop = vert_target.scrollTop;
+    horizTarget.scrollLeft += e.deltaX;
+    col1.scrollTop = vertTarget.scrollTop;
     e.preventDefault();
   }
 
   rowClassNames(row, cursorLine, rowsPerBeat) {
-    let names = ['row'];
+    const names = ['row'];
 
-    if(row % rowsPerBeat === 0) {
+    if (row % rowsPerBeat === 0) {
       names.push('beat-row');
     }
     return names.join(' ');
   }
 
   render() {
-    const width = parseInt(this.props.width.slice(0,-2));
-    const height = parseInt(this.props.height.slice(0,-2));
-    const scrollHeight = (Math.ceil((height-48)/15.0)-1)*15.0;
+    const width = parseInt(this.props.width.slice(0, -2), 10);
+    const height = parseInt(this.props.height.slice(0, -2), 10);
+    const scrollHeight = (Math.ceil((height - 48) / 15.0) - 1) * 15.0;
 
-    const visibleLines = scrollHeight/15;
-    console.log(visibleLines);
-    const cursorLine = Math.round(visibleLines/2);
-    console.log(cursorLine);
+    const visibleLines = scrollHeight / 15;
+    const cursorLine = Math.round(visibleLines / 2);
 
     return (
       <div className="widget-container">
-        <div className="pattern-cursor" style={{ width: width-22, height: '15px', position: 'absolute', top: 10 + 26 + (cursorLine*15) }}>
+        <div className="pattern-cursor" style={{ width: width - 22, height: '15px', position: 'absolute', top: 10 + 26 + (cursorLine * 15) }}>
         </div>
-        <div className='pattern-editor'>
-          <div style={{float: 'left'}}>
+        <div className="pattern-editor">
+          <div style={{ float: 'left' }}>
             <div>
               <table>
                 <thead>
                   <tr>
-                    <th className="tick"><div className="time-header"><br/></div></th>
+                    <th className="tick"><div className="time-header"><br /></div></th>
                   </tr>
                 </thead>
               </table>
             </div>
 
-            <div id='col1' style={{height: scrollHeight}}>
+            <div id="col1" style={{ height: scrollHeight }}>
               <table>
                 <tbody>
                   { [...Array(this.song.patterns[0].rows)].map((x, row) => (
-                    <tr key={row} className={ this.rowClassNames(row, cursorLine, 4) }>
-                      <th className='tick'>{ padDigits(row, 2) }</th>
+                    <tr key={row} className={this.rowClassNames(row, cursorLine, 4)}>
+                      <th className="tick">{ padDigits(row, 2) }</th>
                     </tr>
                   ))}
                 </tbody>
@@ -528,23 +530,23 @@ export default class PatternEditor extends React.Component { // eslint-disable-l
             </div>
           </div>
 
-          <div style={{float: 'left'}} className='xscroll' style={{width: width - 63}}>
-            <div id='leftSideTable'>
+          <div style={{ float: 'left', width: width - 63 }} className="xscroll">
+            <div id="leftSideTable">
               <table>
                 <thead>
                   <tr>
                     { this.song.tracks && this.song.tracks.map((track, index) => (
-                      <th key={index}><div className='track-header'>{track.name}</div></th>
+                      <th key={index}><div className="track-header">{track.name}</div></th>
                     ))}
                   </tr>
                 </thead>
               </table>
             </div>
-            <div style={{height: scrollHeight}} id='sideTable' onWheel={this.onScroll}>
+            <div style={{ height: scrollHeight }} id="sideTable" onWheel={this.onScroll}>
               <table>
                 <tbody>
                   { [...Array(this.song.patterns[0].rows)].map((x, row) => (
-                    <tr key={row} className={ this.rowClassNames(row, cursorLine, 4) }>
+                    <tr key={row} className={this.rowClassNames(row, cursorLine, 4)}>
                       { this.song.patterns[0] && this.song.patterns[0].trackdata.map((track, index) => (
                         <td key={index}><PatternEvent key={index} event={track[row]} /></td>
                       ))}
@@ -560,3 +562,7 @@ export default class PatternEditor extends React.Component { // eslint-disable-l
   }
 }
 
+PatternEditor.propTypes = {
+  width: React.PropTypes.string,
+  height: React.PropTypes.string,
+};

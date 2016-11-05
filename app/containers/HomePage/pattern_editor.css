@@ -31,7 +31,6 @@
   height: 100%;
 }
 
-
 .track-header {
   width: 150px;
   box-sizing: border-box;
@@ -52,7 +51,7 @@
   color: #999;
   font-family: monospace;
   width: 40px;
-  line-height: 1.0;
+  line-height: 1;
 }
 
 .track-time .line.current-row .tick {
@@ -62,7 +61,7 @@
 .pattern-cursor {
   border-top: 1px solid green;
   border-bottom: 1px solid green;
-  background: rgba(10,100,10,0.1);
+  background: rgba(10, 100, 10, 0.1);
 }
 
 .beat-row {
@@ -73,11 +72,10 @@
   background: #131;
 }
 
-
 .line {
   font-family: monospace;
   width: 150px;
-  line-height: 1.0;
+  line-height: 1;
 }
 
 .line .note,
