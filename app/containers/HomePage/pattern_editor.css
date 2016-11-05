@@ -47,14 +47,14 @@
   text-align: center;
 }
 
-.tick {
+.row .tick {
   color: #999;
   font-family: monospace;
   width: 40px;
   line-height: 1;
 }
 
-.track-time .line.current-row .tick {
+.pattern-cursor .tick {
   color: #FFF;
 }
 
@@ -66,10 +66,6 @@
 
 .beat-row {
   background: #333;
-}
-
-.current-row {
-  background: #131;
 }
 
 .line {
@@ -94,7 +90,7 @@
   margin-left: 5px;
 }
 
-.line.current-row .note {
+.pattern-cursor .line .note {
   color: #CCF;
 }
 
@@ -103,7 +99,7 @@
   width: 18px;
 }
 
-.line.current-row .instrument {
+.pattern-cursor .line .instrument {
   color: #FCC;
 }
 
@@ -112,7 +108,7 @@
   width: 18px;
 }
 
-.line.current-row .volume {
+.pattern-cursor .line .volume {
   color: #CCC;
 }
 
@@ -121,7 +117,7 @@
   width: 18px;
 }
 
-.line.current-row .panning {
+.pattern-cursor .line .panning {
   color: #FCF;
 }
 
@@ -130,7 +126,7 @@
   width: 18px;
 }
 
-.line.current-row .delay {
+.pattern-cursor .line .delay {
   color: #FFC;
 }
 
@@ -139,7 +135,7 @@
   width: 36px;
 }
 
-.line.current-row .fx {
+.pattern-cursor .line .fx {
   color: #FFF;
   box-sizing: border-box;
 }

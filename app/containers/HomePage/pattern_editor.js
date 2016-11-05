@@ -469,6 +469,10 @@ export default class PatternEditor extends React.Component { // eslint-disable-l
     this.onScroll = this.onScroll.bind(this);
 
     this.yoff = 0;
+
+    this.state = {
+      cursor: 0,
+    };
   }
 
   onScroll(e) {
@@ -477,10 +481,20 @@ export default class PatternEditor extends React.Component { // eslint-disable-l
     const col1 = document.getElementById('col1');
 
     this.yoff += e.deltaY;
+    if (this.yoff < 0) {
+      this.yoff = 0;
+    } else if (this.yoff >= vertTarget.scrollHeight - vertTarget.clientHeight) {
+      this.yoff = vertTarget.scrollHeight - vertTarget.clientHeight;
+    }
     vertTarget.scrollTop = Math.round((this.yoff) / 15.0) * 15.0;
+
+    this.setState({
+      cursor: Math.ceil(vertTarget.scrollTop / 15),
+    });
 
     horizTarget.scrollLeft += e.deltaX;
     col1.scrollTop = vertTarget.scrollTop;
+
     e.preventDefault();
   }
 
@@ -489,6 +503,10 @@ export default class PatternEditor extends React.Component { // eslint-disable-l
 
     if (row % rowsPerBeat === 0) {
       names.push('beat-row');
+    }
+
+    if (row === cursorLine) {
+      names.push('pattern-cursor');
     }
     return names.join(' ');
   }
@@ -499,18 +517,16 @@ export default class PatternEditor extends React.Component { // eslint-disable-l
     const scrollHeight = (Math.ceil((height - 48) / 15.0) - 1) * 15.0;
 
     const visibleLines = scrollHeight / 15;
-    const cursorLine = Math.round(visibleLines / 2);
+    const cursorLine = Math.floor((visibleLines / 2) - 0.5) + this.state.cursor;
 
     return (
       <div className="widget-container">
-        <div className="pattern-cursor" style={{ width: width - 22, height: '15px', position: 'absolute', top: 10 + 26 + (cursorLine * 15) }}>
-        </div>
         <div className="pattern-editor">
           <div style={{ float: 'left' }}>
             <div>
               <table>
                 <thead>
-                  <tr>
+                  <tr className="row">
                     <th className="tick"><div className="time-header"><br /></div></th>
                   </tr>
                 </thead>
