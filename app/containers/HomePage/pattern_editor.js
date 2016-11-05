@@ -2,21 +2,26 @@ import React from 'react';
 
 import '!style!css!./pattern_editor.css';
 
-function padDigits(event, item, digits) {
+function padDigits(value, digits) {
+  return Array(Math.max(digits - String(value).length + 1, 0)).join(0) + value;
+}
+
+function padEventProperty(event, item, digits) {
   if(event && event[item]) {
-    return Array(Math.max(digits - String(event[item]).length + 1, 0)).join(0) + event[item];
+    return padDigits(event[item], digits);
   } else {
     return '----------'.slice(0,digits);
   }
 }
 
+
 function PatternEvent(props) {
   let note = '---';
-  let instrument = padDigits(props.event, 'instrument', 2);
-  let volume = padDigits(props.event, 'volume', 2);
-  let panning = padDigits(props.event, 'panning', 2);
-  let delay = padDigits(props.event, 'delay', 2);
-  let fx = padDigits(props.event, 'fx', 4);
+  let instrument = padEventProperty(props.event, 'instrument', 2);
+  let volume = padEventProperty(props.event, 'volume', 2);
+  let panning = padEventProperty(props.event, 'panning', 2);
+  let delay = padEventProperty(props.event, 'delay', 2);
+  let fx = padEventProperty(props.event, 'fx', 4);
   if(props.event){
     if(props.event.note) {
       if(props.event.note.length === 3) {
@@ -458,20 +463,46 @@ export default class PatternEditor extends React.Component { // eslint-disable-l
     };
 
     this.onScroll = this.onScroll.bind(this);
+
+    this.yoff = 0;
   }
 
   onScroll(e) {
-    var target = document.getElementById("sideTable");
+    var vert_target = document.getElementById("sideTable");
+    var horiz_target = document.getElementsByClassName("xscroll")[0];
     var col1 = document.getElementById("col1");
-    col1.scrollTop = target.scrollTop;
+
+    this.yoff += e.deltaY;
+    vert_target.scrollTop = Math.round((this.yoff)/15.0)*15.0;
+
+    horiz_target.scrollLeft += e.deltaX;
+    col1.scrollTop = vert_target.scrollTop;
+    e.preventDefault();
+  }
+
+  rowClassNames(row, cursorLine, rowsPerBeat) {
+    let names = ['row'];
+
+    if(row % rowsPerBeat === 0) {
+      names.push('beat-row');
+    }
+    return names.join(' ');
   }
 
   render() {
-    console.log('Rendering Pattern Editor');
     const width = parseInt(this.props.width.slice(0,-2));
     const height = parseInt(this.props.height.slice(0,-2));
+    const scrollHeight = (Math.ceil((height-48)/15.0)-1)*15.0;
+
+    const visibleLines = scrollHeight/15;
+    console.log(visibleLines);
+    const cursorLine = Math.round(visibleLines/2);
+    console.log(cursorLine);
+
     return (
       <div className="widget-container">
+        <div className="pattern-cursor" style={{ width: width-22, height: '15px', position: 'absolute', top: 10 + 26 + (cursorLine*15) }}>
+        </div>
         <div className='pattern-editor'>
           <div style={{float: 'left'}}>
             <div>
@@ -484,12 +515,12 @@ export default class PatternEditor extends React.Component { // eslint-disable-l
               </table>
             </div>
 
-            <div id='col1' style={{height: height-48}}>
+            <div id='col1' style={{height: scrollHeight}}>
               <table>
                 <tbody>
                   { [...Array(this.song.patterns[0].rows)].map((x, row) => (
-                    <tr key={row}>
-                      <th className='tick'>{row}</th>
+                    <tr key={row} className={ this.rowClassNames(row, cursorLine, 4) }>
+                      <th className='tick'>{ padDigits(row, 2) }</th>
                     </tr>
                   ))}
                 </tbody>
@@ -509,11 +540,11 @@ export default class PatternEditor extends React.Component { // eslint-disable-l
                 </thead>
               </table>
             </div>
-            <div style={{height: height-48}} id='sideTable' onWheel={this.onScroll}>
+            <div style={{height: scrollHeight}} id='sideTable' onWheel={this.onScroll}>
               <table>
                 <tbody>
                   { [...Array(this.song.patterns[0].rows)].map((x, row) => (
-                    <tr key={row}>
+                    <tr key={row} className={ this.rowClassNames(row, cursorLine, 4) }>
                       { this.song.patterns[0] && this.song.patterns[0].trackdata.map((track, index) => (
                         <td key={index}><PatternEvent key={index} event={track[row]} /></td>
                       ))}

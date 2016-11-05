@@ -3,6 +3,7 @@
 .pattern-editor {
   height: 100%;
   overflow: hidden;
+  background: #000;
 }
 
 .pattern-editor table {
@@ -58,8 +59,18 @@
   color: #FFF;
 }
 
+.pattern-cursor {
+  border-top: 1px solid green;
+  border-bottom: 1px solid green;
+  background: rgba(10,100,10,0.1);
+}
+
+.beat-row {
+  background: #333;
+}
+
 .current-row {
-  background-color: #131;
+  background: #131;
 }
 
 
