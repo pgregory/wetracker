@@ -428,11 +428,11 @@ export default class PatternEditor extends React.Component { // eslint-disable-l
     this.yoff = 0;
 
     this.state = {
-      cursor: 0,
       cursorLine: 0,
       visibleLines: 0,
       vertScroll: 0,
       horizScroll: 0,
+      topPadding: 0,
     };
   }
 
@@ -469,13 +469,16 @@ export default class PatternEditor extends React.Component { // eslint-disable-l
     const theCursor = Math.round((this.yoff) / 15.0);
     const windowScroll = theCursor * 15.0;
     const windowRows = scrollHeight / 15;
+    const blankRowsTop = Math.floor((windowRows / 2) - 0.5);
+    const blankRowsBottom = windowRows - blankRowsTop - 1;
 
     this.setState({
-      cursor: theCursor,
       visibleLines: windowRows,
-      cursorLine: Math.floor((windowRows / 2) - 0.5) + theCursor,
+      cursorLine: theCursor,
       vertScroll: windowScroll,
       horizScroll: horizTarget.scrollLeft + e.deltaX,
+      topPadding: blankRowsTop,
+      bottomPadding: blankRowsBottom,
     });
 
     e.preventDefault();
@@ -490,7 +493,7 @@ export default class PatternEditor extends React.Component { // eslint-disable-l
       <div className="widget-container">
         <div className="pattern-editor">
           <div style={{ float: 'left' }}>
-            <PatternEditorTimeline song={this.song} cursorLine={this.state.cursorLine} scrollHeight={scrollHeight} />
+            <PatternEditorTimeline song={this.song} cursorLine={this.state.cursorLine} scrollHeight={scrollHeight} topPadding={this.state.topPadding} bottomPadding={this.state.bottomPadding} />
           </div>
 
           <div style={{ float: 'left', width: width - 63 }} className="xscroll">
@@ -498,7 +501,7 @@ export default class PatternEditor extends React.Component { // eslint-disable-l
               <PatternEditorHeader song={this.song} />
             </div>
             <div style={{ height: scrollHeight }} id="sideTable" onWheel={this.onScroll}>
-              <PatternEditorRows song={this.song} cursorLine={this.state.cursorLine} />
+              <PatternEditorRows song={this.song} cursorLine={this.state.cursorLine} topPadding={this.state.topPadding} bottomPadding={this.state.bottomPadding} />
             </div>
           </div>
         </div>

@@ -42,14 +42,14 @@ export default class HomePage extends React.Component { // eslint-disable-line r
   render() {
     // layout is an array of objects, see the demo for more complete usage
     const layout = [
-      { i: 'a', x: 0, y: 0, w: 12, h: 2 },
-      { i: 'b', x: 2, y: 1, w: 8, h: 8, minW: 4 },
+      { i: 'a', x: 0, y: 0, w: 12, h: 1, static: true },
+      { i: 'b', x: 2, y: 1, w: 8, h: 8, minW: 4, minH: 3 },
       { i: 'c', x: 0, y: 1, w: 2, h: 8 },
       { i: 'd', x: 11, y: 1, w: 2, h: 8 },
     ];
     return (
       <ReactGridLayout className="layout" layout={layout} cols={12} rowHeight={30} width={1200}>
-        <div key={'a'}><div className="widget-container"><span>a</span></div></div>
+        <div key={'a'}><span>a</span></div>
         <Wrapper key={'b'}><PatternEditor /></Wrapper>
         <div key={'c'}><div className="widget-container"><span>c</span></div></div>
         <div key={'d'}><div className="widget-container"><span>c</span></div></div>

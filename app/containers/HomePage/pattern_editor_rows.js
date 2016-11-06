@@ -18,9 +18,19 @@ export default class PatternEditorRows extends React.Component {
     return (
       <table>
         <tbody>
+          <tr>
+            { this.props.song.patterns[0] && this.props.song.patterns[0].trackdata.map((track, index) => (
+              <td key={index}><div style={{ height: (this.props.topPadding * 15) - 2 }}></div></td>
+            ))}
+          </tr>
           { [...Array(this.props.song.patterns[0].rows)].map((x, row) => (
             <PatternRow key={row} pattern={this.props.song.patterns[0]} rownum={row} cursorLine={this.props.cursorLine} />
           ))}
+          <tr>
+            { this.props.song.patterns[0] && this.props.song.patterns[0].trackdata.map((track, index) => (
+              <td key={index}><div style={{ height: (this.props.bottomPadding * 15) - 2 }}></div></td>
+            ))}
+          </tr>
         </tbody>
       </table>
     );
@@ -30,4 +40,6 @@ export default class PatternEditorRows extends React.Component {
 PatternEditorRows.propTypes = {
   song: React.PropTypes.object.isRequired,
   cursorLine: React.PropTypes.number.isRequired,
+  topPadding: React.PropTypes.number.isRequired,
+  bottomPadding: React.PropTypes.number.isRequired,
 };
