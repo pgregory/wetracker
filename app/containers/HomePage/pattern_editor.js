@@ -461,9 +461,9 @@ export default class PatternEditor extends React.Component { // eslint-disable-l
 
     this.yoff += e.deltaY;
     if (this.yoff < 0) {
-      this.yoff = 0;
-    } else if (this.yoff >= vertTarget.scrollHeight - vertTarget.clientHeight) {
       this.yoff = vertTarget.scrollHeight - vertTarget.clientHeight;
+    } else if (this.yoff >= vertTarget.scrollHeight - vertTarget.clientHeight) {
+      this.yoff = 0;
     }
 
     const theCursor = Math.round((this.yoff) / 15.0);
