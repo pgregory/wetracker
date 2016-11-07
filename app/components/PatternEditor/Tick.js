@@ -17,7 +17,7 @@ function rowClassNames(row, cursorLine, rowsPerBeat) {
   return names.join(' ');
 }
 
-export default class PatternEditorTimelineTick extends React.Component {
+export default class Tick extends React.Component {
   constructor(props) {
     super(props);
 
@@ -44,7 +44,7 @@ export default class PatternEditorTimelineTick extends React.Component {
   }
 }
 
-PatternEditorTimelineTick.propTypes = {
+Tick.propTypes = {
   rownum: React.PropTypes.number.isRequired,
   cursorLine: React.PropTypes.number.isRequired,
 };

@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default class PatternEditorHeader extends React.Component {
+export default class Header extends React.Component {
   shouldComponentUpdate(nextProps /* , nextState*/) {
     return (nextProps.song.tracks.length !== this.props.song.tracks.length);
   }
@@ -20,6 +20,6 @@ export default class PatternEditorHeader extends React.Component {
   }
 }
 
-PatternEditorHeader.propTypes = {
+Header.propTypes = {
   song: React.PropTypes.object,
 };

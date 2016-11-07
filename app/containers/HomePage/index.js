@@ -11,14 +11,15 @@
 
 import React from 'react';
 import { Responsive, WidthProvider } from 'react-grid-layout';
-import PatternEditor from './pattern_editor';
+import PatternEditor from 'components/PatternEditor';
 
 import '!style!css!./styles.css';
 
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 
-const ResponsiveReactGridLayout = WidthProvider(Responsive);
+
+const ResponsiveReactGridLayout = WidthProvider(Responsive); /* eslint new-cap: ["error", { "capIsNew": false }] */
 
 function Wrapper(props) {
   const newChildren = React.Children.map(props.children, (child) =>

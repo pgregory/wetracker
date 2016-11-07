@@ -1,11 +1,18 @@
+/**
+*
+* PatternEditor
+*
+*/
+
 import React from 'react';
-import PatternEditorHeader from './pattern_editor_header';
-import PatternEditorTimeline from './pattern_editor_timeline';
-import PatternEditorRows from './pattern_editor_rows';
+import Header from './Header';
+import Timeline from './Timeline';
+import Rows from './Rows';
 
-import '!style!css!./pattern_editor.css';
+// import styles from './styles.css';
+import '!style!css!./styles.css';
 
-export default class PatternEditor extends React.Component { // eslint-disable-line react/prefer-stateless-function
+class PatternEditor extends React.Component { // eslint-disable-line react/prefer-stateless-function
   constructor(props) {
     super(props);
 
@@ -493,15 +500,15 @@ export default class PatternEditor extends React.Component { // eslint-disable-l
       <div className="widget-container">
         <div className="pattern-editor">
           <div style={{ float: 'left' }}>
-            <PatternEditorTimeline song={this.song} cursorLine={this.state.cursorLine} scrollHeight={scrollHeight} topPadding={this.state.topPadding} bottomPadding={this.state.bottomPadding} />
+            <Timeline song={this.song} cursorLine={this.state.cursorLine} scrollHeight={scrollHeight} topPadding={this.state.topPadding} bottomPadding={this.state.bottomPadding} />
           </div>
 
           <div style={{ float: 'left', width: width - 63 }} className="xscroll">
             <div id="leftSideTable">
-              <PatternEditorHeader song={this.song} />
+              <Header song={this.song} />
             </div>
             <div style={{ height: scrollHeight }} id="sideTable" onWheel={this.onScroll}>
-              <PatternEditorRows song={this.song} cursorLine={this.state.cursorLine} topPadding={this.state.topPadding} bottomPadding={this.state.bottomPadding} />
+              <Rows song={this.song} cursorLine={this.state.cursorLine} topPadding={this.state.topPadding} bottomPadding={this.state.bottomPadding} />
             </div>
           </div>
         </div>
@@ -514,3 +521,5 @@ PatternEditor.propTypes = {
   width: React.PropTypes.string,
   height: React.PropTypes.string,
 };
+
+export default PatternEditor;

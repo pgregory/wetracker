@@ -1,7 +1,7 @@
 import React from 'react';
-import PatternRow from './pattern_editor_row';
+import Row from './Row';
 
-export default class PatternEditorRows extends React.Component {
+export default class Rows extends React.Component {
   constructor(props) {
     super(props);
 
@@ -24,7 +24,7 @@ export default class PatternEditorRows extends React.Component {
             ))}
           </tr>
           { [...Array(this.props.song.patterns[0].rows)].map((x, row) => (
-            <PatternRow key={row} pattern={this.props.song.patterns[0]} rownum={row} cursorLine={this.props.cursorLine} />
+            <Row key={row} pattern={this.props.song.patterns[0]} rownum={row} cursorLine={this.props.cursorLine} />
           ))}
           <tr>
             { this.props.song.patterns[0] && this.props.song.patterns[0].trackdata.map((track, index) => (
@@ -37,7 +37,7 @@ export default class PatternEditorRows extends React.Component {
   }
 }
 
-PatternEditorRows.propTypes = {
+Rows.propTypes = {
   song: React.PropTypes.object.isRequired,
   cursorLine: React.PropTypes.number.isRequired,
   topPadding: React.PropTypes.number.isRequired,

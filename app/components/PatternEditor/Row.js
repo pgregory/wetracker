@@ -1,5 +1,5 @@
 import React from 'react';
-import PatternEvent from './pattern_event';
+import Event from './Event';
 
 function rowClassNames(row, cursorLine, rowsPerBeat) {
   const names = ['row'];
@@ -14,7 +14,7 @@ function rowClassNames(row, cursorLine, rowsPerBeat) {
   return names.join(' ');
 }
 
-export default class PatternRow extends React.Component {
+export default class Row extends React.Component {
   constructor(props) {
     super(props);
 
@@ -36,7 +36,7 @@ export default class PatternRow extends React.Component {
     return (
       <tr className={rowClassNames(this.props.rownum, this.props.cursorLine, 4)}>
         { this.props.pattern && this.props.pattern.trackdata.map((track, index) => (
-          <td key={index}><PatternEvent key={index} event={track[this.props.rownum]} /></td>
+          <td key={index}><Event key={index} event={track[this.props.rownum]} /></td>
         ))}
       </tr>
     );
@@ -44,7 +44,7 @@ export default class PatternRow extends React.Component {
 }
 
 
-PatternRow.propTypes = {
+Row.propTypes = {
   rownum: React.PropTypes.number.isRequired,
   cursorLine: React.PropTypes.number.isRequired,
   pattern: React.PropTypes.object.isRequired,

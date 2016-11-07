@@ -1,7 +1,7 @@
 import React from 'react';
-import PatternEditorTimelineTick from './pattern_editor_timeline_tick';
+import Tick from './Tick';
 
-export default class PatternEditorTimeline extends React.Component {
+export default class Timeline extends React.Component {
   shouldComponentUpdate(nextProps /* , nextState*/) {
     return nextProps.cursorLine !== this.props.cursorLine;
   }
@@ -24,7 +24,7 @@ export default class PatternEditorTimeline extends React.Component {
             <tbody>
               <tr className="row"><th className="tick"><div style={{ height: (this.props.topPadding * 15) - 2 }}></div></th></tr>
               { [...Array(this.props.song.patterns[0].rows)].map((x, row) => (
-                <PatternEditorTimelineTick key={row} rownum={row} cursorLine={this.props.cursorLine} />
+                <Tick key={row} rownum={row} cursorLine={this.props.cursorLine} />
               ))}
               <tr className="row"><th className="tick"><div style={{ height: (this.props.bottomPadding * 15) - 2 }}></div></th></tr>
             </tbody>
@@ -35,7 +35,7 @@ export default class PatternEditorTimeline extends React.Component {
   }
 }
 
-PatternEditorTimeline.propTypes = {
+Timeline.propTypes = {
   cursorLine: React.PropTypes.number.isRequired,
   scrollHeight: React.PropTypes.number.isRequired,
   song: React.PropTypes.object.isRequired,
