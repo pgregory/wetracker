@@ -42,17 +42,23 @@ export default class HomePage extends React.Component { // eslint-disable-line r
   render() {
     // layout is an array of objects, see the demo for more complete usage
     const layout = [
-      { i: 'a', x: 0, y: 0, w: 12, h: 1, static: true },
-      { i: 'b', x: 2, y: 1, w: 8, h: 8, minW: 4, minH: 3 },
-      { i: 'c', x: 0, y: 1, w: 2, h: 8 },
-      { i: 'd', x: 11, y: 1, w: 2, h: 8 },
+      { i: 'transport', x: 0, y: 0, w: 12, h: 2, static: true },
+      { i: 'pattern-editor', x: 2, y: 6, w: 8, h: 8, minW: 4, minH: 3 },
+      { i: 'pattern-sequencer', x: 0, y: 6, w: 2, h: 8 },
+      { i: 'instruments', x: 11, y: 3, w: 2, h: 6 },
+      { i: 'monitors', x: 0, y: 2, w: 10, h: 4 },
+      { i: 'browser', x: 11, y: 9, w: 2, h: 10 },
+      { i: 'effects', x: 0, y: 14, w: 10, h: 4 },
     ];
     return (
-      <ReactGridLayout className="layout" layout={layout} cols={12} rowHeight={30} width={1200}>
-        <div key={'a'}><span>a</span></div>
-        <Wrapper key={'b'}><PatternEditor /></Wrapper>
-        <div key={'c'}><div className="widget-container"><span>c</span></div></div>
-        <div key={'d'}><div className="widget-container"><span>c</span></div></div>
+      <ReactGridLayout className="layout" layout={layout} cols={12} rowHeight={30} width={1200} margin={[3, 3]}>
+        <div key={'transport'}><span>Transport</span></div>
+        <Wrapper key={'pattern-editor'}><PatternEditor /></Wrapper>
+        <div key={'pattern-sequencer'}><div className="widget-container"><span>Pattern Sequencer</span></div></div>
+        <div key={'instruments'}><div className="widget-container"><span>Instruments</span></div></div>
+        <div key={'monitors'}><div className="widget-container"><span>Monitors</span></div></div>
+        <div key={'browser'}><div className="widget-container"><span>Browser</span></div></div>
+        <div key={'effects'}><div className="widget-container"><span>Effects</span></div></div>
       </ReactGridLayout>
     );
   }
