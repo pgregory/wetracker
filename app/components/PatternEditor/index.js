@@ -24,7 +24,7 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
     const vertTarget = document.getElementById('sideTable');
     const col1 = document.getElementById('col1');
 
-    const windowScroll = this.props.cursor * 15.0;
+    const windowScroll = this.props.cursorRow * 15.0;
 
     vertTarget.scrollTop = windowScroll;
     col1.scrollTop = windowScroll;
@@ -66,7 +66,7 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
     return (
       <div className="pattern-editor">
         <div style={{ float: 'left' }}>
-          <Timeline song={this.props.song} cursor={this.props.cursor} scrollHeight={scrollHeight} topPadding={blankRowsTop} bottomPadding={blankRowsBottom} />
+          <Timeline song={this.props.song} cursorRow={this.props.cursorRow} scrollHeight={scrollHeight} topPadding={blankRowsTop} bottomPadding={blankRowsBottom} />
         </div>
 
         <div style={{ float: 'left', width: eventTableWidth }} className="xscroll">
@@ -74,7 +74,13 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
             <Header song={this.props.song} />
           </div>
           <div style={{ height: scrollHeight }} id="sideTable" onWheel={this.onScroll}>
-            <Rows song={this.props.song} cursor={this.props.cursor} topPadding={blankRowsTop} bottomPadding={blankRowsBottom} />
+            <Rows 
+              song={this.props.song} 
+              cursorRow={this.props.cursorRow} 
+              cursorTrack={this.props.cursorTrack} 
+              cursorItem={this.props.cursorItem} 
+              topPadding={blankRowsTop} 
+              bottomPadding={blankRowsBottom} />
           </div>
         </div>
       </div>
@@ -85,7 +91,9 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
 PatternEditor.propTypes = {
   width: React.PropTypes.number,
   height: React.PropTypes.number,
-  cursor: React.PropTypes.number.isRequired,
+  cursorRow: React.PropTypes.number.isRequired,
+  cursorTrack: React.PropTypes.number.isRequired,
+  cursorItem: React.PropTypes.number.isRequired,
   onCursorChange: React.PropTypes.func.isRequired,
   song: React.PropTypes.object.isRequired,
 };

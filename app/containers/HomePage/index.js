@@ -39,8 +39,8 @@ function Chrome(props) {
 }
 
 Chrome.propTypes = {
-  width: React.PropTypes.string.isRequired,
-  height: React.PropTypes.string.isRequired,
+  width: React.PropTypes.string,
+  height: React.PropTypes.string,
   children: React.PropTypes.oneOfType([
     React.PropTypes.object,
     React.PropTypes.arrayOf(React.PropTypes.element),
@@ -71,8 +71,10 @@ export default class HomePage extends React.Component { // eslint-disable-line r
     super(props);
 
     this.state = {
-      current_pattern: 0,
-      pattern_cursor: 0,
+      currentPattern: 0,
+      patternCursorRow: 0,
+      patternCursorTrack: 0,
+      patternCursorItem: 1,
       song: {
         tracks: [
           { name: 'Bass' },
@@ -489,6 +491,9 @@ export default class HomePage extends React.Component { // eslint-disable-line r
     };
 
     this.onCursorChange = this.onCursorChange.bind(this);
+    this.onCursorItemChange = this.onCursorItemChange.bind(this);
+    this.cursorMove = this.cursorMove.bind(this);
+    this.scrollDown = this.scrollDown.bind(this);
   }
 
   onCursorChange(cursor) {
@@ -499,12 +504,41 @@ export default class HomePage extends React.Component { // eslint-disable-line r
       t = 0;
     }
     this.setState({
-      pattern_cursor: t,
+      patternCursorRow: t,
     });
   }
 
   scrollDown(event, direction) {
-    this.onCursorChange(this.state.pattern_cursor + direction);
+    this.onCursorChange(this.state.patternCursorRow + direction);
+
+    event.preventDefault();
+  }
+
+  onCursorItemChange(item) {
+    let i = item;
+    let t = this.state.patternCursorTrack;
+    if (i < 0) {
+      i = 5;
+      t -= 1;
+      if (t < 0) {
+        t = this.state.song.tracks.length-1;
+      }
+    } else if (i > 5) {
+      i = 0;
+      t += 1;
+      if (t >= this.state.song.tracks.length) {
+        t = 0;
+      }
+    }
+
+    this.setState({
+      patternCursorTrack: t,
+      patternCursorItem: i,
+    });
+  }
+
+  cursorMove(event, direction) {
+    this.onCursorItemChange(this.state.patternCursorItem + direction);
 
     event.preventDefault();
   }
@@ -545,6 +579,8 @@ export default class HomePage extends React.Component { // eslint-disable-line r
       <div>
         <KeyHandler keyEventName={KEYDOWN} keyValue="ArrowDown" onKeyHandle={(event) => { this.scrollDown(event, 1); }} />
         <KeyHandler keyEventName={KEYDOWN} keyValue="ArrowUp" onKeyHandle={(event) => { this.scrollDown(event, -1); }} />
+        <KeyHandler keyEventName={KEYDOWN} keyValue="ArrowLeft" onKeyHandle={(event) => { this.cursorMove(event, -1); }} />
+        <KeyHandler keyEventName={KEYDOWN} keyValue="ArrowRight" onKeyHandle={(event) => { this.cursorMove(event, 1); }} />
         <ResponsiveReactGridLayout
           className="layout"
           layouts={layouts}
@@ -554,7 +590,16 @@ export default class HomePage extends React.Component { // eslint-disable-line r
           cols={{ lg: 12, md: 10, sm: 8, xs: 4, xxs: 2 }}
         >
           <div key={'transport'}><span>Transport</span></div>
-          <Wrapper key={'pattern-editor'}><Chrome><PatternEditor song={this.state.song} cursor={this.state.pattern_cursor} onCursorChange={this.onCursorChange} /></Chrome></Wrapper>
+          <Wrapper key={'pattern-editor'}>
+            <Chrome>
+              <PatternEditor 
+                song={this.state.song} 
+                cursorRow={this.state.patternCursorRow} 
+                cursorTrack={this.state.patternCursorTrack} 
+                cursorItem={this.state.patternCursorItem} 
+                onCursorChange={this.onCursorChange} />
+            </Chrome>
+          </Wrapper>
           <div key={'pattern-sequencer'}><div className="widget-container"><span>Pattern Sequencer</span></div></div>
           <Wrapper key={'instruments'}><InstrumentList /></Wrapper>
           <div key={'monitors'}><div className="widget-container"><span>Monitors</span></div></div>

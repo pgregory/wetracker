@@ -12,24 +12,15 @@ function rowClassNames(row, cursor, rowsPerBeat) {
   }
 
   if (row === cursor) {
-    names.push('pattern-cursor');
+    names.push('pattern-cursor-row');
   }
   return names.join(' ');
 }
 
 export default class Tick extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      isCurrent: props.cursor === props.rownum,
-      thisRow: props.rownum,
-    };
-  }
-
   shouldComponentUpdate(nextProps /* , nextState*/) {
-    if ((this.props.cursor === this.props.rownum && nextProps.cursor !== nextProps.rownum) ||
-        (this.props.cursor !== this.props.rownum && nextProps.cursor === nextProps.rownum)) {
+    if ((this.props.cursorRow === this.props.rownum && nextProps.cursorRow !== nextProps.rownum) ||
+        (this.props.cursorRow !== this.props.rownum && nextProps.cursorRow === nextProps.rownum)) {
       return true;
     }
     return false;
@@ -37,7 +28,7 @@ export default class Tick extends React.Component {
 
   render() {
     return (
-      <tr className={rowClassNames(this.props.rownum, this.props.cursor, 4)}>
+      <tr className={rowClassNames(this.props.rownum, this.props.cursorRow, 4)}>
         <th className="tick">{ padDigits(this.props.rownum, 2) }</th>
       </tr>
     );
@@ -46,5 +37,5 @@ export default class Tick extends React.Component {
 
 Tick.propTypes = {
   rownum: React.PropTypes.number.isRequired,
-  cursor: React.PropTypes.number.isRequired,
+  cursorRow: React.PropTypes.number.isRequired,
 };

@@ -54,7 +54,7 @@
   line-height: 1;
 }
 
-.pattern-cursor .tick {
+.pattern-cursor-row .tick {
   color: #FFF;
 }
 
@@ -62,8 +62,8 @@
   background: #333;
 }
 
-.pattern-cursor {
-  background: rgb(10, 100, 10);
+.pattern-cursor-row {
+  background: rgb(10, 50, 10);
 }
 
 .line {
@@ -88,8 +88,12 @@
   margin-left: 5px;
 }
 
-.pattern-cursor .line .note {
+.pattern-cursor-row .line .note {
   color: #CCF;
+}
+
+.pattern-cursor-row .line .note.event-cursor {
+  color: #113;
 }
 
 .line .instrument {
@@ -97,8 +101,12 @@
   width: 18px;
 }
 
-.pattern-cursor .line .instrument {
+.pattern-cursor-row .line .instrument {
   color: #FCC;
+}
+
+.pattern-cursor-row .line .instrument.event-cursor {
+  color: #311;
 }
 
 .line .volume {
@@ -106,8 +114,12 @@
   width: 18px;
 }
 
-.pattern-cursor .line .volume {
+.pattern-cursor-row .line .volume {
   color: #CCC;
+}
+
+.pattern-cursor-row .line .volume.event-cursor {
+  color: #111;
 }
 
 .line .panning {
@@ -115,8 +127,12 @@
   width: 18px;
 }
 
-.pattern-cursor .line .panning {
+.pattern-cursor-row .line .panning {
   color: #FCF;
+}
+
+.pattern-cursor-row .line .panning.event-cursor {
+  color: #313;
 }
 
 .line .delay {
@@ -124,8 +140,12 @@
   width: 18px;
 }
 
-.pattern-cursor .line .delay {
+.pattern-cursor-row .line .delay {
   color: #FFC;
+}
+
+.pattern-cursor-row .line .delay.event-cursor {
+  color: #331;
 }
 
 .line .fx {
@@ -133,9 +153,13 @@
   width: 36px;
 }
 
-.pattern-cursor .line .fx {
+.pattern-cursor-row .line .fx {
   color: #FFF;
   box-sizing: border-box;
+}
+
+.pattern-cursor-row .line .fx.event-cursor {
+  color: #333;
 }
 
 .xscroll div#leftSideTable,
@@ -157,4 +181,8 @@
   margin-left: 5%;
   height: 8px;
   border-radius: 2px;
+}
+
+.event-cursor {
+  background: rgb(0, 150, 0);
 }

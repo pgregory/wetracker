@@ -3,7 +3,7 @@ import Tick from './Tick';
 
 export default class Timeline extends React.Component {
   shouldComponentUpdate(nextProps /* , nextState*/) {
-    return nextProps.cursor !== this.props.cursor;
+    return nextProps.cursorRow !== this.props.cursorRow;
   }
 
   render() {
@@ -24,7 +24,7 @@ export default class Timeline extends React.Component {
             <tbody>
               <tr className="row"><th className="tick"><div style={{ height: (this.props.topPadding * 15) - 2 }}></div></th></tr>
               { [...Array(this.props.song.patterns[0].rows)].map((x, row) => (
-                <Tick key={row} rownum={row} cursor={this.props.cursor} />
+                <Tick key={row} rownum={row} cursorRow={this.props.cursorRow} />
               ))}
               <tr className="row"><th className="tick"><div style={{ height: (this.props.bottomPadding * 15) - 2 }}></div></th></tr>
             </tbody>
@@ -36,7 +36,7 @@ export default class Timeline extends React.Component {
 }
 
 Timeline.propTypes = {
-  cursor: React.PropTypes.number.isRequired,
+  cursorRow: React.PropTypes.number.isRequired,
   scrollHeight: React.PropTypes.number.isRequired,
   song: React.PropTypes.object.isRequired,
   topPadding: React.PropTypes.number.isRequired,
