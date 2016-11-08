@@ -12,14 +12,40 @@
 import React from 'react';
 import { Responsive, WidthProvider } from 'react-grid-layout';
 import PatternEditor from 'components/PatternEditor';
+import InstrumentList from 'components/InstrumentList';
 
-import '!style!css!./styles.css';
+import KeyHandler, { KEYDOWN } from 'react-key-handler';
 
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 
+import '!style!css!./styles.css';
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive); /* eslint new-cap: ["error", { "capIsNew": false }] */
+
+function Chrome(props) {
+  /* Note: this relies on the border of "widget-container" being 5px */
+  const innerWidth = parseInt(props.width.slice(0, -2), 10) - 10;
+  const innerHeight = parseInt(props.height.slice(0, -2), 10) - 10;
+
+  const newChildren = React.Children.map(props.children, (child) =>
+      React.cloneElement(child, { width: innerWidth, height: innerHeight })
+    );
+  return (
+    <div className="widget-container" {...props}>
+        { newChildren }
+    </div>
+  );
+}
+
+Chrome.propTypes = {
+  width: React.PropTypes.string.isRequired,
+  height: React.PropTypes.string.isRequired,
+  children: React.PropTypes.oneOfType([
+    React.PropTypes.object,
+    React.PropTypes.arrayOf(React.PropTypes.element),
+  ]).isRequired,
+};
 
 function Wrapper(props) {
   const newChildren = React.Children.map(props.children, (child) =>
@@ -41,6 +67,447 @@ Wrapper.propTypes = {
 };
 
 export default class HomePage extends React.Component { // eslint-disable-line react/prefer-stateless-function
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      current_pattern: 0,
+      pattern_cursor: 0,
+      song: {
+        tracks: [
+          { name: 'Bass' },
+          { name: 'Drums' },
+          { name: 'Lead' },
+          { name: 'Pad' },
+          { name: 'Track 5' },
+          { name: 'Track 6' },
+        ],
+        instruments: [
+        ],
+        patterns: [{
+          rows: 64,
+          trackdata: [
+            [
+    /* 00 */ { note: 'E4', instrument: 1, volume: 40, panning: 80, delay: 0 },
+    /* 01 */ {},
+    /* 02 */ { note: 'D#5', instrument: 1, volume: 40, panning: 80, delay: 0 },
+    /* 03 */ {},
+    /* 04 */ { note: 'E5', instrument: 1, volume: 40, panning: 80, delay: 0 },
+    /* 05 */ {},
+    /* 06 */ { note: 'D#5', instrument: 1, volume: 40, panning: 80, delay: 0 },
+    /* 07 */ {},
+    /* 08 */ { note: 'E5', instrument: 1, volume: 40, panning: 80, delay: 0 },
+    /* 09 */ {},
+    /* 0A */ { note: 'B4', instrument: 1, volume: 40, panning: 80, delay: 0 },
+    /* 0B */ {},
+    /* 0C */ { note: 'D5', instrument: 1, volume: 40, panning: 80, delay: 0 },
+    /* 0D */ {},
+    /* 0E */ { note: 'C5', instrument: 1, volume: 40, panning: 80, delay: 0 },
+    /* 0F */ {},
+    /* 10 */ { note: 'A2', instrument: 1, volume: 40, panning: 80, delay: 0 },
+    /* 11 */ {},
+    /* 12 */ {},
+    /* 13 */ {},
+    /* 14 */ {},
+    /* 15 */ {},
+    /* 16 */ {},
+    /* 17 */ {},
+    /* 18 */ { note: 'E4', instrument: 1, volume: 40, panning: 80, delay: 0 },
+    /* 19 */ {},
+    /* 1A */ {},
+    /* 1B */ {},
+    /* 1C */ { note: 'E2', instrument: 1, volume: 40, panning: 80, delay: 0 },
+    /* 1D */ {},
+    /* 1E */ {},
+    /* 1F */ {},
+    /* 20 */ {},
+    /* 21 */ {},
+    /* 22 */ {},
+    /* 23 */ {},
+    /* 24 */ { note: 'G#4', instrument: 1, volume: 40, panning: 80, delay: 0 },
+    /* 25 */ {},
+    /* 26 */ {},
+    /* 27 */ {},
+    /* 28 */ { note: 'A2', instrument: 1, volume: 40, panning: 80, delay: 0 },
+    /* 29 */ {},
+    /* 2A */ {},
+    /* 2B */ {},
+    /* 2C */ {},
+    /* 2D */ {},
+    /* 2E */ {},
+    /* 2F */ {},
+    /* 30 */ { note: 'E5', instrument: 1, volume: 40, panning: 80, delay: 0 },
+    /* 31 */ {},
+    /* 32 */ { note: 'D#5', instrument: 1, volume: 40, panning: 80, delay: 0 },
+    /* 33 */ {},
+    /* 34 */ { note: 'E5', instrument: 1, volume: 40, panning: 80, delay: 0 },
+    /* 35 */ {},
+    /* 36 */ { note: 'D#5', instrument: 1, volume: 40, panning: 80, delay: 0 },
+    /* 37 */ {},
+    /* 38 */ { note: 'E5', instrument: 1, volume: 40, panning: 80, delay: 0 },
+    /* 39 */ {},
+    /* 3A */ { note: 'B4', instrument: 1, volume: 40, panning: 80, delay: 0 },
+    /* 3B */ {},
+    /* 3C */ { note: 'D5', instrument: 1, volume: 40, panning: 80, delay: 0 },
+    /* 3D */ {},
+    /* 3E */ { note: 'C5', instrument: 1, volume: 40, panning: 80, delay: 0 },
+    /* 3F */ {},
+            ],
+            [
+    /* 00 */ {},
+    /* 01 */ {},
+    /* 02 */ {},
+    /* 03 */ {},
+    /* 04 */ {},
+    /* 05 */ {},
+    /* 06 */ {},
+    /* 07 */ {},
+    /* 08 */ {},
+    /* 09 */ {},
+    /* 0A */ {},
+    /* 0B */ {},
+    /* 0C */ {},
+    /* 0D */ {},
+    /* 0E */ {},
+    /* 0F */ {},
+    /* 10 */ { note: 'A4', instrument: 1, volume: 40, panning: 80, delay: 0 },
+    /* 11 */ {},
+    /* 12 */ {},
+    /* 13 */ {},
+    /* 14 */ { note: 'A3', instrument: 1, volume: 40, panning: 80, delay: 0 },
+    /* 15 */ {},
+    /* 16 */ {},
+    /* 17 */ {},
+    /* 18 */ {},
+    /* 19 */ {},
+    /* 1A */ { note: 'A4', instrument: 1, volume: 40, panning: 80, delay: 0 },
+    /* 1B */ {},
+    /* 1C */ { note: 'B4', instrument: 1, volume: 40, panning: 80, delay: 0 },
+    /* 1D */ {},
+    /* 1E */ {},
+    /* 1F */ {},
+    /* 20 */ { note: 'G#3', instrument: 1, volume: 40, panning: 80, delay: 0 },
+    /* 21 */ {},
+    /* 22 */ {},
+    /* 23 */ {},
+    /* 24 */ {},
+    /* 25 */ {},
+    /* 26 */ { note: 'B4', instrument: 1, volume: 40, panning: 80, delay: 0 },
+    /* 27 */ {},
+    /* 28 */ { note: 'C5', instrument: 1, volume: 40, panning: 80, delay: 0 },
+    /* 29 */ {},
+    /* 2A */ {},
+    /* 2B */ {},
+    /* 2C */ { note: 'A3', instrument: 1, volume: 40, panning: 80, delay: 0 },
+    /* 2D */ {},
+    /* 2E */ {},
+    /* 2F */ {},
+    /* 30 */ {},
+    /* 31 */ {},
+    /* 32 */ {},
+    /* 33 */ {},
+    /* 34 */ {},
+    /* 35 */ {},
+    /* 36 */ {},
+    /* 37 */ {},
+    /* 38 */ {},
+    /* 39 */ {},
+    /* 3A */ {},
+    /* 3B */ {},
+    /* 3C */ {},
+    /* 3D */ {},
+    /* 3E */ {},
+    /* 3F */ {},
+            ],
+            [
+    /* 00 */ {},
+    /* 01 */ {},
+    /* 02 */ {},
+    /* 03 */ {},
+    /* 04 */ {},
+    /* 05 */ {},
+    /* 06 */ {},
+    /* 07 */ {},
+    /* 08 */ {},
+    /* 09 */ {},
+    /* 0A */ {},
+    /* 0B */ {},
+    /* 0C */ {},
+    /* 0D */ {},
+    /* 0E */ {},
+    /* 0F */ {},
+    /* 10 */ {},
+    /* 11 */ {},
+    /* 12 */ { note: 'E3', instrument: 1, volume: 40, panning: 80, delay: 0 },
+    /* 13 */ {},
+    /* 14 */ {},
+    /* 15 */ {},
+    /* 16 */ {},
+    /* 17 */ {},
+    /* 18 */ {},
+    /* 19 */ {},
+    /* 1A */ {},
+    /* 1B */ {},
+    /* 1C */ { /* Stop */ },
+    /* 1D */ {},
+    /* 1E */ { note: 'E3', instrument: 1, volume: 40, panning: 80, delay: 0 },
+    /* 1F */ {},
+    /* 20 */ {},
+    /* 21 */ {},
+    /* 22 */ {},
+    /* 23 */ {},
+    /* 24 */ {},
+    /* 25 */ {},
+    /* 26 */ {},
+    /* 27 */ {},
+    /* 28 */ { /* Stop */ },
+    /* 29 */ {},
+    /* 2A */ { note: 'E3', instrument: 1, volume: 40, panning: 80, delay: 0 },
+    /* 2B */ {},
+    /* 2C */ {},
+    /* 2D */ {},
+    /* 2E */ {},
+    /* 2F */ {},
+    /* 30 */ {},
+    /* 31 */ {},
+    /* 32 */ { /* Stop */ },
+    /* 33 */ {},
+    /* 34 */ {},
+    /* 35 */ {},
+    /* 36 */ {},
+    /* 37 */ {},
+    /* 38 */ {},
+    /* 39 */ {},
+    /* 3A */ {},
+    /* 3B */ {},
+    /* 3C */ {},
+    /* 3D */ {},
+    /* 3E */ {},
+    /* 3F */ {},
+            ],
+            [
+    /* 00 */ {},
+    /* 01 */ {},
+    /* 02 */ {},
+    /* 03 */ {},
+    /* 04 */ {},
+    /* 05 */ {},
+    /* 06 */ {},
+    /* 07 */ {},
+    /* 08 */ {},
+    /* 09 */ {},
+    /* 0A */ {},
+    /* 0B */ {},
+    /* 0C */ {},
+    /* 0D */ {},
+    /* 0E */ {},
+    /* 0F */ {},
+    /* 10 */ {},
+    /* 11 */ {},
+    /* 12 */ {},
+    /* 13 */ {},
+    /* 14 */ {},
+    /* 15 */ {},
+    /* 16 */ { note: 'C4', instrument: 1, volume: 40, panning: 80, delay: 0 },
+    /* 17 */ {},
+    /* 18 */ {},
+    /* 19 */ {},
+    /* 1A */ {},
+    /* 1B */ {},
+    /* 1C */ { /* Stop */ },
+    /* 1D */ {},
+    /* 1E */ {},
+    /* 1F */ {},
+    /* 20 */ {},
+    /* 21 */ {},
+    /* 22 */ { note: 'E4', instrument: 1, volume: 40, panning: 80, delay: 0 },
+    /* 23 */ {},
+    /* 24 */ {},
+    /* 25 */ {},
+    /* 26 */ {},
+    /* 27 */ {},
+    /* 28 */ { /* Stop */ },
+    /* 29 */ {},
+    /* 2A */ {},
+    /* 2B */ {},
+    /* 2C */ {},
+    /* 2D */ {},
+    /* 2E */ { note: 'E4', instrument: 1, volume: 40, panning: 80, delay: 0 },
+    /* 2F */ {},
+    /* 30 */ {},
+    /* 31 */ {},
+    /* 32 */ { /* Stop */ },
+    /* 33 */ {},
+    /* 34 */ {},
+    /* 35 */ {},
+    /* 36 */ {},
+    /* 37 */ {},
+    /* 38 */ {},
+    /* 39 */ {},
+    /* 3A */ {},
+    /* 3B */ {},
+    /* 3C */ {},
+    /* 3D */ {},
+    /* 3E */ {},
+    /* 3F */ {},
+            ],
+            [
+    /* 00 */ {},
+    /* 01 */ {},
+    /* 02 */ {},
+    /* 03 */ {},
+    /* 04 */ {},
+    /* 05 */ {},
+    /* 06 */ {},
+    /* 07 */ {},
+    /* 08 */ {},
+    /* 09 */ {},
+    /* 0A */ {},
+    /* 0B */ {},
+    /* 0C */ {},
+    /* 0D */ {},
+    /* 0E */ {},
+    /* 0F */ {},
+    /* 10 */ {},
+    /* 11 */ {},
+    /* 12 */ {},
+    /* 13 */ {},
+    /* 14 */ {},
+    /* 15 */ {},
+    /* 16 */ {},
+    /* 17 */ {},
+    /* 18 */ {},
+    /* 19 */ {},
+    /* 1A */ {},
+    /* 1B */ {},
+    /* 1C */ {},
+    /* 1D */ {},
+    /* 1E */ {},
+    /* 1F */ {},
+    /* 20 */ {},
+    /* 21 */ {},
+    /* 22 */ {},
+    /* 23 */ {},
+    /* 24 */ {},
+    /* 25 */ {},
+    /* 26 */ {},
+    /* 27 */ {},
+    /* 28 */ {},
+    /* 29 */ {},
+    /* 2A */ {},
+    /* 2B */ {},
+    /* 2C */ {},
+    /* 2D */ {},
+    /* 2E */ {},
+    /* 2F */ {},
+    /* 30 */ {},
+    /* 31 */ {},
+    /* 32 */ {},
+    /* 33 */ {},
+    /* 34 */ {},
+    /* 35 */ {},
+    /* 36 */ {},
+    /* 37 */ {},
+    /* 38 */ {},
+    /* 39 */ {},
+    /* 3A */ {},
+    /* 3B */ {},
+    /* 3C */ {},
+    /* 3D */ {},
+    /* 3E */ {},
+    /* 3F */ {},
+            ],
+            [
+    /* 00 */ {},
+    /* 01 */ {},
+    /* 02 */ {},
+    /* 03 */ {},
+    /* 04 */ {},
+    /* 05 */ {},
+    /* 06 */ {},
+    /* 07 */ {},
+    /* 08 */ {},
+    /* 09 */ {},
+    /* 0A */ {},
+    /* 0B */ {},
+    /* 0C */ {},
+    /* 0D */ {},
+    /* 0E */ {},
+    /* 0F */ {},
+    /* 10 */ {},
+    /* 11 */ {},
+    /* 12 */ {},
+    /* 13 */ {},
+    /* 14 */ {},
+    /* 15 */ {},
+    /* 16 */ {},
+    /* 17 */ {},
+    /* 18 */ {},
+    /* 19 */ {},
+    /* 1A */ {},
+    /* 1B */ {},
+    /* 1C */ {},
+    /* 1D */ {},
+    /* 1E */ {},
+    /* 1F */ {},
+    /* 20 */ {},
+    /* 21 */ {},
+    /* 22 */ {},
+    /* 23 */ {},
+    /* 24 */ {},
+    /* 25 */ {},
+    /* 26 */ {},
+    /* 27 */ {},
+    /* 28 */ {},
+    /* 29 */ {},
+    /* 2A */ {},
+    /* 2B */ {},
+    /* 2C */ {},
+    /* 2D */ {},
+    /* 2E */ {},
+    /* 2F */ {},
+    /* 30 */ {},
+    /* 31 */ {},
+    /* 32 */ {},
+    /* 33 */ {},
+    /* 34 */ {},
+    /* 35 */ {},
+    /* 36 */ {},
+    /* 37 */ {},
+    /* 38 */ {},
+    /* 39 */ {},
+    /* 3A */ {},
+    /* 3B */ {},
+    /* 3C */ {},
+    /* 3D */ {},
+    /* 3E */ {},
+    /* 3F */ {},
+            ],
+          ],
+        }],
+      },
+    };
+
+    this.onCursorChange = this.onCursorChange.bind(this);
+  }
+
+  onCursorChange(cursor) {
+    let t = cursor;
+    if (t < 0) {
+      t = this.state.song.patterns[0].rows - 1;
+    } else if (t >= this.state.song.patterns[0].rows) {
+      t = 0;
+    }
+    this.setState({
+      pattern_cursor: t,
+    });
+  }
+
+  scrollDown(event, direction) {
+    this.onCursorChange(this.state.pattern_cursor + direction);
+
+    event.preventDefault();
+  }
 
   render() {
     // layout is an array of objects, see the demo for more complete usage
@@ -73,23 +540,28 @@ export default class HomePage extends React.Component { // eslint-disable-line r
         { i: 'effects', x: 0, y: 10, w: 8, h: 4 },
       ],
     };
+
     return (
-      <ResponsiveReactGridLayout
-        className="layout"
-        layouts={layouts}
-        rowHeight={30}
-        margin={[3, 3]}
-        breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
-        cols={{ lg: 12, md: 10, sm: 8, xs: 4, xxs: 2 }}
-      >
-        <div key={'transport'}><span>Transport</span></div>
-        <Wrapper key={'pattern-editor'}><PatternEditor /></Wrapper>
-        <div key={'pattern-sequencer'}><div className="widget-container"><span>Pattern Sequencer</span></div></div>
-        <div key={'instruments'}><div className="widget-container"><span>Instruments</span></div></div>
-        <div key={'monitors'}><div className="widget-container"><span>Monitors</span></div></div>
-        <div key={'browser'}><div className="widget-container"><span>Browser</span></div></div>
-        <div key={'effects'}><div className="widget-container"><span>Effects</span></div></div>
-      </ResponsiveReactGridLayout>
+      <div>
+        <KeyHandler keyEventName={KEYDOWN} keyValue="ArrowDown" onKeyHandle={(event) => { this.scrollDown(event, 1); }} />
+        <KeyHandler keyEventName={KEYDOWN} keyValue="ArrowUp" onKeyHandle={(event) => { this.scrollDown(event, -1); }} />
+        <ResponsiveReactGridLayout
+          className="layout"
+          layouts={layouts}
+          rowHeight={30}
+          margin={[3, 3]}
+          breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
+          cols={{ lg: 12, md: 10, sm: 8, xs: 4, xxs: 2 }}
+        >
+          <div key={'transport'}><span>Transport</span></div>
+          <Wrapper key={'pattern-editor'}><Chrome><PatternEditor song={this.state.song} cursor={this.state.pattern_cursor} onCursorChange={this.onCursorChange} /></Chrome></Wrapper>
+          <div key={'pattern-sequencer'}><div className="widget-container"><span>Pattern Sequencer</span></div></div>
+          <Wrapper key={'instruments'}><InstrumentList /></Wrapper>
+          <div key={'monitors'}><div className="widget-container"><span>Monitors</span></div></div>
+          <div key={'browser'}><div className="widget-container"><span>Browser</span></div></div>
+          <div key={'effects'}><div className="widget-container"><span>Effects</span></div></div>
+        </ResponsiveReactGridLayout>
+      </div>
     );
   }
 }

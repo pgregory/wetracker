@@ -34,12 +34,12 @@
 .track-header {
   width: 150px;
   box-sizing: border-box;
-  height: 24px;
+  height: 44px;
 }
 
 .time-header {
   box-sizing: border-box;
-  height: 24px;
+  height: 44px;
 }
 
 .track-header span {
@@ -150,4 +150,11 @@
 
 #col1 {
   overflow: hidden;
+}
+
+.track-color {
+  width: 90%;
+  margin-left: 5%;
+  height: 8px;
+  border-radius: 2px;
 }

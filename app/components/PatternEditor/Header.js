@@ -11,7 +11,11 @@ export default class Header extends React.Component {
         <thead>
           <tr>
             { this.props.song.tracks && this.props.song.tracks.map((track, index) => (
-              <th key={index}><div className="track-header">{track.name}</div></th>
+              <th key={index}>
+                <div className="track-header">{track.name}
+                  <div className="track-color" style={{ background: '#020' }}></div>
+                </div>
+              </th>
             ))}
           </tr>
         </thead>

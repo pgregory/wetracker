@@ -2,16 +2,8 @@ import React from 'react';
 import Row from './Row';
 
 export default class Rows extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      cursorLine: props.cursorLine,
-    };
-  }
-
   shouldCoponentUpdate(nextProps /* , nextState*/) {
-    return nextProps.cursorLine !== this.props.cursorLine;
+    return nextProps.cursor !== this.props.cursor;
   }
 
   render() {
@@ -24,7 +16,7 @@ export default class Rows extends React.Component {
             ))}
           </tr>
           { [...Array(this.props.song.patterns[0].rows)].map((x, row) => (
-            <Row key={row} pattern={this.props.song.patterns[0]} rownum={row} cursorLine={this.props.cursorLine} />
+            <Row key={row} pattern={this.props.song.patterns[0]} rownum={row} cursor={this.props.cursor} />
           ))}
           <tr>
             { this.props.song.patterns[0] && this.props.song.patterns[0].trackdata.map((track, index) => (
@@ -39,7 +31,7 @@ export default class Rows extends React.Component {
 
 Rows.propTypes = {
   song: React.PropTypes.object.isRequired,
-  cursorLine: React.PropTypes.number.isRequired,
+  cursor: React.PropTypes.number.isRequired,
   topPadding: React.PropTypes.number.isRequired,
   bottomPadding: React.PropTypes.number.isRequired,
 };

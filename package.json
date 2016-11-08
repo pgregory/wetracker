@@ -222,6 +222,7 @@
     "react-grid-layout": "^0.13.9",
     "react-helmet": "3.1.0",
     "react-intl": "2.1.5",
+    "react-key-handler": "^0.3.0",
     "react-redux": "4.4.5",
     "react-router": "2.8.1",
     "react-router-redux": "4.0.5",
