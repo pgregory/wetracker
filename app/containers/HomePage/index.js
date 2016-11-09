@@ -14,7 +14,7 @@ import { Responsive, WidthProvider } from 'react-grid-layout';
 import PatternEditor from 'components/PatternEditor';
 import InstrumentList from 'components/InstrumentList';
 
-import KeyHandler, { KEYDOWN } from 'react-key-handler';
+import { HotKeys } from 'react-hotkeys';
 
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
@@ -488,6 +488,12 @@ export default class HomePage extends React.Component { // eslint-disable-line r
           ],
         }],
       },
+      map: {
+        cursorLeft: ['left', 'h'],
+        cursorRight: ['right', 'l'],
+        cursorUp: ['up', 'k'],
+        cursorDown: ['down', 'j'],
+      },
     };
 
     this.onCursorChange = this.onCursorChange.bind(this);
@@ -508,12 +514,6 @@ export default class HomePage extends React.Component { // eslint-disable-line r
     });
   }
 
-  scrollDown(event, direction) {
-    this.onCursorChange(this.state.patternCursorRow + direction);
-
-    event.preventDefault();
-  }
-
   onCursorItemChange(item) {
     let i = item;
     let t = this.state.patternCursorTrack;
@@ -521,7 +521,7 @@ export default class HomePage extends React.Component { // eslint-disable-line r
       i = 5;
       t -= 1;
       if (t < 0) {
-        t = this.state.song.tracks.length-1;
+        t = this.state.song.tracks.length - 1;
       }
     } else if (i > 5) {
       i = 0;
@@ -538,7 +538,21 @@ export default class HomePage extends React.Component { // eslint-disable-line r
   }
 
   cursorMove(event, direction) {
-    this.onCursorItemChange(this.state.patternCursorItem + direction);
+    if (direction === 0) {
+      this.onCursorItemChange(this.state.patternCursorItem - 1);
+    } else if (direction === 1) {
+      this.onCursorItemChange(this.state.patternCursorItem + 1);
+    } else if (direction === 2) {
+      this.onCursorChange(this.state.patternCursorRow - 1);
+    } else if (direction === 3) {
+      this.onCursorChange(this.state.patternCursorRow + 1);
+    }
+
+    event.preventDefault();
+  }
+
+  scrollDown(event, direction) {
+    this.onCursorChange(this.state.patternCursorRow + direction);
 
     event.preventDefault();
   }
@@ -575,12 +589,15 @@ export default class HomePage extends React.Component { // eslint-disable-line r
       ],
     };
 
+    const handlers = {
+      cursorLeft: (event) => { this.cursorMove(event, 0); },
+      cursorRight: (event) => { this.cursorMove(event, 1); },
+      cursorUp: (event) => { this.cursorMove(event, 2); },
+      cursorDown: (event) => { this.cursorMove(event, 3); },
+    };
+
     return (
-      <div>
-        <KeyHandler keyEventName={KEYDOWN} keyValue="ArrowDown" onKeyHandle={(event) => { this.scrollDown(event, 1); }} />
-        <KeyHandler keyEventName={KEYDOWN} keyValue="ArrowUp" onKeyHandle={(event) => { this.scrollDown(event, -1); }} />
-        <KeyHandler keyEventName={KEYDOWN} keyValue="ArrowLeft" onKeyHandle={(event) => { this.cursorMove(event, -1); }} />
-        <KeyHandler keyEventName={KEYDOWN} keyValue="ArrowRight" onKeyHandle={(event) => { this.cursorMove(event, 1); }} />
+      <HotKeys keyMap={this.state.map} handlers={handlers}>
         <ResponsiveReactGridLayout
           className="layout"
           layouts={layouts}
@@ -592,12 +609,14 @@ export default class HomePage extends React.Component { // eslint-disable-line r
           <div key={'transport'}><span>Transport</span></div>
           <Wrapper key={'pattern-editor'}>
             <Chrome>
-              <PatternEditor 
-                song={this.state.song} 
-                cursorRow={this.state.patternCursorRow} 
-                cursorTrack={this.state.patternCursorTrack} 
-                cursorItem={this.state.patternCursorItem} 
-                onCursorChange={this.onCursorChange} />
+              <PatternEditor
+                song={this.state.song}
+                cursorRow={this.state.patternCursorRow}
+                cursorTrack={this.state.patternCursorTrack}
+                cursorItem={this.state.patternCursorItem}
+                onCursorChange={this.onCursorChange}
+                cursorMove={this.cursorMove}
+              />
             </Chrome>
           </Wrapper>
           <div key={'pattern-sequencer'}><div className="widget-container"><span>Pattern Sequencer</span></div></div>
@@ -606,7 +625,7 @@ export default class HomePage extends React.Component { // eslint-disable-line r
           <div key={'browser'}><div className="widget-container"><span>Browser</span></div></div>
           <div key={'effects'}><div className="widget-container"><span>Effects</span></div></div>
         </ResponsiveReactGridLayout>
-      </div>
+      </HotKeys>
     );
   }
 }

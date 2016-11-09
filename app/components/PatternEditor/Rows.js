@@ -16,13 +16,14 @@ export default class Rows extends React.Component {
             ))}
           </tr>
           { [...Array(this.props.song.patterns[0].rows)].map((x, row) => (
-            <Row 
-              key={row} 
-              pattern={this.props.song.patterns[0]} 
-              rownum={row} 
-              cursorRow={this.props.cursorRow} 
+            <Row
+              key={row}
+              pattern={this.props.song.patterns[0]}
+              rownum={row}
+              cursorRow={this.props.cursorRow}
               cursorTrack={this.props.cursorTrack}
-              cursorItem={this.props.cursorItem} />
+              cursorItem={this.props.cursorItem}
+            />
           ))}
           <tr>
             { this.props.song.patterns[0] && this.props.song.patterns[0].trackdata.map((track, index) => (

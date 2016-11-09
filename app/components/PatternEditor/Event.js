@@ -14,7 +14,7 @@ function padEventProperty(event, item, digits) {
 function itemClassNames(item, row, cursorRow, track, cursorTrack, itemIndex, cursorItem) {
   const names = [item];
 
-  if (track === cursorTrack && row == cursorRow && itemIndex === cursorItem) {
+  if (track === cursorTrack && row === cursorRow && itemIndex === cursorItem) {
     names.push('event-cursor');
   }
   return names.join(' ');
@@ -39,42 +39,66 @@ export default class PatternEvent extends React.Component {
     }
     return (
       <div className="line">
-        <div className={itemClassNames('note', 
-                                       this.props.patternRow, 
-                                       this.props.cursorRow, 
-                                       this.props.trackIndex, 
+        <div
+          className={itemClassNames('note',
+                                     this.props.patternRow,
+                                     this.props.cursorRow,
+                                     this.props.trackIndex,
+                                     this.props.cursorTrack,
+                                     0, this.props.cursorItem)}
+        >
+          { note }
+        </div>
+        <div
+          className={itemClassNames('instrument',
+                                     this.props.patternRow,
+                                     this.props.cursorRow,
+                                     this.props.trackIndex,
+                                     this.props.cursorTrack,
+                                     1, this.props.cursorItem)}
+        >
+          { instrument }
+        </div>
+        <div
+          className={itemClassNames('volume',
+                                     this.props.patternRow,
+                                     this.props.cursorRow,
+                                     this.props.trackIndex,
+                                     this.props.cursorTrack,
+                                     2, this.props.cursorItem)}
+        >
+          { volume }
+        </div>
+        <div
+          className={itemClassNames('panning',
+                                       this.props.patternRow,
+                                       this.props.cursorRow,
+                                       this.props.trackIndex,
                                        this.props.cursorTrack,
-                                       0, this.props.cursorItem)}>{ note }</div>
-        <div className={itemClassNames('instrument', 
-                                       this.props.patternRow, 
-                                       this.props.cursorRow, 
-                                       this.props.trackIndex, 
-                                       this.props.cursorTrack,
-                                       1, this.props.cursorItem)}>{ instrument }</div>
-        <div className={itemClassNames('volume', 
-                                       this.props.patternRow, 
-                                       this.props.cursorRow, 
-                                       this.props.trackIndex, 
-                                       this.props.cursorTrack,
-                                       2, this.props.cursorItem)}>{ volume }</div>
-        <div className={itemClassNames('panning', 
-                                       this.props.patternRow, 
-                                       this.props.cursorRow, 
-                                       this.props.trackIndex, 
-                                       this.props.cursorTrack,
-                                       3, this.props.cursorItem)}>{ panning }</div>
-        <div className={itemClassNames('delay', 
-                                       this.props.patternRow, 
-                                       this.props.cursorRow, 
-                                       this.props.trackIndex, 
-                                       this.props.cursorTrack,
-                                       4, this.props.cursorItem)}>{ delay }</div>
-        <div className={itemClassNames('fx', 
-                                       this.props.patternRow, 
-                                       this.props.cursorRow, 
-                                       this.props.trackIndex, 
-                                       this.props.cursorTrack,
-                                       5, this.props.cursorItem)}>{ fx }</div>
+                                       3, this.props.cursorItem)}
+        >
+          { panning }
+        </div>
+        <div
+          className={itemClassNames('delay',
+                                     this.props.patternRow,
+                                     this.props.cursorRow,
+                                     this.props.trackIndex,
+                                     this.props.cursorTrack,
+                                     4, this.props.cursorItem)}
+        >
+          { delay }
+        </div>
+        <div
+          className={itemClassNames('fx',
+                                     this.props.patternRow,
+                                     this.props.cursorRow,
+                                     this.props.trackIndex,
+                                     this.props.cursorTrack,
+                                     5, this.props.cursorItem)}
+        >
+          { fx }
+        </div>
       </div>
     );
   }

@@ -9,6 +9,8 @@ import Header from './Header';
 import Timeline from './Timeline';
 import Rows from './Rows';
 
+import { HotKeys } from 'react-hotkeys';
+
 import '!style!css!./styles.css';
 
 class PatternEditor extends React.Component { // eslint-disable-line react/prefer-stateless-function
@@ -50,6 +52,7 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
     e.preventDefault();
   }
 
+
   render() {
     const width = this.props.width;
     const height = this.props.height;
@@ -63,8 +66,15 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
     const blankRowsTop = Math.floor((visibleLines / 2) - 0.5);
     const blankRowsBottom = visibleLines - blankRowsTop - 1;
 
+    const handlers = {
+      cursorLeft: (event) => { this.props.cursorMove(event, 0); },
+      cursorRight: (event) => { this.props.cursorMove(event, 1); },
+      cursorUp: (event) => { this.props.cursorMove(event, 2); },
+      cursorDown: (event) => { this.props.cursorMove(event, 3); },
+    };
+
     return (
-      <div className="pattern-editor">
+      <HotKeys handlers={handlers} className="pattern-editor">
         <div style={{ float: 'left' }}>
           <Timeline song={this.props.song} cursorRow={this.props.cursorRow} scrollHeight={scrollHeight} topPadding={blankRowsTop} bottomPadding={blankRowsBottom} />
         </div>
@@ -74,16 +84,17 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
             <Header song={this.props.song} />
           </div>
           <div style={{ height: scrollHeight }} id="sideTable" onWheel={this.onScroll}>
-            <Rows 
-              song={this.props.song} 
-              cursorRow={this.props.cursorRow} 
-              cursorTrack={this.props.cursorTrack} 
-              cursorItem={this.props.cursorItem} 
-              topPadding={blankRowsTop} 
-              bottomPadding={blankRowsBottom} />
+            <Rows
+              song={this.props.song}
+              cursorRow={this.props.cursorRow}
+              cursorTrack={this.props.cursorTrack}
+              cursorItem={this.props.cursorItem}
+              topPadding={blankRowsTop}
+              bottomPadding={blankRowsBottom}
+            />
           </div>
         </div>
-      </div>
+      </HotKeys>
     );
   }
 }
@@ -96,6 +107,7 @@ PatternEditor.propTypes = {
   cursorItem: React.PropTypes.number.isRequired,
   onCursorChange: React.PropTypes.func.isRequired,
   song: React.PropTypes.object.isRequired,
+  cursorMove: React.PropTypes.func.isRequired,
 };
 
 export default PatternEditor;
