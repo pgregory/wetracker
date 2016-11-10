@@ -15,6 +15,10 @@ const selectLocationState = () => {
   };
 };
 
+const selectCursor = () =>
+  (state) => state.get('cursor').toJS();
+
 export {
   selectLocationState,
+  selectCursor,
 };

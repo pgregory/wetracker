@@ -18,8 +18,6 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
     super(props);
 
     this.onScroll = this.onScroll.bind(this);
-    this.onCursorChange = this.onCursorChange.bind(this);
-    this.onCursorItemChange = this.onCursorItemChange.bind(this);
     this.onCursorMove = this.onCursorMove.bind(this);
 
     this.yoff = 0;
@@ -30,7 +28,7 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
     const horizTarget = document.getElementsByClassName('xscroll')[0];
     const col1 = document.getElementById('col1');
 
-    const windowScroll = this.props.cursorRow * 15.0;
+    const windowScroll = this.props.cursor.row * 15.0;
 
     vertTarget.scrollTop = windowScroll;
     col1.scrollTop = windowScroll;
@@ -63,53 +61,22 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
 
     const theCursor = Math.round((this.yoff) / 15.0);
 
-    this.onCursorChange(theCursor);
+    this.props.onCursorRowChange(theCursor);
 
     horizTarget.scrollLeft += e.deltaX;
 
     e.preventDefault();
   }
 
-  onCursorChange(cursor) {
-    let t = cursor;
-    if (t < 0) {
-      t = this.props.song.patterns[0].rows - 1;
-    } else if (t >= this.props.song.patterns[0].rows) {
-      t = 0;
-    }
-
-    this.props.onCursorRowChange(t);
-  }
-
-  onCursorItemChange(item) {
-    let i = item;
-    let t = this.props.cursorTrack;
-    if (i < 0) {
-      i = 5;
-      t -= 1;
-      if (t < 0) {
-        t = this.props.song.tracks.length - 1;
-      }
-    } else if (i > 5) {
-      i = 0;
-      t += 1;
-      if (t >= this.props.song.tracks.length) {
-        t = 0;
-      }
-    }
-
-    this.props.onCursorItemChange(t, i);
-  }
-
   onCursorMove(event, direction) {
     if (direction === 0) {
-      this.onCursorItemChange(this.props.cursorItem - 1);
+      this.props.onCursorLeft(this.props.song.tracks);
     } else if (direction === 1) {
-      this.onCursorItemChange(this.props.cursorItem + 1);
+      this.props.onCursorRight(this.props.song.tracks);
     } else if (direction === 2) {
-      this.onCursorChange(this.props.cursorRow - 1);
+      this.props.onCursorUp(this.props.song.patterns[0].rows);
     } else if (direction === 3) {
-      this.onCursorChange(this.props.cursorRow + 1);
+      this.props.onCursorDown(this.props.song.patterns[0].rows);
     }
 
     event.preventDefault();
@@ -139,7 +106,7 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
     return (
       <HotKeys handlers={handlers} className="pattern-editor">
         <div style={{ float: 'left' }}>
-          <Timeline song={this.props.song} cursorRow={this.props.cursorRow} scrollHeight={scrollHeight} topPadding={blankRowsTop} bottomPadding={blankRowsBottom} />
+          <Timeline song={this.props.song} cursor={this.props.cursor} scrollHeight={scrollHeight} topPadding={blankRowsTop} bottomPadding={blankRowsBottom} />
         </div>
 
         <div style={{ float: 'left', width: eventTableWidth }} className="xscroll">
@@ -149,9 +116,7 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
           <div style={{ height: scrollHeight }} id="sideTable" onWheel={this.onScroll}>
             <Rows
               song={this.props.song}
-              cursorRow={this.props.cursorRow}
-              cursorTrack={this.props.cursorTrack}
-              cursorItem={this.props.cursorItem}
+              cursor={this.props.cursor}
               topPadding={blankRowsTop}
               bottomPadding={blankRowsBottom}
             />
@@ -165,11 +130,14 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
 PatternEditor.propTypes = {
   width: React.PropTypes.number,
   height: React.PropTypes.number,
-  cursorRow: React.PropTypes.number.isRequired,
-  cursorTrack: React.PropTypes.number.isRequired,
-  cursorItem: React.PropTypes.number.isRequired,
+  cursor: React.PropTypes.shape({
+    row: React.PropTypes.number.isRequired,
+  }).isRequired,
   onCursorRowChange: React.PropTypes.func.isRequired,
-  onCursorItemChange: React.PropTypes.func.isRequired,
+  onCursorUp: React.PropTypes.func.isRequired,
+  onCursorDown: React.PropTypes.func.isRequired,
+  onCursorLeft: React.PropTypes.func.isRequired,
+  onCursorRight: React.PropTypes.func.isRequired,
   song: React.PropTypes.object.isRequired,
 };
 

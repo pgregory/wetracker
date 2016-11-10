@@ -13,6 +13,18 @@ import React from 'react';
 import { Responsive, WidthProvider } from 'react-grid-layout';
 import PatternEditor from 'components/PatternEditor';
 import InstrumentList from 'components/InstrumentList';
+import { connect } from 'react-redux';
+import { createStructuredSelector } from 'reselect';
+
+import { selectCursor } from 'containers/App/selectors';
+import {
+  cursorSetRow,
+  cursorSetTrackItem,
+  cursorUp,
+  cursorDown,
+  cursorLeft,
+  cursorRight,
+} from 'containers/App/actions';
 
 import { HotKeys } from 'react-hotkeys';
 
@@ -66,7 +78,7 @@ Wrapper.propTypes = {
   style: React.PropTypes.object,
 };
 
-export default class HomePage extends React.Component { // eslint-disable-line react/prefer-stateless-function
+export class HomePage extends React.Component { // eslint-disable-line react/prefer-stateless-function
   constructor(props) {
     super(props);
 
@@ -560,11 +572,13 @@ export default class HomePage extends React.Component { // eslint-disable-line r
             <Chrome>
               <PatternEditor
                 song={this.state.song}
-                cursorRow={this.state.patternCursorRow}
-                cursorTrack={this.state.patternCursorTrack}
-                cursorItem={this.state.patternCursorItem}
-                onCursorRowChange={this.onCursorRowChange}
-                onCursorItemChange={this.onCursorItemChange}
+                cursor={this.props.cursor}
+                onCursorRowChange={this.props.onCursorRowChange}
+                onCursorItemChange={this.props.onCursorItemChange}
+                onCursorUp={this.props.onCursorUp}
+                onCursorDown={this.props.onCursorDown}
+                onCursorLeft={this.props.onCursorLeft}
+                onCursorRight={this.props.onCursorRight}
               />
             </Chrome>
           </Wrapper>
@@ -579,3 +593,29 @@ export default class HomePage extends React.Component { // eslint-disable-line r
   }
 }
 
+HomePage.propTypes = {
+  cursor: React.PropTypes.object.isRequired,
+  onCursorRowChange: React.PropTypes.func.isRequired,
+  onCursorItemChange: React.PropTypes.func.isRequired,
+  onCursorUp: React.PropTypes.func.isRequired,
+  onCursorDown: React.PropTypes.func.isRequired,
+  onCursorLeft: React.PropTypes.func.isRequired,
+  onCursorRight: React.PropTypes.func.isRequired,
+};
+
+export function mapDispatchToProps(dispatch) {
+  return {
+    onCursorUp: () => dispatch(cursorUp()),
+    onCursorDown: () => dispatch(cursorDown()),
+    onCursorLeft: (song) => dispatch(cursorLeft(song)),
+    onCursorRight: (song) => dispatch(cursorRight(song)),
+    onCursorRowChange: (row) => dispatch(cursorSetRow(row)),
+    onCursorItemChange: (track, item) => dispatch(cursorSetTrackItem(track, item)),
+  };
+}
+
+const mapStateToProps = createStructuredSelector({
+  cursor: selectCursor(),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(HomePage);

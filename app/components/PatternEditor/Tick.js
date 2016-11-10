@@ -19,8 +19,8 @@ function rowClassNames(row, cursor, rowsPerBeat) {
 
 export default class Tick extends React.Component {
   shouldComponentUpdate(nextProps /* , nextState*/) {
-    if ((this.props.cursorRow === this.props.rownum && nextProps.cursorRow !== nextProps.rownum) ||
-        (this.props.cursorRow !== this.props.rownum && nextProps.cursorRow === nextProps.rownum)) {
+    if ((this.props.cursor.row === this.props.rownum && nextProps.cursor.row !== nextProps.rownum) ||
+        (this.props.cursor.row !== this.props.rownum && nextProps.cursor.row === nextProps.rownum)) {
       return true;
     }
     return false;
@@ -28,7 +28,7 @@ export default class Tick extends React.Component {
 
   render() {
     return (
-      <tr className={rowClassNames(this.props.rownum, this.props.cursorRow, 4)}>
+      <tr className={rowClassNames(this.props.rownum, this.props.cursor.row, 4)}>
         <th className="tick">{ padDigits(this.props.rownum, 2) }</th>
       </tr>
     );
@@ -37,5 +37,7 @@ export default class Tick extends React.Component {
 
 Tick.propTypes = {
   rownum: React.PropTypes.number.isRequired,
-  cursorRow: React.PropTypes.number.isRequired,
+  cursor: React.PropTypes.shape({
+    row: React.PropTypes.number.isRequired,
+  }).isRequired,
 };

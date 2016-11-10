@@ -3,7 +3,7 @@ import Row from './Row';
 
 export default class Rows extends React.Component {
   shouldCoponentUpdate(nextProps /* , nextState*/) {
-    return nextProps.cursorRow !== this.props.cursorRow;
+    return nextProps.cursor.row !== this.props.cursor.row;
   }
 
   render() {
@@ -20,9 +20,7 @@ export default class Rows extends React.Component {
               key={row}
               pattern={this.props.song.patterns[0]}
               rownum={row}
-              cursorRow={this.props.cursorRow}
-              cursorTrack={this.props.cursorTrack}
-              cursorItem={this.props.cursorItem}
+              cursor={this.props.cursor}
             />
           ))}
           <tr>
@@ -38,9 +36,9 @@ export default class Rows extends React.Component {
 
 Rows.propTypes = {
   song: React.PropTypes.object.isRequired,
-  cursorRow: React.PropTypes.number.isRequired,
-  cursorTrack: React.PropTypes.number.isRequired,
-  cursorItem: React.PropTypes.number.isRequired,
+  cursor: React.PropTypes.shape({
+    row: React.PropTypes.number.isRequired,
+  }).isRequired,
   topPadding: React.PropTypes.number.isRequired,
   bottomPadding: React.PropTypes.number.isRequired,
 };
