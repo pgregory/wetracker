@@ -23,7 +23,7 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
     this.yoff = 0;
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
     const vertTarget = document.getElementById('sideTable');
     const horizTarget = document.getElementsByClassName('xscroll')[0];
     const col1 = document.getElementById('col1');
@@ -33,18 +33,21 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
     vertTarget.scrollTop = windowScroll;
     col1.scrollTop = windowScroll;
 
-    const item = document.getElementsByClassName('event-cursor')[0];
-    let offsetParent = item.offsetParent;
-    let offset = item.offsetLeft;
-    while (offsetParent.parentElement.id !== 'sideTable') {
-      offset += offsetParent.offsetLeft;
-      offsetParent = offsetParent.offsetParent;
-    }
+    // Only check the cursor is visible if it has moved on the row.
+    if (prevProps.cursor.item !== this.props.cursor.item) {
+      const item = document.getElementsByClassName('event-cursor')[0];
+      let offsetParent = item.offsetParent;
+      let offset = item.offsetLeft;
+      while (offsetParent.parentElement.id !== 'sideTable') {
+        offset += offsetParent.offsetLeft;
+        offsetParent = offsetParent.offsetParent;
+      }
 
-    if ((offset + item.clientWidth) > vertTarget.parentElement.clientWidth) {
-      horizTarget.scrollLeft = ((offset + item.clientWidth) - vertTarget.parentElement.clientWidth) + 6;
-    } else if (offset < horizTarget.scrollLeft) {
-      horizTarget.scrollLeft = offset - 6;
+      if ((offset + item.clientWidth) > vertTarget.parentElement.clientWidth) {
+        horizTarget.scrollLeft = ((offset + item.clientWidth) - vertTarget.parentElement.clientWidth) + 6;
+      } else if (offset < horizTarget.scrollLeft) {
+        horizTarget.scrollLeft = offset - 6;
+      }
     }
   }
 
@@ -132,6 +135,7 @@ PatternEditor.propTypes = {
   height: React.PropTypes.number,
   cursor: React.PropTypes.shape({
     row: React.PropTypes.number.isRequired,
+    item: React.PropTypes.number.isRequired,
   }).isRequired,
   onCursorRowChange: React.PropTypes.func.isRequired,
   onCursorUp: React.PropTypes.func.isRequired,
