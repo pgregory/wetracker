@@ -18,18 +18,36 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
     super(props);
 
     this.onScroll = this.onScroll.bind(this);
+    this.onCursorChange = this.onCursorChange.bind(this);
+    this.onCursorItemChange = this.onCursorItemChange.bind(this);
+    this.onCursorMove = this.onCursorMove.bind(this);
 
     this.yoff = 0;
   }
 
   componentDidUpdate() {
     const vertTarget = document.getElementById('sideTable');
+    const horizTarget = document.getElementsByClassName('xscroll')[0];
     const col1 = document.getElementById('col1');
 
     const windowScroll = this.props.cursorRow * 15.0;
 
     vertTarget.scrollTop = windowScroll;
     col1.scrollTop = windowScroll;
+
+    const item = document.getElementsByClassName('event-cursor')[0];
+    let offsetParent = item.offsetParent;
+    let offset = item.offsetLeft;
+    while (offsetParent.parentElement.id !== 'sideTable') {
+      offset += offsetParent.offsetLeft;
+      offsetParent = offsetParent.offsetParent;
+    }
+
+    if ((offset + item.clientWidth) > vertTarget.parentElement.clientWidth) {
+      horizTarget.scrollLeft = ((offset + item.clientWidth) - vertTarget.parentElement.clientWidth) + 6;
+    } else if (offset < horizTarget.scrollLeft) {
+      horizTarget.scrollLeft = offset - 6;
+    }
   }
 
   onScroll(e) {
@@ -45,11 +63,56 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
 
     const theCursor = Math.round((this.yoff) / 15.0);
 
-    this.props.onCursorChange(theCursor);
+    this.onCursorChange(theCursor);
 
     horizTarget.scrollLeft += e.deltaX;
 
     e.preventDefault();
+  }
+
+  onCursorChange(cursor) {
+    let t = cursor;
+    if (t < 0) {
+      t = this.props.song.patterns[0].rows - 1;
+    } else if (t >= this.props.song.patterns[0].rows) {
+      t = 0;
+    }
+
+    this.props.onCursorRowChange(t);
+  }
+
+  onCursorItemChange(item) {
+    let i = item;
+    let t = this.props.cursorTrack;
+    if (i < 0) {
+      i = 5;
+      t -= 1;
+      if (t < 0) {
+        t = this.props.song.tracks.length - 1;
+      }
+    } else if (i > 5) {
+      i = 0;
+      t += 1;
+      if (t >= this.props.song.tracks.length) {
+        t = 0;
+      }
+    }
+
+    this.props.onCursorItemChange(t, i);
+  }
+
+  onCursorMove(event, direction) {
+    if (direction === 0) {
+      this.onCursorItemChange(this.props.cursorItem - 1);
+    } else if (direction === 1) {
+      this.onCursorItemChange(this.props.cursorItem + 1);
+    } else if (direction === 2) {
+      this.onCursorChange(this.props.cursorRow - 1);
+    } else if (direction === 3) {
+      this.onCursorChange(this.props.cursorRow + 1);
+    }
+
+    event.preventDefault();
   }
 
 
@@ -67,10 +130,10 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
     const blankRowsBottom = visibleLines - blankRowsTop - 1;
 
     const handlers = {
-      cursorLeft: (event) => { this.props.cursorMove(event, 0); },
-      cursorRight: (event) => { this.props.cursorMove(event, 1); },
-      cursorUp: (event) => { this.props.cursorMove(event, 2); },
-      cursorDown: (event) => { this.props.cursorMove(event, 3); },
+      cursorLeft: (event) => { this.onCursorMove(event, 0); },
+      cursorRight: (event) => { this.onCursorMove(event, 1); },
+      cursorUp: (event) => { this.onCursorMove(event, 2); },
+      cursorDown: (event) => { this.onCursorMove(event, 3); },
     };
 
     return (
@@ -105,9 +168,9 @@ PatternEditor.propTypes = {
   cursorRow: React.PropTypes.number.isRequired,
   cursorTrack: React.PropTypes.number.isRequired,
   cursorItem: React.PropTypes.number.isRequired,
-  onCursorChange: React.PropTypes.func.isRequired,
+  onCursorRowChange: React.PropTypes.func.isRequired,
+  onCursorItemChange: React.PropTypes.func.isRequired,
   song: React.PropTypes.object.isRequired,
-  cursorMove: React.PropTypes.func.isRequired,
 };
 
 export default PatternEditor;

@@ -496,65 +496,21 @@ export default class HomePage extends React.Component { // eslint-disable-line r
       },
     };
 
-    this.onCursorChange = this.onCursorChange.bind(this);
+    this.onCursorRowChange = this.onCursorRowChange.bind(this);
     this.onCursorItemChange = this.onCursorItemChange.bind(this);
-    this.cursorMove = this.cursorMove.bind(this);
-    this.scrollDown = this.scrollDown.bind(this);
   }
 
-  onCursorChange(cursor) {
-    let t = cursor;
-    if (t < 0) {
-      t = this.state.song.patterns[0].rows - 1;
-    } else if (t >= this.state.song.patterns[0].rows) {
-      t = 0;
-    }
+  onCursorRowChange(row) {
     this.setState({
-      patternCursorRow: t,
+      patternCursorRow: row,
     });
   }
 
-  onCursorItemChange(item) {
-    let i = item;
-    let t = this.state.patternCursorTrack;
-    if (i < 0) {
-      i = 5;
-      t -= 1;
-      if (t < 0) {
-        t = this.state.song.tracks.length - 1;
-      }
-    } else if (i > 5) {
-      i = 0;
-      t += 1;
-      if (t >= this.state.song.tracks.length) {
-        t = 0;
-      }
-    }
-
+  onCursorItemChange(track, item) {
     this.setState({
-      patternCursorTrack: t,
-      patternCursorItem: i,
+      patternCursorTrack: track,
+      patternCursorItem: item,
     });
-  }
-
-  cursorMove(event, direction) {
-    if (direction === 0) {
-      this.onCursorItemChange(this.state.patternCursorItem - 1);
-    } else if (direction === 1) {
-      this.onCursorItemChange(this.state.patternCursorItem + 1);
-    } else if (direction === 2) {
-      this.onCursorChange(this.state.patternCursorRow - 1);
-    } else if (direction === 3) {
-      this.onCursorChange(this.state.patternCursorRow + 1);
-    }
-
-    event.preventDefault();
-  }
-
-  scrollDown(event, direction) {
-    this.onCursorChange(this.state.patternCursorRow + direction);
-
-    event.preventDefault();
   }
 
   render() {
@@ -589,15 +545,8 @@ export default class HomePage extends React.Component { // eslint-disable-line r
       ],
     };
 
-    const handlers = {
-      cursorLeft: (event) => { this.cursorMove(event, 0); },
-      cursorRight: (event) => { this.cursorMove(event, 1); },
-      cursorUp: (event) => { this.cursorMove(event, 2); },
-      cursorDown: (event) => { this.cursorMove(event, 3); },
-    };
-
     return (
-      <HotKeys keyMap={this.state.map} handlers={handlers}>
+      <HotKeys keyMap={this.state.map}>
         <ResponsiveReactGridLayout
           className="layout"
           layouts={layouts}
@@ -614,8 +563,8 @@ export default class HomePage extends React.Component { // eslint-disable-line r
                 cursorRow={this.state.patternCursorRow}
                 cursorTrack={this.state.patternCursorTrack}
                 cursorItem={this.state.patternCursorItem}
-                onCursorChange={this.onCursorChange}
-                cursorMove={this.cursorMove}
+                onCursorRowChange={this.onCursorRowChange}
+                onCursorItemChange={this.onCursorItemChange}
               />
             </Chrome>
           </Wrapper>
