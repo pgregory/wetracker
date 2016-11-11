@@ -13,6 +13,18 @@ import { HotKeys } from 'react-hotkeys';
 
 import '!style!css!./styles.css';
 
+// t = current time
+// b = start value
+// c = change in value
+// d = duration
+function easeInOutQuad(tc, b, c, d) {
+  let t = tc;
+  t /= d / 2;
+  if (t < 1) return (((c / 2) * t) * t) + b;
+  t -= 1;
+  return ((-c / 2) * ((t * (t - 2)) - 1)) + b;
+}
+
 class PatternEditor extends React.Component { // eslint-disable-line react/prefer-stateless-function
   constructor(props) {
     super(props);
@@ -37,7 +49,7 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
     // Only check the cursor is visible if it has moved on the row.
     if (prevProps.cursor.item !== this.props.cursor.item ||
         prevProps.cursor.track !== this.props.cursor.track) {
-      const item = document.getElementsByClassName('event-cursor')[0];
+      const item = document.getElementsByClassName('event-cursor')[0].parentElement;
       let offsetParent = item.offsetParent;
       let offset = item.offsetLeft;
       while (offsetParent.parentElement.id !== 'sideTable') {
@@ -46,9 +58,9 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
       }
 
       if ((offset + item.clientWidth) > vertTarget.parentElement.clientWidth) {
-        horizTarget.scrollLeft = ((offset + item.clientWidth) - vertTarget.parentElement.clientWidth) + 6;
+        this.scrollHorizTo(horizTarget, ((offset + item.clientWidth) - vertTarget.parentElement.clientWidth) + 6, 100);
       } else if (offset < horizTarget.scrollLeft) {
-        horizTarget.scrollLeft = offset - 6;
+        this.scrollHorizTo(horizTarget, offset - 6, 100);
       }
     }
   }
@@ -96,6 +108,22 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
     this.props.onCursorDown(4, this.props.song.patterns[0].rows);
   }
 
+  /* eslint no-param-reassign: ["error", { "props": false }]*/
+  scrollHorizTo(element, to, duration) {
+    const start = element.scrollLeft;
+    const change = to - start;
+    let currentTime = 0;
+    const increment = 20;
+
+    function animateScroll() {
+      currentTime += increment;
+      element.scrollLeft = easeInOutQuad(currentTime, start, change, duration);
+      if (currentTime < duration) {
+        setTimeout(animateScroll, increment);
+      }
+    }
+    animateScroll();
+  }
 
   render() {
     const width = this.props.width;
