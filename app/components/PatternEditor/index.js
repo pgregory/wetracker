@@ -77,9 +77,9 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
     } else if (direction === 1) {
       this.props.onCursorRight(this.props.song.tracks);
     } else if (direction === 2) {
-      this.props.onCursorUp(this.props.song.patterns[0].rows);
+      this.props.onCursorUp(1, this.props.song.patterns[0].rows);
     } else if (direction === 3) {
-      this.props.onCursorDown(this.props.song.patterns[0].rows);
+      this.props.onCursorDown(1, this.props.song.patterns[0].rows);
     }
 
     event.preventDefault();
@@ -104,6 +104,7 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
       cursorRight: (event) => { this.onCursorMove(event, 1); },
       cursorUp: (event) => { this.onCursorMove(event, 2); },
       cursorDown: (event) => { this.onCursorMove(event, 3); },
+      notePress: (event) => { this.props.onSetNoteAtCursor(this.props.cursor, event); },
     };
 
     return (
@@ -142,6 +143,7 @@ PatternEditor.propTypes = {
   onCursorDown: React.PropTypes.func.isRequired,
   onCursorLeft: React.PropTypes.func.isRequired,
   onCursorRight: React.PropTypes.func.isRequired,
+  onSetNoteAtCursor: React.PropTypes.func.isRequired,
   song: React.PropTypes.object.isRequired,
 };
 

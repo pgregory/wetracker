@@ -22,6 +22,7 @@ import {
   CURSOR_DOWN,
   CURSOR_SET_ROW,
   CURSOR_SET_TRACK_ITEM,
+  SET_NOTE_AT_CURSOR,
 } from './constants';
 
 /**
@@ -99,6 +100,14 @@ export function cursorSetTrackItem(track, item) {
     type: CURSOR_SET_TRACK_ITEM,
     track,
     item,
+  };
+}
+
+export function setNoteAtCursor(cursor, note) {
+  return {
+    type: SET_NOTE_AT_CURSOR,
+    cursor,
+    note,
   };
 }
 

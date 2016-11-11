@@ -15,3 +15,4 @@ export const CURSOR_UP = 'wetracker/App/CURSOR_UP';
 export const CURSOR_DOWN = 'wetracker/App/CURSOR_DOWN';
 export const CURSOR_SET_ROW = 'wetracker/App/CURSOR_SET_ROW';
 export const CURSOR_SET_TRACK_ITEM = 'wetracker/App/CURSOR_SET_TRACK_ITEM';
+export const SET_NOTE_AT_CURSOR = 'wetracker/App/SET_NOTE_AT_CURSOR';
