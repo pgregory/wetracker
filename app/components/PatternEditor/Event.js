@@ -5,7 +5,7 @@ function padDigits(value, digits) {
 }
 
 function padEventProperty(event, item, digits) {
-  if (event && event[item]) {
+  if (event && item in event) {
     return padDigits(event[item], digits);
   }
   return '----------'.slice(0, digits);

@@ -29,6 +29,8 @@ import {
   cursorLeft,
   cursorRight,
   setNoteAtCursor,
+  cursorTrackLeft,
+  cursorTrackRight,
 } from 'containers/App/actions';
 
 import { HotKeys } from 'react-hotkeys';
@@ -89,10 +91,12 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
 
     this.state = {
       map: {
-        cursorLeft: ['left', 'h'],
-        cursorRight: ['right', 'l'],
-        cursorUp: ['up', 'k'],
-        cursorDown: ['down', 'j'],
+        cursorLeft: 'left',
+        cursorRight: 'right',
+        cursorTrackLeft: 'shift+left',
+        cursorTrackRight: 'shift+right',
+        cursorUp: 'up',
+        cursorDown: 'down',
         notePress: [
           'a', // C
           's', // D
@@ -184,6 +188,8 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
                 onCursorDown={this.props.onCursorDown}
                 onCursorLeft={this.props.onCursorLeft}
                 onCursorRight={this.props.onCursorRight}
+                onCursorTrackLeft={this.props.onCursorTrackLeft}
+                onCursorTrackRight={this.props.onCursorTrackRight}
                 onSetNoteAtCursor={this.props.onSetNoteAtCursor}
               />
             </Chrome>
@@ -209,14 +215,18 @@ HomePage.propTypes = {
   onCursorRight: React.PropTypes.func.isRequired,
   onSetNoteAtCursor: React.PropTypes.func.isRequired,
   song: React.PropTypes.object.isRequired,
+  onCursorTrackLeft: React.PropTypes.func.isRequired,
+  onCursorTrackRight: React.PropTypes.func.isRequired,
 };
 
 export function mapDispatchToProps(dispatch) {
   return {
     onCursorUp: (step, patternRows) => dispatch(cursorUp(step, patternRows)),
     onCursorDown: (step, patternRows) => dispatch(cursorDown(step, patternRows)),
-    onCursorLeft: (song) => dispatch(cursorLeft(song)),
-    onCursorRight: (song) => dispatch(cursorRight(song)),
+    onCursorLeft: (tracks) => dispatch(cursorLeft(tracks)),
+    onCursorRight: (tracks) => dispatch(cursorRight(tracks)),
+    onCursorTrackLeft: (tracks) => dispatch(cursorTrackLeft(tracks)),
+    onCursorTrackRight: (tracks) => dispatch(cursorTrackRight(tracks)),
     onCursorRowChange: (row) => dispatch(cursorSetRow(row)),
     onCursorItemChange: (track, item) => dispatch(cursorSetTrackItem(track, item)),
     onSetNoteAtCursor: (cursor, note) => dispatch(setNoteAtCursor(cursor, note)),

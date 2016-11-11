@@ -14,6 +14,8 @@ import {
   CURSOR_SET_ROW,
   CURSOR_SET_TRACK_ITEM,
   SET_NOTE_AT_CURSOR,
+  CURSOR_TRACK_RIGHT,
+  CURSOR_TRACK_LEFT,
 } from 'containers/App/constants';
 import languageProviderReducer from 'containers/LanguageProvider/reducer';
 
@@ -98,6 +100,24 @@ function cursorReducer(state = cursorInitialState, action) {
       }
       return state.merge({
         item: i,
+        track: t,
+      });
+    }
+    case CURSOR_TRACK_LEFT: {
+      let t = state.get('track') - action.step;
+      if (t < 0) {
+        t = action.tracks.length - 1;
+      }
+      return state.merge({
+        track: t,
+      });
+    }
+    case CURSOR_TRACK_RIGHT: {
+      let t = state.get('track') + action.step;
+      if (t >= action.tracks.length) {
+        t = 0;
+      }
+      return state.merge({
         track: t,
       });
     }
@@ -529,34 +549,74 @@ const songInitialState = fromJS({
   }],
 });
 
-/* const track = (state = [], action) => {
-  switch (action.type) {
-    case SET_NOTE_AT_CURSOR: {
-    }
-    default:
-      return state;
-  }
-}
+const keyToNote = {
+  a: { note: 'C', octave: 0 },
+  s: { note: 'D', octave: 0 },
+  d: { note: 'E', octave: 0 },
+  f: { note: 'F', octave: 0 },
+  g: { note: 'G', octave: 0 },
+  h: { note: 'A', octave: 0 },
+  j: { note: 'B', octave: 0 },
+  k: { note: 'C', octave: 1 },
+  l: { note: 'D', octave: 1 },
+  w: { note: 'C#', octave: 0 },
+  e: { note: 'D#', octave: 0 },
+  t: { note: 'F#', octave: 0 },
+  y: { note: 'G#', octave: 0 },
+  u: { note: 'A#', octave: 0 },
+  o: { note: 'C#', octave: 1 },
+};
 
-const pattern = (state = [], action) => {
+const event = (state = [], action) => {
   switch (action.type) {
     case SET_NOTE_AT_CURSOR: {
+      const note = keyToNote[action.note.key];
+      return state.merge({
+        note: note.note + note.octave,
+        instrument: 0,
+        delay: 0,
+        panning: 80,
+        volume: 40,
+      });
     }
     default:
       return state;
   }
-}*/
+};
+
+const track = (state = [], action) => {
+  switch (action.type) {
+    case SET_NOTE_AT_CURSOR: {
+      return state.merge(
+        state.map((e, i) => (i === action.cursor.row ? event(e, action)
+                                                     : e))
+      );
+    }
+    default:
+      return state;
+  }
+};
+
+const pattern = (state = {}, action) => {
+  switch (action.type) {
+    case SET_NOTE_AT_CURSOR: {
+      return state.merge({
+        trackdata: state.get('trackdata').map((t, i) => (i === action.cursor.track ? track(t, action)
+                                                                                   : t)),
+      });
+    }
+    default:
+      return state;
+  }
+};
 
 function songReducer(state = songInitialState, action) {
   switch (action.type) {
     case SET_NOTE_AT_CURSOR: {
-      // console.log(action.cursor, action.note.key);
-      // console.log(state.getIn(['patterns', 0, 'trackdata', 0, 0, 'note']));
       return state.merge({
-        patterns: [
-          state.patterns.map((pattern, i) => (i === 0 ? pattern(pattern, action)
-                                                      : pattern)),
-        ],
+        patterns:
+          state.get('patterns').map((p, i) => (i === 0 ? pattern(p, action)
+                                                       : p)),
       });
     }
     default:

@@ -19,6 +19,7 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
 
     this.onScroll = this.onScroll.bind(this);
     this.onCursorMove = this.onCursorMove.bind(this);
+    this.onNoteEnter = this.onNoteEnter.bind(this);
 
     this.yoff = 0;
   }
@@ -34,7 +35,8 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
     col1.scrollTop = windowScroll;
 
     // Only check the cursor is visible if it has moved on the row.
-    if (prevProps.cursor.item !== this.props.cursor.item) {
+    if (prevProps.cursor.item !== this.props.cursor.item ||
+        prevProps.cursor.track !== this.props.cursor.track) {
       const item = document.getElementsByClassName('event-cursor')[0];
       let offsetParent = item.offsetParent;
       let offset = item.offsetLeft;
@@ -80,9 +82,18 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
       this.props.onCursorUp(1, this.props.song.patterns[0].rows);
     } else if (direction === 3) {
       this.props.onCursorDown(1, this.props.song.patterns[0].rows);
+    } else if (direction === 4) {
+      this.props.onCursorTrackLeft(this.props.song.tracks);
+    } else if (direction === 5) {
+      this.props.onCursorTrackRight(this.props.song.tracks);
     }
 
     event.preventDefault();
+  }
+
+  onNoteEnter(event) {
+    this.props.onSetNoteAtCursor(this.props.cursor, event);
+    this.props.onCursorDown(4, this.props.song.patterns[0].rows);
   }
 
 
@@ -102,9 +113,11 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
     const handlers = {
       cursorLeft: (event) => { this.onCursorMove(event, 0); },
       cursorRight: (event) => { this.onCursorMove(event, 1); },
+      cursorTrackLeft: (event) => { this.onCursorMove(event, 4); },
+      cursorTrackRight: (event) => { this.onCursorMove(event, 5); },
       cursorUp: (event) => { this.onCursorMove(event, 2); },
       cursorDown: (event) => { this.onCursorMove(event, 3); },
-      notePress: (event) => { this.props.onSetNoteAtCursor(this.props.cursor, event); },
+      notePress: (event) => { this.onNoteEnter(event); },
     };
 
     return (
@@ -137,12 +150,15 @@ PatternEditor.propTypes = {
   cursor: React.PropTypes.shape({
     row: React.PropTypes.number.isRequired,
     item: React.PropTypes.number.isRequired,
+    track: React.PropTypes.number.isRequired,
   }).isRequired,
   onCursorRowChange: React.PropTypes.func.isRequired,
   onCursorUp: React.PropTypes.func.isRequired,
   onCursorDown: React.PropTypes.func.isRequired,
   onCursorLeft: React.PropTypes.func.isRequired,
   onCursorRight: React.PropTypes.func.isRequired,
+  onCursorTrackLeft: React.PropTypes.func.isRequired,
+  onCursorTrackRight: React.PropTypes.func.isRequired,
   onSetNoteAtCursor: React.PropTypes.func.isRequired,
   song: React.PropTypes.object.isRequired,
 };

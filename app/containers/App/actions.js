@@ -23,6 +23,8 @@ import {
   CURSOR_SET_ROW,
   CURSOR_SET_TRACK_ITEM,
   SET_NOTE_AT_CURSOR,
+  CURSOR_TRACK_RIGHT,
+  CURSOR_TRACK_LEFT,
 } from './constants';
 
 /**
@@ -46,6 +48,32 @@ export function cursorRight(tracks) {
 export function cursorLeft(tracks) {
   return {
     type: CURSOR_LEFT,
+    step: 1,
+    tracks,
+  };
+}
+
+/**
+ * Move the pattern cursor one track to the right
+ *
+ * @return {object} An action object with a type of CURSOR_TRACK_RIGHT
+ */
+export function cursorTrackRight(tracks) {
+  return {
+    type: CURSOR_TRACK_RIGHT,
+    step: 1,
+    tracks,
+  };
+}
+
+/**
+ * Move the pattern cursor one track to the left
+ *
+ * @return {object} An action object with a type of CURSOR_TRACK_LEFT
+ */
+export function cursorTrackLeft(tracks) {
+  return {
+    type: CURSOR_TRACK_LEFT,
     step: 1,
     tracks,
   };

@@ -21,7 +21,8 @@ export default class Row extends React.Component {
       return true;
     }
     if (this.props.cursor.row === this.props.rownum &&
-         (this.props.cursor.item !== nextProps.cursor.item)) {
+       (this.props.cursor.item !== nextProps.cursor.item ||
+        this.props.cursor.track !== nextProps.cursor.track)) {
       return true;
     }
     return false;
@@ -52,6 +53,7 @@ Row.propTypes = {
   cursor: React.PropTypes.shape({
     row: React.PropTypes.number.isRequired,
     item: React.PropTypes.number.isRequired,
+    track: React.PropTypes.number.isRequired,
   }).isRequired,
   pattern: React.PropTypes.object.isRequired,
 };
