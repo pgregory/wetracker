@@ -31,6 +31,9 @@ import {
   setNoteAtCursor,
   cursorTrackLeft,
   cursorTrackRight,
+  saveSong,
+  loadSong,
+  doneRefresh,
 } from 'containers/App/actions';
 
 import { HotKeys } from 'react-hotkeys';
@@ -176,7 +179,11 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
           breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
           cols={{ lg: 12, md: 10, sm: 8, xs: 4, xxs: 2 }}
         >
-          <div key={'transport'}><span>Transport</span></div>
+          <div key={'transport'}>
+            <span>Transport</span>
+            <button onClick={this.props.onSaveSong}>Save</button>
+            <button onClick={this.props.onLoadSong}>Load</button>
+          </div>
           <Wrapper key={'pattern-editor'}>
             <Chrome>
               <PatternEditor
@@ -191,6 +198,8 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
                 onCursorTrackLeft={this.props.onCursorTrackLeft}
                 onCursorTrackRight={this.props.onCursorTrackRight}
                 onSetNoteAtCursor={this.props.onSetNoteAtCursor}
+                onDoneRefresh={this.props.onDoneRefresh}
+                refresh={this.props.song.refresh}
               />
             </Chrome>
           </Wrapper>
@@ -217,6 +226,9 @@ HomePage.propTypes = {
   song: React.PropTypes.object.isRequired,
   onCursorTrackLeft: React.PropTypes.func.isRequired,
   onCursorTrackRight: React.PropTypes.func.isRequired,
+  onSaveSong: React.PropTypes.func.isRequired,
+  onLoadSong: React.PropTypes.func.isRequired,
+  onDoneRefresh: React.PropTypes.func.isRequired,
 };
 
 export function mapDispatchToProps(dispatch) {
@@ -230,6 +242,9 @@ export function mapDispatchToProps(dispatch) {
     onCursorRowChange: (row) => dispatch(cursorSetRow(row)),
     onCursorItemChange: (track, item) => dispatch(cursorSetTrackItem(track, item)),
     onSetNoteAtCursor: (cursor, note) => dispatch(setNoteAtCursor(cursor, note)),
+    onSaveSong: () => dispatch(saveSong()),
+    onLoadSong: () => dispatch(loadSong()),
+    onDoneRefresh: () => dispatch(doneRefresh()),
   };
 }
 

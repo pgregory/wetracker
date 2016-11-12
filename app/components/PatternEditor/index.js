@@ -63,6 +63,7 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
         this.scrollHorizTo(horizTarget, offset - 6, 100);
       }
     }
+    this.props.onDoneRefresh();
   }
 
   onScroll(e) {
@@ -164,6 +165,7 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
               cursor={this.props.cursor}
               topPadding={blankRowsTop}
               bottomPadding={blankRowsBottom}
+              refresh={this.props.refresh}
             />
           </div>
         </div>
@@ -189,6 +191,8 @@ PatternEditor.propTypes = {
   onCursorTrackRight: React.PropTypes.func.isRequired,
   onSetNoteAtCursor: React.PropTypes.func.isRequired,
   song: React.PropTypes.object.isRequired,
+  onDoneRefresh: React.PropTypes.func.isRequired,
+  refresh: React.PropTypes.bool,
 };
 
 export default PatternEditor;

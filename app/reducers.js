@@ -16,6 +16,9 @@ import {
   SET_NOTE_AT_CURSOR,
   CURSOR_TRACK_RIGHT,
   CURSOR_TRACK_LEFT,
+  SAVE_SONG,
+  LOAD_SONG,
+  DONE_REFRESH,
 } from 'containers/App/constants';
 import languageProviderReducer from 'containers/LanguageProvider/reducer';
 
@@ -258,6 +261,24 @@ function songReducer(state = songInitialState, action) {
           state.get('patterns').map((p, i) => (i === 0 ? pattern(p, action)
                                                        : p)),
       });
+    }
+    case SAVE_SONG: {
+      const serializedState = JSON.stringify(state.toJS());
+      localStorage.setItem('wetracker-song', serializedState);
+      return state;
+    }
+    case LOAD_SONG: {
+      const serializedState = localStorage.getItem('wetracker-song');
+      if (serializedState === null) {
+        return undefined;
+      }
+      return state.merge(
+        fromJS(JSON.parse(serializedState)),
+        { refresh: true }
+      );
+    }
+    case DONE_REFRESH: {
+      return state.deleteIn(['refresh']);
     }
     default:
       return state;

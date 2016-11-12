@@ -3,6 +3,9 @@ import Row from './Row';
 
 export default class Rows extends React.Component {
   shouldCoponentUpdate(nextProps /* , nextState*/) {
+    if (this.props.refresh) {
+      return true;
+    }
     return nextProps.cursor.row !== this.props.cursor.row;
   }
 
@@ -21,6 +24,7 @@ export default class Rows extends React.Component {
               pattern={this.props.song.patterns[0]}
               rownum={row}
               cursor={this.props.cursor}
+              refresh={this.props.refresh}
             />
           ))}
           <tr>
@@ -41,4 +45,5 @@ Rows.propTypes = {
   }).isRequired,
   topPadding: React.PropTypes.number.isRequired,
   bottomPadding: React.PropTypes.number.isRequired,
+  refresh: React.PropTypes.bool,
 };

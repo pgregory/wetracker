@@ -25,6 +25,9 @@ import {
   SET_NOTE_AT_CURSOR,
   CURSOR_TRACK_RIGHT,
   CURSOR_TRACK_LEFT,
+  SAVE_SONG,
+  LOAD_SONG,
+  DONE_REFRESH,
 } from './constants';
 
 /**
@@ -139,3 +142,20 @@ export function setNoteAtCursor(cursor, note) {
   };
 }
 
+export function saveSong() {
+  return {
+    type: SAVE_SONG,
+  };
+}
+
+export function loadSong() {
+  return {
+    type: LOAD_SONG,
+  };
+}
+
+export function doneRefresh() {
+  return {
+    type: DONE_REFRESH,
+  };
+}

@@ -18,3 +18,6 @@ export const CURSOR_SET_TRACK_ITEM = 'wetracker/App/CURSOR_SET_TRACK_ITEM';
 export const SET_NOTE_AT_CURSOR = 'wetracker/App/SET_NOTE_AT_CURSOR';
 export const CURSOR_TRACK_RIGHT = 'wetracker/App/CURSOR_TRACK_RIGHT';
 export const CURSOR_TRACK_LEFT = 'wetracker/App/CURSOR_TRACK_LEFT';
+export const SAVE_SONG = 'wetracker/App/SAVE_SONG';
+export const LOAD_SONG = 'wetracker/App/LOAD_SONG';
+export const DONE_REFRESH = 'wetracker/App/DONE_REFRESH';
