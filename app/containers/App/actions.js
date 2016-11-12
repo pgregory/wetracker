@@ -28,6 +28,8 @@ import {
   SAVE_SONG,
   LOAD_SONG,
   DONE_REFRESH,
+  PLAY,
+  STOP,
 } from './constants';
 
 /**
@@ -157,5 +159,17 @@ export function loadSong() {
 export function doneRefresh() {
   return {
     type: DONE_REFRESH,
+  };
+}
+
+export function play() {
+  return {
+    type: PLAY,
+  };
+}
+
+export function stop() {
+  return {
+    type: STOP,
   };
 }

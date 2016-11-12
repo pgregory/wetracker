@@ -21,3 +21,5 @@ export const CURSOR_TRACK_LEFT = 'wetracker/App/CURSOR_TRACK_LEFT';
 export const SAVE_SONG = 'wetracker/App/SAVE_SONG';
 export const LOAD_SONG = 'wetracker/App/LOAD_SONG';
 export const DONE_REFRESH = 'wetracker/App/DONE_REFRESH';
+export const PLAY = 'wetracker/App/PLAY';
+export const STOP = 'wetracker/App/STOP';

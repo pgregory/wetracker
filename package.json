@@ -232,6 +232,7 @@
     "redux-saga": "0.11.1",
     "reselect": "2.5.4",
     "sanitize.css": "4.1.0",
+    "tone": "^0.8.0",
     "warning": "3.0.0",
     "whatwg-fetch": "1.0.0"
   },

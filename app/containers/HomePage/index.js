@@ -13,12 +13,14 @@ import React from 'react';
 import { Responsive, WidthProvider } from 'react-grid-layout';
 import PatternEditor from 'components/PatternEditor';
 import InstrumentList from 'components/InstrumentList';
+import MusicPlayer from 'components/MusicPlayer';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 
 import {
   selectCursor,
   selectSong,
+  selectTransport,
 } from 'containers/App/selectors';
 
 import {
@@ -34,6 +36,8 @@ import {
   saveSong,
   loadSong,
   doneRefresh,
+  play,
+  stop,
 } from 'containers/App/actions';
 
 import { HotKeys } from 'react-hotkeys';
@@ -101,21 +105,43 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
         cursorUp: 'up',
         cursorDown: 'down',
         notePress: [
-          'a', // C
-          's', // D
-          'd', // E
-          'f', // F
-          'g', // G
-          'h', // A
-          'j', // B
-          'k', // C
-          'l', // D
-          'w', // C#
-          'e', // D#
-          't', // F#
-          'y', // G#
-          'u', // A#
-          'o', // C#
+          'z', // Cn
+          'x', // Dn
+          'c', // En
+          'v', // Fn
+          'b', // Gn
+          'n', // An
+          'm', // Bn
+          's', // C#n
+          'd', // D#n
+          'g', // F#n
+          'h', // G#n
+          'j', // A#n
+          ',', // Cn+1
+          '.', // Dn+1
+          '/', // En+1
+          'l', // C#n+1
+          ';', // D#n+1
+          'q', // Cn+1
+          'w', // Dn+1
+          'e', // En+1
+          'r', // Fn+1
+          't', // Gn+1
+          'y', // An+1
+          'u', // Bn+1
+          '2', // C#n+1
+          '3', // D#n+1
+          '5', // F#n+1
+          '6', // G#n+1
+          '7', // A#n+1
+          'i', // Cn+2
+          'o', // Dn+2
+          'p', // En+2
+          '[', // Fn+2
+          ']', // Gn+2
+          '9', // C#n+2
+          '0', // D#n+2
+          '=', // F#n+2
         ],
       },
     };
@@ -180,9 +206,11 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
           cols={{ lg: 12, md: 10, sm: 8, xs: 4, xxs: 2 }}
         >
           <div key={'transport'}>
-            <span>Transport</span>
             <button onClick={this.props.onSaveSong}>Save</button>
             <button onClick={this.props.onLoadSong}>Load</button>
+            <button onClick={this.props.onPlaySong}>Play</button>
+            <button onClick={this.props.onStopSong}>Stop</button>
+            <MusicPlayer song={this.props.song} transport={this.props.transport} />
           </div>
           <Wrapper key={'pattern-editor'}>
             <Chrome>
@@ -229,6 +257,9 @@ HomePage.propTypes = {
   onSaveSong: React.PropTypes.func.isRequired,
   onLoadSong: React.PropTypes.func.isRequired,
   onDoneRefresh: React.PropTypes.func.isRequired,
+  onPlaySong: React.PropTypes.func.isRequired,
+  onStopSong: React.PropTypes.func.isRequired,
+  transport: React.PropTypes.object.isRequired,
 };
 
 export function mapDispatchToProps(dispatch) {
@@ -245,12 +276,15 @@ export function mapDispatchToProps(dispatch) {
     onSaveSong: () => dispatch(saveSong()),
     onLoadSong: () => dispatch(loadSong()),
     onDoneRefresh: () => dispatch(doneRefresh()),
+    onPlaySong: () => dispatch(play()),
+    onStopSong: () => dispatch(stop()),
   };
 }
 
 const mapStateToProps = createStructuredSelector({
   cursor: selectCursor(),
   song: selectSong(),
+  transport: selectTransport(),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(HomePage);
