@@ -13,7 +13,7 @@ import React from 'react';
 import { Responsive, WidthProvider } from 'react-grid-layout';
 import PatternEditor from 'components/PatternEditor';
 import InstrumentList from 'components/InstrumentList';
-import MusicPlayer from 'components/MusicPlayer';
+import Transport from 'components/Transport';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 
@@ -39,6 +39,7 @@ import {
   play,
   stop,
   playCursorSetRow,
+  stepChange,
 } from 'containers/App/actions';
 
 import { HotKeys } from 'react-hotkeys';
@@ -207,14 +208,15 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
           cols={{ lg: 12, md: 10, sm: 8, xs: 4, xxs: 2 }}
         >
           <div key={'transport'}>
-            <button onClick={this.props.onSaveSong}>Save</button>
-            <button onClick={this.props.onLoadSong}>Load</button>
-            <button onClick={this.props.onPlaySong}>Play</button>
-            <button onClick={this.props.onStopSong}>Stop</button>
-            <MusicPlayer
-              song={this.props.song}
+            <Transport
+              onSaveSong={this.props.onSaveSong}
+              onLoadSong={this.props.onLoadSong}
+              onPlaySong={this.props.onPlaySong}
+              onStopSong={this.props.onStopSong}
               transport={this.props.transport}
+              song={this.props.song}
               onPlayCursorRowChange={this.props.onPlayCursorRowChange}
+              onStepChange={this.props.onStepChange}
             />
           </div>
           <Wrapper key={'pattern-editor'}>
@@ -233,6 +235,7 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
                 onSetNoteAtCursor={this.props.onSetNoteAtCursor}
                 onDoneRefresh={this.props.onDoneRefresh}
                 refresh={this.props.song.refresh}
+                transport={this.props.transport}
               />
             </Chrome>
           </Wrapper>
@@ -266,6 +269,7 @@ HomePage.propTypes = {
   onStopSong: React.PropTypes.func.isRequired,
   transport: React.PropTypes.object.isRequired,
   onPlayCursorRowChange: React.PropTypes.func.isRequired,
+  onStepChange: React.PropTypes.func.isRequired,
 };
 
 export function mapDispatchToProps(dispatch) {
@@ -285,6 +289,7 @@ export function mapDispatchToProps(dispatch) {
     onPlaySong: () => dispatch(play()),
     onStopSong: () => dispatch(stop()),
     onPlayCursorRowChange: (row) => dispatch(playCursorSetRow(row)),
+    onStepChange: (step) => dispatch(stepChange(step)),
   };
 }
 

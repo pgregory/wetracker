@@ -106,7 +106,7 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
 
   onNoteEnter(event) {
     this.props.onSetNoteAtCursor(this.props.cursor, event);
-    this.props.onCursorDown(4, this.props.song.patterns[0].rows);
+    this.props.onCursorDown(this.props.transport.step, this.props.song.patterns[0].rows);
   }
 
   /* eslint no-param-reassign: ["error", { "props": false }]*/
@@ -193,6 +193,7 @@ PatternEditor.propTypes = {
   song: React.PropTypes.object.isRequired,
   onDoneRefresh: React.PropTypes.func.isRequired,
   refresh: React.PropTypes.bool,
+  transport: React.PropTypes.object.isRequired,
 };
 
 export default PatternEditor;

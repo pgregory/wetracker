@@ -700,6 +700,7 @@ function songReducer(state = songInitialState, action) {
 
 const transportInitialState = fromJS({
   playing: false,
+  step: 4,
 });
 
 function transportReducer(state = transportInitialState, action) {
@@ -712,6 +713,11 @@ function transportReducer(state = transportInitialState, action) {
     case constants.STOP: {
       return state.merge({
         playing: false,
+      });
+    }
+    case constants.STEP_CHANGE: {
+      return state.merge({
+        step: action.step,
       });
     }
     default:

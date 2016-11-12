@@ -166,3 +166,11 @@ export function playCursorSetRow(row, patternRows = 64) {
     patternRows,
   };
 }
+
+
+export function stepChange(step) {
+  return {
+    type: constants.STEP_CHANGE,
+    step,
+  };
+}
