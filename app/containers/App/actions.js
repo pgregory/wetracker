@@ -15,22 +15,7 @@
  *    }
  */
 
-import {
-  CURSOR_RIGHT,
-  CURSOR_LEFT,
-  CURSOR_UP,
-  CURSOR_DOWN,
-  CURSOR_SET_ROW,
-  CURSOR_SET_TRACK_ITEM,
-  SET_NOTE_AT_CURSOR,
-  CURSOR_TRACK_RIGHT,
-  CURSOR_TRACK_LEFT,
-  SAVE_SONG,
-  LOAD_SONG,
-  DONE_REFRESH,
-  PLAY,
-  STOP,
-} from './constants';
+import * as constants from './constants';
 
 /**
  * Move the pattern cursor one step to the right
@@ -39,7 +24,7 @@ import {
  */
 export function cursorRight(tracks) {
   return {
-    type: CURSOR_RIGHT,
+    type: constants.CURSOR_RIGHT,
     step: 1,
     tracks,
   };
@@ -52,7 +37,7 @@ export function cursorRight(tracks) {
  */
 export function cursorLeft(tracks) {
   return {
-    type: CURSOR_LEFT,
+    type: constants.CURSOR_LEFT,
     step: 1,
     tracks,
   };
@@ -65,7 +50,7 @@ export function cursorLeft(tracks) {
  */
 export function cursorTrackRight(tracks) {
   return {
-    type: CURSOR_TRACK_RIGHT,
+    type: constants.CURSOR_TRACK_RIGHT,
     step: 1,
     tracks,
   };
@@ -78,7 +63,7 @@ export function cursorTrackRight(tracks) {
  */
 export function cursorTrackLeft(tracks) {
   return {
-    type: CURSOR_TRACK_LEFT,
+    type: constants.CURSOR_TRACK_LEFT,
     step: 1,
     tracks,
   };
@@ -91,7 +76,7 @@ export function cursorTrackLeft(tracks) {
  */
 export function cursorUp(step = 1, patternRows = 64) {
   return {
-    type: CURSOR_UP,
+    type: constants.CURSOR_UP,
     step,
     patternRows,
   };
@@ -104,7 +89,7 @@ export function cursorUp(step = 1, patternRows = 64) {
  */
 export function cursorDown(step = 1, patternRows = 64) {
   return {
-    type: CURSOR_DOWN,
+    type: constants.CURSOR_DOWN,
     step,
     patternRows,
   };
@@ -117,7 +102,7 @@ export function cursorDown(step = 1, patternRows = 64) {
  */
 export function cursorSetRow(row, patternRows = 64) {
   return {
-    type: CURSOR_SET_ROW,
+    type: constants.CURSOR_SET_ROW,
     row,
     patternRows,
   };
@@ -130,7 +115,7 @@ export function cursorSetRow(row, patternRows = 64) {
  */
 export function cursorSetTrackItem(track, item) {
   return {
-    type: CURSOR_SET_TRACK_ITEM,
+    type: constants.CURSOR_SET_TRACK_ITEM,
     track,
     item,
   };
@@ -138,7 +123,7 @@ export function cursorSetTrackItem(track, item) {
 
 export function setNoteAtCursor(cursor, note) {
   return {
-    type: SET_NOTE_AT_CURSOR,
+    type: constants.SET_NOTE_AT_CURSOR,
     cursor,
     note,
   };
@@ -146,30 +131,38 @@ export function setNoteAtCursor(cursor, note) {
 
 export function saveSong() {
   return {
-    type: SAVE_SONG,
+    type: constants.SAVE_SONG,
   };
 }
 
 export function loadSong() {
   return {
-    type: LOAD_SONG,
+    type: constants.LOAD_SONG,
   };
 }
 
 export function doneRefresh() {
   return {
-    type: DONE_REFRESH,
+    type: constants.DONE_REFRESH,
   };
 }
 
 export function play() {
   return {
-    type: PLAY,
+    type: constants.PLAY,
   };
 }
 
 export function stop() {
   return {
-    type: STOP,
+    type: constants.STOP,
+  };
+}
+
+export function playCursorSetRow(row, patternRows = 64) {
+  return {
+    type: constants.PLAY_CURSOR_SET_ROW,
+    row,
+    patternRows,
   };
 }

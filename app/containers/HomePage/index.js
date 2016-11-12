@@ -38,6 +38,7 @@ import {
   doneRefresh,
   play,
   stop,
+  playCursorSetRow,
 } from 'containers/App/actions';
 
 import { HotKeys } from 'react-hotkeys';
@@ -210,7 +211,11 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
             <button onClick={this.props.onLoadSong}>Load</button>
             <button onClick={this.props.onPlaySong}>Play</button>
             <button onClick={this.props.onStopSong}>Stop</button>
-            <MusicPlayer song={this.props.song} transport={this.props.transport} />
+            <MusicPlayer
+              song={this.props.song}
+              transport={this.props.transport}
+              onPlayCursorRowChange={this.props.onPlayCursorRowChange}
+            />
           </div>
           <Wrapper key={'pattern-editor'}>
             <Chrome>
@@ -260,6 +265,7 @@ HomePage.propTypes = {
   onPlaySong: React.PropTypes.func.isRequired,
   onStopSong: React.PropTypes.func.isRequired,
   transport: React.PropTypes.object.isRequired,
+  onPlayCursorRowChange: React.PropTypes.func.isRequired,
 };
 
 export function mapDispatchToProps(dispatch) {
@@ -278,6 +284,7 @@ export function mapDispatchToProps(dispatch) {
     onDoneRefresh: () => dispatch(doneRefresh()),
     onPlaySong: () => dispatch(play()),
     onStopSong: () => dispatch(stop()),
+    onPlayCursorRowChange: (row) => dispatch(playCursorSetRow(row)),
   };
 }
 

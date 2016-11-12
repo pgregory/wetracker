@@ -8,8 +8,12 @@ function rowClassNames(row, cursor, rowsPerBeat) {
     names.push('beat-row');
   }
 
-  if (row === cursor) {
+  if (row === cursor.row) {
     names.push('pattern-cursor-row');
+  }
+
+  if (row === cursor.play_row) {
+    names.push('pattern-play-cursor-row');
   }
   return names.join(' ');
 }
@@ -23,6 +27,10 @@ export default class Row extends React.Component {
         (this.props.cursor.row !== this.props.rownum && nextProps.cursor.row === nextProps.rownum)) {
       return true;
     }
+    if ((this.props.cursor.play_row === this.props.rownum && nextProps.cursor.play_row !== nextProps.rownum) ||
+        (this.props.cursor.play_row !== this.props.rownum && nextProps.cursor.play_row === nextProps.rownum)) {
+      return true;
+    }
     if (this.props.cursor.row === this.props.rownum &&
        (this.props.cursor.item !== nextProps.cursor.item ||
         this.props.cursor.track !== nextProps.cursor.track)) {
@@ -33,7 +41,7 @@ export default class Row extends React.Component {
 
   render() {
     return (
-      <tr className={rowClassNames(this.props.rownum, this.props.cursor.row, 4)}>
+      <tr className={rowClassNames(this.props.rownum, this.props.cursor, 4)}>
         { this.props.pattern && this.props.pattern.trackdata.map((track, index) => (
           <td key={index}>
             <Event
@@ -55,6 +63,7 @@ Row.propTypes = {
   rownum: React.PropTypes.number.isRequired,
   cursor: React.PropTypes.shape({
     row: React.PropTypes.number.isRequired,
+    play_row: React.PropTypes.number.isRequired,
     item: React.PropTypes.number.isRequired,
     track: React.PropTypes.number.isRequired,
   }).isRequired,

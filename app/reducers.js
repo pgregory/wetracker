@@ -6,22 +6,7 @@
 import { combineReducers } from 'redux-immutable';
 import { fromJS } from 'immutable';
 import { LOCATION_CHANGE } from 'react-router-redux';
-import {
-  CURSOR_RIGHT,
-  CURSOR_LEFT,
-  CURSOR_UP,
-  CURSOR_DOWN,
-  CURSOR_SET_ROW,
-  CURSOR_SET_TRACK_ITEM,
-  SET_NOTE_AT_CURSOR,
-  CURSOR_TRACK_RIGHT,
-  CURSOR_TRACK_LEFT,
-  SAVE_SONG,
-  LOAD_SONG,
-  DONE_REFRESH,
-  PLAY,
-  STOP,
-} from 'containers/App/constants';
+import * as constants from 'containers/App/constants';
 import languageProviderReducer from 'containers/LanguageProvider/reducer';
 
 /*
@@ -56,11 +41,12 @@ const cursorInitialState = fromJS({
   row: 0,
   track: 0,
   item: 0,
+  play_row: 0,
 });
 
 function cursorReducer(state = cursorInitialState, action) {
   switch (action.type) {
-    case CURSOR_UP: {
+    case constants.CURSOR_UP: {
       let t = state.get('row') - action.step;
       if (t < 0) {
         t = action.patternRows - 1;
@@ -69,7 +55,7 @@ function cursorReducer(state = cursorInitialState, action) {
         row: t,
       });
     }
-    case CURSOR_DOWN: {
+    case constants.CURSOR_DOWN: {
       let t = state.get('row') + action.step;
       if (t >= action.patternRows) {
         t = 0;
@@ -78,7 +64,7 @@ function cursorReducer(state = cursorInitialState, action) {
         row: t,
       });
     }
-    case CURSOR_LEFT: {
+    case constants.CURSOR_LEFT: {
       let i = state.get('item') - action.step;
       let t = state.get('track');
       if (i < 0) {
@@ -93,7 +79,7 @@ function cursorReducer(state = cursorInitialState, action) {
         track: t,
       });
     }
-    case CURSOR_RIGHT: {
+    case constants.CURSOR_RIGHT: {
       let i = state.get('item') + action.step;
       let t = state.get('track');
       if (i > 5) {
@@ -108,7 +94,7 @@ function cursorReducer(state = cursorInitialState, action) {
         track: t,
       });
     }
-    case CURSOR_TRACK_LEFT: {
+    case constants.CURSOR_TRACK_LEFT: {
       let t = state.get('track') - action.step;
       if (t < 0) {
         t = action.tracks.length - 1;
@@ -117,7 +103,7 @@ function cursorReducer(state = cursorInitialState, action) {
         track: t,
       });
     }
-    case CURSOR_TRACK_RIGHT: {
+    case constants.CURSOR_TRACK_RIGHT: {
       let t = state.get('track') + action.step;
       if (t >= action.tracks.length) {
         t = 0;
@@ -126,11 +112,16 @@ function cursorReducer(state = cursorInitialState, action) {
         track: t,
       });
     }
-    case CURSOR_SET_ROW:
+    case constants.CURSOR_SET_ROW:
       return state.merge({
         row: action.row,
       });
-    case CURSOR_SET_TRACK_ITEM:
+    case constants.PLAY_CURSOR_SET_ROW:
+      return state.merge({
+        play_row: action.row,
+        row: action.row,
+      });
+    case constants.CURSOR_SET_TRACK_ITEM:
       return state.merge({
         track: action.track,
         item: action.item,
@@ -634,7 +625,7 @@ const keyToNote = {
 
 const event = (state = [], action) => {
   switch (action.type) {
-    case SET_NOTE_AT_CURSOR: {
+    case constants.SET_NOTE_AT_CURSOR: {
       const note = keyToNote[action.note.key];
       return state.merge({
         note: note.note + (note.octave + 4),
@@ -651,7 +642,7 @@ const event = (state = [], action) => {
 
 const track = (state = [], action) => {
   switch (action.type) {
-    case SET_NOTE_AT_CURSOR: {
+    case constants.SET_NOTE_AT_CURSOR: {
       return state.merge(
         state.map((e, i) => (i === action.cursor.row ? event(e, action)
                                                      : e))
@@ -664,7 +655,7 @@ const track = (state = [], action) => {
 
 const pattern = (state = {}, action) => {
   switch (action.type) {
-    case SET_NOTE_AT_CURSOR: {
+    case constants.SET_NOTE_AT_CURSOR: {
       return state.merge({
         trackdata: state.get('trackdata').map((t, i) => (i === action.cursor.track ? track(t, action)
                                                                                    : t)),
@@ -677,19 +668,19 @@ const pattern = (state = {}, action) => {
 
 function songReducer(state = songInitialState, action) {
   switch (action.type) {
-    case SET_NOTE_AT_CURSOR: {
+    case constants.SET_NOTE_AT_CURSOR: {
       return state.merge({
         patterns:
           state.get('patterns').map((p, i) => (i === 0 ? pattern(p, action)
                                                        : p)),
       });
     }
-    case SAVE_SONG: {
+    case constants.SAVE_SONG: {
       const serializedState = JSON.stringify(state.toJS());
       localStorage.setItem('wetracker-song', serializedState);
       return state;
     }
-    case LOAD_SONG: {
+    case constants.LOAD_SONG: {
       const serializedState = localStorage.getItem('wetracker-song');
       if (serializedState === null) {
         return undefined;
@@ -699,7 +690,7 @@ function songReducer(state = songInitialState, action) {
         { refresh: true }
       );
     }
-    case DONE_REFRESH: {
+    case constants.DONE_REFRESH: {
       return state.deleteIn(['refresh']);
     }
     default:
@@ -713,12 +704,12 @@ const transportInitialState = fromJS({
 
 function transportReducer(state = transportInitialState, action) {
   switch (action.type) {
-    case PLAY: {
+    case constants.PLAY: {
       return state.merge({
         playing: true,
       });
     }
-    case STOP: {
+    case constants.STOP: {
       return state.merge({
         playing: false,
       });

@@ -23,3 +23,4 @@ export const LOAD_SONG = 'wetracker/App/LOAD_SONG';
 export const DONE_REFRESH = 'wetracker/App/DONE_REFRESH';
 export const PLAY = 'wetracker/App/PLAY';
 export const STOP = 'wetracker/App/STOP';
+export const PLAY_CURSOR_SET_ROW = 'wetracker/App/PLAY_CURSOR_SET_ROW';

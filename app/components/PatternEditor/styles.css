@@ -66,6 +66,10 @@
   background: rgb(10, 50, 10);
 }
 
+.pattern-play-cursor-row {
+  background: rgb(10, 80, 80);
+}
+
 .line {
   font-family: monospace;
   width: 150px;
