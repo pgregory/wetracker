@@ -1,4 +1,14 @@
-.transport { /* stylelint-disable */
+.transport {
   display: flex;
   flex-direction: row;
+  background: #555;
+  padding: 2px 0;
+}
+
+.transport .item {
+  margin: 0 5px;
+}
+
+.transport button {
+  border: 1px solid white;
 }

@@ -176,7 +176,7 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
     // layout is an array of objects, see the demo for more complete usage
     const layouts = {
       lg: [
-        { i: 'transport', x: 0, y: 0, w: 12, h: 2, static: true },
+        { i: 'transport', x: 0, y: 0, w: 12, h: 1, static: true },
         { i: 'pattern-editor', x: 2, y: 6, w: 8, h: 8, minW: 4, minH: 3 },
         { i: 'pattern-sequencer', x: 0, y: 6, w: 2, h: 8 },
         { i: 'instruments', x: 11, y: 3, w: 2, h: 6 },
@@ -185,7 +185,7 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
         { i: 'effects', x: 0, y: 14, w: 10, h: 4 },
       ],
       md: [
-        { i: 'transport', x: 0, y: 0, w: 12, h: 2, static: true },
+        { i: 'transport', x: 0, y: 0, w: 12, h: 1, static: true },
         { i: 'pattern-editor', x: 2, y: 6, w: 6, h: 8, minW: 4, minH: 3 },
         { i: 'pattern-sequencer', x: 0, y: 6, w: 2, h: 8 },
         { i: 'instruments', x: 11, y: 3, w: 2, h: 6 },
@@ -194,7 +194,7 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
         { i: 'effects', x: 0, y: 14, w: 8, h: 4 },
       ],
       sm: [
-        { i: 'transport', x: 0, y: 0, w: 12, h: 2, static: true },
+        { i: 'transport', x: 0, y: 0, w: 12, h: 1, static: true },
         { i: 'pattern-editor', x: 2, y: 6, w: 6, h: 8, minW: 4, minH: 3 },
         { i: 'pattern-sequencer', x: 0, y: 6, w: 2, h: 8 },
         { i: 'instruments', x: 0, y: 14, w: 2, h: 6 },
