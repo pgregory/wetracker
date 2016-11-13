@@ -147,22 +147,29 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
         ],
       },
     };
-
-    this.onCursorRowChange = this.onCursorRowChange.bind(this);
-    this.onCursorItemChange = this.onCursorItemChange.bind(this);
   }
 
-  onCursorRowChange(row) {
-    this.setState({
-      patternCursorRow: row,
-    });
+  onCursorMove(event, direction) {
+    if (direction === 0) {
+      this.props.onCursorLeft(this.props.song.tracks);
+    } else if (direction === 1) {
+      this.props.onCursorRight(this.props.song.tracks);
+    } else if (direction === 2) {
+      this.props.onCursorUp(1, this.props.song.patterns[0].rows);
+    } else if (direction === 3) {
+      this.props.onCursorDown(1, this.props.song.patterns[0].rows);
+    } else if (direction === 4) {
+      this.props.onCursorTrackLeft(this.props.song.tracks);
+    } else if (direction === 5) {
+      this.props.onCursorTrackRight(this.props.song.tracks);
+    }
+
+    event.preventDefault();
   }
 
-  onCursorItemChange(track, item) {
-    this.setState({
-      patternCursorTrack: track,
-      patternCursorItem: item,
-    });
+  onNoteEnter(event) {
+    this.props.onSetNoteAtCursor(this.props.cursor, event);
+    this.props.onCursorDown(this.props.transport.step, this.props.song.patterns[0].rows);
   }
 
   render() {
@@ -197,8 +204,18 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
       ],
     };
 
+    const handlers = {
+      cursorLeft: (event) => { this.onCursorMove(event, 0); },
+      cursorRight: (event) => { this.onCursorMove(event, 1); },
+      cursorTrackLeft: (event) => { this.onCursorMove(event, 4); },
+      cursorTrackRight: (event) => { this.onCursorMove(event, 5); },
+      cursorUp: (event) => { this.onCursorMove(event, 2); },
+      cursorDown: (event) => { this.onCursorMove(event, 3); },
+      notePress: (event) => { this.onNoteEnter(event); },
+    };
+
     return (
-      <HotKeys keyMap={this.state.map}>
+      <HotKeys keyMap={this.state.map} handlers={handlers}>
         <ResponsiveReactGridLayout
           className="layout"
           layouts={layouts}

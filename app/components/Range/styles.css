@@ -1,3 +1,12 @@
 .range { /* stylelint-disable */
+}
 
+.range label {
+  margin-right: 3px;
+}
+
+.range input {
+  width: 40px;
+  border: 1px solid cyan;
+  text-align: center;
 }

@@ -37,7 +37,7 @@ class MusicPlayer extends React.Component { // eslint-disable-line react/prefer-
       for (t = 0; t < that.props.song.patterns[0].trackdata.length; t += 1) {
         const event = that.props.song.patterns[0].trackdata[t][row];
         if (event.note) {
-          that.synth.triggerAttackRelease(event.note, '4n', time);
+          that.synth.triggerAttackRelease(event.note, '16n', time);
         }
       }
       this.props.onPlayCursorRowChange(row);

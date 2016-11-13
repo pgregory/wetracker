@@ -9,8 +9,6 @@ import Header from './Header';
 import Timeline from './Timeline';
 import Rows from './Rows';
 
-import { HotKeys } from 'react-hotkeys';
-
 import '!style!css!./styles.css';
 
 // t = current time
@@ -30,8 +28,6 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
     super(props);
 
     this.onScroll = this.onScroll.bind(this);
-    this.onCursorMove = this.onCursorMove.bind(this);
-    this.onNoteEnter = this.onNoteEnter.bind(this);
 
     this.yoff = 0;
   }
@@ -86,29 +82,6 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
     e.preventDefault();
   }
 
-  onCursorMove(event, direction) {
-    if (direction === 0) {
-      this.props.onCursorLeft(this.props.song.tracks);
-    } else if (direction === 1) {
-      this.props.onCursorRight(this.props.song.tracks);
-    } else if (direction === 2) {
-      this.props.onCursorUp(1, this.props.song.patterns[0].rows);
-    } else if (direction === 3) {
-      this.props.onCursorDown(1, this.props.song.patterns[0].rows);
-    } else if (direction === 4) {
-      this.props.onCursorTrackLeft(this.props.song.tracks);
-    } else if (direction === 5) {
-      this.props.onCursorTrackRight(this.props.song.tracks);
-    }
-
-    event.preventDefault();
-  }
-
-  onNoteEnter(event) {
-    this.props.onSetNoteAtCursor(this.props.cursor, event);
-    this.props.onCursorDown(this.props.transport.step, this.props.song.patterns[0].rows);
-  }
-
   /* eslint no-param-reassign: ["error", { "props": false }]*/
   scrollHorizTo(element, to, duration) {
     const start = element.scrollLeft;
@@ -139,18 +112,8 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
     const blankRowsTop = Math.floor((visibleLines / 2) - 0.5);
     const blankRowsBottom = visibleLines - blankRowsTop - 1;
 
-    const handlers = {
-      cursorLeft: (event) => { this.onCursorMove(event, 0); },
-      cursorRight: (event) => { this.onCursorMove(event, 1); },
-      cursorTrackLeft: (event) => { this.onCursorMove(event, 4); },
-      cursorTrackRight: (event) => { this.onCursorMove(event, 5); },
-      cursorUp: (event) => { this.onCursorMove(event, 2); },
-      cursorDown: (event) => { this.onCursorMove(event, 3); },
-      notePress: (event) => { this.onNoteEnter(event); },
-    };
-
     return (
-      <HotKeys handlers={handlers} className="pattern-editor">
+      <div className="pattern-editor">
         <div style={{ float: 'left' }}>
           <Timeline song={this.props.song} cursor={this.props.cursor} scrollHeight={scrollHeight} topPadding={blankRowsTop} bottomPadding={blankRowsBottom} />
         </div>
@@ -169,7 +132,7 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
             />
           </div>
         </div>
-      </HotKeys>
+      </div>
     );
   }
 }
@@ -183,17 +146,9 @@ PatternEditor.propTypes = {
     track: React.PropTypes.number.isRequired,
   }).isRequired,
   onCursorRowChange: React.PropTypes.func.isRequired,
-  onCursorUp: React.PropTypes.func.isRequired,
-  onCursorDown: React.PropTypes.func.isRequired,
-  onCursorLeft: React.PropTypes.func.isRequired,
-  onCursorRight: React.PropTypes.func.isRequired,
-  onCursorTrackLeft: React.PropTypes.func.isRequired,
-  onCursorTrackRight: React.PropTypes.func.isRequired,
-  onSetNoteAtCursor: React.PropTypes.func.isRequired,
   song: React.PropTypes.object.isRequired,
   onDoneRefresh: React.PropTypes.func.isRequired,
   refresh: React.PropTypes.bool,
-  transport: React.PropTypes.object.isRequired,
 };
 
 export default PatternEditor;
