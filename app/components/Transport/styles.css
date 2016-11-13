@@ -1,14 +1,17 @@
 .transport {
   display: flex;
   flex-direction: row;
-  background: #555;
+  background: #333;
   padding: 2px 0;
 }
 
 .transport .item {
   margin: 0 5px;
+  color: #888;
 }
 
 .transport button {
-  border: 1px solid white;
+  border: 1px solid black;
+  background: #444;
+  color: #888;
 }

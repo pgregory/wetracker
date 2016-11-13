@@ -8,6 +8,7 @@
 .range input {
   width: 40px;
   height: 25px;
-  border: 1px solid cyan;
+  border: 1px solid black;
+  background: #222;
   text-align: center;
 }
