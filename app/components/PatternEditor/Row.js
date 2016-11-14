@@ -48,8 +48,9 @@ export default class Row extends React.Component {
               key={index}
               patternRow={this.props.rownum}
               cursor={this.props.cursor}
-              event={track[this.props.rownum]}
+              event={track.notedata[this.props.rownum]}
               trackIndex={index}
+              track={track}
             />
           </td>
         ))}

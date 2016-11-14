@@ -66,18 +66,20 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
     const vertTarget = document.getElementById('sideTable');
     const horizTarget = document.getElementsByClassName('xscroll')[0];
 
-    this.yoff += e.deltaY;
-    if (this.yoff < 0) {
-      this.yoff = vertTarget.scrollHeight - vertTarget.clientHeight;
-    } else if (this.yoff >= vertTarget.scrollHeight - vertTarget.clientHeight) {
-      this.yoff = 0;
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+      this.yoff += e.deltaY;
+      if (this.yoff < 0) {
+        this.yoff = vertTarget.scrollHeight - vertTarget.clientHeight;
+      } else if (this.yoff >= vertTarget.scrollHeight - vertTarget.clientHeight) {
+        this.yoff = 0;
+      }
+
+      const theCursor = Math.round((this.yoff) / 15.0);
+
+      this.props.onCursorRowChange(theCursor);
+    } else {
+      horizTarget.scrollLeft += e.deltaX;
     }
-
-    const theCursor = Math.round((this.yoff) / 15.0);
-
-    this.props.onCursorRowChange(theCursor);
-
-    horizTarget.scrollLeft += e.deltaX;
 
     e.preventDefault();
   }
@@ -112,6 +114,11 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
     const blankRowsTop = Math.floor((visibleLines / 2) - 0.5);
     const blankRowsBottom = visibleLines - blankRowsTop - 1;
 
+    /* Calculate the horizontal space needed to show all visible tracks/columns */
+    let totalWidth = 0;
+    this.props.song.patterns[0].trackdata.forEach((track) =>
+      (totalWidth += (150 * track.notecolumns)));
+
     return (
       <div className="pattern-editor">
         <div style={{ float: 'left' }}>
@@ -119,10 +126,10 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
         </div>
 
         <div style={{ float: 'left', width: eventTableWidth }} className="xscroll">
-          <div id="leftSideTable">
+          <div id="leftSideTable" style={{ width: totalWidth }}>
             <Header song={this.props.song} />
           </div>
-          <div style={{ height: scrollHeight }} id="sideTable" onWheel={this.onScroll}>
+          <div style={{ height: scrollHeight, width: totalWidth }} id="sideTable" onWheel={this.onScroll}>
             <Rows
               song={this.props.song}
               cursor={this.props.cursor}

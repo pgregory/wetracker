@@ -32,7 +32,7 @@
 }
 
 .track-header {
-  width: 150px;
+  width: 450px;
   box-sizing: border-box;
   height: 44px;
 }
@@ -70,9 +70,12 @@
   background: rgb(10, 80, 80);
 }
 
+.note-column {
+  display: inline-block;
+}
+
 .line {
   font-family: monospace;
-  width: 150px;
   line-height: 1;
 }
 

@@ -25,3 +25,4 @@ export const PLAY = 'wetracker/App/PLAY';
 export const STOP = 'wetracker/App/STOP';
 export const PLAY_CURSOR_SET_ROW = 'wetracker/App/PLAY_CURSOR_SET_ROW';
 export const STEP_CHANGE = 'wetracker/App/STEP_CHANGE';
+export const OCTAVE_CHANGE = 'wetracker/App/OCTAVE_CHANGE';

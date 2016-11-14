@@ -35,9 +35,10 @@ class MusicPlayer extends React.Component { // eslint-disable-line react/prefer-
     this.loop = new Tone.Sequence((time, row) => {
       let t;
       for (t = 0; t < that.props.song.patterns[0].trackdata.length; t += 1) {
-        const event = that.props.song.patterns[0].trackdata[t][row];
-        if (event.note) {
-          that.synth.triggerAttackRelease(event.note, '16n', time);
+        const event = that.props.song.patterns[0].trackdata[t].notedata[row];
+        if (event.notes) {
+          event.notes.forEach((note) =>
+            that.synth.triggerAttackRelease(note.note, '16n', time));
         }
       }
       this.props.onPlayCursorRowChange(row);

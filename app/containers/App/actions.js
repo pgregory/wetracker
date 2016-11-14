@@ -174,3 +174,10 @@ export function stepChange(step) {
     step,
   };
 }
+
+export function octaveChange(octave) {
+  return {
+    type: constants.OCTAVE_CHANGE,
+    octave,
+  };
+}

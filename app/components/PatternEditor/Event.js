@@ -20,13 +20,15 @@ function itemClassNames(item, cursor, row, track, itemIndex) {
   return names.join(' ');
 }
 
-export default function Event(props) {
+function EventNote(props) {
   let note = '---';
   const instrument = padEventProperty(props.event, 'instrument', 2);
   const volume = padEventProperty(props.event, 'volume', 2);
   const panning = padEventProperty(props.event, 'panning', 2);
   const delay = padEventProperty(props.event, 'delay', 2);
   const fx = padEventProperty(props.event, 'fx', 4);
+  const itemIndexBase = props.noteIndex * 6;
+
   if (props.event) {
     if (props.event.note) {
       if (props.event.note.length === 3) {
@@ -37,13 +39,13 @@ export default function Event(props) {
     }
   }
   return (
-    <div className="line">
+    <div className="note-column">
       <div
         className={itemClassNames('note',
                                    props.cursor,
                                    props.patternRow,
                                    props.trackIndex,
-                                   0)}
+                                   itemIndexBase)}
       >
         { note }
       </div>
@@ -52,7 +54,7 @@ export default function Event(props) {
                                    props.cursor,
                                    props.patternRow,
                                    props.trackIndex,
-                                   1)}
+                                   itemIndexBase + 1)}
       >
         { instrument }
       </div>
@@ -61,16 +63,16 @@ export default function Event(props) {
                                    props.cursor,
                                    props.patternRow,
                                    props.trackIndex,
-                                   2)}
+                                   itemIndexBase + 2)}
       >
         { volume }
       </div>
       <div
         className={itemClassNames('panning',
-                                     props.cursor,
-                                     props.patternRow,
-                                     props.trackIndex,
-                                     3)}
+                                   props.cursor,
+                                   props.patternRow,
+                                   props.trackIndex,
+                                   itemIndexBase + 3)}
       >
         { panning }
       </div>
@@ -79,7 +81,7 @@ export default function Event(props) {
                                    props.cursor,
                                    props.patternRow,
                                    props.trackIndex,
-                                   4)}
+                                   itemIndexBase + 4)}
       >
         { delay }
       </div>
@@ -88,7 +90,7 @@ export default function Event(props) {
                                    props.cursor,
                                    props.patternRow,
                                    props.trackIndex,
-                                   5)}
+                                   itemIndexBase + 5)}
       >
         { fx }
       </div>
@@ -96,10 +98,41 @@ export default function Event(props) {
   );
 }
 
-
-Event.propTypes = {
+EventNote.propTypes = {
   event: React.PropTypes.object.isRequired,
   patternRow: React.PropTypes.number.isRequired,
   cursor: React.PropTypes.object.isRequired,
   trackIndex: React.PropTypes.number.isRequired,
+  noteIndex: React.PropTypes.number.isRequired,
+};
+
+export default function Event(props) {
+  let notes = props.event.notes;
+  if (!notes) {
+    notes = Array(props.track.notecolumns).fill({});
+  }
+  if (notes.length < props.track.notecolumns) {
+    notes = notes.concat(Array(props.track.notecolumns - notes.length).fill({}));
+  }
+  return (
+    <div className="line">
+      {notes.map((note, index) => (
+        <EventNote
+          key={index}
+          event={note}
+          cursor={props.cursor}
+          patternRow={props.patternRow}
+          trackIndex={props.trackIndex}
+          noteIndex={index}
+        />
+      ))}
+    </div>
+  );
+}
+
+
+Event.propTypes = {
+  event: React.PropTypes.object.isRequired,
+  trackIndex: React.PropTypes.number.isRequired,
+  track: React.PropTypes.object.isRequired,
 };

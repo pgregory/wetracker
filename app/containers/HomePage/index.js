@@ -40,6 +40,7 @@ import {
   stop,
   playCursorSetRow,
   stepChange,
+  octaveChange,
 } from 'containers/App/actions';
 
 import { HotKeys } from 'react-hotkeys';
@@ -146,14 +147,53 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
           '=', // F#n+2
         ],
       },
+      keyToNote: {
+        z: { note: 'C', octave: 0 },
+        x: { note: 'D', octave: 0 },
+        c: { note: 'E', octave: 0 },
+        v: { note: 'F', octave: 0 },
+        b: { note: 'G', octave: 0 },
+        n: { note: 'A', octave: 0 },
+        m: { note: 'B', octave: 0 },
+        s: { note: 'C#', octave: 0 },
+        d: { note: 'D#', octave: 0 },
+        g: { note: 'F#', octave: 0 },
+        h: { note: 'G#', octave: 0 },
+        j: { note: 'A#', octave: 0 },
+        ',': { note: 'C', octave: 1 },
+        '.': { note: 'D', octave: 1 },
+        '/': { note: 'E', octave: 1 },
+        l: { note: 'C#', octave: 1 },
+        ';': { note: 'D#', octave: 1 },
+        q: { note: 'C', octave: 1 },
+        w: { note: 'D', octave: 1 },
+        e: { note: 'E', octave: 1 },
+        r: { note: 'F', octave: 1 },
+        t: { note: 'G', octave: 1 },
+        y: { note: 'A', octave: 1 },
+        u: { note: 'B', octave: 1 },
+        2: { note: 'C#', octave: 1 },
+        3: { note: 'D#', octave: 1 },
+        5: { note: 'F#', octave: 1 },
+        6: { note: 'G#', octave: 1 },
+        7: { note: 'A#', octave: 1 },
+        i: { note: 'C', octave: 2 },
+        o: { note: 'D', octave: 2 },
+        p: { note: 'E', octave: 2 },
+        '[': { note: 'F', octave: 2 },
+        ']': { note: 'G', octave: 2 },
+        9: { note: 'C#', octave: 2 },
+        0: { note: 'D#', octave: 2 },
+        '=': { note: 'F#', octave: 2 },
+      },
     };
   }
 
   onCursorMove(event, direction) {
     if (direction === 0) {
-      this.props.onCursorLeft(this.props.song.tracks);
+      this.props.onCursorLeft(this.props.song.patterns[0].trackdata);
     } else if (direction === 1) {
-      this.props.onCursorRight(this.props.song.tracks);
+      this.props.onCursorRight(this.props.song.patterns[0].trackdata);
     } else if (direction === 2) {
       this.props.onCursorUp(1, this.props.song.patterns[0].rows);
     } else if (direction === 3) {
@@ -168,7 +208,9 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
   }
 
   onNoteEnter(event) {
-    this.props.onSetNoteAtCursor(this.props.cursor, event);
+    const noteMap = this.state.keyToNote[event.key];
+    const note = { note: noteMap.note + (noteMap.octave + this.props.transport.octave), instrument: 1 };
+    this.props.onSetNoteAtCursor(this.props.cursor, note);
     this.props.onCursorDown(this.props.transport.step, this.props.song.patterns[0].rows);
   }
 
@@ -234,6 +276,7 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
               song={this.props.song}
               onPlayCursorRowChange={this.props.onPlayCursorRowChange}
               onStepChange={this.props.onStepChange}
+              onOctaveChange={this.props.onOctaveChange}
             />
           </div>
           <Wrapper key={'pattern-editor'}>
@@ -287,6 +330,7 @@ HomePage.propTypes = {
   transport: React.PropTypes.object.isRequired,
   onPlayCursorRowChange: React.PropTypes.func.isRequired,
   onStepChange: React.PropTypes.func.isRequired,
+  onOctaveChange: React.PropTypes.func.isRequired,
 };
 
 export function mapDispatchToProps(dispatch) {
@@ -307,6 +351,7 @@ export function mapDispatchToProps(dispatch) {
     onStopSong: () => dispatch(stop()),
     onPlayCursorRowChange: (row) => dispatch(playCursorSetRow(row)),
     onStepChange: (step) => dispatch(stepChange(step)),
+    onOctaveChange: (octave) => dispatch(octaveChange(octave)),
   };
 }
 

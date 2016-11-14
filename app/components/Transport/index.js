@@ -10,19 +10,18 @@ import styles from './styles.css';
 
 import MusicPlayer from 'components/MusicPlayer';
 import Range from 'components/Range';
-
-import Icon from 'react-fa';
-
+import Button from 'components/Button';
 
 class Transport extends React.Component { // eslint-disable-line react/prefer-stateless-function
   render() {
     return (
       <div className={styles.transport}>
-        <div className={styles.item}><button onClick={this.props.onSaveSong}><Icon name="floppy-o" /></button></div>
-        <div className={styles.item}><button onClick={this.props.onLoadSong}><Icon name="file-o" /></button></div>
-        <div className={styles.item}><button onClick={this.props.onPlaySong}><Icon name="play" /></button></div>
-        <div className={styles.item}><button onClick={this.props.onStopSong}><Icon name="stop" /></button></div>
+        <div className={styles.item}><Button callBack={this.props.onSaveSong} iconName="floppy-o" /></div>
+        <div className={styles.item}><Button callBack={this.props.onLoadSong} iconName="file-o" /></div>
+        <div className={styles.item}><Button callBack={this.props.onPlaySong} iconName="play" /></div>
+        <div className={styles.item}><Button callBack={this.props.onStopSong} iconName="stop" /></div>
         <div className={styles.item}><Range id={"step"} name={"Step"} min={0} max={16} value={this.props.transport.step} onChange={this.props.onStepChange} /></div>
+        <div className={styles.item}><Range id={"octave"} name={"Octave"} min={0} max={8} value={this.props.transport.octave} onChange={this.props.onOctaveChange} /></div>
         <MusicPlayer
           song={this.props.song}
           transport={this.props.transport}
@@ -42,6 +41,7 @@ Transport.propTypes = {
   transport: React.PropTypes.object.isRequired,
   song: React.PropTypes.object.isRequired,
   onStepChange: React.PropTypes.func.isRequired,
+  onOctaveChange: React.PropTypes.func.isRequired,
 };
 
 export default Transport;
