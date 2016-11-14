@@ -41,6 +41,7 @@ import {
   playCursorSetRow,
   stepChange,
   octaveChange,
+  setNoteColumns,
 } from 'containers/App/actions';
 
 import { HotKeys } from 'react-hotkeys';
@@ -296,6 +297,7 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
                 onDoneRefresh={this.props.onDoneRefresh}
                 refresh={this.props.song.refresh}
                 transport={this.props.transport}
+                onSetNoteColumns={this.props.onSetNoteColumns}
               />
             </Chrome>
           </Wrapper>
@@ -331,6 +333,7 @@ HomePage.propTypes = {
   onPlayCursorRowChange: React.PropTypes.func.isRequired,
   onStepChange: React.PropTypes.func.isRequired,
   onOctaveChange: React.PropTypes.func.isRequired,
+  onSetNoteColumns: React.PropTypes.func.isRequired,
 };
 
 export function mapDispatchToProps(dispatch) {
@@ -352,6 +355,7 @@ export function mapDispatchToProps(dispatch) {
     onPlayCursorRowChange: (row) => dispatch(playCursorSetRow(row)),
     onStepChange: (step) => dispatch(stepChange(step)),
     onOctaveChange: (octave) => dispatch(octaveChange(octave)),
+    onSetNoteColumns: (track, count) => dispatch(setNoteColumns(track, count)),
   };
 }
 

@@ -181,3 +181,12 @@ export function octaveChange(octave) {
     octave,
   };
 }
+
+export function setNoteColumns(track, count) {
+  return {
+    type: constants.SET_NOTE_COLUMNS,
+    track,
+    count,
+  };
+}
+

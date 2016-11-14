@@ -32,14 +32,13 @@
 }
 
 .track-header {
-  width: 450px;
   box-sizing: border-box;
-  height: 44px;
+  /* height: 44px; */
 }
 
 .time-header {
   box-sizing: border-box;
-  height: 44px;
+  /* height: 44px; */
 }
 
 .track-header span {

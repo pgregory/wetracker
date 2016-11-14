@@ -99,7 +99,7 @@ function EventNote(props) {
 }
 
 EventNote.propTypes = {
-  event: React.PropTypes.object.isRequired,
+  event: React.PropTypes.object,
   patternRow: React.PropTypes.number.isRequired,
   cursor: React.PropTypes.object.isRequired,
   trackIndex: React.PropTypes.number.isRequired,
@@ -132,7 +132,7 @@ export default function Event(props) {
 
 
 Event.propTypes = {
-  event: React.PropTypes.object.isRequired,
+  event: React.PropTypes.object,
   trackIndex: React.PropTypes.number.isRequired,
   track: React.PropTypes.object.isRequired,
 };

@@ -248,6 +248,21 @@ const event = (state = {}, action) => {
                                                                    : n)),
       });
     }
+    case constants.SET_NOTE_COLUMNS: {
+      const curr = state.get('notes');
+      if (curr) {
+        if (curr.size < action.count) {
+          return state.merge({
+            notes: curr.concat(fromJS(Array(action.count - curr.size).fill(fromJS({})))),
+          });
+        } else if (curr.size > action.count) {
+          return state.merge({
+            notes: curr.setSize(action.count),
+          });
+        }
+      }
+      return state;
+    }
     default:
       return state;
   }
@@ -261,6 +276,12 @@ const track = (state = {}, action) => {
                                                                                : e)),
       });
     }
+    case constants.SET_NOTE_COLUMNS: {
+      return state.merge({
+        notecolumns: action.count,
+        notedata: state.get('notedata').map((e) => event(e, action)),
+      });
+    }
     default:
       return state;
   }
@@ -268,6 +289,12 @@ const track = (state = {}, action) => {
 
 const pattern = (state = {}, action) => {
   switch (action.type) {
+    case constants.SET_NOTE_COLUMNS: {
+      return state.merge({
+        trackdata: state.get('trackdata').map((t, i) => (i === action.track ? track(t, action)
+                                                                            : t)),
+      });
+    }
     case constants.SET_NOTE_AT_CURSOR: {
       return state.merge({
         trackdata: state.get('trackdata').map((t, i) => (i === action.cursor.track ? track(t, action)
@@ -281,6 +308,14 @@ const pattern = (state = {}, action) => {
 
 function songReducer(state = songInitialState, action) {
   switch (action.type) {
+    case constants.SET_NOTE_COLUMNS: {
+      return state.merge({
+        patterns:
+          state.get('patterns').map((p, i) => (i === 0 ? pattern(p, action)
+                                                       : p)),
+        refresh: true,
+      });
+    }
     case constants.SET_NOTE_AT_CURSOR: {
       return state.merge({
         patterns:

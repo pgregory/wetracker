@@ -3,17 +3,18 @@ import Tick from './Tick';
 
 export default class Timeline extends React.Component {
   shouldComponentUpdate(nextProps /* , nextState*/) {
-    return nextProps.cursor.row !== this.props.cursor.row;
+    return ((nextProps.cursor.row !== this.props.cursor.row) ||
+            (nextProps.headerHeight !== this.props.headerHeight));
   }
 
   render() {
     return (
       <div>
         <div>
-          <table>
+          <table id="timeline-header">
             <thead>
               <tr className="row">
-                <th className="tick"><div className="time-header"><br /></div></th>
+                <th className="tick"><div className="time-header" style={{ height: this.props.headerHeight }}><br /></div></th>
               </tr>
             </thead>
           </table>
@@ -40,6 +41,7 @@ Timeline.propTypes = {
     row: React.PropTypes.number.isRequired,
   }).isRequired,
   scrollHeight: React.PropTypes.number.isRequired,
+  headerHeight: React.PropTypes.number.isRequired,
   song: React.PropTypes.object.isRequired,
   topPadding: React.PropTypes.number.isRequired,
   bottomPadding: React.PropTypes.number.isRequired,

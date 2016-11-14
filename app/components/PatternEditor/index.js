@@ -29,7 +29,21 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
 
     this.onScroll = this.onScroll.bind(this);
 
+    this.state = {
+      listHeight: (Math.floor((props.height - 46) / 15.0)) * 15.0,
+      headerHeight: 46,
+    };
+
     this.yoff = 0;
+  }
+
+  componentDidMount() {
+    const headerHeight = document.getElementById('header-table').clientHeight;
+    const scrollHeight = (Math.floor((this.props.height - headerHeight) / 15.0)) * 15.0;
+    this.setState({
+      listHeight: scrollHeight,
+      headerHeight: headerHeight - 1,
+    });
   }
 
   componentDidUpdate(prevProps) {
@@ -103,14 +117,9 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
 
   render() {
     const width = this.props.width;
-    const height = this.props.height;
-
-    /* 46 is the height of the header, need to calculate this somehow */
-    const scrollHeight = (Math.floor((height - 46) / 15.0)) * 15.0;
-    /* 41 is the width (including white border) of the timeline */
     const eventTableWidth = width - 41;
 
-    const visibleLines = scrollHeight / 15;
+    const visibleLines = this.state.listHeight / 15;
     const blankRowsTop = Math.floor((visibleLines / 2) - 0.5);
     const blankRowsBottom = visibleLines - blankRowsTop - 1;
 
@@ -122,14 +131,24 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
     return (
       <div className="pattern-editor">
         <div style={{ float: 'left' }}>
-          <Timeline song={this.props.song} cursor={this.props.cursor} scrollHeight={scrollHeight} topPadding={blankRowsTop} bottomPadding={blankRowsBottom} />
+          <Timeline
+            song={this.props.song}
+            cursor={this.props.cursor}
+            scrollHeight={this.state.listHeight}
+            topPadding={blankRowsTop}
+            bottomPadding={blankRowsBottom}
+            headerHeight={this.state.headerHeight}
+          />
         </div>
 
         <div style={{ float: 'left', width: eventTableWidth }} className="xscroll">
           <div id="leftSideTable" style={{ width: totalWidth }}>
-            <Header song={this.props.song} />
+            <Header
+              song={this.props.song}
+              onSetNoteColumns={this.props.onSetNoteColumns}
+            />
           </div>
-          <div style={{ height: scrollHeight, width: totalWidth }} id="sideTable" onWheel={this.onScroll}>
+          <div style={{ height: this.state.listHeight, width: totalWidth }} id="sideTable" onWheel={this.onScroll}>
             <Rows
               song={this.props.song}
               cursor={this.props.cursor}
@@ -156,6 +175,7 @@ PatternEditor.propTypes = {
   song: React.PropTypes.object.isRequired,
   onDoneRefresh: React.PropTypes.func.isRequired,
   refresh: React.PropTypes.bool,
+  onSetNoteColumns: React.PropTypes.func.isRequired,
 };
 
 export default PatternEditor;
