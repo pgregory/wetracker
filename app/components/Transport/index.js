@@ -19,9 +19,9 @@ class Transport extends React.Component { // eslint-disable-line react/prefer-st
     return (
       <div className={styles.transport}>
         <div className={styles.item}><button onClick={this.props.onSaveSong}><Icon name="floppy-o" /></button></div>
-        <div className={styles.item}><button onClick={this.props.onLoadSong}>Load</button></div>
-        <div className={styles.item}><button onClick={this.props.onPlaySong}>Play</button></div>
-        <div className={styles.item}><button onClick={this.props.onStopSong}>Stop</button></div>
+        <div className={styles.item}><button onClick={this.props.onLoadSong}><Icon name="file-o" /></button></div>
+        <div className={styles.item}><button onClick={this.props.onPlaySong}><Icon name="play" /></button></div>
+        <div className={styles.item}><button onClick={this.props.onStopSong}><Icon name="stop" /></button></div>
         <div className={styles.item}><Range id={"step"} name={"Step"} min={0} max={16} value={this.props.transport.step} onChange={this.props.onStepChange} /></div>
         <MusicPlayer
           song={this.props.song}
