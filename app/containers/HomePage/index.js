@@ -35,6 +35,7 @@ import {
   cursorTrackRight,
   saveSong,
   loadSong,
+  forceRefresh,
   doneRefresh,
   play,
   stop,
@@ -188,6 +189,8 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
         '=': { note: 'F#', octave: 2 },
       },
     };
+
+    this.onLayoutChanged = this.onLayoutChanged.bind(this);
   }
 
   onCursorMove(event, direction) {
@@ -213,6 +216,10 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
     const note = { note: noteMap.note + (noteMap.octave + this.props.transport.octave), instrument: 1 };
     this.props.onSetNoteAtCursor(this.props.cursor, note);
     this.props.onCursorDown(this.props.transport.step, this.props.song.patterns[0].rows);
+  }
+
+  onLayoutChanged() {
+    this.props.onForceRefresh();
   }
 
   render() {
@@ -266,6 +273,7 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
           margin={[3, 3]}
           breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
           cols={{ lg: 12, md: 10, sm: 8, xs: 4, xxs: 2 }}
+          onLayoutChange={this.onLayoutChanged}
         >
           <div key={'transport'}>
             <Transport
@@ -326,6 +334,7 @@ HomePage.propTypes = {
   onCursorTrackRight: React.PropTypes.func.isRequired,
   onSaveSong: React.PropTypes.func.isRequired,
   onLoadSong: React.PropTypes.func.isRequired,
+  onForceRefresh: React.PropTypes.func.isRequired,
   onDoneRefresh: React.PropTypes.func.isRequired,
   onPlaySong: React.PropTypes.func.isRequired,
   onStopSong: React.PropTypes.func.isRequired,
@@ -349,6 +358,7 @@ export function mapDispatchToProps(dispatch) {
     onSetNoteAtCursor: (cursor, note) => dispatch(setNoteAtCursor(cursor, note)),
     onSaveSong: () => dispatch(saveSong()),
     onLoadSong: () => dispatch(loadSong()),
+    onForceRefresh: () => dispatch(forceRefresh()),
     onDoneRefresh: () => dispatch(doneRefresh()),
     onPlaySong: () => dispatch(play()),
     onStopSong: () => dispatch(stop()),

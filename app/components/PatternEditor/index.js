@@ -28,6 +28,7 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
     super(props);
 
     this.onScroll = this.onScroll.bind(this);
+    this.calculateSizes = this.calculateSizes.bind(this);
 
     this.state = {
       listHeight: (Math.floor((props.height - 46) / 15.0)) * 15.0,
@@ -37,13 +38,11 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
     this.yoff = 0;
   }
 
-  componentDidMount() {
-    const headerHeight = document.getElementById('header-table').clientHeight;
-    const scrollHeight = (Math.floor((this.props.height - headerHeight) / 15.0)) * 15.0;
-    this.setState({
-      listHeight: scrollHeight,
-      headerHeight: headerHeight - 1,
-    });
+  componentWillReceiveProps(nextProps) {
+    if ((this.props.height !== nextProps.height) ||
+        (this.props.width !== nextProps.width)) {
+      this.setState({}, this.calculateSizes);
+    }
   }
 
   componentDidUpdate(prevProps) {
@@ -96,6 +95,15 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
     }
 
     e.preventDefault();
+  }
+
+  calculateSizes() {
+    const headerHeight = document.getElementById('header-table').clientHeight;
+    const scrollHeight = (Math.floor((this.props.height - headerHeight) / 15.0)) * 15.0;
+    this.setState({
+      listHeight: scrollHeight,
+      headerHeight: headerHeight - 1,
+    });
   }
 
   /* eslint no-param-reassign: ["error", { "props": false }]*/

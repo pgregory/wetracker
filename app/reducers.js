@@ -341,6 +341,11 @@ function songReducer(state = songInitialState, action) {
     case constants.DONE_REFRESH: {
       return state.deleteIn(['refresh']);
     }
+    case constants.FORCE_REFRESH: {
+      return state.merge({
+        refresh: true,
+      });
+    }
     default:
       return state;
   }
