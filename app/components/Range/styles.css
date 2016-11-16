@@ -12,3 +12,8 @@
   background: #222;
   text-align: center;
 }
+
+.range input:focus {
+  outline: none;
+  border: 1px dotted darkorange;
+}

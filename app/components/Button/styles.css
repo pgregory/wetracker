@@ -12,3 +12,8 @@
 .button.sm span.fa {
   font-size: 0.5em;
 }
+
+.button:focus {
+  outline: none;
+  border: 1px dotted darkorange;
+}
