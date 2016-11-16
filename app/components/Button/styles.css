@@ -3,3 +3,12 @@
   background: #444;
   color: #888;
 }
+
+.button.sm {
+  padding: 2px;
+  font-size: 0.5em;
+}
+
+.button.sm span.fa {
+  font-size: 0.5em;
+}
