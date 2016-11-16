@@ -61,12 +61,12 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
       const item = document.getElementsByClassName(styles['event-cursor'])[0].parentElement;
       let offsetParent = item.offsetParent;
       let offset = item.offsetLeft;
-      while (!(styles.sideTable in offsetParent.parentElement.classList)) {
+      while (!(offsetParent.parentElement.classList.contains(styles.sideTable))) {
         offset += offsetParent.offsetLeft;
         offsetParent = offsetParent.offsetParent;
       }
 
-      if ((offset + item.clientWidth) > vertTarget.parentElement.clientWidth) {
+      if (((offset + item.clientWidth) - horizTarget.scrollLeft) > vertTarget.parentElement.clientWidth) {
         this.scrollHorizTo(horizTarget, ((offset + item.clientWidth) - vertTarget.parentElement.clientWidth) + 6, 100);
       } else if (offset < horizTarget.scrollLeft) {
         this.scrollHorizTo(horizTarget, offset - 6, 100);
