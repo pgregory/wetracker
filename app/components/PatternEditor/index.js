@@ -33,9 +33,16 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
     this.state = {
       listHeight: (Math.floor((props.height - 46) / 15.0)) * 15.0,
       headerHeight: 46,
+      tableWidth: 0,
     };
 
     this.yoff = 0;
+  }
+
+  componentDidMount() {
+    /* Need to use setTimeout to ensure that the repaint is complete and the
+     * size of the table is calculated for the div "tableWidth" state param */
+    setTimeout(this.calculateSizes, 0);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -52,8 +59,10 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
 
     const windowScroll = this.props.cursor.row * 15.0;
 
+
     vertTarget.scrollTop = windowScroll;
     timeline.scrollTop = windowScroll;
+
 
     // Only check the cursor is visible if it has moved on the row.
     if (prevProps.cursor.item !== this.props.cursor.item ||
@@ -100,9 +109,11 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
   calculateSizes() {
     const headerHeight = document.getElementById('header-table').clientHeight;
     const scrollHeight = (Math.floor((this.props.height - headerHeight) / 15.0)) * 15.0;
+    const tableWidth = document.getElementsByClassName(styles.trackview)[0].clientWidth;
     this.setState({
       listHeight: scrollHeight,
       headerHeight: headerHeight - 1,
+      tableWidth: tableWidth + 1,
     });
   }
 
@@ -149,13 +160,13 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
         </div>
 
         <div style={{ float: 'left', width: eventTableWidth }} className={styles.xscroll}>
-          <div className={styles.leftSideTable} style={{ width: totalWidth }}>
+          <div className={styles.leftSideTable} style={{ width: this.state.tableWidth }}>
             <Header
               song={this.props.song}
               onSetNoteColumns={this.props.onSetNoteColumns}
             />
           </div>
-          <div style={{ height: this.state.listHeight, width: totalWidth }} className={styles.sideTable} onWheel={this.onScroll}>
+          <div style={{ height: this.state.listHeight, width: this.state.tableWidth }} className={styles.sideTable} onWheel={this.onScroll}>
             <Rows
               song={this.props.song}
               cursor={this.props.cursor}

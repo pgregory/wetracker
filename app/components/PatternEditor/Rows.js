@@ -1,6 +1,8 @@
 import React from 'react';
 import Row from './Row';
 
+import styles from './styles.css';
+
 export default class Rows extends React.Component {
   shouldCoponentUpdate(nextProps /* , nextState*/) {
     if (this.props.refresh) {
@@ -11,7 +13,7 @@ export default class Rows extends React.Component {
 
   render() {
     return (
-      <table>
+      <table className={styles.trackview}>
         <tbody>
           <tr>
             { this.props.song.patterns[0] && this.props.song.patterns[0].trackdata.map((track, index) => (
