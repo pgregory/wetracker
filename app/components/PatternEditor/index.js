@@ -9,7 +9,7 @@ import Header from './Header';
 import Timeline from './Timeline';
 import Rows from './Rows';
 
-import '!style!css!./styles.css';
+import styles from './styles.css';
 
 // t = current time
 // b = start value
@@ -46,22 +46,22 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
   }
 
   componentDidUpdate(prevProps) {
-    const vertTarget = document.getElementById('sideTable');
-    const horizTarget = document.getElementsByClassName('xscroll')[0];
-    const col1 = document.getElementById('col1');
+    const vertTarget = document.getElementsByClassName(styles.sideTable)[0];
+    const horizTarget = document.getElementsByClassName(styles.xscroll)[0];
+    const timeline = document.getElementsByClassName(styles.timeline)[0];
 
     const windowScroll = this.props.cursor.row * 15.0;
 
     vertTarget.scrollTop = windowScroll;
-    col1.scrollTop = windowScroll;
+    timeline.scrollTop = windowScroll;
 
     // Only check the cursor is visible if it has moved on the row.
     if (prevProps.cursor.item !== this.props.cursor.item ||
         prevProps.cursor.track !== this.props.cursor.track) {
-      const item = document.getElementsByClassName('event-cursor')[0].parentElement;
+      const item = document.getElementsByClassName(styles['event-cursor'])[0].parentElement;
       let offsetParent = item.offsetParent;
       let offset = item.offsetLeft;
-      while (offsetParent.parentElement.id !== 'sideTable') {
+      while (!(styles.sideTable in offsetParent.parentElement.classList)) {
         offset += offsetParent.offsetLeft;
         offsetParent = offsetParent.offsetParent;
       }
@@ -76,8 +76,8 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
   }
 
   onScroll(e) {
-    const vertTarget = document.getElementById('sideTable');
-    const horizTarget = document.getElementsByClassName('xscroll')[0];
+    const vertTarget = document.getElementsByClassName(styles.sideTable)[0];
+    const horizTarget = document.getElementsByClassName(styles.xscroll)[0];
 
     if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
       this.yoff += e.deltaY;
@@ -135,9 +135,8 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
     let totalWidth = 0;
     this.props.song.patterns[0].trackdata.forEach((track) =>
       (totalWidth += (150 * track.notecolumns)));
-
     return (
-      <div className="pattern-editor">
+      <div className={styles['pattern-editor']}>
         <div style={{ float: 'left' }}>
           <Timeline
             song={this.props.song}
@@ -149,14 +148,14 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
           />
         </div>
 
-        <div style={{ float: 'left', width: eventTableWidth }} className="xscroll">
-          <div id="leftSideTable" style={{ width: totalWidth }}>
+        <div style={{ float: 'left', width: eventTableWidth }} className={styles.xscroll}>
+          <div className={styles.leftSideTable} style={{ width: totalWidth }}>
             <Header
               song={this.props.song}
               onSetNoteColumns={this.props.onSetNoteColumns}
             />
           </div>
-          <div style={{ height: this.state.listHeight, width: totalWidth }} id="sideTable" onWheel={this.onScroll}>
+          <div style={{ height: this.state.listHeight, width: totalWidth }} className={styles.sideTable} onWheel={this.onScroll}>
             <Rows
               song={this.props.song}
               cursor={this.props.cursor}

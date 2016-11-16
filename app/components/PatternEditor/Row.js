@@ -1,19 +1,21 @@
 import React from 'react';
 import Event from './Event';
 
+import styles from './styles.css';
+
 function rowClassNames(row, cursor, rowsPerBeat) {
-  const names = ['row'];
+  const names = [styles.row];
 
   if (row % rowsPerBeat === 0) {
-    names.push('beat-row');
+    names.push(styles['beat-row']);
   }
 
   if (row === cursor.row) {
-    names.push('pattern-cursor-row');
+    names.push(styles['pattern-cursor-row']);
   }
 
   if (row === cursor.play_row) {
-    names.push('pattern-play-cursor-row');
+    names.push(styles['pattern-play-cursor-row']);
   }
   return names.join(' ');
 }

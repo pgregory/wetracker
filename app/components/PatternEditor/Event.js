@@ -1,5 +1,7 @@
 import React from 'react';
 
+import styles from './styles.css';
+
 function padDigits(value, digits) {
   return Array(Math.max((digits - String(value).length) + 1, 0)).join(0) + value;
 }
@@ -12,10 +14,10 @@ function padEventProperty(event, item, digits) {
 }
 
 function itemClassNames(item, cursor, row, track, itemIndex) {
-  const names = [item];
+  const names = [styles[item]];
 
   if (track === cursor.track && row === cursor.row && itemIndex === cursor.item) {
-    names.push('event-cursor');
+    names.push(styles['event-cursor']);
   }
   return names.join(' ');
 }
@@ -39,7 +41,7 @@ function EventNote(props) {
     }
   }
   return (
-    <div className="note-column">
+    <div className={styles['note-column']}>
       <div
         className={itemClassNames('note',
                                    props.cursor,
@@ -115,7 +117,7 @@ export default function Event(props) {
     notes = notes.concat(Array(props.track.notecolumns - notes.length).fill({}));
   }
   return (
-    <div className="line">
+    <div className={styles.line}>
       {notes.map((note, index) => (
         <EventNote
           key={index}

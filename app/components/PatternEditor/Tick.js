@@ -1,18 +1,20 @@
 import React from 'react';
 
+import styles from './styles.css';
+
 function padDigits(value, digits) {
   return Array(Math.max((digits - String(value).length) + 1, 0)).join(0) + value;
 }
 
 function rowClassNames(row, cursor, rowsPerBeat) {
-  const names = ['row'];
+  const names = [styles.row];
 
   if (row % rowsPerBeat === 0) {
-    names.push('beat-row');
+    names.push(styles['beat-row']);
   }
 
   if (row === cursor) {
-    names.push('pattern-cursor-row');
+    names.push(styles['pattern-cursor-row']);
   }
   return names.join(' ');
 }
@@ -29,7 +31,7 @@ export default class Tick extends React.Component {
   render() {
     return (
       <tr className={rowClassNames(this.props.rownum, this.props.cursor.row, 4)}>
-        <th className="tick">{ padDigits(this.props.rownum, 2) }</th>
+        <th className={styles.tick}>{ padDigits(this.props.rownum, 2) }</th>
       </tr>
     );
   }

@@ -44,6 +44,11 @@
   text-align: center;
 }
 
+.track-controls {
+  display: flex;
+  flex-direction: row;
+}
+
 .row .tick {
   color: #999;
   font-family: monospace;
@@ -166,8 +171,8 @@
   color: #333;
 }
 
-.xscroll div#leftSideTable,
-.xscroll div#sideTable {
+.xscroll .leftSideTable,
+.xscroll .sideTable {
   width: 930px;
   overflow: auto;
 }
@@ -176,7 +181,7 @@
   overflow: auto;
 }
 
-#col1 {
+.timeline {
   overflow: hidden;
 }
 
