@@ -212,10 +212,12 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
   }
 
   onNoteEnter(event) {
-    const noteMap = this.state.keyToNote[event.key];
-    const note = { note: noteMap.note + (noteMap.octave + this.props.transport.octave), instrument: 1 };
-    this.props.onSetNoteAtCursor(this.props.cursor, note);
-    this.props.onCursorDown(this.props.transport.step, this.props.song.patterns[0].rows);
+    if ((this.props.cursor.item % 6) === 0) {
+      const noteMap = this.state.keyToNote[event.key];
+      const note = { note: noteMap.note + (noteMap.octave + this.props.transport.octave), instrument: 1 };
+      this.props.onSetNoteAtCursor(this.props.cursor, note);
+      this.props.onCursorDown(this.props.transport.step, this.props.song.patterns[0].rows);
+    }
   }
 
   onLayoutChanged() {
