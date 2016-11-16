@@ -52,7 +52,7 @@ class Button extends React.Component { // eslint-disable-line react/prefer-state
 Button.propTypes = {
   iconName: React.PropTypes.string,
   callBack: React.PropTypes.func,
-  size: React.PropTypes.number,
+  size: React.PropTypes.string,
 };
 
 export default Button;
