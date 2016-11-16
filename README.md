@@ -18,3 +18,12 @@ music creation.
 
 This project is very early in its development, feel free to provide feedback and
 ideas, or clone the project and contribute via pull requests.
+
+WeTracker is built on React, using 
+[react-boilerplate](https://github.com/mxstbr/react-boilerplate). To try it out 
+for yourself, clone this repo and run:
+
+```
+npm install
+npm run start
+```
