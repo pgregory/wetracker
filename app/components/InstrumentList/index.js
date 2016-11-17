@@ -13,10 +13,8 @@ import styles from './styles.css';
 class InstrumentList extends React.Component { // eslint-disable-line react/prefer-stateless-function
   render() {
     return (
-      <div className="widget-container">
-        <div className={styles.instrumentList}>
-          <FormattedMessage {...messages.header} />
-        </div>
+      <div className={styles.instrumentList}>
+        <FormattedMessage {...messages.header} />
       </div>
     );
   }

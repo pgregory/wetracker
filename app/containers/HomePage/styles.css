@@ -67,6 +67,13 @@
   overflow: hidden;
 }
 
+.widget-header {
+  height: 15px;
+  background: #333;
+  border: 2px solid black;
+  border-radius: 3px;
+}
+
 .react-grid-item > .react-resizable-handle {
   position: absolute;
   width: 20px;

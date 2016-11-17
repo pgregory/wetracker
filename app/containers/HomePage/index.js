@@ -55,16 +55,18 @@ import '!style!css!./styles.css';
 const ResponsiveReactGridLayout = WidthProvider(Responsive); /* eslint new-cap: ["error", { "capIsNew": false }] */
 
 function Chrome(props) {
-  /* Note: this relies on the border of "widget-container" being 5px */
+  /* Note: this relies on the border of "widget-container" being 5px
+  *  and the height of the header being 15px */
   const innerWidth = parseInt(props.width.slice(0, -2), 10) - 10;
-  const innerHeight = parseInt(props.height.slice(0, -2), 10) - 10;
+  const innerHeight = parseInt(props.height.slice(0, -2), 10) - 25;
 
   const newChildren = React.Children.map(props.children, (child) =>
       React.cloneElement(child, { width: innerWidth, height: innerHeight })
     );
   return (
     <div className="widget-container" {...props}>
-        { newChildren }
+      <div className="widget-header"></div>
+      { newChildren }
     </div>
   );
 }
@@ -276,6 +278,7 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
           breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
           cols={{ lg: 12, md: 10, sm: 8, xs: 4, xxs: 2 }}
           onLayoutChange={this.onLayoutChanged}
+          draggableHandle=".widget-header"
         >
           <div key={'transport'}>
             <Transport
@@ -311,11 +314,31 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
               />
             </Chrome>
           </Wrapper>
-          <div key={'pattern-sequencer'}><div className="widget-container"><span>Pattern Sequencer</span></div></div>
-          <Wrapper key={'instruments'}><InstrumentList /></Wrapper>
-          <div key={'monitors'}><div className="widget-container"><span>Monitors</span></div></div>
-          <div key={'browser'}><div className="widget-container"><span>Browser</span></div></div>
-          <div key={'effects'}><div className="widget-container"><span>Effects</span></div></div>
+          <Wrapper key={'pattern-sequencer'}>
+            <Chrome>
+              <span>Pattern Sequencer</span>
+            </Chrome>
+          </Wrapper>
+          <Wrapper key={'instruments'}>
+            <Chrome>
+              <InstrumentList />
+            </Chrome>
+          </Wrapper>
+          <Wrapper key={'monitors'}>
+            <Chrome>
+              <span>Monitors</span>
+            </Chrome>
+          </Wrapper>
+          <Wrapper key={'browser'}>
+            <Chrome>
+              <span>Browser</span>
+            </Chrome>
+          </Wrapper>
+          <Wrapper key={'effects'}>
+            <Chrome>
+              <span>Effects</span>
+            </Chrome>
+          </Wrapper>
         </ResponsiveReactGridLayout>
       </HotKeys>
     );
