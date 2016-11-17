@@ -65,6 +65,8 @@
   border-bottom: 5px solid #555;
   border-radius: 3px;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .widget-header {
@@ -72,6 +74,7 @@
   background: #333;
   border: 2px solid black;
   border-radius: 3px;
+  flex-shrink: 0;
 }
 
 .react-grid-item > .react-resizable-handle {

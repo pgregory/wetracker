@@ -1,3 +1,35 @@
 .instrumentList { /* stylelint-disable */
+  font-family: monospace;
+  font-size: 1em;
+  overflow: auto;
+}
 
+.instrumentList ol {
+  margin: 5px;
+  padding-left: 0;
+  list-style-type: none;
+}
+
+.instrumentList li {
+  counter-increment: instr-counter;
+  margin: 2px;
+}
+
+.instrumentList li::before {
+  content: counter(instr-counter);
+  margin-right: 5px;
+  font-size: 80%;
+  background-color: rgb(100,100,100);
+  color: black;
+  font-weight: bold;
+  border-radius: 3px;
+  display: inline-block;
+  width: 30px;
+  text-align: center;
+  padding: 2px 0;
+  border: 1px solid grey;
+}
+
+.instrumentList .selected {
+  background: #040;
 }

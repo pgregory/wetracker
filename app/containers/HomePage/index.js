@@ -321,7 +321,9 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
           </Wrapper>
           <Wrapper key={'instruments'}>
             <Chrome>
-              <InstrumentList />
+              <InstrumentList
+                song={this.props.song}
+              />
             </Chrome>
           </Wrapper>
           <Wrapper key={'monitors'}>
