@@ -231,11 +231,11 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
     const layouts = {
       lg: [
         { i: 'transport', x: 0, y: 0, w: 12, h: 1, static: true },
-        { i: 'pattern-editor', x: 2, y: 6, w: 8, h: 8, minW: 4, minH: 3 },
-        { i: 'pattern-sequencer', x: 0, y: 6, w: 2, h: 8 },
-        { i: 'instruments', x: 11, y: 3, w: 2, h: 6 },
+        { i: 'pattern-editor', x: 2, y: 6, w: 8, h: 12, minW: 4, minH: 3 },
+        { i: 'pattern-sequencer', x: 0, y: 6, w: 2, h: 12 },
+        { i: 'instruments', x: 11, y: 3, w: 2, h: 8 },
         { i: 'monitors', x: 0, y: 2, w: 10, h: 4 },
-        { i: 'browser', x: 11, y: 9, w: 2, h: 10 },
+        { i: 'browser', x: 11, y: 11, w: 2, h: 12 },
         { i: 'effects', x: 0, y: 14, w: 10, h: 4 },
       ],
       md: [

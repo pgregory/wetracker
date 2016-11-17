@@ -146,25 +146,23 @@ const songInitialState = fromJS({
   patterns: [{
     rows: 64,
     trackdata: [{
-      notecolumns: 3,
+      notecolumns: 2,
       fxcolumns: 1,
-      name: 'Bass',
+      name: 'Lead',
       type: 'play',
+      color: '#008800',
       notedata: [
-        { notes: [{ note: 'C4', instrument: 1, volume: 40, panning: 80, delay: 0 },
-                  { note: 'E4', instrument: 1, volume: 40, panning: 80, delay: 0 },
-                  { note: 'G4', instrument: 1, volume: 40, panning: 80, delay: 0 },
-                 ] },
-        {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+        {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
       ],
     }, {
-      notecolumns: 1,
+      notecolumns: 2,
       fxcolumns: 1,
       name: 'Bass',
       type: 'play',
+      color: '#880000',
       notedata: [
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
@@ -174,8 +172,9 @@ const songInitialState = fromJS({
     }, {
       notecolumns: 1,
       fxcolumns: 1,
-      name: 'Bass',
+      name: 'Lead1',
       type: 'play',
+      color: '#000088',
       notedata: [
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
@@ -185,8 +184,9 @@ const songInitialState = fromJS({
     }, {
       notecolumns: 1,
       fxcolumns: 1,
-      name: 'Bass',
+      name: 'Pad',
       type: 'play',
+      color: '#008888',
       notedata: [
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
@@ -196,8 +196,9 @@ const songInitialState = fromJS({
     }, {
       notecolumns: 1,
       fxcolumns: 1,
-      name: 'Bass',
+      name: 'Track5',
       type: 'play',
+      color: '#880088',
       notedata: [
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
@@ -207,8 +208,9 @@ const songInitialState = fromJS({
     }, {
       notecolumns: 1,
       fxcolumns: 1,
-      name: 'Bass',
+      name: 'Track 6',
       type: 'play',
+      color: '#888800',
       notedata: [
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
