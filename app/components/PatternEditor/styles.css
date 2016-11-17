@@ -27,6 +27,7 @@
 
 .track-header {
   box-sizing: border-box;
+  background: #222;
 }
 
 .time-header {
