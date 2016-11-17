@@ -41,6 +41,7 @@
 .track-controls {
   display: flex;
   flex-direction: row;
+  padding: 3px;
 }
 
 .row .tick {
