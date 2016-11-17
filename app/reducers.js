@@ -37,6 +37,22 @@ function routeReducer(state = routeInitialState, action) {
   }
 }
 
+const instrumentCursorInitialState = fromJS({
+  selected: 0,
+});
+
+function instrumentCursorReducer(state = instrumentCursorInitialState, action) {
+  switch (action.type) {
+    case constants.SELECT_INSTRUMENT: {
+      return state.merge({
+        selected: action.instrument,
+      });
+    }
+    default:
+      return state;
+  }
+}
+
 const cursorInitialState = fromJS({
   row: 0,
   track: 0,
@@ -411,6 +427,7 @@ export default function createReducer(asyncReducers) {
     cursor: cursorReducer,
     song: songReducer,
     transport: transportReducer,
+    instrumentCursor: instrumentCursorReducer,
     ...asyncReducers,
   });
 }

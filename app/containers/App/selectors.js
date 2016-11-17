@@ -24,9 +24,13 @@ const selectSong = () =>
 const selectTransport = () =>
   (state) => state.get('transport').toJS();
 
+const selectInstrumentCursor = () =>
+  (state) => state.get('instrumentCursor').toJS();
+
 export {
   selectLocationState,
   selectCursor,
   selectSong,
   selectTransport,
+  selectInstrumentCursor,
 };

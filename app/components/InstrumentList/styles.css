@@ -33,3 +33,12 @@
 .instrumentList .selected {
   background: #040;
 }
+
+.instrumentList li button {
+  width: calc(100% - 36px);
+}
+
+.instrumentList li button:focus {
+  outline: none;
+  border: 1px dotted darkorange;
+}

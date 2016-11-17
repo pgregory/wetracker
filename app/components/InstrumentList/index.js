@@ -24,7 +24,14 @@ class InstrumentList extends React.Component { // eslint-disable-line react/pref
         <div>
           <ol>
             { this.props.song.instruments.map((instrument, index) => (
-              <li key={index} className={classNames(0, index)}>{ instrument.name }</li>
+              <li
+                key={index}
+                className={classNames(this.props.instrumentCursor.selected, index)}
+              >
+                <button onClick={() => this.props.onSelectInstrument(index)}>
+                { instrument.name }
+                </button>
+              </li>
             ))}
           </ol>
         </div>
@@ -35,6 +42,8 @@ class InstrumentList extends React.Component { // eslint-disable-line react/pref
 
 InstrumentList.propTypes = {
   song: React.PropTypes.object.isRequired,
+  instrumentCursor: React.PropTypes.object.isRequired,
+  onSelectInstrument: React.PropTypes.func.isRequired,
 };
 
 export default InstrumentList;

@@ -196,3 +196,10 @@ export function setNoteColumns(track, count) {
   };
 }
 
+
+export function selectInstrument(instrument) {
+  return {
+    type: constants.SELECT_INSTRUMENT,
+    instrument,
+  };
+}

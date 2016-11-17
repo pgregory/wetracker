@@ -21,6 +21,7 @@ import {
   selectCursor,
   selectSong,
   selectTransport,
+  selectInstrumentCursor,
 } from 'containers/App/selectors';
 
 import {
@@ -43,6 +44,7 @@ import {
   stepChange,
   octaveChange,
   setNoteColumns,
+  selectInstrument,
 } from 'containers/App/actions';
 
 import { HotKeys } from 'react-hotkeys';
@@ -323,6 +325,8 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
             <Chrome>
               <InstrumentList
                 song={this.props.song}
+                instrumentCursor={this.props.instrumentCursor}
+                onSelectInstrument={this.props.onSelectInstrument}
               />
             </Chrome>
           </Wrapper>
@@ -349,6 +353,7 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
 
 HomePage.propTypes = {
   cursor: React.PropTypes.object.isRequired,
+  instrumentCursor: React.PropTypes.object.isRequired,
   onCursorRowChange: React.PropTypes.func.isRequired,
   onCursorItemChange: React.PropTypes.func.isRequired,
   onCursorUp: React.PropTypes.func.isRequired,
@@ -370,6 +375,7 @@ HomePage.propTypes = {
   onStepChange: React.PropTypes.func.isRequired,
   onOctaveChange: React.PropTypes.func.isRequired,
   onSetNoteColumns: React.PropTypes.func.isRequired,
+  onSelectInstrument: React.PropTypes.func.isRequired,
 };
 
 export function mapDispatchToProps(dispatch) {
@@ -393,6 +399,7 @@ export function mapDispatchToProps(dispatch) {
     onStepChange: (step) => dispatch(stepChange(step)),
     onOctaveChange: (octave) => dispatch(octaveChange(octave)),
     onSetNoteColumns: (track, count) => dispatch(setNoteColumns(track, count)),
+    onSelectInstrument: (instrument) => dispatch(selectInstrument(instrument)),
   };
 }
 
@@ -400,6 +407,7 @@ const mapStateToProps = createStructuredSelector({
   cursor: selectCursor(),
   song: selectSong(),
   transport: selectTransport(),
+  instrumentCursor: selectInstrumentCursor(),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(HomePage);
