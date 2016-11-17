@@ -1,6 +1,8 @@
 
 ![Screenshot](http://pgregory.github.io/wetracker/images/screenshot.png)
 
+Take a look at a short video of the current status [here](https://youtu.be/YHOuZ-R9W3g)
+
 WeTracker is a project to create an online, collaborative music creation suite.
 The interface is designed to be flexible and configurable, using
 [react-grid-layout](https://github.com/STRML/react-grid-layout) for layout, which
