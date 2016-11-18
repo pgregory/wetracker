@@ -16,21 +16,21 @@ export default class Rows extends React.Component {
       <table className={styles.trackview}>
         <tbody>
           <tr>
-            { this.props.song.patterns[0] && this.props.song.patterns[0].trackdata.map((track, index) => (
+            { this.props.pattern && this.props.pattern.trackdata.map((track, index) => (
               <td key={index}><div style={{ height: (this.props.topPadding * 15) - 2 }}></div></td>
             ))}
           </tr>
-          { [...Array(this.props.song.patterns[0].rows)].map((x, row) => (
+          { [...Array(this.props.pattern.rows)].map((x, row) => (
             <Row
               key={row}
-              pattern={this.props.song.patterns[0]}
+              pattern={this.props.pattern}
               rownum={row}
               cursor={this.props.cursor}
               refresh={this.props.refresh}
             />
           ))}
           <tr>
-            { this.props.song.patterns[0] && this.props.song.patterns[0].trackdata.map((track, index) => (
+            { this.props.pattern && this.props.pattern.trackdata.map((track, index) => (
               <td key={index}><div style={{ height: (this.props.bottomPadding * 15) - 2 }}></div></td>
             ))}
           </tr>
@@ -41,7 +41,7 @@ export default class Rows extends React.Component {
 }
 
 Rows.propTypes = {
-  song: React.PropTypes.object.isRequired,
+  pattern: React.PropTypes.object.isRequired,
   cursor: React.PropTypes.shape({
     row: React.PropTypes.number.isRequired,
   }).isRequired,

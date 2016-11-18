@@ -144,13 +144,13 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
 
     /* Calculate the horizontal space needed to show all visible tracks/columns */
     let totalWidth = 0;
-    this.props.song.patterns[0].trackdata.forEach((track) =>
+    this.props.pattern.trackdata.forEach((track) =>
       (totalWidth += (150 * track.notecolumns)));
     return (
       <div className={styles['pattern-editor']}>
         <div style={{ float: 'left' }}>
           <Timeline
-            song={this.props.song}
+            pattern={this.props.pattern}
             cursor={this.props.cursor}
             scrollHeight={this.state.listHeight}
             topPadding={blankRowsTop}
@@ -162,13 +162,13 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
         <div style={{ float: 'left', width: eventTableWidth }} className={styles.xscroll}>
           <div className={styles.leftSideTable} style={{ width: this.state.tableWidth }}>
             <Header
-              song={this.props.song}
+              pattern={this.props.pattern}
               onSetNoteColumns={this.props.onSetNoteColumns}
             />
           </div>
           <div style={{ height: this.state.listHeight, width: this.state.tableWidth }} className={styles.sideTable} onWheel={this.onScroll}>
             <Rows
-              song={this.props.song}
+              pattern={this.props.pattern}
               cursor={this.props.cursor}
               topPadding={blankRowsTop}
               bottomPadding={blankRowsBottom}
@@ -190,7 +190,7 @@ PatternEditor.propTypes = {
     track: React.PropTypes.number.isRequired,
   }).isRequired,
   onCursorRowChange: React.PropTypes.func.isRequired,
-  song: React.PropTypes.object.isRequired,
+  pattern: React.PropTypes.object.isRequired,
   onDoneRefresh: React.PropTypes.func.isRequired,
   refresh: React.PropTypes.bool,
   onSetNoteColumns: React.PropTypes.func.isRequired,

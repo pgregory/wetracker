@@ -298,7 +298,7 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
           <Wrapper key={'pattern-editor'}>
             <Chrome>
               <PatternEditor
-                song={this.props.song}
+                pattern={this.props.song.patterns[0]}
                 cursor={this.props.cursor}
                 onCursorRowChange={this.props.onCursorRowChange}
                 onCursorItemChange={this.props.onCursorItemChange}

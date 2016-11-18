@@ -26,7 +26,7 @@ export default class Timeline extends React.Component {
           <table>
             <tbody>
               <tr className={styles.row}><th className={styles.tick}><div style={{ height: (this.props.topPadding * 15) - 2 }}></div></th></tr>
-              { [...Array(this.props.song.patterns[0].rows)].map((x, row) => (
+              { [...Array(this.props.pattern.rows)].map((x, row) => (
                 <Tick key={row} rownum={row} cursor={this.props.cursor} />
               ))}
               <tr className={styles.row}><th className={styles.tick}><div style={{ height: (this.props.bottomPadding * 15) - 2 }}></div></th></tr>
@@ -44,7 +44,7 @@ Timeline.propTypes = {
   }).isRequired,
   scrollHeight: React.PropTypes.number.isRequired,
   headerHeight: React.PropTypes.number.isRequired,
-  song: React.PropTypes.object.isRequired,
+  pattern: React.PropTypes.object.isRequired,
   topPadding: React.PropTypes.number.isRequired,
   bottomPadding: React.PropTypes.number.isRequired,
 };

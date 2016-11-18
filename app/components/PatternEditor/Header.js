@@ -6,22 +6,22 @@ import styles from './styles.css';
 
 export default class Header extends React.Component {
   onSubNoteColumn(trackIndex) {
-    this.props.onSetNoteColumns(trackIndex, this.props.song.patterns[0].trackdata[trackIndex].notecolumns - 1);
+    this.props.onSetNoteColumns(trackIndex, this.props.pattern.trackdata[trackIndex].notecolumns - 1);
   }
 
   onAddNoteColumn(trackIndex) {
-    this.props.onSetNoteColumns(trackIndex, this.props.song.patterns[0].trackdata[trackIndex].notecolumns + 1);
+    this.props.onSetNoteColumns(trackIndex, this.props.pattern.trackdata[trackIndex].notecolumns + 1);
   }
 
   render() {
-    const widths = this.props.song.patterns[0].trackdata.map((track) =>
+    const widths = this.props.pattern.trackdata.map((track) =>
       track.notecolumns * 150);
 
     return (
       <table id="header-table">
         <thead>
           <tr>
-            { this.props.song.tracks && this.props.song.patterns[0].trackdata.map((track, index) => (
+            { this.props.pattern && this.props.pattern.trackdata.map((track, index) => (
               <th key={index}>
                 <div className={styles['track-header']} style={{ width: widths[index] }}>{track.name}
                   <div className={styles['track-color']} style={{ background: track.color }}></div>
@@ -40,6 +40,6 @@ export default class Header extends React.Component {
 }
 
 Header.propTypes = {
-  song: React.PropTypes.object,
+  pattern: React.PropTypes.object,
   onSetNoteColumns: React.PropTypes.func.isRequired,
 };
