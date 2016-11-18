@@ -25,14 +25,15 @@
   display: inline-block;
   width: 30px;
   text-align: center;
-  padding: 2px 0;
-  border: 1px solid grey;
+  padding: 0;
 }
 
 
 .instrumentList li button {
   width: calc(100% - 36px);
   text-align: left;
+  font-size: 0.75em;
+  padding: 0;
 }
 
 .instrumentList .selected {
