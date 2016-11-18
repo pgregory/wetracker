@@ -12,7 +12,6 @@
 
 .instrumentList li {
   counter-increment: instr-counter;
-  margin: 2px;
 }
 
 .instrumentList li::before {
@@ -30,12 +29,14 @@
   border: 1px solid grey;
 }
 
-.instrumentList .selected {
-  background: #040;
-}
 
 .instrumentList li button {
   width: calc(100% - 36px);
+  text-align: left;
+}
+
+.instrumentList .selected {
+  background: #040;
 }
 
 .instrumentList li button:focus {
