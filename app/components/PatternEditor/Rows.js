@@ -23,6 +23,7 @@ export default class Rows extends React.Component {
           { [...Array(this.props.pattern.rows)].map((x, row) => (
             <Row
               key={row}
+              song={this.props.song}
               pattern={this.props.pattern}
               rownum={row}
               cursor={this.props.cursor}
@@ -41,6 +42,7 @@ export default class Rows extends React.Component {
 }
 
 Rows.propTypes = {
+  song: React.PropTypes.object.isRequired,
   pattern: React.PropTypes.object.isRequired,
   cursor: React.PropTypes.shape({
     row: React.PropTypes.number.isRequired,

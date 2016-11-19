@@ -162,12 +162,13 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
         <div style={{ float: 'left', width: eventTableWidth }} className={styles.xscroll}>
           <div className={styles.leftSideTable} style={{ width: this.state.tableWidth }}>
             <Header
-              pattern={this.props.pattern}
+              song={this.props.song}
               onSetNoteColumns={this.props.onSetNoteColumns}
             />
           </div>
           <div style={{ height: this.state.listHeight, width: this.state.tableWidth }} className={styles.sideTable} onWheel={this.onScroll}>
             <Rows
+              song={this.props.song}
               pattern={this.props.pattern}
               cursor={this.props.cursor}
               topPadding={blankRowsTop}
@@ -190,6 +191,7 @@ PatternEditor.propTypes = {
     track: React.PropTypes.number.isRequired,
   }).isRequired,
   onCursorRowChange: React.PropTypes.func.isRequired,
+  song: React.PropTypes.object.isRequired,
   pattern: React.PropTypes.object.isRequired,
   onDoneRefresh: React.PropTypes.func.isRequired,
   refresh: React.PropTypes.bool,

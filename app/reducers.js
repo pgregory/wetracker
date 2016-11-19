@@ -149,14 +149,43 @@ function cursorReducer(state = cursorInitialState, action) {
 }
 
 const songInitialState = fromJS({
-  tracks: [
-    { name: 'Bass' },
-    { name: 'Drums' },
-    { name: 'Lead' },
-    { name: 'Pad' },
-    { name: 'Track 5' },
-    { name: 'Track 6' },
-  ],
+  tracks: [{
+    notecolumns: 2,
+    fxcolumns: 1,
+    name: 'Lead',
+    type: 'play',
+    color: '#008800',
+  }, {
+    notecolumns: 2,
+    fxcolumns: 1,
+    name: 'Bass',
+    type: 'play',
+    color: '#880000',
+  }, {
+    notecolumns: 1,
+    fxcolumns: 1,
+    name: 'Lead1',
+    type: 'play',
+    color: '#000088',
+  }, {
+    notecolumns: 1,
+    fxcolumns: 1,
+    name: 'Pad',
+    type: 'play',
+    color: '#008888',
+  }, {
+    notecolumns: 1,
+    fxcolumns: 1,
+    name: 'Track5',
+    type: 'play',
+    color: '#880088',
+  }, {
+    notecolumns: 1,
+    fxcolumns: 1,
+    name: 'Track 6',
+    type: 'play',
+    color: '#888800',
+  }],
   instruments: [
     { name: 'piano' },
     { name: 'hi-hat' },
@@ -164,24 +193,10 @@ const songInitialState = fromJS({
     { name: 'pluck bass' },
     { name: 'triangle' },
     { name: 'piano' },
-    { name: 'hi-hat' },
-    { name: 'drumkit' },
-    { name: 'pluck bass' },
-    { name: 'triangle' },
-    { name: 'piano' },
-    { name: 'hi-hat' },
-    { name: 'drumkit' },
-    { name: 'pluck bass' },
-    { name: 'triangle' },
   ],
   patterns: [{
     rows: 64,
     trackdata: [{
-      notecolumns: 2,
-      fxcolumns: 1,
-      name: 'Lead',
-      type: 'play',
-      color: '#008800',
       notedata: [
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
@@ -189,11 +204,6 @@ const songInitialState = fromJS({
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
       ],
     }, {
-      notecolumns: 2,
-      fxcolumns: 1,
-      name: 'Bass',
-      type: 'play',
-      color: '#880000',
       notedata: [
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
@@ -201,11 +211,6 @@ const songInitialState = fromJS({
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
       ],
     }, {
-      notecolumns: 1,
-      fxcolumns: 1,
-      name: 'Lead1',
-      type: 'play',
-      color: '#000088',
       notedata: [
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
@@ -213,11 +218,6 @@ const songInitialState = fromJS({
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
       ],
     }, {
-      notecolumns: 1,
-      fxcolumns: 1,
-      name: 'Pad',
-      type: 'play',
-      color: '#008888',
       notedata: [
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
@@ -225,11 +225,6 @@ const songInitialState = fromJS({
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
       ],
     }, {
-      notecolumns: 1,
-      fxcolumns: 1,
-      name: 'Track5',
-      type: 'play',
-      color: '#880088',
       notedata: [
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
@@ -237,11 +232,6 @@ const songInitialState = fromJS({
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
       ],
     }, {
-      notecolumns: 1,
-      fxcolumns: 1,
-      name: 'Track 6',
-      type: 'play',
-      color: '#888800',
       notedata: [
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
@@ -301,7 +291,7 @@ const event = (state = {}, action) => {
   }
 };
 
-const track = (state = {}, action) => {
+const patterntrack = (state = {}, action) => {
   switch (action.type) {
     case constants.SET_NOTE_AT_CURSOR: {
       return state.merge({
@@ -311,8 +301,19 @@ const track = (state = {}, action) => {
     }
     case constants.SET_NOTE_COLUMNS: {
       return state.merge({
-        notecolumns: action.count,
         notedata: state.get('notedata').map((e) => event(e, action)),
+      });
+    }
+    default:
+      return state;
+  }
+};
+
+const track = (state = {}, action) => {
+  switch (action.type) {
+    case constants.SET_NOTE_COLUMNS: {
+      return state.merge({
+        notecolumns: action.count,
       });
     }
     default:
@@ -324,13 +325,13 @@ const pattern = (state = {}, action) => {
   switch (action.type) {
     case constants.SET_NOTE_COLUMNS: {
       return state.merge({
-        trackdata: state.get('trackdata').map((t, i) => (i === action.track ? track(t, action)
+        trackdata: state.get('trackdata').map((t, i) => (i === action.track ? patterntrack(t, action)
                                                                             : t)),
       });
     }
     case constants.SET_NOTE_AT_CURSOR: {
       return state.merge({
-        trackdata: state.get('trackdata').map((t, i) => (i === action.cursor.track ? track(t, action)
+        trackdata: state.get('trackdata').map((t, i) => (i === action.cursor.track ? patterntrack(t, action)
                                                                                    : t)),
       });
     }
@@ -346,6 +347,9 @@ function songReducer(state = songInitialState, action) {
         patterns:
           state.get('patterns').map((p, i) => (i === 0 ? pattern(p, action)
                                                        : p)),
+        tracks:
+          state.get('tracks').map((t, i) => (i === action.track ? track(t, action)
+                                                                : t)),
         refresh: true,
       });
     }
