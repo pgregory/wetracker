@@ -199,9 +199,9 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
 
   onCursorMove(event, direction) {
     if (direction === 0) {
-      this.props.onCursorLeft(this.props.song.patterns[0].trackdata);
+      this.props.onCursorLeft(this.props.song.tracks);
     } else if (direction === 1) {
-      this.props.onCursorRight(this.props.song.patterns[0].trackdata);
+      this.props.onCursorRight(this.props.song.tracks);
     } else if (direction === 2) {
       this.props.onCursorUp(1, this.props.song.patterns[0].rows);
     } else if (direction === 3) {
