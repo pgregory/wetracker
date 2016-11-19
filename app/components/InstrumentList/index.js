@@ -22,20 +22,17 @@ class InstrumentList extends React.Component { // eslint-disable-line react/pref
     return (
       <div className={styles.instrumentList}>
         <div>
-          <ol>
-            { this.props.song.instruments.map((instrument, index) => (
-              <li
-                key={index}
+          { this.props.song.instruments.map((instrument, index) => (
+            <div key={index}>
+              <span className={styles.instrumentNumber}>{index}</span>
+              <button
+                onClick={() => this.props.onSelectInstrument(index)}
+                className={classNames(this.props.instrumentCursor.selected, index)}
               >
-                <button
-                  onClick={() => this.props.onSelectInstrument(index)}
-                  className={classNames(this.props.instrumentCursor.selected, index)}
-                >
-                  { instrument.name }
-                </button>
-              </li>
-            ))}
-          </ol>
+                { instrument.name }
+              </button>
+            </div>
+          ))}
         </div>
       </div>
     );

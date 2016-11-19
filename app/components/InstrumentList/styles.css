@@ -4,19 +4,13 @@
   overflow: auto;
 }
 
-.instrumentList ol {
-  margin: 5px;
+.instrumentList div {
   padding-left: 0;
-  list-style-type: none;
 }
 
-.instrumentList li {
-  counter-increment: instr-counter;
-}
 
-.instrumentList li::before {
-  content: counter(instr-counter);
-  margin-right: 5px;
+.instrumentList .instrumentNumber {
+  margin: 0 5px;
   font-size: 80%;
   background-color: rgb(100,100,100);
   color: black;
@@ -29,8 +23,8 @@
 }
 
 
-.instrumentList li button {
-  width: calc(100% - 36px);
+.instrumentList button {
+  width: calc(100% - 41px);
   text-align: left;
   font-size: 0.75em;
   padding: 0;
@@ -40,7 +34,7 @@
   background: #040;
 }
 
-.instrumentList li button:focus {
+.instrumentList button:focus {
   outline: none;
   border: 1px dotted darkorange;
 }
