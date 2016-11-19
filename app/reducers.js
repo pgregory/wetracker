@@ -187,12 +187,80 @@ const songInitialState = fromJS({
     color: '#888800',
   }],
   instruments: [
-    { name: 'piano' },
-    { name: 'hi-hat' },
-    { name: 'drumkit' },
-    { name: 'pluck bass' },
-    { name: 'triangle' },
-    { name: 'piano' },
+    {
+      name: 'piano',
+      type: 'sampler',
+      samples: [
+        {
+          url: '/assets/audio/Korg-M3R-Grand-Piano-C1.wav',
+          base: 'C1',
+          rangeStart: 'C1',
+          rangeEnd: 'B2',
+        },
+        {
+          url: '/assets/audio/Korg-M3R-Grand-Piano-C3.wav',
+          base: 'C3',
+          rangeStart: 'C3',
+          rangeEnd: 'B4',
+        },
+        {
+          url: '/assets/audio/Korg-M3R-Grand-Piano-C5.wav',
+          base: 'C5',
+          rangeStart: 'C5',
+          rangeEnd: 'C9',
+        },
+      ],
+      data: {
+        envelope: {
+          attack: 0.00,
+          decay: 2.0,
+          sustain: 1.0,
+          release: 5.9,
+        },
+      },
+    },
+    {
+      name: 'buzz',
+      type: 'synth',
+      data: {
+        oscillator: {
+          type: 'square',
+          modulationFrequency: 0.2,
+        },
+        envelope: {
+          attack: 0.02,
+          decay: 0.1,
+          sustain: 0.2,
+          release: 1.9,
+        },
+      },
+    },
+    {
+      name: 'tom',
+      type: 'membrane',
+      data: {
+        pitchDecay: 0.008,
+        octaves: 2,
+        envelope: {
+          attack: 0.0006,
+          decay: 0.5,
+          sustain: 0,
+        },
+      },
+    },
+    {
+      name: 'cymbal',
+      type: 'metal',
+      data: {
+        harmonicity: 2,
+        resonance: 800,
+        modulationIndex: 20,
+        envelope: {
+          decay: 0.8,
+        },
+        volume: -35,
+      },
+    },
   ],
   patterns: [{
     rows: 64,
