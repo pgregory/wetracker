@@ -14,6 +14,7 @@ import { Responsive, WidthProvider } from 'react-grid-layout';
 import PatternEditor from 'components/PatternEditor';
 import InstrumentList from 'components/InstrumentList';
 import Transport from 'components/Transport';
+import Monitors from 'components/Monitors';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 
@@ -333,7 +334,9 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
           </Wrapper>
           <Wrapper key={'monitors'}>
             <Chrome>
-              <span>Monitors</span>
+              <Monitors
+                song={this.props.song}
+              />
             </Chrome>
           </Wrapper>
           <Wrapper key={'browser'}>

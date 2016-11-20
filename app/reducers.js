@@ -185,6 +185,12 @@ const songInitialState = fromJS({
     name: 'Track 6',
     type: 'play',
     color: '#888800',
+  }, {
+    notecolumns: 1,
+    fxcolumns: 1,
+    name: 'Track 7',
+    type: 'play',
+    color: '#888844',
   }],
   instruments: [
     {
