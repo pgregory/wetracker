@@ -44,30 +44,56 @@ class MembraneWrapper {
   }
 }
 
+class TracksSampler {
+  constructor(instrument, tracks, destination) {
+    this.samplers = [];
+    for (let i = 0; i < tracks.length; i += 1) {
+      const sampler = new Tone.PolySynth(6, Tone.Sampler);
+      sampler.connect(destination);
+
+      sampler.set(instrument.data);
+      this.samplers.push(sampler);
+    }
+  }
+
+  setBuffer(buffer) {
+    let v;
+    let s;
+    for (s = 0; s < this.samplers.length; s += 1) {
+      for (v = 0; v < 6; v += 1) {
+        this.samplers[s].voices[v].player.buffer = buffer;
+      }
+    }
+  }
+
+  play(interval, time, track) {
+    this.samplers[track].triggerAttack(interval, time);
+  }
+}
+
 class SamplerWrapper {
-  constructor(instrument) {
+  constructor(instrument, tracks) {
     this.samplers = [];
     this.instrument = instrument;
 
     const samples = new Tone.Buffers();
     for (let i = 0; i < instrument.samples.length; i += 1) {
-      const sampler = new Tone.PolySynth(6, Tone.Sampler).toMaster();
+      const sampler = new TracksSampler(instrument, tracks, Tone.Master);
       const base = instrument.samples[i].base;
       samples.add(instrument.samples[i].base,
                   instrument.samples[i].url,
                   () => {
                     let v = 0;
                     for (; v < 6; v += 1) {
-                      sampler.voices[v].player.buffer = samples.get(base);
+                      sampler.setBuffer(samples.get(base));
                     }
                   });
-      sampler.set(instrument.data);
       this.samplers.push(sampler);
     }
     this.samples = samples;
   }
 
-  applyEvent(event, time) {
+  applyEvent(event, time, track) {
     let i;
     let sampleIndex = 0;
     const min = Tonal.semitones(event.note, this.instrument.samples[0].rangeStart);
@@ -87,7 +113,8 @@ class SamplerWrapper {
       }
     }
     const interval = Tonal.semitones(this.instrument.samples[sampleIndex].base, event.note);
-    this.samplers[sampleIndex].triggerAttackRelease(interval, '16n', time);
+
+    this.samplers[sampleIndex].play(interval, time, track);
   }
 }
 
@@ -107,7 +134,7 @@ class MusicPlayer extends React.Component { // eslint-disable-line react/prefer-
           return new MembraneWrapper(instr);
         }
         case 'sampler': {
-          return new SamplerWrapper(instr);
+          return new SamplerWrapper(instr, this.props.song.tracks);
         }
         case 'synth':
         default: {
@@ -117,19 +144,8 @@ class MusicPlayer extends React.Component { // eslint-disable-line react/prefer-
     });
 
     // play a note every quarter-note
-    const that = this;
     this.loop = new Tone.Sequence((time, row) => {
-      let t;
-      for (t = 0; t < that.props.song.patterns[0].trackdata.length; t += 1) {
-        const event = that.props.song.patterns[0].trackdata[t].notedata[row];
-        if (event.notes) {
-          event.notes.forEach((note) => {
-            if ('note' in note && 'instrument' in note) {
-              this.instruments[note.instrument].applyEvent(note, time);
-            }
-          });
-        }
-      }
+      this.playPatternRow(time, row);
       this.props.onPlayCursorRowChange(row);
     }, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
         16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
@@ -144,6 +160,29 @@ class MusicPlayer extends React.Component { // eslint-disable-line react/prefer-
       this.loop.start();
     } else {
       this.loop.stop();
+    }
+  }
+
+  playPatternRow(time, row) {
+    let t;
+    for (t = 0; t < this.props.song.patterns[0].trackdata.length; t += 1) {
+      const event = this.props.song.patterns[0].trackdata[t].notedata[row];
+      if (event.notes) {
+        this.playTrackEvents(event, time, t);
+      }
+    }
+  }
+
+  playTrackEvents(event, time, track) {
+    let n;
+    for (n = 0; n < event.notes.length; n += 1) {
+      this.playNote(event.notes[n], time, track);
+    }
+  }
+
+  playNote(note, time, track) {
+    if ('note' in note && 'instrument' in note) {
+      this.instruments[note.instrument].applyEvent(note, time, track);
     }
   }
 
