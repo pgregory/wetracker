@@ -203,3 +203,12 @@ export function selectInstrument(instrument) {
     instrument,
   };
 }
+
+
+export function trackoutputChange(track, data) {
+  return {
+    type: constants.TRACK_OUTPUT_UPDATE,
+    track,
+    data,
+  };
+}

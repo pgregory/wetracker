@@ -184,6 +184,7 @@ class MusicPlayer extends React.Component { // eslint-disable-line react/prefer-
     if ('note' in note && 'instrument' in note) {
       this.instruments[note.instrument].applyEvent(note, time, track);
     }
+    this.props.onTrackoutputChange(track, time);
   }
 
   render() {
@@ -198,6 +199,7 @@ MusicPlayer.propTypes = {
   song: React.PropTypes.object.isRequired,
   transport: React.PropTypes.object.isRequired,
   onPlayCursorRowChange: React.PropTypes.func.isRequired,
+  onTrackoutputChange: React.PropTypes.func.isRequired,
 };
 
 export default MusicPlayer;

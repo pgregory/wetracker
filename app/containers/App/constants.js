@@ -29,3 +29,4 @@ export const STEP_CHANGE = 'wetracker/App/STEP_CHANGE';
 export const OCTAVE_CHANGE = 'wetracker/App/OCTAVE_CHANGE';
 export const SET_NOTE_COLUMNS = 'wetracker/App/SET_NOTE_COLUMNS';
 export const SELECT_INSTRUMENT = 'wetracker/App/SELECT_INSTRUMENT';
+export const TRACK_OUTPUT_UPDATE = 'wetracker/App/TRACK_OUTPUT_UPDATE';

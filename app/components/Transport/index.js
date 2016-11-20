@@ -26,6 +26,7 @@ class Transport extends React.Component { // eslint-disable-line react/prefer-st
           song={this.props.song}
           transport={this.props.transport}
           onPlayCursorRowChange={this.props.onPlayCursorRowChange}
+          onTrackoutputChange={this.props.onTrackoutputChange}
         />
       </div>
     );
@@ -42,6 +43,7 @@ Transport.propTypes = {
   song: React.PropTypes.object.isRequired,
   onStepChange: React.PropTypes.func.isRequired,
   onOctaveChange: React.PropTypes.func.isRequired,
+  onTrackoutputChange: React.PropTypes.func.isRequired,
 };
 
 export default Transport;

@@ -502,6 +502,24 @@ function transportReducer(state = transportInitialState, action) {
   }
 }
 
+const trackoutputInitialState = fromJS({
+  tracks: [
+    {
+      waveform: 0,
+    },
+  ],
+});
+
+function trackoutputReducer(state = trackoutputInitialState, action) {
+  switch (action.type) {
+    case constants.TRACK_OUTPUT_UPDATE: {
+      return state;
+    }
+    default:
+      return state;
+  }
+}
+
 /**
  * Creates the main reducer with the asynchronously loaded ones
  */
@@ -513,6 +531,7 @@ export default function createReducer(asyncReducers) {
     song: songReducer,
     transport: transportReducer,
     instrumentCursor: instrumentCursorReducer,
+    trackoutput: trackoutputReducer,
     ...asyncReducers,
   });
 }

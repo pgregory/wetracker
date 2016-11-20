@@ -27,10 +27,14 @@ const selectTransport = () =>
 const selectInstrumentCursor = () =>
   (state) => state.get('instrumentCursor').toJS();
 
+const selectTrackoutput = () =>
+  (state) => state.get('trackoutput').toJS();
+
 export {
   selectLocationState,
   selectCursor,
   selectSong,
   selectTransport,
   selectInstrumentCursor,
+  selectTrackoutput,
 };

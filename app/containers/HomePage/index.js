@@ -46,6 +46,7 @@ import {
   octaveChange,
   setNoteColumns,
   selectInstrument,
+  trackoutputChange,
 } from 'containers/App/actions';
 
 import { HotKeys } from 'react-hotkeys';
@@ -294,6 +295,7 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
               onPlayCursorRowChange={this.props.onPlayCursorRowChange}
               onStepChange={this.props.onStepChange}
               onOctaveChange={this.props.onOctaveChange}
+              onTrackoutputChange={this.props.onTrackoutputChange}
             />
           </div>
           <Wrapper key={'pattern-editor'}>
@@ -380,6 +382,7 @@ HomePage.propTypes = {
   onOctaveChange: React.PropTypes.func.isRequired,
   onSetNoteColumns: React.PropTypes.func.isRequired,
   onSelectInstrument: React.PropTypes.func.isRequired,
+  onTrackoutputChange: React.PropTypes.func.isRequired,
 };
 
 export function mapDispatchToProps(dispatch) {
@@ -404,6 +407,7 @@ export function mapDispatchToProps(dispatch) {
     onOctaveChange: (octave) => dispatch(octaveChange(octave)),
     onSetNoteColumns: (track, count) => dispatch(setNoteColumns(track, count)),
     onSelectInstrument: (instrument) => dispatch(selectInstrument(instrument)),
+    onTrackoutputChange: (track, data) => dispatch(trackoutputChange(track, data)),
   };
 }
 
