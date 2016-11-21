@@ -1,4 +1,5 @@
 /* eslint-disable global-require */
+/* eslint-disable import/no-dynamic-require */
 const express = require('express');
 const path = require('path');
 const compression = require('compression');

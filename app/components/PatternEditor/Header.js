@@ -5,6 +5,10 @@ import Button from 'components/Button';
 import styles from './styles.css';
 
 export default class Header extends React.Component {
+  shouldComponentUpdate(/* nextProps, nextState */) {
+    return false;
+  }
+
   onSubNoteColumn(trackIndex) {
     this.props.onSetNoteColumns(trackIndex, this.props.song.tracks[trackIndex].notecolumns - 1);
   }

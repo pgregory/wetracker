@@ -112,7 +112,7 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
     const tableWidth = document.getElementsByClassName(styles.trackview)[0].clientWidth;
     this.setState({
       listHeight: scrollHeight,
-      headerHeight: headerHeight - 1,
+      headerHeight: headerHeight - 2,
       tableWidth: tableWidth + 1,
     });
   }

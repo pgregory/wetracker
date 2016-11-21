@@ -8,6 +8,7 @@ const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const logger = require('../../server/logger');
 const cheerio = require('cheerio');
+/* eslint-disable import/no-dynamic-require */
 const pkg = require(path.resolve(process.cwd(), 'package.json'));
 const dllPlugin = pkg.dllPlugin;
 const CopyWebpackPlugin = require('copy-webpack-plugin');

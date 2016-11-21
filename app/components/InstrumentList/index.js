@@ -18,11 +18,15 @@ function classNames(cursor, index) {
 }
 
 class InstrumentList extends React.Component { // eslint-disable-line react/prefer-stateless-function
+  shouldComponentUpdate(/* nextProps */) {
+    return false;
+  }
+
   render() {
     return (
       <div className={styles.instrumentList}>
         <div>
-          { this.props.song.instruments.map((instrument, index) => (
+          { this.props.instruments.map((instrument, index) => (
             <div key={index}>
               <span className={styles.instrumentNumber}>{index}</span>
               <button
@@ -40,7 +44,7 @@ class InstrumentList extends React.Component { // eslint-disable-line react/pref
 }
 
 InstrumentList.propTypes = {
-  song: React.PropTypes.object.isRequired,
+  instruments: React.PropTypes.array.isRequired,
   instrumentCursor: React.PropTypes.object.isRequired,
   onSelectInstrument: React.PropTypes.func.isRequired,
 };

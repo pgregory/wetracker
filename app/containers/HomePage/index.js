@@ -9,12 +9,15 @@
  * the linting exception.
  */
 
+/* eslint-disable global-require */
 import React from 'react';
 import { Responsive, WidthProvider } from 'react-grid-layout';
 import PatternEditor from 'components/PatternEditor';
 import InstrumentList from 'components/InstrumentList';
 import Transport from 'components/Transport';
 import Monitors from 'components/Monitors';
+import MusicPlayer from 'components/MusicPlayer';
+
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 
@@ -54,9 +57,17 @@ import { HotKeys } from 'react-hotkeys';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 
+/* eslint-disable import/no-webpack-loader-syntax */
 import '!style!css!./styles.css';
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive); /* eslint new-cap: ["error", { "capIsNew": false }] */
+
+if (process.env.NODE_ENV !== 'production') {
+  window.ReactPerf = require('react-addons-perf');
+  // const {whyDidYouUpdate} = require('why-did-you-update')
+  // whyDidYouUpdate(React, { include: /^Row$/ })
+}
+
 
 function Chrome(props) {
   /* Note: this relies on the border of "widget-container" being 5px
@@ -90,7 +101,7 @@ function Wrapper(props) {
     );
   return (
     <div {...props}>
-        { newChildren }
+      { newChildren }
     </div>
   );
 }
@@ -291,7 +302,6 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
               onPlaySong={this.props.onPlaySong}
               onStopSong={this.props.onStopSong}
               transport={this.props.transport}
-              song={this.props.song}
               onPlayCursorRowChange={this.props.onPlayCursorRowChange}
               onStepChange={this.props.onStepChange}
               onOctaveChange={this.props.onOctaveChange}
@@ -328,7 +338,7 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
           <Wrapper key={'instruments'}>
             <Chrome>
               <InstrumentList
-                song={this.props.song}
+                instruments={this.props.song.instruments}
                 instrumentCursor={this.props.instrumentCursor}
                 onSelectInstrument={this.props.onSelectInstrument}
               />
@@ -337,7 +347,7 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
           <Wrapper key={'monitors'}>
             <Chrome>
               <Monitors
-                song={this.props.song}
+                tracks={this.props.song.tracks}
               />
             </Chrome>
           </Wrapper>
@@ -352,6 +362,12 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
             </Chrome>
           </Wrapper>
         </ResponsiveReactGridLayout>
+        <MusicPlayer
+          song={this.props.song}
+          transport={this.props.transport}
+          onPlayCursorRowChange={this.props.onPlayCursorRowChange}
+          onTrackoutputChange={this.props.onTrackoutputChange}
+        />
       </HotKeys>
     );
   }

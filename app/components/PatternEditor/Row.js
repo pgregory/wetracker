@@ -52,7 +52,7 @@ export default class Row extends React.Component {
               cursor={this.props.cursor}
               event={track.notedata[this.props.rownum]}
               trackIndex={index}
-              track={this.props.song.tracks[index]}
+              track={this.props.tracks[index]}
             />
           </td>
         ))}
@@ -70,7 +70,7 @@ Row.propTypes = {
     item: React.PropTypes.number.isRequired,
     track: React.PropTypes.number.isRequired,
   }).isRequired,
-  song: React.PropTypes.object.isRequired,
+  tracks: React.PropTypes.array.isRequired,
   pattern: React.PropTypes.object.isRequired,
   refresh: React.PropTypes.bool,
 };

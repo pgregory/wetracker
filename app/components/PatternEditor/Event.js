@@ -108,33 +108,57 @@ EventNote.propTypes = {
   noteIndex: React.PropTypes.number.isRequired,
 };
 
-export default function Event(props) {
-  let notes = props.event.notes;
-  if (!notes) {
-    notes = Array(props.track.notecolumns).fill({});
+export default class Event extends React.Component {
+  shouldComponentUpdate(nextProps) {
+    if ((this.props.cursor.track === this.props.trackIndex && nextProps.cursor.track !== nextProps.trackIndex) ||
+        (this.props.cursor.track !== this.props.trackIndex && nextProps.cursor.track === nextProps.trackIndex)) {
+      return true;
+    }
+    if ((this.props.cursor.row === this.props.patternRow && nextProps.cursor.row !== nextProps.patternRow) ||
+        (this.props.cursor.row !== this.props.patternRow && nextProps.cursor.row === nextProps.patternRow)) {
+      return true;
+    }
+    if ((nextProps.cursor.row === nextProps.patternRow) &&
+        (nextProps.cursor.track === nextProps.trackIndex) &&
+        (nextProps.cursor.item !== this.props.cursor.item)) {
+      return true;
+    }
+    return false;
   }
-  if (notes.length < props.track.notecolumns) {
-    notes = notes.concat(Array(props.track.notecolumns - notes.length).fill({}));
+
+  render() {
+    const defnotes = [
+      {}, {}, {}, {}, {}, {}, {}, {},
+      {}, {}, {}, {}, {}, {}, {}, {},
+      {}, {}, {}, {}, {}, {}, {}, {},
+      {}, {}, {}, {}, {}, {}, {}, {},
+    ];
+    let notes = this.props.event.notes;
+    if (!notes) {
+      notes = defnotes;
+    }
+    return (
+      <div className={styles.line}>
+        {notes.slice(0, this.props.track.notecolumns).map((note, index) => (
+          <EventNote
+            key={index}
+            event={note}
+            cursor={this.props.cursor}
+            patternRow={this.props.patternRow}
+            trackIndex={this.props.trackIndex}
+            noteIndex={index}
+          />
+        ))}
+      </div>
+    );
   }
-  return (
-    <div className={styles.line}>
-      {notes.map((note, index) => (
-        <EventNote
-          key={index}
-          event={note}
-          cursor={props.cursor}
-          patternRow={props.patternRow}
-          trackIndex={props.trackIndex}
-          noteIndex={index}
-        />
-      ))}
-    </div>
-  );
 }
 
 
 Event.propTypes = {
+  cursor: React.PropTypes.object,
   event: React.PropTypes.object,
   trackIndex: React.PropTypes.number.isRequired,
   track: React.PropTypes.object.isRequired,
+  patternRow: React.PropTypes.number.isRequired,
 };

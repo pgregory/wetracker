@@ -11,20 +11,24 @@ import React from 'react';
 import styles from './styles.css';
 
 class Monitors extends React.Component { // eslint-disable-line react/prefer-stateless-function
+  shouldComponentUpdate(/* nextProps */) {
+    return false;
+  }
+
   render() {
-    const columns = Math.ceil(this.props.song.tracks.length / 2.0);
+    const columns = Math.ceil(this.props.tracks.length / 2.0);
     return (
       <div className={styles.monitors}>
         <div className={styles.row}>
-          { this.props.song.tracks.slice(0, columns).map((track, index) => (
+          { this.props.tracks.slice(0, columns).map((track, index) => (
             <div key={index} className={styles.monitor}>{track.name}</div>
           ))}
         </div>
         <div className={styles.row}>
-          { this.props.song.tracks.slice(columns).map((track, index) => (
+          { this.props.tracks.slice(columns).map((track, index) => (
             <div key={index} className={styles.monitor}>{track.name}</div>
           ))}
-          { this.props.song.tracks.length % 2 ? <div key={this.props.song.tracks.length} className={styles.blank}></div>
+          { this.props.tracks.length % 2 ? <div key={this.props.tracks.length} className={styles.blank}></div>
                                               : ''
           }
         </div>
@@ -34,7 +38,7 @@ class Monitors extends React.Component { // eslint-disable-line react/prefer-sta
 }
 
 Monitors.propTypes = {
-  song: React.PropTypes.object.isRequired,
+  tracks: React.PropTypes.array.isRequired,
 };
 
 export default Monitors;

@@ -7,6 +7,9 @@
 import 'babel-polyfill';
 
 /* eslint-disable import/no-unresolved */
+/* eslint-disable import/no-webpack-loader-syntax */
+/* eslint-disable import/extensions */
+/* eslint-disable import/first */
 // Load the manifest.json file and the .htaccess file
 import '!file?name=[name].[ext]!./manifest.json';
 import 'file?name=[name].[ext]!./.htaccess';

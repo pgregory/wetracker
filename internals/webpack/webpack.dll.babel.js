@@ -8,6 +8,7 @@
  * the webpack process.
  */
 
+/* eslint-disable import/no-dynamic-require */
 const { join } = require('path');
 const defaults = require('lodash/defaultsDeep');
 const webpack = require('webpack');
