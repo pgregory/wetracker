@@ -29,6 +29,8 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
 
     this.onScroll = this.onScroll.bind(this);
     this.calculateSizes = this.calculateSizes.bind(this);
+    this.initialLayout = this.initialLayout.bind(this);
+    this.updateCursor = this.updateCursor.bind(this);
 
     this.state = {
       listHeight: (Math.floor((props.height - 46) / 15.0)) * 15.0,
@@ -42,7 +44,7 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
   componentDidMount() {
     /* Need to use setTimeout to ensure that the repaint is complete and the
      * size of the table is calculated for the div "tableWidth" state param */
-    setTimeout(this.calculateSizes, 0);
+    setTimeout(this.initialLayout, 0);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -50,36 +52,30 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
         (this.props.width !== nextProps.width)) {
       this.setState({}, this.calculateSizes);
     }
+    if ((this.props.cursor.row !== nextProps.cursor.row) ||
+        (this.props.cursor.item !== nextProps.cursor.item)) {
+      window.requestAnimationFrame(() => this.updateCursor(nextProps.cursor));
+    }
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    if (nextState.listHeight !== this.state.listHeight ||
+        nextState.headerHeight !== this.state.headerHeight ||
+        nextState.tableWidth !== this.state.tableWidth) {
+      return true;
+    }
+    if (nextProps.cursor.row !== this.props.cursor.row) {
+      this.updateCursor(nextProps.cursor);
+    }
+    return false;
   }
 
   componentDidUpdate(prevProps) {
-    const vertTarget = document.getElementsByClassName(styles.sideTable)[0];
-    const horizTarget = document.getElementsByClassName(styles.xscroll)[0];
-    const timeline = document.getElementsByClassName(styles.timeline)[0];
-
-    const windowScroll = this.props.cursor.row * 15.0;
-
-
-    vertTarget.scrollTop = windowScroll;
-    timeline.scrollTop = windowScroll;
-
-
     // Only check the cursor is visible if it has moved on the row.
-    if (prevProps.cursor.item !== this.props.cursor.item ||
-        prevProps.cursor.track !== this.props.cursor.track) {
-      const item = document.getElementsByClassName(styles['event-cursor'])[0].parentElement;
-      let offsetParent = item.offsetParent;
-      let offset = item.offsetLeft;
-      while (!(offsetParent.parentElement.classList.contains(styles.sideTable))) {
-        offset += offsetParent.offsetLeft;
-        offsetParent = offsetParent.offsetParent;
-      }
-
-      if (((offset + item.clientWidth) - horizTarget.scrollLeft) > vertTarget.parentElement.clientWidth) {
-        this.scrollHorizTo(horizTarget, ((offset + item.clientWidth) - vertTarget.parentElement.clientWidth) + 6, 100);
-      } else if (offset < horizTarget.scrollLeft) {
-        this.scrollHorizTo(horizTarget, offset - 6, 100);
-      }
+    if ((prevProps.cursor.row !== this.props.cursor.row) ||
+        (prevProps.cursor.item !== this.props.cursor.item) ||
+        (prevProps.cursor.track !== this.props.cursor.track)) {
+      this.updateCursor(this.props.cursor);
     }
     this.props.onDoneRefresh();
   }
@@ -96,14 +92,67 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
         this.yoff = 0;
       }
 
-      const theCursor = Math.round((this.yoff) / 15.0);
+      const rowCursor = Math.round((this.yoff) / 15.0);
+      // Render the update as quickly as the browser can...
+      window.requestAnimationFrame(() => this.updateCursor(Object.assign(this.props.cursor, { row: rowCursor })));
 
-      this.props.onCursorRowChange(theCursor);
+      // ...but don't forget to tell the state about it as well.
+      this.props.onCursorRowChange(rowCursor);
     } else {
       horizTarget.scrollLeft += e.deltaX;
     }
-
     e.preventDefault();
+  }
+
+  initialLayout() {
+    this.calculateSizes();
+    setTimeout(() => this.updateCursor(this.props.cursor), 500);
+  }
+
+  updateCursor(cursor) {
+    const vertTarget = document.getElementsByClassName(styles.sideTable)[0];
+    const horizTarget = document.getElementsByClassName(styles.xscroll)[0];
+    const timeline = document.getElementsByClassName(styles.timeline)[0];
+
+    const windowScroll = cursor.row * 15.0;
+
+    vertTarget.scrollTop = windowScroll;
+    timeline.scrollTop = windowScroll;
+
+    const oldCursorRows = document.querySelectorAll(`tr.${styles['pattern-cursor-row']}`);
+    oldCursorRows.forEach((element) => {
+      element.classList.remove(styles['pattern-cursor-row']);
+    });
+
+    const timelineRow = document.querySelector(`.${styles.timeline} tr:nth-of-type(${cursor.row + 1})`);
+    const eventsRow = document.querySelector(`.${styles.trackview} tr:nth-of-type(${cursor.row + 1})`);
+    timelineRow.classList.add(styles['pattern-cursor-row']);
+    eventsRow.classList.add(styles['pattern-cursor-row']);
+
+    const itemCursor = document.getElementsByClassName(styles['event-cursor']);
+    if (itemCursor.length > 0) {
+      itemCursor[0].classList.remove(styles['event-cursor']);
+    }
+
+    const newItemCursorSelector = `td:nth-of-type(${cursor.track + 1}) div.${styles['note-column']} div:nth-of-type(${cursor.item + 1})`;
+    const newItemCursor = eventsRow.querySelector(newItemCursorSelector);
+    if (newItemCursor) {
+      newItemCursor.classList.add(styles['event-cursor']);
+
+      const item = newItemCursor.parentElement;
+      let offsetParent = item.offsetParent;
+      let offset = item.offsetLeft;
+      while (!(offsetParent.parentElement.classList.contains(styles.sideTable))) {
+        offset += offsetParent.offsetLeft;
+        offsetParent = offsetParent.offsetParent;
+      }
+
+      if (((offset + item.clientWidth) - horizTarget.scrollLeft) > vertTarget.parentElement.clientWidth) {
+        this.scrollHorizTo(horizTarget, ((offset + item.clientWidth) - vertTarget.parentElement.clientWidth) + 6, 100);
+      } else if (offset < horizTarget.scrollLeft) {
+        this.scrollHorizTo(horizTarget, offset - 6, 100);
+      }
+    }
   }
 
   calculateSizes() {

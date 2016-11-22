@@ -122,7 +122,7 @@ class MusicPlayer extends React.Component { // eslint-disable-line react/prefer-
   constructor(props) {
     super(props);
 
-    Tone.Transport.bpm.value = 8;
+    Tone.Transport.bpm.value = 132;
     Tone.Transport.start();
 
     this.instruments = props.song.instruments.map((instr) => {
