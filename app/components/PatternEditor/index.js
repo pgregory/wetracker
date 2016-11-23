@@ -45,6 +45,13 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
     /* Need to use setTimeout to ensure that the repaint is complete and the
      * size of the table is calculated for the div "tableWidth" state param */
     setTimeout(this.initialLayout, 0);
+
+    this.patternEditor = document.getElementsByClassName(styles['pattern-editor'])[0];
+    this.vertTarget = document.getElementsByClassName(styles.sideTable)[0];
+    this.horizTarget = document.getElementsByClassName(styles.xscroll)[0];
+    this.timeline = document.getElementsByClassName(styles.timeline)[0];
+    this.itemCursor = this.vertTarget.getElementsByClassName(styles['event-cursor'])[0];
+    this.lastCursor = this.props.cursor;
   }
 
   componentWillReceiveProps(nextProps) {
@@ -64,19 +71,12 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
         nextState.tableWidth !== this.state.tableWidth) {
       return true;
     }
-    if (nextProps.cursor.row !== this.props.cursor.row) {
-      this.updateCursor(nextProps.cursor);
-    }
     return false;
   }
 
-  componentDidUpdate(prevProps) {
-    // Only check the cursor is visible if it has moved on the row.
-    if ((prevProps.cursor.row !== this.props.cursor.row) ||
-        (prevProps.cursor.item !== this.props.cursor.item) ||
-        (prevProps.cursor.track !== this.props.cursor.track)) {
-      this.updateCursor(this.props.cursor);
-    }
+  componentDidUpdate() {
+    this.itemCursor = this.vertTarget.getElementsByClassName(styles['event-cursor'])[0];
+    this.lastCursor = this.props.cursor;
     this.props.onDoneRefresh();
   }
 
@@ -110,47 +110,47 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
   }
 
   updateCursor(cursor) {
-    const vertTarget = document.getElementsByClassName(styles.sideTable)[0];
-    const horizTarget = document.getElementsByClassName(styles.xscroll)[0];
-    const timeline = document.getElementsByClassName(styles.timeline)[0];
-
     const windowScroll = cursor.row * 15.0;
 
-    vertTarget.scrollTop = windowScroll;
-    timeline.scrollTop = windowScroll;
+    this.vertTarget.scrollTop = windowScroll;
+    this.timeline.scrollTop = windowScroll;
 
-    const oldCursorRows = document.querySelectorAll(`tr.${styles['pattern-cursor-row']}`);
+    const oldCursorRows = this.patternEditor.querySelectorAll(`tr.${styles['pattern-cursor-row']}`);
     oldCursorRows.forEach((element) => {
       element.classList.remove(styles['pattern-cursor-row']);
     });
 
-    const timelineRow = document.querySelector(`.${styles.timeline} tr:nth-of-type(${cursor.row + 1})`);
-    const eventsRow = document.querySelector(`.${styles.trackview} tr:nth-of-type(${cursor.row + 1})`);
+    const timelineRow = this.patternEditor.querySelector(`.${styles.timeline} tr:nth-of-type(${cursor.row + 1})`);
+    const eventsRow = this.vertTarget.querySelector(`.${styles.trackview} tr:nth-of-type(${cursor.row + 1})`);
     timelineRow.classList.add(styles['pattern-cursor-row']);
     eventsRow.classList.add(styles['pattern-cursor-row']);
 
-    const itemCursor = document.getElementsByClassName(styles['event-cursor']);
-    if (itemCursor.length > 0) {
-      itemCursor[0].classList.remove(styles['event-cursor']);
+    if (this.itemCursor) {
+      this.itemCursor.classList.remove(styles['event-cursor']);
     }
 
     const newItemCursorSelector = `td:nth-of-type(${cursor.track + 1}) div.${styles['note-column']} div:nth-of-type(${cursor.item + 1})`;
     const newItemCursor = eventsRow.querySelector(newItemCursorSelector);
     if (newItemCursor) {
       newItemCursor.classList.add(styles['event-cursor']);
+      this.itemCursor = newItemCursor;
 
-      const item = newItemCursor.parentElement;
-      let offsetParent = item.offsetParent;
-      let offset = item.offsetLeft;
-      while (!(offsetParent.parentElement.classList.contains(styles.sideTable))) {
-        offset += offsetParent.offsetLeft;
-        offsetParent = offsetParent.offsetParent;
-      }
+      // Only check if the cursor is visible if it has moved horizontally.
+      if ((this.lastCursor.track !== this.props.cursor.track) ||
+          (this.lastCursor.item !== this.props.cursor.item)) {
+        const item = newItemCursor.parentElement;
+        let offsetParent = item.offsetParent;
+        let offset = item.offsetLeft;
+        while (!(offsetParent.parentElement.classList.contains(styles.sideTable))) {
+          offset += offsetParent.offsetLeft;
+          offsetParent = offsetParent.offsetParent;
+        }
 
-      if (((offset + item.clientWidth) - horizTarget.scrollLeft) > vertTarget.parentElement.clientWidth) {
-        this.scrollHorizTo(horizTarget, ((offset + item.clientWidth) - vertTarget.parentElement.clientWidth) + 6, 100);
-      } else if (offset < horizTarget.scrollLeft) {
-        this.scrollHorizTo(horizTarget, offset - 6, 100);
+        if (((offset + item.clientWidth) - this.horizTarget.scrollLeft) > this.vertTarget.parentElement.clientWidth) {
+          this.scrollHorizTo(this.horizTarget, ((offset + item.clientWidth) - this.vertTarget.parentElement.clientWidth) + 6, 100);
+        } else if (offset < this.horizTarget.scrollLeft) {
+          this.scrollHorizTo(this.horizTarget, offset - 6, 100);
+        }
       }
     }
   }
