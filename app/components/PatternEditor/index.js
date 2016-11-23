@@ -36,6 +36,7 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
       listHeight: (Math.floor((props.height - 46) / 15.0)) * 15.0,
       headerHeight: 46,
       tableWidth: 0,
+      currentCursor: undefined,
     };
 
     this.yoff = 0;
@@ -52,6 +53,9 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
     this.timeline = document.getElementsByClassName(styles.timeline)[0];
     this.itemCursor = this.vertTarget.getElementsByClassName(styles['event-cursor'])[0];
     this.lastCursor = this.props.cursor;
+
+    this.timelineRows = this.patternEditor.querySelectorAll(`.${styles.timeline} tr`);
+    this.patternRows = this.patternEditor.querySelectorAll(`.${styles.trackview} tr`);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -59,8 +63,9 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
         (this.props.width !== nextProps.width)) {
       this.setState({}, this.calculateSizes);
     }
-    if ((this.props.cursor.row !== nextProps.cursor.row) ||
-        (this.props.cursor.item !== nextProps.cursor.item)) {
+    if ((!this.state.currentCursor) ||
+        (this.state.currentCursor.row !== nextProps.cursor.row) ||
+        (this.state.currentCursor.item !== nextProps.cursor.item)) {
       window.requestAnimationFrame(() => this.updateCursor(nextProps.cursor));
     }
   }
@@ -77,7 +82,6 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
   componentDidUpdate() {
     this.itemCursor = this.vertTarget.getElementsByClassName(styles['event-cursor'])[0];
     this.lastCursor = this.props.cursor;
-    this.props.onDoneRefresh();
   }
 
   onScroll(e) {
@@ -87,17 +91,19 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
     if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
       this.yoff += e.deltaY;
       if (this.yoff < 0) {
-        this.yoff = vertTarget.scrollHeight - vertTarget.clientHeight;
+        this.yoff = (vertTarget.scrollHeight - vertTarget.clientHeight) - 1;
       } else if (this.yoff >= vertTarget.scrollHeight - vertTarget.clientHeight) {
         this.yoff = 0;
       }
 
-      const rowCursor = Math.round((this.yoff) / 15.0);
-      // Render the update as quickly as the browser can...
-      window.requestAnimationFrame(() => this.updateCursor(Object.assign(this.props.cursor, { row: rowCursor })));
+      const rowCursor = Math.floor((this.yoff) / 15.0);
+      if (rowCursor !== this.state.currentCursor.row) {
+        // Render the update as quickly as the browser can...
+        // window.requestAnimationFrame(() => this.updateCursor(Object.assign(this.props.cursor, { row: rowCursor })));
 
-      // ...but don't forget to tell the state about it as well.
-      this.props.onCursorRowChange(rowCursor);
+        // ...but don't forget to tell the state about it as well.
+        this.props.onCursorRowChange(rowCursor);
+      }
     } else {
       horizTarget.scrollLeft += e.deltaX;
     }
@@ -110,49 +116,56 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
   }
 
   updateCursor(cursor) {
-    const windowScroll = cursor.row * 15.0;
+    if (this.timelineRows && this.timelineRows.length > 0 && this.patternRows && this.patternRows.length > 0) {
+      const windowScroll = cursor.row * 15.0;
+      let i;
 
-    this.vertTarget.scrollTop = windowScroll;
-    this.timeline.scrollTop = windowScroll;
+      this.vertTarget.scrollTop = windowScroll;
+      this.timeline.scrollTop = windowScroll;
 
-    const oldCursorRows = this.patternEditor.querySelectorAll(`tr.${styles['pattern-cursor-row']}`);
-    oldCursorRows.forEach((element) => {
-      element.classList.remove(styles['pattern-cursor-row']);
-    });
+      const oldCursorRows = this.patternEditor.getElementsByClassName(styles['pattern-cursor-row']);
+      for (i = oldCursorRows.length - 1; i >= 0; i -= 1) {
+        oldCursorRows[i].classList.remove(styles['pattern-cursor-row']);
+      }
 
-    const timelineRow = this.patternEditor.querySelector(`.${styles.timeline} tr:nth-of-type(${cursor.row + 1})`);
-    const eventsRow = this.vertTarget.querySelector(`.${styles.trackview} tr:nth-of-type(${cursor.row + 1})`);
-    timelineRow.classList.add(styles['pattern-cursor-row']);
-    eventsRow.classList.add(styles['pattern-cursor-row']);
+      // const timelineRow = this.patternEditor.querySelector(`.${styles.timeline} tr:nth-of-type(${cursor.row + 2})`);
+      // const eventsRow = this.vertTarget.querySelector(`.${styles.trackview} tr:nth-of-type(${cursor.row + 2})`);
+      this.timelineRows[cursor.row + 1].classList.add(styles['pattern-cursor-row']);
+      this.patternRows[cursor.row + 1].classList.add(styles['pattern-cursor-row']);
 
-    if (this.itemCursor) {
-      this.itemCursor.classList.remove(styles['event-cursor']);
-    }
+      if (this.itemCursor) {
+        this.itemCursor.classList.remove(styles['event-cursor']);
+      }
 
-    const newItemCursorSelector = `td:nth-of-type(${cursor.track + 1}) div.${styles['note-column']} div:nth-of-type(${cursor.item + 1})`;
-    const newItemCursor = eventsRow.querySelector(newItemCursorSelector);
-    if (newItemCursor) {
-      newItemCursor.classList.add(styles['event-cursor']);
-      this.itemCursor = newItemCursor;
+      const newItemCursorSelector = `td:nth-of-type(${cursor.track + 1}) div.${styles['note-column']} div:nth-of-type(${cursor.item + 1})`;
+      const newItemCursor = this.patternRows[cursor.row + 1].querySelector(newItemCursorSelector);
+      if (newItemCursor) {
+        newItemCursor.classList.add(styles['event-cursor']);
+        this.itemCursor = newItemCursor;
 
-      // Only check if the cursor is visible if it has moved horizontally.
-      if ((this.lastCursor.track !== this.props.cursor.track) ||
-          (this.lastCursor.item !== this.props.cursor.item)) {
-        const item = newItemCursor.parentElement;
-        let offsetParent = item.offsetParent;
-        let offset = item.offsetLeft;
-        while (!(offsetParent.parentElement.classList.contains(styles.sideTable))) {
-          offset += offsetParent.offsetLeft;
-          offsetParent = offsetParent.offsetParent;
-        }
+        // Only check if the cursor is visible if it has moved horizontally.
+        if ((this.lastCursor.track !== this.props.cursor.track) ||
+            (this.lastCursor.item !== this.props.cursor.item)) {
+          const item = newItemCursor.parentElement;
+          let offsetParent = item.offsetParent;
+          let offset = item.offsetLeft;
+          while (!(offsetParent.parentElement.classList.contains(styles.sideTable))) {
+            offset += offsetParent.offsetLeft;
+            offsetParent = offsetParent.offsetParent;
+          }
 
-        if (((offset + item.clientWidth) - this.horizTarget.scrollLeft) > this.vertTarget.parentElement.clientWidth) {
-          this.scrollHorizTo(this.horizTarget, ((offset + item.clientWidth) - this.vertTarget.parentElement.clientWidth) + 6, 100);
-        } else if (offset < this.horizTarget.scrollLeft) {
-          this.scrollHorizTo(this.horizTarget, offset - 6, 100);
+          if (((offset + item.clientWidth) - this.horizTarget.scrollLeft) > this.vertTarget.parentElement.clientWidth) {
+            this.scrollHorizTo(this.horizTarget, ((offset + item.clientWidth) - this.vertTarget.parentElement.clientWidth) + 6, 100);
+          } else if (offset < this.horizTarget.scrollLeft) {
+            this.scrollHorizTo(this.horizTarget, offset - 6, 100);
+          }
         }
       }
     }
+
+    this.setState({
+      currentCursor: cursor,
+    });
   }
 
   calculateSizes() {
@@ -222,7 +235,6 @@ class PatternEditor extends React.Component { // eslint-disable-line react/prefe
               cursor={this.props.cursor}
               topPadding={blankRowsTop}
               bottomPadding={blankRowsBottom}
-              refresh={this.props.refresh}
             />
           </div>
         </div>
@@ -242,8 +254,6 @@ PatternEditor.propTypes = {
   onCursorRowChange: React.PropTypes.func.isRequired,
   song: React.PropTypes.object.isRequired,
   pattern: React.PropTypes.object.isRequired,
-  onDoneRefresh: React.PropTypes.func.isRequired,
-  refresh: React.PropTypes.bool,
   onSetNoteColumns: React.PropTypes.func.isRequired,
 };
 

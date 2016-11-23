@@ -22,9 +22,6 @@ function rowClassNames(row, cursor, rowsPerBeat) {
 
 export default class Row extends React.Component {
   shouldComponentUpdate(nextProps /* , nextState*/) {
-    if (this.props.refresh) {
-      return true;
-    }
     if ((this.props.cursor.row === this.props.rownum && nextProps.cursor.row !== nextProps.rownum) ||
         (this.props.cursor.row !== this.props.rownum && nextProps.cursor.row === nextProps.rownum)) {
       return true;
@@ -72,5 +69,4 @@ Row.propTypes = {
   }).isRequired,
   tracks: React.PropTypes.array.isRequired,
   pattern: React.PropTypes.object.isRequired,
-  refresh: React.PropTypes.bool,
 };

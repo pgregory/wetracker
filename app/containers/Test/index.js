@@ -33,8 +33,6 @@ import {
   setNoteAtCursor,
   cursorTrackLeft,
   cursorTrackRight,
-  forceRefresh,
-  doneRefresh,
   setNoteColumns,
 } from 'containers/App/actions';
 
@@ -220,7 +218,6 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
   }
 
   onLayoutChanged() {
-    this.props.onForceRefresh();
   }
 
   render() {
@@ -240,8 +237,6 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
         onCursorTrackLeft={this.props.onCursorTrackLeft}
         onCursorTrackRight={this.props.onCursorTrackRight}
         onSetNoteAtCursor={this.props.onSetNoteAtCursor}
-        onDoneRefresh={this.props.onDoneRefresh}
-        refresh={this.props.song.refresh}
         transport={this.props.transport}
         onSetNoteColumns={this.props.onSetNoteColumns}
       />
@@ -262,8 +257,6 @@ HomePage.propTypes = {
   song: React.PropTypes.object.isRequired,
   onCursorTrackLeft: React.PropTypes.func.isRequired,
   onCursorTrackRight: React.PropTypes.func.isRequired,
-  onForceRefresh: React.PropTypes.func.isRequired,
-  onDoneRefresh: React.PropTypes.func.isRequired,
   transport: React.PropTypes.object.isRequired,
   onSetNoteColumns: React.PropTypes.func.isRequired,
 };
@@ -279,8 +272,6 @@ export function mapDispatchToProps(dispatch) {
     onCursorRowChange: (row) => dispatch(cursorSetRow(row)),
     onCursorItemChange: (track, item) => dispatch(cursorSetTrackItem(track, item)),
     onSetNoteAtCursor: (cursor, note) => dispatch(setNoteAtCursor(cursor, note)),
-    onForceRefresh: () => dispatch(forceRefresh()),
-    onDoneRefresh: () => dispatch(doneRefresh()),
     onSetNoteColumns: (track, count) => dispatch(setNoteColumns(track, count)),
   };
 }

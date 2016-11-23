@@ -40,8 +40,6 @@ import {
   cursorTrackRight,
   saveSong,
   loadSong,
-  forceRefresh,
-  doneRefresh,
   play,
   stop,
   playCursorSetRow,
@@ -238,7 +236,6 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
   }
 
   onLayoutChanged() {
-    this.props.onForceRefresh();
   }
 
   render() {
@@ -323,8 +320,6 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
                 onCursorTrackLeft={this.props.onCursorTrackLeft}
                 onCursorTrackRight={this.props.onCursorTrackRight}
                 onSetNoteAtCursor={this.props.onSetNoteAtCursor}
-                onDoneRefresh={this.props.onDoneRefresh}
-                refresh={this.props.song.refresh}
                 transport={this.props.transport}
                 onSetNoteColumns={this.props.onSetNoteColumns}
               />
@@ -388,8 +383,6 @@ HomePage.propTypes = {
   onCursorTrackRight: React.PropTypes.func.isRequired,
   onSaveSong: React.PropTypes.func.isRequired,
   onLoadSong: React.PropTypes.func.isRequired,
-  onForceRefresh: React.PropTypes.func.isRequired,
-  onDoneRefresh: React.PropTypes.func.isRequired,
   onPlaySong: React.PropTypes.func.isRequired,
   onStopSong: React.PropTypes.func.isRequired,
   transport: React.PropTypes.object.isRequired,
@@ -414,8 +407,6 @@ export function mapDispatchToProps(dispatch) {
     onSetNoteAtCursor: (cursor, note) => dispatch(setNoteAtCursor(cursor, note)),
     onSaveSong: () => dispatch(saveSong()),
     onLoadSong: () => dispatch(loadSong()),
-    onForceRefresh: () => dispatch(forceRefresh()),
-    onDoneRefresh: () => dispatch(doneRefresh()),
     onPlaySong: () => dispatch(play()),
     onStopSong: () => dispatch(stop()),
     onPlayCursorRowChange: (row) => dispatch(playCursorSetRow(row)),

@@ -141,18 +141,6 @@ export function loadSong() {
   };
 }
 
-export function forceRefresh() {
-  return {
-    type: constants.FORCE_REFRESH,
-  };
-}
-
-export function doneRefresh() {
-  return {
-    type: constants.DONE_REFRESH,
-  };
-}
-
 export function play() {
   return {
     type: constants.PLAY,

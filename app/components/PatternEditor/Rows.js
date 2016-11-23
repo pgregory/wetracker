@@ -5,7 +5,7 @@ import styles from './styles.css';
 
 export default class Rows extends React.Component {
   shouldComponentUpdate(nextProps /* , nextState*/) {
-    if (this.props.refresh) {
+    if (this.props.topPadding !== nextProps.topPadding) {
       return true;
     }
     if (nextProps.cursor.play_row !== this.props.cursor.play_row) {

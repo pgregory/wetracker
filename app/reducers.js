@@ -431,7 +431,6 @@ function songReducer(state = songInitialState, action) {
         tracks:
           state.get('tracks').map((t, i) => (i === action.track ? track(t, action)
                                                                 : t)),
-        refresh: true,
       });
     }
     case constants.SET_NOTE_AT_CURSOR: {
@@ -451,18 +450,7 @@ function songReducer(state = songInitialState, action) {
       if (serializedState === null) {
         return undefined;
       }
-      return state.merge(
-        fromJS(JSON.parse(serializedState)),
-        { refresh: true }
-      );
-    }
-    case constants.DONE_REFRESH: {
-      return state.deleteIn(['refresh']);
-    }
-    case constants.FORCE_REFRESH: {
-      return state.merge({
-        refresh: true,
-      });
+      return fromJS(JSON.parse(serializedState));
     }
     default:
       return state;
