@@ -1,210 +1,7 @@
 <head>
   <title>WeTracker</title>
   <link rel="stylesheet" type="text/css" href="sanitize.css">
-  <style>
-    body {
-      display: flex;
-    }
-    div#container {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      width: 100%;
-    }
-    .pattern-editor {
-      display: flex;
-      background: #444;
-      width: 50%;
-      height: 272px;
-      overflow: hidden;
-    }
-    .pattern-editor table {
-      background: black;
-    }
-
-    .pattern-editor th,
-    .pattern-editor td {
-      white-space: nowrap;
-      border-right: 1px solid white;
-      color: white;
-    }
-
-    .pattern-editor td {
-      font-family: monospace;
-    }
-
-    .trackview {
-      background: #000;
-    }
-
-    .track-header {
-      box-sizing: border-box;
-      background: #222;
-    }
-
-    .time-header {
-      box-sizing: border-box;
-    }
-
-    .track-header span {
-      width: 100%;
-      text-align: center;
-    }
-
-    .track-controls {
-      display: flex;
-      flex-direction: row;
-      padding: 3px;
-    }
-
-    .row .tick {
-      color: #999;
-      font-family: monospace;
-      width: 40px;
-      line-height: 1;
-    }
-
-    .pattern-cursor-row .tick {
-      color: #FFF;
-    }
-
-    .beat-row {
-      background: #333;
-    }
-
-    .pattern-cursor-row {
-      background: rgb(10, 50, 10);
-    }
-
-    .pattern-play-cursor-row {
-      background: rgb(10, 80, 80);
-    }
-
-    .note-column {
-      display: inline-block;
-    }
-
-    .line {
-      font-family: monospace;
-      line-height: 1;
-    }
-
-    .line .note,
-    .line .instrument,
-    .line .volume,
-    .line .panning,
-    .line .delay,
-    .line .fx {
-      margin-right: 2px;
-      display: inline-block;
-    }
-
-    .line .note {
-      color: #669;
-      width: 25px;
-      margin-left: 5px;
-    }
-
-    .pattern-cursor-row .line .note {
-      color: #CCF;
-    }
-
-    .pattern-cursor-row .line .note.event-cursor {
-      color: #113;
-    }
-
-    .line .instrument {
-      color: #966;
-      width: 18px;
-    }
-
-    .pattern-cursor-row .line .instrument {
-      color: #FCC;
-    }
-
-    .pattern-cursor-row .line .instrument.event-cursor {
-      color: #311;
-    }
-
-    .line .volume {
-      color: #666;
-      width: 18px;
-    }
-
-    .pattern-cursor-row .line .volume {
-      color: #CCC;
-    }
-
-    .pattern-cursor-row .line .volume.event-cursor {
-      color: #111;
-    }
-
-    .line .panning {
-      color: #969;
-      width: 18px;
-    }
-
-    .pattern-cursor-row .line .panning {
-      color: #FCF;
-    }
-
-    .pattern-cursor-row .line .panning.event-cursor {
-      color: #313;
-    }
-
-    .line .delay {
-      color: #996;
-      width: 18px;
-    }
-
-    .pattern-cursor-row .line .delay {
-      color: #FFC;
-    }
-
-    .pattern-cursor-row .line .delay.event-cursor {
-      color: #331;
-    }
-
-    .line .fx {
-      color: #888;
-      width: 36px;
-    }
-
-    .pattern-cursor-row .line .fx {
-      color: #FFF;
-      box-sizing: border-box;
-    }
-
-    .pattern-cursor-row .line .fx.event-cursor {
-      color: #333;
-    }
-
-    .xscroll .leftSideTable,
-    .xscroll .sideTable {
-      width: 930px;
-      overflow: auto;
-    }
-
-    .xscroll {
-      overflow: auto;
-    }
-
-    .timeline {
-      overflow: hidden;
-    }
-
-    .track-color {
-      width: 90%;
-      margin-left: 5%;
-      height: 8px;
-      border-radius: 2px;
-    }
-
-    .event-cursor {
-      background: rgb(0, 150, 0);
-    }
-  </style>
+  <link rel="stylesheet" type="text/css" href="styles.css">
   <script
     src="https://code.jquery.com/jquery-3.1.1.min.js"
     integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
@@ -236,83 +33,7 @@
       </div>
 
       <div style="float: left; width: calc(150 * 7);" class="xscroll">
-        <div class="leftSideTable" style="width: 1070px;">
-          <table id="header-table">
-            <thead>
-              <tr>
-                <th>
-                  <div class="track-header" style="width: 150px;">
-                    <span>Lead</span>
-                    <div class="track-color" style="background: #F00;"></div>
-                    <div class="track-controls">
-                      <button>-</button>
-                      <button>+</button>
-                    </div>
-                  </div>
-                </th>
-                <th>
-                  <div class="track-header" style="width: 150px;">
-                    <span>Bass</span>
-                    <div class="track-color" style="background: #F00;"></div>
-                    <div class="track-controls">
-                      <button>-</button>
-                      <button>+</button>
-                    </div>
-                  </div>
-                </th>
-                <th>
-                  <div class="track-header" style="width: 150px;">
-                    <span>Bass</span>
-                    <div class="track-color" style="background: #F00;"></div>
-                    <div class="track-controls">
-                      <button>-</button>
-                      <button>+</button>
-                    </div>
-                  </div>
-                </th>
-                <th>
-                  <div class="track-header" style="width: 150px;">
-                    <span>Bass</span>
-                    <div class="track-color" style="background: #F00;"></div>
-                    <div class="track-controls">
-                      <button>-</button>
-                      <button>+</button>
-                    </div>
-                  </div>
-                </th>
-                <th>
-                  <div class="track-header" style="width: 150px;">
-                    <span>Bass</span>
-                    <div class="track-color" style="background: #F00;"></div>
-                    <div class="track-controls">
-                      <button>-</button>
-                      <button>+</button>
-                    </div>
-                  </div>
-                </th>
-                <th>
-                  <div class="track-header" style="width: 150px;">
-                    <span>Bass</span>
-                    <div class="track-color" style="background: #F00;"></div>
-                    <div class="track-controls">
-                      <button>-</button>
-                      <button>+</button>
-                    </div>
-                  </div>
-                </th>
-                <th>
-                  <div class="track-header" style="width: 150px;">
-                    <span>Bass</span>
-                    <div class="track-color" style="background: #F00;"></div>
-                    <div class="track-controls">
-                      <button>-</button>
-                      <button>+</button>
-                    </div>
-                  </div>
-                </th>
-              </tr>
-            </thead>
-          </table>
+        <div id="trackheader" class="leftSideTable" style="width: 1070px;">
         </div>
         <div style="height: 210px; width: 1070px;" class="sideTable" onWheel="onScroll(event)">
           <table id="trackview">
@@ -343,6 +64,27 @@
     </table>
   </script>
 
+  <script id="header-template" type="text/x-dot-template">
+    <table id="header-table">
+      <thead>
+        <tr>
+          {{ for(var track in it.tracks) { }}
+          <th>
+            <div class="track-header" style="width: {{=it.tracks[track].notecolumns * 150}}px;">
+              <span>{{=it.tracks[track].name}}</span>
+              <div class="track-color" style="background: {{=it.tracks[track].color}};"></div>
+              <div class="track-controls">
+                <button>-</button>
+                <button>+</button>
+              </div>
+            </div>
+          </th>
+          {{ } }}
+        </tr>
+      </thead>
+    </table>
+  </script>
+
   <script id="event-partial" type="text/x-handlebars-template">
     <div class="note">C-4</div>
     <div class="instrument">01</div>
@@ -359,11 +101,12 @@
         <td><div style="height: calc(7 * 15px)"></div></td>
         {{ } }}
       </tr>
-      {{ for(var row in it.patterns[0].trackdata) { }}
+      {{ for(var row = 0; row < it.patterns[0].rows; row++ ) { }}
       <tr class="row pattern-cursor-row">
-        {{ for(var event in it.patterns[0].trackdata[row].notedata ) { }}
+        {{ for(var track in it.tracks) { }}
         <td>
           <div class="line">
+            {{ for(var notecol = 0; notecol < it.tracks[track].notecolumns; notecol++) { }}
             <div class="note-column">
               <div class="note">C-4</div>
               <div class="instrument">01</div>
@@ -372,8 +115,9 @@
               <div class="delay">--</div>
               <div class="fx">----</div>
             </div>
+            {{ } }}
           </div>
-        </td
+        </td>
         {{ } }}
       </tr>
       {{ } }}
@@ -574,7 +318,7 @@
         },
       ],
       patterns: [{
-        rows: 64,
+        rows: 32,
         trackdata: [{
           notedata: [
             {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
@@ -628,12 +372,13 @@
       }],
     };
 
-    var trackviewContainer = $('.trackview');
-
     var trackviewTemplate = doT.template(document.getElementById('trackview-template').text);
     document.getElementById('trackview').innerHTML = trackviewTemplate(song);
 
-    patternRows = document.querySelectorAll('.trackview tr');
+    var headerTemplate = doT.template(document.getElementById('header-template').text);
+    document.getElementById('trackheader').innerHTML = headerTemplate(song);
+
+    patternRows = document.querySelectorAll('#trackview tr');
     timelineRows = document.querySelectorAll('.timeline tr');
   });
 
