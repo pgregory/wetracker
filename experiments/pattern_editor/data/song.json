@@ -1,0 +1,148 @@
+{
+  "tracks": [
+    {
+      "notecolumns": 2,
+      "fxcolumns": 1,
+      "name": "Lead",
+      "type": "play",
+      "color": "#008800"
+    },
+    {
+      "notecolumns": 1,
+      "fxcolumns": 1,
+      "name": "Bass",
+      "type": "play",
+      "color": "#880000"
+    },
+    {
+      "notecolumns": 1,
+      "fxcolumns": 1,
+      "name": "Lead1",
+      "type": "play",
+      "color": "#000088"
+    },
+    {
+      "notecolumns": 1,
+      "fxcolumns": 1,
+      "name": "Pad",
+      "type": "play",
+      "color": "#008888"
+    },
+    {
+      "notecolumns": 1,
+      "fxcolumns": 1,
+      "name": "Track5",
+      "type": "play",
+      "color": "#880088"
+    },
+    {
+      "notecolumns": 1,
+      "fxcolumns": 1,
+      "name": "Track 6",
+      "type": "play",
+      "color": "#888800"
+    },
+    {
+      "notecolumns": 1,
+      "fxcolumns": 1,
+      "name": "Track 7",
+      "type": "play",
+      "color": "#888844"
+    }
+  ],
+  "instruments": [
+    {
+      "name": "piano",
+      "type": "sampler",
+      "samples": [
+        {
+          "url": "\/assets\/audio\/Korg-M3R-Grand-Piano-C1.wav",
+          "base": "C1",
+          "rangeStart": "C1",
+          "rangeEnd": "B2"
+        },
+        {
+          "url": "\/assets\/audio\/Korg-M3R-Grand-Piano-C3.wav",
+          "base": "C3",
+          "rangeStart": "C3",
+          "rangeEnd": "B4"
+        },
+        {
+          "url": "\/assets\/audio\/Korg-M3R-Grand-Piano-C5.wav",
+          "base": "C5",
+          "rangeStart": "C5",
+          "rangeEnd": "C9"
+        }
+      ],
+      "data": {
+        "envelope": {
+          "attack": 0,
+          "decay": 2,
+          "sustain": 1,
+          "release": 5.9
+        }
+      }
+    },
+    {
+      "name": "buzz",
+      "type": "synth",
+      "data": {
+        "oscillator": {
+          "type": "square",
+          "modulationFrequency": 0.2
+        },
+        "envelope": {
+          "attack": 0.02,
+          "decay": 0.1,
+          "sustain": 0.2,
+          "release": 1.9
+        }
+      }
+    },
+    {
+      "name": "tom",
+      "type": "membrane",
+      "data": {
+        "pitchDecay": 0.008,
+        "octaves": 2,
+        "envelope": {
+          "attack": 0.0006,
+          "decay": 0.5,
+          "sustain": 0
+        }
+      }
+    },
+    {
+      "name": "cymbal",
+      "type": "metal",
+      "data": {
+        "harmonicity": 2,
+        "resonance": 800,
+        "modulationIndex": 20,
+        "envelope": {
+          "decay": 0.8
+        },
+        "volume": -35
+      }
+    }
+  ],
+  "patterns": [
+    {
+      "rows": 32,
+      "trackdata": [
+        {
+          "notedata": [
+            [
+              {
+                "note": "B#4"
+              },
+              {
+                "note": "C-4"
+              }
+            ]
+          ]
+        }
+      ]
+    }
+  ]
+}
