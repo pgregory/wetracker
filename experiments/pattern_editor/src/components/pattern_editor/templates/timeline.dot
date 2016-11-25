@@ -1,0 +1,17 @@
+<table>
+  <tbody>
+    <tr class="row">
+      <th class="tick">
+        <div class="topPadding"></div>
+      </th>
+    </tr>
+    {{ for(var row = 0; row < it.patterns[0].rows; ++row) { }}
+      <tr class="row"><th class="tick">{{=row}}</th></tr>
+    {{ } }}
+    <tr class="row">
+      <th class="tick">
+        <div class="bottomPadding"></div>
+      </th>
+    </tr>
+  </tbody>
+</table>

@@ -1,0 +1,51 @@
+{{##def.event:data:
+  {{? data }}
+    <div class="note">{{=data.note || "---"}}</div>
+    <div class="instrument">{{=data.instrument || "--"}}</div>
+    <div class="volume">{{=data.volume || "--"}}</div>
+    <div class="panning">{{=data.panning || "--"}}</div>
+    <div class="delay">{{=data.delay || "--"}}</div>
+    <div class="fx">{{=data.fx || "----"}}</div>
+  {{?? }}
+    <div class="note">---</div>
+    <div class="instrument">--</div>
+    <div class="volume">--</div>
+    <div class="panning">--</div>
+    <div class="delay">--</div>
+    <div class="fx">----</div>
+  {{? }}
+#}}
+<tbody>
+  <tr>
+    {{ for(var i = 0; i < 7; ++i) { }}
+    <td><div class="topPadding"></div></td>
+    {{ } }}
+  </tr>
+  {{ for(var row = 0; row < it.patterns[0].rows; row++ ) { }}
+  <tr class="row pattern-cursor-row">
+    {{ for(var track in it.tracks) { }}
+    <td>
+      <div class="line">
+        {{ for(var notecol = 0; notecol < it.tracks[track].notecolumns; notecol++) { }}
+          {{? it.patterns[0].trackdata.length > track && 
+              "notedata" in it.patterns[0].trackdata[track] &&
+              it.patterns[0].trackdata[track].notedata.length > row &&
+              it.patterns[0].trackdata[track].notedata[row].length > notecol }}
+            {{ var param = it.patterns[0].trackdata[track].notedata[row][notecol]; }}
+            {{#def.event:param}}
+          {{?? }}
+            {{#def.event:null}}
+          {{? }}
+        {{ } }}
+      </div>
+    </td>
+    {{ } }}
+  </tr>
+  {{ } }}
+  <tr>
+    {{ for(var i = 0; i < 7; ++i) { }}
+    <td><div class="bottomPadding"></div></td>
+    {{ } }}
+  </tr>
+</tbody>
+

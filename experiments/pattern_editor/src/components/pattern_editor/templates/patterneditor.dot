@@ -1,0 +1,19 @@
+<div class="pattern-editor">
+  <div style="float: left;">
+    <div id="timeline-header">
+    </div>
+    <div id="timeline">
+     {{#def.timeline}}
+    </div>
+  </div>
+  <div class="xscroll">
+    <div id="trackheader" class="leftSideTable" style="width: 1070px;">
+     {{#def.header}}
+    </div>
+    <div class="sideTable">
+      <table id="trackview">
+        {{#def.trackview}}
+      </table>
+    </div>
+  </div>
+</div>

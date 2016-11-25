@@ -28,6 +28,9 @@ module.exports = {
     }, {
       test: /\.css$/,
       loader: 'style-loader!css-loader',
+    }, {
+      test: /\.dot$/,
+      loader: 'raw-loader',
     }]
   },
   node: {

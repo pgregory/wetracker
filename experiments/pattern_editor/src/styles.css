@@ -1,5 +1,10 @@
+html {
+  height: 100%;
+}
+
 body {
   display: flex;
+  height: 100%;
 }
 .pattern-editor {
   display: flex;
@@ -179,6 +184,7 @@ body {
 
 .xscroll {
   overflow: auto;
+  float: left;
 }
 
 #timeline {

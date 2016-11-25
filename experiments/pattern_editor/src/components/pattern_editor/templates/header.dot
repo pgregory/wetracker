@@ -1,0 +1,18 @@
+<table id="header-table">
+  <thead>
+    <tr>
+      {{ for(var track in it.tracks) { }}
+      <th>
+        <div class="track-header" style="width: {{=it.tracks[track].notecolumns * 150}}px;">
+          <span>{{=it.tracks[track].name}}</span>
+          <div class="track-color" style="background: {{=it.tracks[track].color}};"></div>
+          <div class="track-controls">
+            <button>-</button>
+            <button>+</button>
+          </div>
+        </div>
+      </th>
+      {{ } }}
+    </tr>
+  </thead>
+</table>

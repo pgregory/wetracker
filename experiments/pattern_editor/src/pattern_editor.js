@@ -4,6 +4,11 @@ import song from '../data/song.json';
 
 import styles from './styles.css';
 
+import headerTemplate from './components/pattern_editor/templates/header.dot';
+import timelineTemplate from './components/pattern_editor/templates/timeline.dot';
+import trackviewTemplate from './components/pattern_editor/templates/trackview.dot';
+import patternEditorTemplate from './components/pattern_editor/templates/patterneditor.dot';
+
 export default class PatternEditor {
   constructor(setting) {
     this.yoff = 0;
@@ -13,134 +18,27 @@ export default class PatternEditor {
       column: 0,
       item: 0,
     };
-    this.lastCursor = this.theCursor;
+    this.lastCursor = {
+      row: -1,
+      track: 0,
+      column: 0,
+      item: 0,
+    };
     this.events = null;
     this.timeline = null;
     this.xscroll = null;
     this.patternRows = null;
     this.timelineRows = null;
-
-    this.headerTemplate = 
-      '<table id="header-table">' +
-      '  <thead>' +
-      '    <tr>' +
-      '      {{ for(var track in it.tracks) { }}' +
-      '      <th>' +
-      '        <div class="track-header" style="width: {{=it.tracks[track].notecolumns * 150}}px;">' +
-      '          <span>{{=it.tracks[track].name}}</span>' +
-      '          <div class="track-color" style="background: {{=it.tracks[track].color}};"></div>' +
-      '          <div class="track-controls">' +
-      '            <button>-</button>' +
-      '            <button>+</button>' +
-      '          </div>' +
-      '        </div>' +
-      '      </th>' +
-      '      {{ } }}' +
-      '    </tr>' +
-      '  </thead>' +
-      '</table>';
-
-    this.timelineTemplate = 
-      '<table>' +
-      '  <tbody>' +
-      '    <tr class="row">' +
-      '      <th class="tick">' +
-      '        <div style="height: calc(7 * 15px)"></div>' +
-      '      </th>' +
-      '    </tr>' +
-      '    {{ for(var row = 0; row < it.patterns[0].rows; ++row) { }}' +
-      '      <tr class="row"><th class="tick">{{=row}}</th></tr>' +
-      '    {{ } }}' +
-      '    <tr class="row">' +
-      '      <th class="tick">' +
-      '        <div style="height: calc(7 * 15px);"></div>' +
-      '      </th>' +
-      '    </tr>' +
-      '  </tbody>' +
-      '</table>';
-
-    this.trackviewTemplate = 
-      '{{##def.event:data:' +
-      '  {{? data }}' +
-      '    <div class="note">{{=data.note || "---"}}</div>' +
-      '    <div class="instrument">{{=data.instrument || "--"}}</div>' +
-      '    <div class="volume">{{=data.volume || "--"}}</div>' +
-      '    <div class="panning">{{=data.panning || "--"}}</div>' +
-      '    <div class="delay">{{=data.delay || "--"}}</div>' +
-      '    <div class="fx">{{=data.fx || "----"}}</div>' +
-      '  {{?? }}' +
-      '    <div class="note">---</div>' +
-      '    <div class="instrument">--</div>' +
-      '    <div class="volume">--</div>' +
-      '    <div class="panning">--</div>' +
-      '    <div class="delay">--</div>' +
-      '    <div class="fx">----</div>' +
-      '  {{? }}' +
-      '#}}' +
-      '<tbody>' +
-      '  <tr>' +
-      '    {{ for(var i = 0; i < 7; ++i) { }}' +
-      '    <td><div style="height: calc(7 * 15px)"></div></td>' +
-      '    {{ } }}' +
-      '  </tr>' +
-      '  {{ for(var row = 0; row < it.patterns[0].rows; row++ ) { }}' +
-      '  <tr class="row pattern-cursor-row">' +
-      '    {{ for(var track in it.tracks) { }}' +
-      '    <td>' +
-      '      <div class="line">' +
-      '        {{ for(var notecol = 0; notecol < it.tracks[track].notecolumns; notecol++) { }}' +
-      '          {{? it.patterns[0].trackdata.length > track && ' +
-      '              "notedata" in it.patterns[0].trackdata[track] &&' +
-      '              it.patterns[0].trackdata[track].notedata.length > row &&' +
-      '              it.patterns[0].trackdata[track].notedata[row].length > notecol }}' +
-      '            {{ var param = it.patterns[0].trackdata[track].notedata[row][notecol]; }}' +
-      '            {{#def.event:param}}' +
-      '          {{?? }}' +
-      '            {{#def.event:null}}' +
-      '          {{? }}' +
-      '        {{ } }}' +
-      '      </div>' +
-      '    </td>' +
-      '    {{ } }}' +
-      '  </tr>' +
-      '  {{ } }}' +
-      '  <tr>' +
-      '    {{ for(var i = 0; i < 7; ++i) { }}' +
-      '    <td><div style="height: calc(7 * 15px)"></div></td>' +
-      '    {{ } }}' +
-      '  </tr>' +
-      '</tbody>';
-
-    this.patternEditorTemplate = 
-      '<div class="pattern-editor">' +
-      '  <div style="float: left;">' +
-      '    <div id="timeline-header">' +
-      '    </div>' +
-      '    <div id="timeline" style="height: 210px;">' +
-      '     {{#def.timeline}}' +
-      '    </div>' +
-      '  </div>' +
-      '  <div style="float: left; width: calc(150 * 7);" class="xscroll">' +
-      '    <div id="trackheader" class="leftSideTable" style="width: 1070px;">' +
-      '     {{#def.header}}' +
-      '    </div>' +
-      '    <div style="height: 210px; width: 1070px;" class="sideTable">' +
-      '      <table id="trackview">' +
-      '        {{#def.trackview}}' +
-      '      </table>' +
-      '    </div>' +
-      '  </div>' +
-      '</div>';
   }
 
   render(target) {
     var def = {
-      header: this.headerTemplate,
-      timeline: this.timelineTemplate,
-      trackview: this.trackviewTemplate,
+      header: headerTemplate,
+      timeline: timelineTemplate,
+      trackview: trackviewTemplate,
     };
     try {
-      var test = doT.template(this.patternEditorTemplate, undefined, def);
+      var test = doT.template(patternEditorTemplate, undefined, def);
       $(test(song)).appendTo(target);
     } catch(e) {
       console.log(e);
@@ -149,6 +47,16 @@ export default class PatternEditor {
     $('.sideTable').width($('#trackview').width());
     $('.leftSideTable').width($('#trackview').width());
     $('#timeline-header').height($('#trackheader').height());
+    $('.sideTable').height($('.xscroll').height() - $('#trackheader').height());
+    $('#timeline').height($('.xscroll').height() - $('#trackheader').height());
+
+    var visibleRows = Math.floor(($('.xscroll').height() - $('#trackheader').height()) / 15.0);
+    var topPadding = Math.floor(visibleRows/2.0);
+    var bottomPadding = Math.ceil(visibleRows/2.0);
+    console.log(visibleRows, topPadding, bottomPadding);
+
+    $('.topPadding').height(topPadding*15.0);
+    $('.bottomPadding').height(bottomPadding*15.0);
 
     this.patternRows = document.querySelectorAll('#trackview tr');
     this.timelineRows = document.querySelectorAll('#timeline tr');
@@ -166,8 +74,8 @@ export default class PatternEditor {
     if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
       this.yoff += e.deltaY;
       if (this.yoff < 0) {
-        this.yoff = this.events.scrollHeight - this.events.clientHeight;
-      } else if (this.yoff >= this.events.scrollHeight - this.events.clientHeight) {
+        this.yoff = (this.events.scrollHeight - this.events.clientHeight) - 8;
+      } else if (this.yoff >= ((this.events.scrollHeight - this.events.clientHeight) - 8)) {
         this.yoff = 0;
       }
       this.theCursor.row = Math.round((this.yoff) / 15.0);
@@ -178,8 +86,8 @@ export default class PatternEditor {
   }
 
   updateCursor(timestamp) {
-    if((!this.lastCursor) || (this.lastCursor !== this.theCursor.row)) {
-      this.lastCursor = this.theCursor.row;
+    if(this.lastCursor.row !== this.theCursor.row) {
+      this.lastCursor.row = this.theCursor.row;
       var offset = this.theCursor.row * 15.0;
 
       this.timeline.scrollTop = offset;
