@@ -10,25 +10,21 @@ import trackviewTemplate from './components/pattern_editor/templates/trackview.d
 import patternEditorTemplate from './components/pattern_editor/templates/patterneditor.dot';
 
 import Signal from './utils/signal';
+import { state } from './state';
+
+console.log(state);
 
 export default class PatternEditor {
-  constructor(state) {
+  constructor() {
     this.yoff = 0;
-    this.lastCursor = {
-      row: -1,
-      track: -1,
-      column: -1,
-      item: -1,
-    };
+    this.lastCursor = state.cursor;
     this.events = null;
     this.timeline = null;
     this.xscroll = null;
     this.patternRows = null;
     this.timelineRows = null;
 
-    this.state = state;
-
-    Signal.connect(state.cursor, "onChangeCursor", this, "cursorChanged");
+    Signal.connect(state, "cursorChanged", this, "onCursorChanged");
   }
 
   render(target) {
@@ -78,7 +74,11 @@ export default class PatternEditor {
         this.yoff = 0;
       }
       var row = Math.round((this.yoff) / 15.0);
-      this.state.cursor.changeCursor(row);
+      state.set({
+        cursor: {
+          row
+        }
+      });
     } else {
       this.xscroll.scrollLeft += e.originalEvent.deltaX;
     }
@@ -86,11 +86,8 @@ export default class PatternEditor {
   }
 
   updateCursor(timestamp) {
-    this.lastCursor.row = this.state.cursor.row;
-    this.lastCursor.track = this.state.cursor.track;
-    this.lastCursor.column = this.state.cursor.column;
-    this.lastCursor.item = this.state.cursor.item;
-    var offset = this.state.cursor.row * 15.0;
+    this.lastCursor = state.cursor;
+    var offset = state.cursor.get("row") * 15.0;
 
     this.timeline.scrollTop = offset;
     this.events.scrollTop = offset;
@@ -98,24 +95,13 @@ export default class PatternEditor {
     $('tr.pattern-cursor-row').removeClass('pattern-cursor-row');
     $('.event-cursor').removeClass('event-cursor');
 
-    this.timelineRows.eq(this.state.cursor.row + 1).addClass('pattern-cursor-row');
-    this.patternRows.eq(this.state.cursor.row + 1).addClass('pattern-cursor-row');
+    this.timelineRows.eq(state.cursor.get("row") + 1).addClass('pattern-cursor-row');
+    this.patternRows.eq(state.cursor.get("row") + 1).addClass('pattern-cursor-row');
 
-    this.patternRows.eq(this.state.cursor.row + 1).find(`.line:eq(${this.state.cursor.track}) .note-column:eq(${this.state.cursor.column}) .item:eq(${this.state.cursor.item})`).addClass('event-cursor');
-
-    if((this.lastCursor.track !== this.state.cursor.track) ||
-       (this.lastCursor.column !== this.state.cursor.column) ||
-       (this.lastCursor.item !== this.state.cursor.item)) {
-      // Check if the cursor is visible.
-    }
-    // window.requestAnimationFrame(this.updateCursor.bind(this));
+    this.patternRows.eq(state.cursor.get("row") + 1).find(`.line:eq(${state.cursor.get("track")}) .note-column:eq(${state.cursor.get("column")}) .item:eq(${state.cursor.get("item")})`).addClass('event-cursor');
   }
 
-
-  play() {
-  }
-
-  cursorChanged(state) {
+  onCursorChanged(state) {
     window.requestAnimationFrame(this.updateCursor.bind(this));
   }
 }
