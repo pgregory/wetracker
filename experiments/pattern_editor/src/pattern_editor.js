@@ -14,6 +14,18 @@ import { state } from './state';
 
 console.log(state);
 
+// t = current time
+// b = start value
+// c = change in value
+// d = duration
+function easeInOutQuad(tc, b, c, d) {
+  let t = tc;
+  t /= d / 2;
+  if (t < 1) return (((c / 2) * t) * t) + b;
+  t -= 1;
+  return ((-c / 2) * ((t * (t - 2)) - 1)) + b;
+}
+
 export default class PatternEditor {
   constructor() {
     this.yoff = 0;
@@ -85,12 +97,29 @@ export default class PatternEditor {
     e.preventDefault();
   }
 
+  /* eslint no-param-reassign: ["error", { "props": false }]*/
+  scrollHorizTo(element, to, duration) {
+    const start = element.scrollLeft;
+    const change = to - start;
+    let currentTime = 0;
+    const increment = 20;
+
+    function animateScroll() {
+      currentTime += increment;
+      element.scrollLeft = easeInOutQuad(currentTime, start, change, duration);
+      if (currentTime < duration) {
+        setTimeout(animateScroll, increment);
+      }
+    }
+    animateScroll();
+  }
+
   updateCursor(timestamp) {
     this.lastCursor = state.cursor;
-    var offset = state.cursor.get("row") * 15.0;
+    var rowOffset = state.cursor.get("row") * 15.0;
 
-    this.timeline.scrollTop = offset;
-    this.events.scrollTop = offset;
+    this.timeline.scrollTop = rowOffset;
+    this.events.scrollTop = rowOffset;
 
     $('tr.pattern-cursor-row').removeClass('pattern-cursor-row');
     $('.event-cursor').removeClass('event-cursor');
@@ -98,7 +127,24 @@ export default class PatternEditor {
     this.timelineRows.eq(state.cursor.get("row") + 1).addClass('pattern-cursor-row');
     this.patternRows.eq(state.cursor.get("row") + 1).addClass('pattern-cursor-row');
 
-    this.patternRows.eq(state.cursor.get("row") + 1).find(`.line:eq(${state.cursor.get("track")}) .note-column:eq(${state.cursor.get("column")}) .item:eq(${state.cursor.get("item")})`).addClass('event-cursor');
+    var itemCursor = this.patternRows.eq(state.cursor.get("row") + 1).find(`.line:eq(${state.cursor.get("track")}) .note-column:eq(${state.cursor.get("column")}) .item:eq(${state.cursor.get("item")})`);
+    itemCursor.addClass('event-cursor');
+
+    const item = itemCursor[0].parentElement;
+    let offsetParent = item.offsetParent;
+    let offset = item.offsetLeft;
+    while (!(offsetParent.parentElement.classList.contains('sideTable'))) {
+      offset += offsetParent.offsetLeft;
+      offsetParent = offsetParent.offsetParent;
+    }
+
+    if (((offset + item.clientWidth) - this.xscroll.scrollLeft) > this.events.parentElement.clientWidth) {
+      //this.xscroll.scrollLeft = ((offset + item.clientWidth) - this.events.parentElement.clientWidth) + 6;
+      this.scrollHorizTo(this.xscroll, ((offset + item.clientWidth) - this.events.parentElement.clientWidth) + 6, 100);
+    } else if (offset < this.xscroll.scrollLeft) {
+      //this.xscroll.scrollLeft = offset - 6;
+      this.scrollHorizTo(this.xscroll, offset - 6, 100);
+    }
   }
 
   onCursorChanged(state) {
