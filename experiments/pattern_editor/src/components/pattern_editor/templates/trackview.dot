@@ -1,19 +1,21 @@
 {{##def.event:data:
+  <div class="note-column">
   {{? data }}
-    <div class="note">{{=data.note || "---"}}</div>
-    <div class="instrument">{{=data.instrument || "--"}}</div>
-    <div class="volume">{{=data.volume || "--"}}</div>
-    <div class="panning">{{=data.panning || "--"}}</div>
-    <div class="delay">{{=data.delay || "--"}}</div>
-    <div class="fx">{{=data.fx || "----"}}</div>
+    <div class="item note">{{=data.note || "---"}}</div>
+    <div class="item instrument">{{=data.instrument || "--"}}</div>
+    <div class="item volume">{{=data.volume || "--"}}</div>
+    <div class="item panning">{{=data.panning || "--"}}</div>
+    <div class="item delay">{{=data.delay || "--"}}</div>
+    <div class="item fx">{{=data.fx || "----"}}</div>
   {{?? }}
-    <div class="note">---</div>
-    <div class="instrument">--</div>
-    <div class="volume">--</div>
-    <div class="panning">--</div>
-    <div class="delay">--</div>
-    <div class="fx">----</div>
+    <div class="item note">---</div>
+    <div class="item instrument">--</div>
+    <div class="item volume">--</div>
+    <div class="item panning">--</div>
+    <div class="item delay">--</div>
+    <div class="item fx">----</div>
   {{? }}
+  </div>
 #}}
 <tbody>
   <tr>
