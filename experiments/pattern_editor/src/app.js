@@ -1,13 +1,14 @@
 import 'babel-polyfill';
 import doT from 'dot';
 import $ from 'jquery';
+import 'gridstack';
+import 'gridstack/dist/gridstack.css';
+
 import PatternEditor from './pattern_editor';
 
 import { state } from './state';
 import song from '../data/song.json';
 
-import 'gridstack';
-import 'gridstack/dist/gridstack.css';
 
 import gridTemplate from './templates/grid.dot';
 
@@ -100,10 +101,14 @@ const PE = new PatternEditor();
 PE.render($('#pattern-editor'));
 
 var options = {
-    cellHeight: 80,
-    verticalMargin: 10
+    cellHeight: 40,
+    verticalMargin: 5,
+    resizable: {
+      handles: 'n, ne, e, se, s, sw, w, nw'
+    },
+    alwaysShowResizeHandle: true,
 };
 $('.grid-stack').gridstack(options).on('resizestop', function(event, ui) {
-  $(event.target).empty();
-  PE.render(event.target);
+  $('#pattern-editor').empty();
+  PE.render($('#pattern-editor'));
 });
