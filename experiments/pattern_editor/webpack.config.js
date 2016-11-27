@@ -44,4 +44,9 @@ module.exports = {
   ],
   // Emit a source map for easier debugging
   devtool: 'source-map',
+  resolve: {
+      alias: {
+          'jquery-ui': 'jquery-ui/ui'
+      }
+  },
 };

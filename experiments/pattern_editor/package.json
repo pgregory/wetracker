@@ -19,6 +19,7 @@
     "babel-polyfill": "^6.16.0",
     "css-loader": "^0.26.0",
     "dot": "^1.1.1",
+    "gridstack": "^0.2.6",
     "immutable": "^3.8.1",
     "jquery": "^3.1.1",
     "json-loader": "^0.5.4",

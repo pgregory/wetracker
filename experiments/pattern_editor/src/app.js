@@ -1,10 +1,15 @@
 import 'babel-polyfill';
+import doT from 'dot';
 import $ from 'jquery';
 import PatternEditor from './pattern_editor';
 
 import { state } from './state';
 import song from '../data/song.json';
 
+import 'gridstack';
+import 'gridstack/dist/gridstack.css';
+
+import gridTemplate from './templates/grid.dot';
 
 $('body').keydown((event) => {
   switch (event.key) {
@@ -88,5 +93,17 @@ $('body').keydown((event) => {
   event.preventDefault();
 });
 
+var grid = doT.template(gridTemplate);
+$(grid()).appendTo($('#container'));
+
 const PE = new PatternEditor();
-PE.render($('#container'));
+PE.render($('#pattern-editor'));
+
+var options = {
+    cellHeight: 80,
+    verticalMargin: 10
+};
+$('.grid-stack').gridstack(options).on('resizestop', function(event, ui) {
+  $(event.target).empty();
+  PE.render(event.target);
+});

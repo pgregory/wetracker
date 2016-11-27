@@ -12,8 +12,6 @@ import patternEditorTemplate from './components/pattern_editor/templates/pattern
 import Signal from './utils/signal';
 import { state } from './state';
 
-console.log(state);
-
 // t = current time
 // b = start value
 // c = change in value
@@ -139,10 +137,8 @@ export default class PatternEditor {
     }
 
     if (((offset + item.clientWidth) - this.xscroll.scrollLeft) > this.events.parentElement.clientWidth) {
-      //this.xscroll.scrollLeft = ((offset + item.clientWidth) - this.events.parentElement.clientWidth) + 6;
       this.scrollHorizTo(this.xscroll, ((offset + item.clientWidth) - this.events.parentElement.clientWidth) + 6, 100);
     } else if (offset < this.xscroll.scrollLeft) {
-      //this.xscroll.scrollLeft = offset - 6;
       this.scrollHorizTo(this.xscroll, offset - 6, 100);
     }
   }
