@@ -43,7 +43,7 @@ export class SongManager {
 
   addNoteToSong(cursor) {
     const notecol = this.findEventAtCursor(cursor);
-    notecol['note'] = "G-4";
+    notecol['note'] = "G#4";
     notecol['volume'] = 40;
 
     this.eventChanged(cursor);

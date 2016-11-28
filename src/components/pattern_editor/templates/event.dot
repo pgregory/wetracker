@@ -1,6 +1,7 @@
 <div class="note-column">
 {{? it }}
-  <div class="item note">{{=it.note || "---"}}</div>
+  {{ var displayNote = it.note ? ( it.note.length === 2 ? it.note.slice(0,1) + '-' + it.note.slice(1) : it.note ) : '---'; }}
+  <div class="item note">{{=displayNote}}</div>
   <div class="item instrument">{{=it.instrument || "--"}}</div>
   <div class="item volume">{{=it.volume || "--"}}</div>
   <div class="item panning">{{=it.panning || "--"}}</div>

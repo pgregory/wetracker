@@ -116,7 +116,6 @@ export default class PatternEditor {
   }
 
   updateCursor(timestamp) {
-    this.lastCursor = state.cursor;
     var rowOffset = state.cursor.get("row") * 15.0;
 
     this.timeline.scrollTop = rowOffset;
@@ -131,19 +130,27 @@ export default class PatternEditor {
     var itemCursor = this.patternRows.eq(state.cursor.get("row") + 1).find(`.line:eq(${state.cursor.get("track")}) .note-column:eq(${state.cursor.get("column")}) .item:eq(${state.cursor.get("item")})`);
     itemCursor.addClass('event-cursor');
 
-    const item = itemCursor[0].parentElement;
-    let offsetParent = item.offsetParent;
-    let offset = item.offsetLeft;
-    while (!(offsetParent.parentElement.classList.contains('sideTable'))) {
-      offset += offsetParent.offsetLeft;
-      offsetParent = offsetParent.offsetParent;
-    }
+    /* If the cursor has moved to a different track, column or item,
+     * check if it's still visible and scroll into view if not.
+     */
+    if ((this.lastCursor.item !== state.cursor.get("item")) ||
+        (this.lastCursor.track !== state.cursor.get("track")) ||
+        (this.lastCursor.column !== state.cursor.get("column"))) {
+      const item = itemCursor[0].parentElement;
+      let offsetParent = item.offsetParent;
+      let offset = item.offsetLeft;
+      while (!(offsetParent.parentElement.classList.contains('sideTable'))) {
+        offset += offsetParent.offsetLeft;
+        offsetParent = offsetParent.offsetParent;
+      }
 
-    if (((offset + item.clientWidth) - this.xscroll.scrollLeft) > this.events.parentElement.clientWidth) {
-      this.scrollHorizTo(this.xscroll, ((offset + item.clientWidth) - this.events.parentElement.clientWidth) + 6, 100);
-    } else if (offset < this.xscroll.scrollLeft) {
-      this.scrollHorizTo(this.xscroll, offset - 6, 100);
+      if (((offset + item.clientWidth) - this.xscroll.scrollLeft) > this.events.parentElement.clientWidth) {
+        this.scrollHorizTo(this.xscroll, ((offset + item.clientWidth) - this.events.parentElement.clientWidth) + 6, 100);
+      } else if (offset < this.xscroll.scrollLeft) {
+        this.scrollHorizTo(this.xscroll, offset - 6, 100);
+      }
     }
+    this.lastCursor = state.cursor.toJS();
   }
 
   onCursorChanged(state) {

@@ -6,94 +6,35 @@ import 'gridstack/dist/gridstack.css';
 import 'font-awesome-webpack';
 
 import PatternEditor from './pattern_editor';
-
-import { state } from './state';
-
-
 import gridTemplate from './templates/grid.dot';
 import transportTemplate from './components/transport/templates/transport.dot';
 import './components/transport/styles.css';
 
 import { song } from './utils/songmanager';
+import { state } from './state';
+import { cursor } from './utils/cursor';
 
 $(document).keydown((event) => {
   switch (event.key) {
     case "ArrowUp": {
-      let row = state.cursor.get("row") - 1;
-      if (row < 0) {
-        row = song.song.patterns['p1'].rows - 1;
-      }
-      state.set({
-        cursor: {
-          row,
-        }
-      });
+      cursor.rowUp();
       break;
     }
     case "ArrowDown": {
-      let row = state.cursor.get("row") + 1;
-      if (row >= song.song.patterns['p1'].rows) {
-        row = 0;
-      }
-      state.set({
-        cursor: {
-          row,
-        }
-      });
+      cursor.rowDown();
       break;
     }
     case "ArrowRight": {
-      let item = state.cursor.get("item");
-      let track = state.cursor.get("track");
-      let column = state.cursor.get("column");
-      item += 1;
-      if (item > 5 ) {
-        item = 0; 
-        column += 1;
-        if (column >= song.song.tracks[track].columns.length) {
-          column = 0;
-          track += 1;
-          if (track >= song.song.tracks.length) {
-            track = 0;
-          }
-        }
-      }
-      state.set({
-        cursor: {
-          track,
-          column,
-          item, 
-        }
-      });
+      cursor.itemRight();
       break;
     }
     case "ArrowLeft": {
-      let item = state.cursor.get("item");
-      let track = state.cursor.get("track");
-      let column = state.cursor.get("column");
-      item -= 1;
-      if (item < 0 ) {
-        item = 5; 
-        column -= 1;
-        if (column < 0) {
-          track -= 1;
-          if (track < 0) {
-            track = song.song.tracks.length - 1;
-          }
-          column = song.song.tracks[track].columns.length - 1;
-        }
-      }
-      state.set({
-        cursor: {
-          track,
-          column,
-          item, 
-        }
-      });
+      cursor.itemLeft();
       break;
     }
     case "a": {
       song.addNoteToSong(state.cursor.toJS());
+      cursor.rowDown(4);
       break;
     }
     default:
