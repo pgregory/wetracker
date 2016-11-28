@@ -1,53 +1,84 @@
 {
   "tracks": [
     {
-      "notecolumns": 2,
       "fxcolumns": 1,
       "name": "Lead",
       "type": "play",
-      "color": "#008800"
+      "color": "#008800",
+      "id": "track1",
+      "columns": [
+        { 
+          "id": "c1"
+        }, {
+          "id": "c2"
+        }
+      ]
     },
     {
-      "notecolumns": 1,
       "fxcolumns": 1,
       "name": "Bass",
       "type": "play",
-      "color": "#880000"
+      "color": "#880000",
+      "id": "track2",
+      "columns": [
+        { "id": "c1"
+        }
+      ]
     },
     {
-      "notecolumns": 1,
       "fxcolumns": 1,
       "name": "Lead1",
       "type": "play",
-      "color": "#000088"
+      "color": "#000088",
+      "id": "track3",
+      "columns": [
+        { "id": "c1"
+        }
+      ]
     },
     {
-      "notecolumns": 1,
       "fxcolumns": 1,
       "name": "Pad",
       "type": "play",
-      "color": "#008888"
+      "color": "#008888",
+      "id": "track4",
+      "columns": [
+        { "id": "c1"
+        }
+      ]
     },
     {
-      "notecolumns": 1,
       "fxcolumns": 1,
       "name": "Track5",
       "type": "play",
-      "color": "#880088"
+      "color": "#880088",
+      "id": "track5",
+      "columns": [
+        { "id": "c1"
+        }
+      ]
     },
     {
-      "notecolumns": 1,
       "fxcolumns": 1,
       "name": "Track 6",
       "type": "play",
-      "color": "#888800"
+      "color": "#888800",
+      "id": "track6",
+      "columns": [
+        { "id": "c1"
+        }
+      ]
     },
     {
-      "notecolumns": 1,
       "fxcolumns": 1,
       "name": "Track 7",
       "type": "play",
-      "color": "#888844"
+      "color": "#888844",
+      "id": "track7",
+      "columns": [
+        { "id": "c1"
+        }
+      ]
     }
   ],
   "instruments": [
@@ -126,23 +157,18 @@
       }
     }
   ],
-  "patterns": [
-    {
+  "patterns": {
+    "p1": {
       "rows": 32,
-      "trackdata": [
-        {
+      "trackdata": {
+        "track1": {
           "notedata": [
-            [
-              {
-                "note": "B#4"
-              },
-              {
-                "note": "C-4"
-              }
-            ]
+            {
+              "c1": { "note": "C#1" }
+            }
           ]
         }
-      ]
+      }
     }
-  ]
+  }
 }

@@ -8,19 +8,20 @@ import 'font-awesome-webpack';
 import PatternEditor from './pattern_editor';
 
 import { state } from './state';
-import song from '../data/song.json';
 
 
 import gridTemplate from './templates/grid.dot';
 import transportTemplate from './components/transport/templates/transport.dot';
 import './components/transport/styles.css';
 
+import { song } from './utils/songmanager';
+
 $(document).keydown((event) => {
   switch (event.key) {
     case "ArrowUp": {
       let row = state.cursor.get("row") - 1;
       if (row < 0) {
-        row = song.patterns[0].rows - 1;
+        row = song.song.patterns['p1'].rows - 1;
       }
       state.set({
         cursor: {
@@ -31,7 +32,7 @@ $(document).keydown((event) => {
     }
     case "ArrowDown": {
       let row = state.cursor.get("row") + 1;
-      if (row >= song.patterns[0].rows) {
+      if (row >= song.song.patterns['p1'].rows) {
         row = 0;
       }
       state.set({
@@ -49,10 +50,10 @@ $(document).keydown((event) => {
       if (item > 5 ) {
         item = 0; 
         column += 1;
-        if (column >= song.tracks[track].notecolumns) {
+        if (column >= song.song.tracks[track].columns.length) {
           column = 0;
           track += 1;
-          if (track >= song.tracks.length) {
+          if (track >= song.song.tracks.length) {
             track = 0;
           }
         }
@@ -77,9 +78,9 @@ $(document).keydown((event) => {
         if (column < 0) {
           track -= 1;
           if (track < 0) {
-            track = song.tracks.length - 1;
+            track = song.song.tracks.length - 1;
           }
-          column = song.tracks[track].notecolumns - 1;
+          column = song.song.tracks[track].columns.length - 1;
         }
       }
       state.set({
@@ -89,6 +90,10 @@ $(document).keydown((event) => {
           item, 
         }
       });
+      break;
+    }
+    case "a": {
+      song.addNoteToSong(state.cursor.toJS());
       break;
     }
     default:

@@ -23,17 +23,20 @@
     <td><div class="topPadding"></div></td>
     {{ } }}
   </tr>
-  {{ for(var row = 0; row < it.patterns[0].rows; row++ ) { }}
+  {{ for(var row = 0; row < it.patterns['p1'].rows; row++ ) { }}
   <tr class="row pattern-cursor-row">
     {{ for(var track in it.tracks) { }}
     <td>
       <div class="line">
-        {{ for(var notecol = 0; notecol < it.tracks[track].notecolumns; notecol++) { }}
-          {{? it.patterns[0].trackdata.length > track && 
-              "notedata" in it.patterns[0].trackdata[track] &&
-              it.patterns[0].trackdata[track].notedata.length > row &&
-              it.patterns[0].trackdata[track].notedata[row].length > notecol }}
-            {{ var param = it.patterns[0].trackdata[track].notedata[row][notecol]; }}
+        {{ var trackid = it.tracks[track].id; }}
+        {{ for(var notecol in it.tracks[track].columns) { }}
+          {{ var notecolid = it.tracks[track].columns[notecol].id; }}
+          {{? trackid in it.patterns['p1'].trackdata && 
+              "notedata" in it.patterns['p1'].trackdata[trackid] &&
+              it.patterns['p1'].trackdata[trackid].notedata.length > row &&
+              it.patterns['p1'].trackdata[trackid].notedata[row] &&
+              notecolid in it.patterns['p1'].trackdata[trackid].notedata[row] }}
+            {{ var param = it.patterns['p1'].trackdata[trackid].notedata[row][notecolid]; }}
             {{#def.event:param}}
           {{?? }}
             {{#def.event:null}}

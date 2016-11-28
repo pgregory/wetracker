@@ -1,6 +1,5 @@
 import doT from 'dot';
 import $ from 'jquery';
-import song from '../data/song.json';
 
 import styles from './styles.css';
 
@@ -8,9 +7,11 @@ import headerTemplate from './components/pattern_editor/templates/header.dot';
 import timelineTemplate from './components/pattern_editor/templates/timeline.dot';
 import trackviewTemplate from './components/pattern_editor/templates/trackview.dot';
 import patternEditorTemplate from './components/pattern_editor/templates/patterneditor.dot';
+import eventTemplate from './components/pattern_editor/templates/event.dot';
 
 import Signal from './utils/signal';
 import { state } from './state';
+import { song } from './utils/songmanager';
 
 // t = current time
 // b = start value
@@ -33,8 +34,10 @@ export default class PatternEditor {
     this.xscroll = null;
     this.patternRows = null;
     this.timelineRows = null;
+    this.eventPartial = doT.template(eventTemplate);
 
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
+    Signal.connect(song, "eventChanged", this, "onEventChanged");
   }
 
   render(target) {
@@ -45,7 +48,7 @@ export default class PatternEditor {
     };
     try {
       var test = doT.template(patternEditorTemplate, undefined, def);
-      $(test(song)).appendTo(target);
+      $(test(song.song)).appendTo(target);
     } catch(e) {
       console.log(e);
     }
@@ -145,6 +148,12 @@ export default class PatternEditor {
 
   onCursorChanged(state) {
     window.requestAnimationFrame(this.updateCursor.bind(this));
+  }
+
+  onEventChanged(cursor) {
+    var eventCursor = this.patternRows.eq(cursor.row + 1).find(`.line:eq(${cursor.track}) .note-column:eq(${cursor.column})`);
+    var newEvent = song.findEventAtCursor(cursor);
+    $(eventCursor).replaceWith(this.eventPartial(newEvent));
   }
 }
 

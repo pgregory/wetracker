@@ -1,0 +1,18 @@
+<div class="note-column">
+{{? it }}
+  <div class="item note">{{=it.note || "---"}}</div>
+  <div class="item instrument">{{=it.instrument || "--"}}</div>
+  <div class="item volume">{{=it.volume || "--"}}</div>
+  <div class="item panning">{{=it.panning || "--"}}</div>
+  <div class="item delay">{{=it.delay || "--"}}</div>
+  <div class="item fx">{{=it.fx || "----"}}</div>
+{{?? }}
+  <div class="item note">---</div>
+  <div class="item instrument">--</div>
+  <div class="item volume">--</div>
+  <div class="item panning">--</div>
+  <div class="item delay">--</div>
+  <div class="item fx">----</div>
+{{? }}
+</div>
+
