@@ -86,7 +86,7 @@ export default class PatternEditor {
       } else if (this.yoff >= ((this.events.scrollHeight - this.events.clientHeight) - 8)) {
         this.yoff = 0;
       }
-      var row = Math.round((this.yoff) / 15.0);
+      var row = Math.floor((this.yoff) / 15.0);
       state.set({
         cursor: {
           row
