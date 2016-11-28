@@ -1,6 +1,13 @@
 <div class="pattern-editor">
   <div style="float: left;">
-    <div id="timeline-header">
+    <div>
+      <table id="timeline-header">
+        <thead>
+          <tr class="row">
+            <th class="tick"><div class="timeline-header"><br /></div></th>
+          </tr>
+        </thead>
+      </table>
     </div>
     <div id="timeline">
      {{#def.timeline}}

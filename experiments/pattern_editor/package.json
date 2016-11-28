@@ -19,10 +19,14 @@
     "babel-polyfill": "^6.16.0",
     "css-loader": "^0.26.0",
     "dot": "^1.1.1",
+    "font-awesome": "^4.7.0",
+    "font-awesome-webpack": "0.0.4",
     "gridstack": "^0.2.6",
     "immutable": "^3.8.1",
     "jquery": "^3.1.1",
     "json-loader": "^0.5.4",
+    "less": "^2.7.1",
+    "less-loader": "^2.2.3",
     "raw-loader": "^0.5.1",
     "style-loader": "^0.13.1"
   }

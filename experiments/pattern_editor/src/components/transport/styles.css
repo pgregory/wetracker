@@ -1,0 +1,54 @@
+.transport {
+  display: flex;
+  flex-direction: row;
+  background: #333;
+  padding: 2px 0;
+}
+
+.transport .item {
+  margin: 0 5px;
+  color: #888;
+}
+
+.transport button { /* stylelint-disable */
+  border: 1px solid black;
+  background: #444;
+  color: #888;
+}
+
+.transport button.sm {
+  padding: 2px;
+  font-size: 0.75em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.transport button.sm span.fa {
+  font-size: 0.75em;
+}
+
+.transport button:focus {
+  outline: none;
+  border: 1px dotted darkorange;
+}
+
+.range { /* stylelint-disable */
+}
+
+.range label {
+  margin-right: 3px;
+}
+
+.range input {
+  width: 40px;
+  height: 25px;
+  border: 1px solid black;
+  background: #222;
+  text-align: center;
+}
+
+.range input:focus {
+  outline: none;
+  border: 1px dotted darkorange;
+}

@@ -3,6 +3,7 @@ import doT from 'dot';
 import $ from 'jquery';
 import 'gridstack';
 import 'gridstack/dist/gridstack.css';
+import 'font-awesome-webpack';
 
 import PatternEditor from './pattern_editor';
 
@@ -11,8 +12,10 @@ import song from '../data/song.json';
 
 
 import gridTemplate from './templates/grid.dot';
+import transportTemplate from './components/transport/templates/transport.dot';
+import './components/transport/styles.css';
 
-$('body').keydown((event) => {
+$(document).keydown((event) => {
   switch (event.key) {
     case "ArrowUp": {
       let row = state.cursor.get("row") - 1;
@@ -94,11 +97,16 @@ $('body').keydown((event) => {
   event.preventDefault();
 });
 
+var transport = doT.template(transportTemplate);
+$(transport()).appendTo($('#transport'));
+
 var grid = doT.template(gridTemplate);
 $(grid()).appendTo($('#container'));
 
 const PE = new PatternEditor();
-PE.render($('#pattern-editor'));
+window.requestAnimationFrame(() => {
+  PE.render($('#pattern-editor'));
+});
 
 var options = {
     cellHeight: 40,
@@ -111,4 +119,6 @@ var options = {
 $('.grid-stack').gridstack(options).on('resizestop', function(event, ui) {
   $('#pattern-editor').empty();
   PE.render($('#pattern-editor'));
+}).on('change', function(event, items) {
+  console.log("Changed");
 });

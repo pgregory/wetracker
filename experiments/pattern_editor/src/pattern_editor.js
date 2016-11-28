@@ -52,7 +52,7 @@ export default class PatternEditor {
 
     $('.sideTable').width($('#trackview').width());
     $('.leftSideTable').width($('#trackview').width());
-    $('#timeline-header').height($('#trackheader').height());
+    $('.timeline-header').height($('.track-header').height());
     $('.sideTable').height($('.xscroll').height() - $('#trackheader').height());
     $('#timeline').height($('.xscroll').height() - $('#trackheader').height());
 
