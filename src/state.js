@@ -4,6 +4,7 @@ import Signal from './utils/signal';
 export class State {
   constructor() {
     this.cursor = new Immutable.Map({
+      pattern: 'p1',
       row: 0,
       track: 0,
       column: 0,

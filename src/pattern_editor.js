@@ -36,19 +36,26 @@ export default class PatternEditor {
     this.timelineRows = null;
     this.eventPartial = doT.template(eventTemplate);
 
-    Signal.connect(state, "cursorChanged", this, "onCursorChanged");
-    Signal.connect(song, "eventChanged", this, "onEventChanged");
-  }
-
-  render(target) {
     var def = {
       header: headerTemplate,
       timeline: timelineTemplate,
       trackview: trackviewTemplate,
     };
     try {
-      var test = doT.template(patternEditorTemplate, undefined, def);
-      $(test(song.song)).appendTo(target);
+      this.patternEditorPartial = doT.template(patternEditorTemplate, undefined, def);
+    } catch(e) {
+      console.log(e);
+    }
+
+    Signal.connect(state, "cursorChanged", this, "onCursorChanged");
+    Signal.connect(song, "eventChanged", this, "onEventChanged");
+  }
+
+  render(target) {
+    try {
+      const tt = $(target);
+      tt.empty();
+      tt.append(this.patternEditorPartial({ "song": song.song, "cursor": state.cursor.toJS() }));
     } catch(e) {
       console.log(e);
     }
@@ -58,6 +65,10 @@ export default class PatternEditor {
     $('.timeline-header').height($('.track-header').height());
     $('.sideTable').height($('.xscroll').height() - $('#trackheader').height());
     $('#timeline').height($('.xscroll').height() - $('#trackheader').height());
+
+    $('.track-header').each( (i,v) => {
+      $(v).width($(`#trackview td[data-trackid="${$(v).data('trackid')}"]`).width());
+    });
 
     var visibleRows = Math.floor(($('.xscroll').height() - $('#trackheader').height()) / 15.0);
     var topPadding = Math.floor(visibleRows/2.0);
@@ -74,6 +85,9 @@ export default class PatternEditor {
     this.xscroll = $(".xscroll")[0];
 
     $('.sideTable').on('mousewheel', this.onScroll.bind(this));
+
+    console.log(song.song);
+    this.target = target;
 
     window.requestAnimationFrame(this.updateCursor.bind(this));
   }
@@ -116,38 +130,43 @@ export default class PatternEditor {
   }
 
   updateCursor(timestamp) {
-    var rowOffset = state.cursor.get("row") * 15.0;
+    if(state.cursor.get('pattern') !== this.lastCursor.pattern) {
+      //this.redrawAllRows();
+      this.render(this.target);
+    } else {
+      var rowOffset = state.cursor.get("row") * 15.0;
 
-    this.timeline.scrollTop = rowOffset;
-    this.events.scrollTop = rowOffset;
+      this.timeline.scrollTop = rowOffset;
+      this.events.scrollTop = rowOffset;
 
-    $('tr.pattern-cursor-row').removeClass('pattern-cursor-row');
-    $('.event-cursor').removeClass('event-cursor');
+      $('tr.pattern-cursor-row').removeClass('pattern-cursor-row');
+      $('.event-cursor').removeClass('event-cursor');
 
-    this.timelineRows.eq(state.cursor.get("row") + 1).addClass('pattern-cursor-row');
-    this.patternRows.eq(state.cursor.get("row") + 1).addClass('pattern-cursor-row');
+      this.timelineRows.eq(state.cursor.get("row") + 1).addClass('pattern-cursor-row');
+      this.patternRows.eq(state.cursor.get("row") + 1).addClass('pattern-cursor-row');
 
-    var itemCursor = this.patternRows.eq(state.cursor.get("row") + 1).find(`.line:eq(${state.cursor.get("track")}) .note-column:eq(${state.cursor.get("column")}) .item:eq(${state.cursor.get("item")})`);
-    itemCursor.addClass('event-cursor');
+      var itemCursor = this.patternRows.eq(state.cursor.get("row") + 1).find(`.line:eq(${state.cursor.get("track")}) .note-column:eq(${state.cursor.get("column")}) .item:eq(${state.cursor.get("item")})`);
+      itemCursor.addClass('event-cursor');
 
-    /* If the cursor has moved to a different track, column or item,
-     * check if it's still visible and scroll into view if not.
-     */
-    if ((this.lastCursor.item !== state.cursor.get("item")) ||
-        (this.lastCursor.track !== state.cursor.get("track")) ||
-        (this.lastCursor.column !== state.cursor.get("column"))) {
-      const item = itemCursor[0].parentElement;
-      let offsetParent = item.offsetParent;
-      let offset = item.offsetLeft;
-      while (!(offsetParent.parentElement.classList.contains('sideTable'))) {
-        offset += offsetParent.offsetLeft;
-        offsetParent = offsetParent.offsetParent;
-      }
+      /* If the cursor has moved to a different track, column or item,
+       * check if it's still visible and scroll into view if not.
+       */
+      if ((this.lastCursor.item !== state.cursor.get("item")) ||
+          (this.lastCursor.track !== state.cursor.get("track")) ||
+          (this.lastCursor.column !== state.cursor.get("column"))) {
+        const item = itemCursor[0].parentElement;
+        let offsetParent = item.offsetParent;
+        let offset = item.offsetLeft;
+        while (!(offsetParent.parentElement.classList.contains('sideTable'))) {
+          offset += offsetParent.offsetLeft;
+          offsetParent = offsetParent.offsetParent;
+        }
 
-      if (((offset + item.clientWidth) - this.xscroll.scrollLeft) > this.events.parentElement.clientWidth) {
-        this.scrollHorizTo(this.xscroll, ((offset + item.clientWidth) - this.events.parentElement.clientWidth) + 6, 100);
-      } else if (offset < this.xscroll.scrollLeft) {
-        this.scrollHorizTo(this.xscroll, offset - 6, 100);
+        if (((offset + item.clientWidth) - this.xscroll.scrollLeft) > this.events.parentElement.clientWidth) {
+          this.scrollHorizTo(this.xscroll, ((offset + item.clientWidth) - this.events.parentElement.clientWidth) + 6, 100);
+        } else if (offset < this.xscroll.scrollLeft) {
+          this.scrollHorizTo(this.xscroll, offset - 6, 100);
+        }
       }
     }
     this.lastCursor = state.cursor.toJS();
@@ -155,6 +174,26 @@ export default class PatternEditor {
 
   onCursorChanged(state) {
     window.requestAnimationFrame(this.updateCursor.bind(this));
+  }
+
+  redrawAllRows() {
+    let r;
+    for(r = 0; r < song.song.patterns[state.cursor.get('pattern')].numrows; r += 1) {
+      this.redrawRow(r);
+    }
+  }
+
+  redrawRow(row) {
+    for(var track in song.song.tracks) {
+      for(var column in song.song.tracks[track].columns) {
+        var rowcursor = state.cursor.merge({
+          row,
+          track,
+          column,
+        });
+        this.onEventChanged(rowcursor.toJS());
+      }
+    }
   }
 
   onEventChanged(cursor) {

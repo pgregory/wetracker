@@ -4,7 +4,7 @@
       <table id="timeline-header">
         <thead>
           <tr class="row">
-            <th class="tick"><div class="timeline-header"><br /></div></th>
+            <th class="timeline-header tick"><div><br /></div></th>
           </tr>
         </thead>
       </table>

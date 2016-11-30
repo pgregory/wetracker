@@ -9,42 +9,42 @@ export class SongManager {
   }
 
   findEventAtCursor(cursor) {
-    const trackid = this.song.tracks[cursor.track].id;
-    const columnid = this.song.tracks[cursor.track].columns[cursor.column].id;
-
-    if (!'p1' in this.song.patterns) {
-      this.song.patterns['p1'] = {
+    if (!cursor.pattern in this.song.patterns) {
+      this.song.patterns[cursor.pattern] = {
         rows: 32,
         trackdata: {}
       };
     }
-    const pattern = this.song.patterns['p1'];
+    const pattern = this.song.patterns[cursor.pattern];
 
-    if (!(trackid in pattern.trackdata)) {
-      pattern.trackdata[trackid] = {
-        notedata: []
+    if (pattern.rows.length <= cursor.row ||
+        !pattern.rows[cursor.row]) {
+      pattern.rows[cursor.row] = {};
+    }
+    const row = pattern.rows[cursor.row];
+
+    const trackid = this.song.tracks[cursor.track].id;
+    if (!(trackid in row)) {
+      row[trackid] = {
+        notedata: {}
       };
     }
-    const trackdata = pattern.trackdata[trackid];
+    const track = row[trackid];
+    const events = track.notedata;
 
-    if (trackdata.notedata.length <= cursor.row ||
-        !trackdata.notedata[cursor.row]) {
-      trackdata.notedata[cursor.row] = {};
+    const columnid = this.song.tracks[cursor.track].columns[cursor.column].id;
+    if (!(columnid in events)) {
+      events[columnid] = {};
     }
-    const notes = trackdata.notedata[cursor.row];
-
-    if (!(columnid in notes)) {
-      notes[columnid] = {};
-    }
-    const notecol = notes[columnid];
+    const notecol = events[columnid];
 
     return notecol;
   }
 
   addNoteToSong(cursor) {
     const notecol = this.findEventAtCursor(cursor);
-    notecol['note'] = "G#4";
-    notecol['volume'] = 40;
+    notecol['note'] = 0;
+    notecol['volume'] = 0x40;
 
     this.eventChanged(cursor);
   }

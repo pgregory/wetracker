@@ -11,7 +11,6 @@ import transportTemplate from './components/transport/templates/transport.dot';
 import './components/transport/styles.css';
 
 import XMPlayer from './audio/xm';
-import './audio/xmeffects';
 import modfile from '../data/claustrophobia.xm';
 
 import { song } from './utils/songmanager';
@@ -93,6 +92,12 @@ function downloadXM(uri, player) {
 
 $(document).ready(() => {
   var player = new XMPlayer();
-  console.log(player);
   downloadXM(modfile, player);
+
+  $('#play').click((e) => {
+    player.play();
+  });
+  $('#stop').click((e) => {
+    player.stop();
+  });
 });

@@ -1,3 +1,6 @@
+import { state } from '../state';
+import { song } from '../utils/songmanager';
+
 class Envelope {
   constructor(points, type, sustain, loopstart, loopend) {
     this.points = points;
@@ -68,6 +71,7 @@ export default class XMPlayer {
 
     this.cur_songpos = -1;
     this.cur_pat = -1;
+    this.cur_pat2 = -1;
     this.cur_row = 64;
     this.cur_ticksamp = 0;
     this.cur_tick = 6;
@@ -155,7 +159,7 @@ export default class XMPlayer {
     var audioContext = window.AudioContext || window.webkitAudioContext;
     this.audioctx = new audioContext();
     this.gainNode = this.audioctx.createGain();
-    this.gainNode.gain.value = 0.1;  // master volume
+    this.gainNode.gain.value = 1.0;  // master volume
 
     if (this.audioctx.createScriptProcessor === undefined) {
       this.jsNode = this.audioctx.createJavaScriptNode(16384, 0, 2);
@@ -169,7 +173,41 @@ export default class XMPlayer {
 
     this.playing = false;
 
-    this.XMView = {};
+    this.XMView = {
+      audio_events: [],
+      shown_row: 0,
+      pushEvent: function(player, e) {
+        this.audio_events.push(e);
+        if(this.audio_events.length == 1) {
+          window.requestAnimationFrame(() => this.redrawScreen.bind(this)(player));
+        }
+      },
+      redrawScreen: function(player) {
+        var e;
+        var t = player.audioctx.currentTime;
+        while (this.audio_events.length > 0 && this.audio_events[0].t < t) {
+          e = this.audio_events.shift();
+        }
+        if (!e) {
+          if (player.playing) {
+            window.requestAnimationFrame(() => this.redrawScreen.bind(this)(player));
+          }
+          return;
+        }
+        if(e.row !== this.shown_row) {
+          state.set({
+            cursor: {
+              row: e.row,
+              pattern: `p${player.cur_pat}`,
+            }
+          });
+          this.shown_row = e.row;
+        }
+        if(player.playing) {
+          window.requestAnimationFrame(() => this.redrawScreen.bind(this)(player));
+        }
+      },
+    };
   }
 
   prettify_note(note) {
@@ -261,6 +299,7 @@ export default class XMPlayer {
     }
 
     this.cur_pat = nextPat;
+    this.cur_pat2 = song.song.patterns[`p${nextPat}`];
   }
 
   nextRow() {
@@ -272,138 +311,143 @@ export default class XMPlayer {
         this.cur_songpos = this.xm.song_looppos;
       this.setCurrentPattern();
     }
-    var p = this.xm.patterns[this.cur_pat];
-    var r = p[this.cur_row];
-    for (var i = 0; i < r.length; i++) {
-      var ch = this.xm.channelinfo[i];
-      var inst = ch.inst;
-      var triggernote = false;
-      // instrument trigger
-      if (r[i][1] != -1) {
-        inst = this.xm.instruments[r[i][1] - 1];
-        if (inst && inst.samplemap) {
-          ch.inst = inst;
-          // retrigger unless overridden below
-          triggernote = true;
-          if (ch.note && inst.samplemap) {
-            ch.samp = inst.samples[inst.samplemap[ch.note]];
-            ch.vol = ch.samp.vol;
-            ch.pan = ch.samp.pan;
-            ch.fine = ch.samp.fine;
-          }
-        } else {
-          // console.log("invalid inst", r[i][1], instruments.length);
-        }
-      }
-
-      // note trigger
-      if (r[i][0] != -1) {
-        if (r[i][0] == 96) {
-          ch.release = 1;
-          triggernote = false;
-        } else {
+    var r2 = this.cur_pat2.rows[this.cur_row];
+    for (var trackid in r2) {
+      var track = r2[trackid];
+      var trackinfo = song.song.tracks.find((t) => t.id === trackid);
+      if (trackinfo) {
+        var ch = trackinfo.channelinfo;
+        var inst = ch.inst;
+        var triggernote = false;
+        // instrument trigger
+        if (track.notedata['c1'].note != -1) {
+          inst = this.xm.instruments[track.notedata['c1'].instrument - 1];
           if (inst && inst.samplemap) {
-            var note = r[i][0];
-            ch.note = note;
-            ch.samp = inst.samples[inst.samplemap[ch.note]];
-            if (triggernote) {
-              // if we were already triggering the note, reset vol/pan using
-              // (potentially) new sample
-              ch.pan = ch.samp.pan;
+            ch.inst = inst;
+            // retrigger unless overridden below
+            triggernote = true;
+            if (ch.note && inst.samplemap) {
+              ch.samp = inst.samples[inst.samplemap[ch.note]];
               ch.vol = ch.samp.vol;
+              ch.pan = ch.samp.pan;
               ch.fine = ch.samp.fine;
             }
-            triggernote = true;
+          } else {
+            // console.log("invalid inst", r[i][1], instruments.length);
           }
         }
-      }
 
-      ch.voleffectfn = undefined;
-      if (r[i][2] != -1) {  // volume column
-        var v = r[i][2];
-        ch.voleffectdata = v & 0x0f;
-        if (v < 0x10) {
-          console.log("channel", i, "invalid volume", v.toString(16));
-        } else if (v <= 0x50) {
-          ch.vol = v - 0x10;
-        } else if (v >= 0x60 && v < 0x70) {  // volume slide down
-          ch.voleffectfn = function(ch) {
-            ch.vol = Math.max(0, ch.vol - ch.voleffectdata);
-          };
-        } else if (v >= 0x70 && v < 0x80) {  // volume slide up
-          ch.voleffectfn = function(ch) {
-            ch.vol = Math.min(64, ch.vol + ch.voleffectdata);
-          };
-        } else if (v >= 0x80 && v < 0x90) {  // fine volume slide down
-          ch.vol = Math.max(0, ch.vol - (v & 0x0f));
-        } else if (v >= 0x90 && v < 0xa0) {  // fine volume slide up
-          ch.vol = Math.min(64, ch.vol + (v & 0x0f));
-        } else if (v >= 0xa0 && v < 0xb0) {  // vibrato speed
-          ch.vibratospeed = v & 0x0f;
-        } else if (v >= 0xb0 && v < 0xc0) {  // vibrato w/ depth
-          ch.vibratodepth = v & 0x0f;
-          ch.voleffectfn = this.effects_t1[4];  // use vibrato effect directly
-          var tempeffectfn = this.effects_t1[4];
-          if(tempeffectfn) tempeffectfn.bind(this)(ch);  // and also call it on tick 0
-        } else if (v >= 0xc0 && v < 0xd0) {  // set panning
-          ch.pan = (v & 0x0f) * 0x11;
-        } else if (v >= 0xf0 && v <= 0xff) {  // portamento
-          if (v & 0x0f) {
-            ch.portaspeed = (v & 0x0f) << 4;
-          }
-          ch.voleffectfn = this.effects_t1[3].bind(this);  // just run 3x0
-        } else {
-          console.log("channel", i, "volume effect", v.toString(16));
-        }
-      }
-
-      ch.effect = r[i][3];
-      ch.effectdata = r[i][4];
-      if (ch.effect < 36) {
-        ch.effectfn = this.effects_t1[ch.effect];
-        var eff_t0 = this.effects_t0[ch.effect];
-        if (eff_t0 && eff_t0.bind(this)(ch, ch.effectdata)) {
-          triggernote = false;
-        }
-      } else {
-        console.log("channel", i, "effect > 36", ch.effect);
-      }
-
-      // special handling for portamentos: don't trigger the note
-      if (ch.effect == 3 || ch.effect == 5 || r[i][2] >= 0xf0) {
-        if (r[i][0] != -1) {
-          ch.periodtarget = this.periodForNote(ch, ch.note);
-        }
-        triggernote = false;
-        if (inst && inst.samplemap) {
-          if (ch.env_vol == undefined) {
-            // note wasn't already playing; we basically have to ignore the
-            // portamento and just trigger
-            triggernote = true;
-          } else if (ch.release) {
-            // reset envelopes if note was released but leave offset/pitch/etc
-            // alone
-            ch.envtick = 0;
-            ch.release = 0;
-            ch.env_vol = new EnvelopeFollower(inst.env_vol);
-            ch.env_pan = new EnvelopeFollower(inst.env_pan);
+        // note trigger
+        if ("note" in track.notedata['c1'] && track.notedata['c1'].note != -1) {
+          if (track.notedata['c1'].note == 96) {
+            ch.release = 1;
+            triggernote = false;
+          } else {
+            if (inst && inst.samplemap) {
+              var note = track.notedata['c1'].note;
+              ch.note = note;
+              ch.samp = inst.samples[inst.samplemap[ch.note]];
+              if (triggernote) {
+                // if we were already triggering the note, reset vol/pan using
+                // (potentially) new sample
+                ch.pan = ch.samp.pan;
+                ch.vol = ch.samp.vol;
+                ch.fine = ch.samp.fine;
+              }
+              triggernote = true;
+            }
           }
         }
-      }
 
-      if (triggernote) {
-        // there's gotta be a less hacky way to handle offset commands...
-        if (ch.effect != 9) ch.off = 0;
-        ch.release = 0;
-        ch.envtick = 0;
-        ch.env_vol = new EnvelopeFollower(inst.env_vol);
-        ch.env_pan = new EnvelopeFollower(inst.env_pan);
-        if (ch.note) {
-          ch.period = this.periodForNote(ch, ch.note);
+        ch.voleffectfn = undefined;
+        if ("volume" in track.notedata['c1'] && track.notedata['c1'].volume != -1) {  // volume column
+          var v = track.notedata['c1'].volume;
+          ch.voleffectdata = v & 0x0f;
+          if (v < 0x10) {
+            console.log("channel", i, "invalid volume", v.toString(16));
+          } else if (v <= 0x50) {
+            ch.vol = v - 0x10;
+          } else if (v >= 0x60 && v < 0x70) {  // volume slide down
+            ch.voleffectfn = function(ch) {
+              ch.vol = Math.max(0, ch.vol - ch.voleffectdata);
+            };
+          } else if (v >= 0x70 && v < 0x80) {  // volume slide up
+            ch.voleffectfn = function(ch) {
+              ch.vol = Math.min(64, ch.vol + ch.voleffectdata);
+            };
+          } else if (v >= 0x80 && v < 0x90) {  // fine volume slide down
+            ch.vol = Math.max(0, ch.vol - (v & 0x0f));
+          } else if (v >= 0x90 && v < 0xa0) {  // fine volume slide up
+            ch.vol = Math.min(64, ch.vol + (v & 0x0f));
+          } else if (v >= 0xa0 && v < 0xb0) {  // vibrato speed
+            ch.vibratospeed = v & 0x0f;
+          } else if (v >= 0xb0 && v < 0xc0) {  // vibrato w/ depth
+            ch.vibratodepth = v & 0x0f;
+            ch.voleffectfn = this.effects_t1[4];  // use vibrato effect directly
+            var tempeffectfn = this.effects_t1[4];
+            if(tempeffectfn) tempeffectfn.bind(this)(ch);  // and also call it on tick 0
+          } else if (v >= 0xc0 && v < 0xd0) {  // set panning
+            ch.pan = (v & 0x0f) * 0x11;
+          } else if (v >= 0xf0 && v <= 0xff) {  // portamento
+            if (v & 0x0f) {
+              ch.portaspeed = (v & 0x0f) << 4;
+            }
+            ch.voleffectfn = this.effects_t1[3].bind(this);  // just run 3x0
+          } else {
+            console.log("track", track, "volume effect", v.toString(16));
+          }
         }
-        // waveforms 0-3 are retriggered on new notes while 4-7 are continuous
-        if (ch.vibratotype < 4) {
-          ch.vibratopos = 0;
+
+        if("fxtype" in track.notedata['c1']) {
+          ch.effect = track.notedata['c1'].fxtype;
+          ch.effectdata = track.notedata['c1'].fxparam;
+          if (ch.effect < 36) {
+            ch.effectfn = this.effects_t1[ch.effect];
+            var eff_t0 = this.effects_t0[ch.effect];
+            if (eff_t0 && eff_t0.bind(this)(ch, ch.effectdata)) {
+              triggernote = false;
+            }
+          } else {
+            console.log("channel", i, "effect > 36", ch.effect);
+          }
+
+          // special handling for portamentos: don't trigger the note
+          if (ch.effect == 3 || ch.effect == 5 || track.notedata['c1'].volume >= 0xf0) {
+            if (track.notedata['c1'].note != -1) {
+              ch.periodtarget = this.periodForNote(ch, ch.note);
+            }
+            triggernote = false;
+            if (inst && inst.samplemap) {
+              if (ch.env_vol == undefined) {
+                // note wasn't already playing; we basically have to ignore the
+                // portamento and just trigger
+                triggernote = true;
+              } else if (ch.release) {
+                // reset envelopes if note was released but leave offset/pitch/etc
+                // alone
+                ch.envtick = 0;
+                ch.release = 0;
+                ch.env_vol = new EnvelopeFollower(inst.env_vol);
+                ch.env_pan = new EnvelopeFollower(inst.env_pan);
+              }
+            }
+          }
+        }
+
+        if (triggernote) {
+          // there's gotta be a less hacky way to handle offset commands...
+          if (ch.effect != 9) ch.off = 0;
+          ch.release = 0;
+          ch.envtick = 0;
+          ch.env_vol = new EnvelopeFollower(inst.env_vol);
+          ch.env_pan = new EnvelopeFollower(inst.env_pan);
+          if (ch.note) {
+            ch.period = this.periodForNote(ch, ch.note);
+          }
+          // waveforms 0-3 are retriggered on new notes while 4-7 are continuous
+          if (ch.vibratotype < 4) {
+            ch.vibratopos = 0;
+          }
         }
       }
     }
@@ -413,16 +457,16 @@ export default class XMPlayer {
   nextTick() {
     this.cur_tick++;
     var j, ch;
-    for (j = 0; j < this.xm.nchan; j++) {
-      ch = this.xm.channelinfo[j];
+    for (j in song.song.tracks) {
+      ch = song.song.tracks[j].channelinfo;
       ch.periodoffset = 0;
     }
     if (this.cur_tick >= this.xm.tempo) {
       this.cur_tick = 0;
       this.nextRow();
     }
-    for (j = 0; j < this.xm.nchan; j++) {
-      ch = this.xm.channelinfo[j];
+    for (j in song.song.tracks) {
+      ch = song.song.tracks[j].channelinfo;
       var inst = ch.inst;
       if (this.cur_tick !== 0) {
         if(ch.voleffectfn) ch.voleffectfn.bind(this)(ch);
@@ -430,13 +474,13 @@ export default class XMPlayer {
       }
       if (isNaN(ch.period)) {
         console.log(this.prettify_notedata(
-              this.xm.patterns[this.cur_pat][this.cur_row][j]),
+              this.cur_pat2.rows[this.cur_row][j]),
             "set channel", j, "period to NaN");
       }
       if (inst === undefined) continue;
       if (ch.env_vol === undefined) {
         console.log(this.prettify_notedata(
-              this.xm.patterns[this.cur_pat][this.cur_row][j]),
+              this.cur_pat2.rows[this.cur_row][j]),
             "set channel", j, "env_vol to undefined, but note is playing");
         continue;
       }
@@ -659,9 +703,10 @@ export default class XMPlayer {
         this.cur_ticksamp -= ticklen;
       }
       var tickduration = Math.min(buflen, ticklen - this.cur_ticksamp);
-      var VU = new Float32Array(this.xm.nchan);
+      var VU = {}; //new Float32Array(this.xm.nchan);
       var scopes = undefined;
-      for (j = 0; j < this.xm.nchan; j++) {
+      //for (j = 0; j < this.xm.nchan; j++) {
+      for (j in song.song.tracks) {
         var scope;
         if (tickduration >= 4*scopewidth) {
           scope = new Float32Array(scopewidth);
@@ -670,8 +715,9 @@ export default class XMPlayer {
           }
         }
 
-        VU[j] = this.MixChannelIntoBuf(
-            this.xm.channelinfo[j], offset, offset + tickduration, dataL, dataR) /
+        VU[j] = new Float32Array();
+        VU[j][0] = this.MixChannelIntoBuf(
+            song.song.tracks[j].channelinfo, offset, offset + tickduration, dataL, dataR) /
           tickduration;
 
         if (tickduration >= 4*scopewidth) {
@@ -683,7 +729,7 @@ export default class XMPlayer {
         }
       }
       if (this.XMView.pushEvent) {
-        this.XMView.pushEvent({
+        this.XMView.pushEvent(this, {
           t: e.playbackTime + (0.0 + offset) / this.f_smp,
           vu: VU,
           scopes: scopes,
@@ -760,6 +806,9 @@ export default class XMPlayer {
     var dv = new DataView(arrayBuf);
     this.xm = {};
 
+    song.song.tracks = [];
+    song.song.patterns = {};
+
     this.xm.songname = this.getstring(dv, 17, 20);
     var hlen = dv.getUint32(0x3c, true) + 0x3c;
     var songlen = dv.getUint16(0x40, true);
@@ -776,7 +825,7 @@ export default class XMPlayer {
     var i, j, k;
 
     for (i = 0; i < this.xm.nchan; i++) {
-      this.xm.channelinfo.push({
+      var channelinfo = {
         number: i,
         filterstate: new Float32Array(3),
         vol: 0,
@@ -791,6 +840,21 @@ export default class XMPlayer {
         vibratodepth: 1,
         vibratospeed: 1,
         vibratotype: 0,
+      };
+      this.xm.channelinfo.push(channelinfo);
+      song.song.tracks.push({
+        id: `track${i}`,
+        fxcolumns: 1,
+        name: `Track${i}`,
+        type: 'play',
+        color: '#008800',
+        id: `track${i}`,
+        columns: [
+          {
+            id: 'c1',
+          },
+        ],
+        channelinfo,
       });
     }
     console.log("header len " + hlen);
@@ -814,8 +878,15 @@ export default class XMPlayer {
       var patsize = dv.getUint16(idx + 7, true);
       console.log("pattern %d: %d bytes, %d rows", i, patsize, patrows);
       idx += 9;
+
+      song.song.patterns[`p${i}`] = {
+        numrows: patrows,
+        rows: [],
+      };
+
       for (j = 0; patsize > 0 && j < patrows; j++) {
         var row = [];
+        var row2 = {};
         for (k = 0; k < this.xm.nchan; k++) {
           var byte0 = dv.getUint8(idx); idx++;
           var note = -1, inst = -1, vol = -1, efftype = 0, effparam = 0;
@@ -846,10 +917,21 @@ export default class XMPlayer {
           }
           var notedata = [note, inst, vol, efftype, effparam];
           row.push(notedata);
+
+          var notecol = {
+            note,
+            instrument: inst,
+            volume: vol,
+            fxtype: efftype,
+            fxparam: effparam,
+          };
+          row2[`track${k}`] = { notedata: { c1: notecol }};
         }
         pattern.push(row);
+        song.song.patterns[`p${i}`].rows.push(row2);
       }
       this.xm.patterns.push(pattern);
+
     }
 
     this.xm.instruments = [];
@@ -986,6 +1068,8 @@ export default class XMPlayer {
       this.xm.instruments.push(inst);
     }
 
+    this.nextRow();
+
     console.log("loaded \"" + this.xm.songname + "\"");
     return true;
   }
@@ -1025,7 +1109,7 @@ export default class XMPlayer {
     this.cur_row = 64;
     this.cur_songpos = -1;
     this.cur_ticksamp = 0;
-    pthis.xm.global_volume = this.max_global_volume;
+    this.xm.global_volume = this.max_global_volume;
     if (this.XMView.stop) this.XMView.stop();
     //init();
   }

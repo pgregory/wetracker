@@ -7,168 +7,67 @@
       "color": "#008800",
       "id": "track1",
       "columns": [
-        { 
-          "id": "c1"
-        }, {
-          "id": "c2"
-        }
-      ]
+          {
+            "id": "c1"
+          }
+        ]
     },
     {
       "fxcolumns": 1,
-      "name": "Bass",
+      "name": "Lead",
       "type": "play",
-      "color": "#880000",
+      "color": "#008800",
       "id": "track2",
       "columns": [
-        { "id": "c1"
-        }
-      ]
+          {
+            "id": "c1"
+          }
+        ]
     },
     {
       "fxcolumns": 1,
-      "name": "Lead1",
+      "name": "Lead",
       "type": "play",
-      "color": "#000088",
+      "color": "#008800",
       "id": "track3",
       "columns": [
-        { "id": "c1"
-        }
-      ]
+          {
+            "id": "c1"
+          }
+        ]
     },
     {
       "fxcolumns": 1,
-      "name": "Pad",
+      "name": "Lead",
       "type": "play",
-      "color": "#008888",
+      "color": "#008800",
       "id": "track4",
       "columns": [
-        { "id": "c1"
-        }
-      ]
-    },
-    {
-      "fxcolumns": 1,
-      "name": "Track5",
-      "type": "play",
-      "color": "#880088",
-      "id": "track5",
-      "columns": [
-        { "id": "c1"
-        }
-      ]
-    },
-    {
-      "fxcolumns": 1,
-      "name": "Track 6",
-      "type": "play",
-      "color": "#888800",
-      "id": "track6",
-      "columns": [
-        { "id": "c1"
-        }
-      ]
-    },
-    {
-      "fxcolumns": 1,
-      "name": "Track 7",
-      "type": "play",
-      "color": "#888844",
-      "id": "track7",
-      "columns": [
-        { "id": "c1"
-        }
-      ]
+          {
+            "id": "c1"
+          }
+        ]
     }
   ],
   "instruments": [
-    {
-      "name": "piano",
-      "type": "sampler",
-      "samples": [
-        {
-          "url": "\/assets\/audio\/Korg-M3R-Grand-Piano-C1.wav",
-          "base": "C1",
-          "rangeStart": "C1",
-          "rangeEnd": "B2"
-        },
-        {
-          "url": "\/assets\/audio\/Korg-M3R-Grand-Piano-C3.wav",
-          "base": "C3",
-          "rangeStart": "C3",
-          "rangeEnd": "B4"
-        },
-        {
-          "url": "\/assets\/audio\/Korg-M3R-Grand-Piano-C5.wav",
-          "base": "C5",
-          "rangeStart": "C5",
-          "rangeEnd": "C9"
-        }
-      ],
-      "data": {
-        "envelope": {
-          "attack": 0,
-          "decay": 2,
-          "sustain": 1,
-          "release": 5.9
-        }
-      }
-    },
-    {
-      "name": "buzz",
-      "type": "synth",
-      "data": {
-        "oscillator": {
-          "type": "square",
-          "modulationFrequency": 0.2
-        },
-        "envelope": {
-          "attack": 0.02,
-          "decay": 0.1,
-          "sustain": 0.2,
-          "release": 1.9
-        }
-      }
-    },
-    {
-      "name": "tom",
-      "type": "membrane",
-      "data": {
-        "pitchDecay": 0.008,
-        "octaves": 2,
-        "envelope": {
-          "attack": 0.0006,
-          "decay": 0.5,
-          "sustain": 0
-        }
-      }
-    },
-    {
-      "name": "cymbal",
-      "type": "metal",
-      "data": {
-        "harmonicity": 2,
-        "resonance": 800,
-        "modulationIndex": 20,
-        "envelope": {
-          "decay": 0.8
-        },
-        "volume": -35
-      }
-    }
   ],
   "patterns": {
     "p1": {
-      "rows": 32,
-      "trackdata": {
-        "track1": {
-          "notedata": [
-            {
-              "c1": { "note": "C4" }
+      "numrows": 64,
+      "rows": [
+        {
+          "track1": {
+            "notedata": {
+              "c1": { "note": 0, "fxtype": 10 }
             }
-          ]
+          },
+          "track2": {
+            "notedata": {
+              "c1": { "note": 1, "volume": 40 }
+            }
+          }
         }
-      }
+      ]
     }
   }
 }

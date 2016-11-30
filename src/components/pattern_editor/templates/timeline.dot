@@ -5,7 +5,7 @@
         <div class="topPadding"></div>
       </th>
     </tr>
-    {{ for(var row = 0; row < it.patterns['p1'].rows; ++row) { }}
+    {{ for(var row = 0; row < it.song.patterns[it.cursor.pattern].numrows; ++row) { }}
       <tr class="row"><th class="tick">{{=row}}</th></tr>
     {{ } }}
     <tr class="row">

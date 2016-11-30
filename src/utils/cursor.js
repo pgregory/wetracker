@@ -2,11 +2,20 @@ import Signal from './signal';
 import { state } from '../state';
 import { song } from './songmanager';
 
+const items = [
+  'note',
+  'instrument',
+  'volume',
+  'panning',
+  'delay',
+  'fx',
+];
+
 export class CursorManager {
   rowUp(count = 1) {
     let row = state.cursor.get("row") - count;
     if (row < 0) {
-      row = song.song.patterns['p1'].rows + row;
+      row = song.song.patterns['p1'].numrows + row;
     }
     state.set({
       cursor: {
@@ -17,8 +26,8 @@ export class CursorManager {
 
   rowDown(count = 1) {
     let row = state.cursor.get("row") + count;
-    if (row >= song.song.patterns['p1'].rows) {
-      row = 0 + (row - song.song.patterns['p1'].rows);
+    if (row >= song.song.patterns['p1'].numrows) {
+      row = 0 + (row - song.song.patterns['p1'].numrows);
     }
     state.set({
       cursor: {
@@ -57,8 +66,9 @@ export class CursorManager {
     let track = state.cursor.get("track");
     let column = state.cursor.get("column");
     item += 1;
-    if (item > 5 ) {
+    if (item >= items.length ) {
       item = 0; 
+      // Next notecolumn
       column += 1;
       if (column >= song.song.tracks[track].columns.length) {
         column = 0;
