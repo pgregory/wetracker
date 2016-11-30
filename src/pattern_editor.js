@@ -1,17 +1,13 @@
-import doT from 'dot';
 import $ from 'jquery';
 
 import styles from './styles.css';
 
-import headerTemplate from './components/pattern_editor/templates/header.dot';
-import timelineTemplate from './components/pattern_editor/templates/timeline.dot';
-import trackviewTemplate from './components/pattern_editor/templates/trackview.dot';
-import patternEditorTemplate from './components/pattern_editor/templates/patterneditor.dot';
-import eventTemplate from './components/pattern_editor/templates/event.dot';
-
 import Signal from './utils/signal';
 import { state } from './state';
 import { song } from './utils/songmanager';
+
+import patternEditorMarko from './components/pattern_editor/templates/patterneditor.marko';
+import eventTemplate from './components/pattern_editor/templates/event.dot';
 
 // t = current time
 // b = start value
@@ -34,18 +30,6 @@ export default class PatternEditor {
     this.xscroll = null;
     this.patternRows = null;
     this.timelineRows = null;
-    this.eventPartial = doT.template(eventTemplate);
-
-    var def = {
-      header: headerTemplate,
-      timeline: timelineTemplate,
-      trackview: trackviewTemplate,
-    };
-    try {
-      this.patternEditorPartial = doT.template(patternEditorTemplate, undefined, def);
-    } catch(e) {
-      console.log(e);
-    }
 
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
     Signal.connect(song, "eventChanged", this, "onEventChanged");
@@ -53,12 +37,39 @@ export default class PatternEditor {
 
   render(target) {
     try {
-      const tt = $(target);
-      tt.empty();
-      tt.append(this.patternEditorPartial({ "song": song.song, "cursor": state.cursor.toJS() }));
+      $(target).html(patternEditorMarko.renderToString({ song: song.song, cursor: state.cursor.toJS() }));
+      this.anotherPattern = $(patternEditorMarko.renderToString({song: song.song, cursor: state.cursor.toJS() }));
     } catch(e) {
       console.log(e);
     }
+
+    // Cache node references for all note data to enable quick pattern refresh.
+
+    this.row_cache = [];
+    $("#trackview .row").each( (i,v) => {
+      var row = {};
+      $(v).find('td.trackrow').each( (i2, t) => {
+        var trackid = $(t).data('trackid');
+        var track = { 
+          columns: {
+          },
+        };
+        $(t).find('.line .note-column').each( (i3,n) => {
+          var notecolid = $(n).data('columnid');
+          track.columns[notecolid] = {
+            note: $(n).find('.item.note'),
+            instrument: $(n).find('.item.instrument'),
+            volume: $(n).find('.item.volume'),
+            panning: $(n).find('.item.panning'),
+            delay: $(n).find('.item.delay'),
+            fx: $(n).find('.item.fx'),
+          };
+        });
+        row[trackid] = track;
+      });
+      this.row_cache.push(row);
+    });
+    //this.redrawAllRows();
 
     $('.sideTable').width($('#trackview').width());
     $('.leftSideTable').width($('#trackview').width());
@@ -86,7 +97,6 @@ export default class PatternEditor {
 
     $('.sideTable').on('mousewheel', this.onScroll.bind(this));
 
-    console.log(song.song);
     this.target = target;
 
     window.requestAnimationFrame(this.updateCursor.bind(this));
@@ -131,8 +141,8 @@ export default class PatternEditor {
 
   updateCursor(timestamp) {
     if(state.cursor.get('pattern') !== this.lastCursor.pattern) {
-      //this.redrawAllRows();
-      this.render(this.target);
+      this.redrawAllRows();
+      //this.render(this.target);
     } else {
       var rowOffset = state.cursor.get("row") * 15.0;
 
@@ -177,9 +187,20 @@ export default class PatternEditor {
   }
 
   redrawAllRows() {
-    let r;
-    for(r = 0; r < song.song.patterns[state.cursor.get('pattern')].numrows; r += 1) {
-      this.redrawRow(r);
+    for(var rowi in this.row_cache) {
+      var row = this.row_cache[rowi];
+      for(var trackid in row) {
+        var track = row[trackid];
+        for(var notecolid in track.columns) {
+          var notecol = track.columns[notecolid];
+          notecol.note.text('...');
+          notecol.instrument.text('~~');
+          notecol.volume.text('^^');
+          notecol.panning.text('<>');
+          notecol.delay.text(',,');
+          notecol.fx.text('****');
+        }
+      }
     }
   }
 

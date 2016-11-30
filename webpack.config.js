@@ -46,6 +46,9 @@ module.exports = {
     }, {
       test: /\.xm$/,
       loader: "file-loader"
+    }, {
+      test: /\.marko$/,
+      loader: "marko-loader"
     }]
   },
   node: {
