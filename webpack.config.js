@@ -43,6 +43,9 @@ module.exports = {
     }, {
       test: /\.(jpg|png)$/,
       loader: "file-loader"
+    }, {
+      test: /\.xm$/,
+      loader: "file-loader"
     }]
   },
   node: {

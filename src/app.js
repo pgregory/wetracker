@@ -10,6 +10,10 @@ import gridTemplate from './templates/grid.dot';
 import transportTemplate from './components/transport/templates/transport.dot';
 import './components/transport/styles.css';
 
+import XMPlayer from './audio/xm';
+import './audio/xmeffects';
+import modfile from '../data/claustrophobia.xm';
+
 import { song } from './utils/songmanager';
 import { state } from './state';
 import { cursor } from './utils/cursor';
@@ -67,4 +71,28 @@ $('.grid-stack').gridstack(options).on('resizestop', function(event, ui) {
   PE.render($('#pattern-editor'));
 }).on('change', function(event, items) {
   console.log("Changed");
+});
+
+
+function downloadXM(uri, player) {
+  var xmReq = new XMLHttpRequest();
+  xmReq.open("GET", uri, true);
+  xmReq.responseType = "arraybuffer";
+  xmReq.onload = function (xmEvent) {
+    var arrayBuffer = xmReq.response;
+    if (arrayBuffer) {
+      if(player.load(arrayBuffer)) {
+        //player.play();
+      }
+    } else {
+      console.log("unable to load", uri);
+    }
+  };
+  xmReq.send(null);
+}
+
+$(document).ready(() => {
+  var player = new XMPlayer();
+  console.log(player);
+  downloadXM(modfile, player);
 });
