@@ -32,6 +32,7 @@ export default class PatternEditor {
     this.xscroll = null;
     this.patternRows = null;
     this.timelineRows = null;
+    this.rendered = false;
 
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
     Signal.connect(song, "eventChanged", this, "onEventChanged");
@@ -109,6 +110,7 @@ export default class PatternEditor {
     this.target = target;
 
     window.requestAnimationFrame(this.updateCursor.bind(this));
+    this.rendered = true;
   }
 
   onScroll(e) {
@@ -150,6 +152,9 @@ export default class PatternEditor {
   }
 
   updateCursor(timestamp) {
+    if(!this.rendered) {
+      return;
+    }
     if(state.cursor.get('pattern') !== this.lastCursor.pattern) {
       this.redrawAllRows();
       //$(this.target).empty();

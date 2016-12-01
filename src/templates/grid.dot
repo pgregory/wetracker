@@ -3,19 +3,26 @@
     data-gs-x="0" data-gs-y="0"
     data-gs-width="10" data-gs-height="4">
       <div id="monitors" class="chrome grid-stack-item-content">
-        <span>Monitors</span>
       </div>
   </div>
   <div class="grid-stack-item"
     data-gs-x="2" data-gs-y="4"
     data-gs-width="8" data-gs-height="8">
-      <div id="pattern-editor" class="chrome grid-stack-item-content"></div>
-  </div>
+      <div id="pattern-editor" class="chrome grid-stack-item-content">
+        <div id="playercontainer" class="playercontainer">
+          <div><canvas class="centered" id='title' width="640" height="22"></canvas></div>
+          <div class="hscroll">
+            <div><canvas class="centered" id='vu' width="224" height="64"></canvas></div>
+            <div><canvas class="centered" id='gfxpattern' width="640" height="504"></canvas></div>
+          </div>
+        </div>
+      </div>
+    </div>
   <div class="grid-stack-item"
     data-gs-x="10" data-gs-y="4"
     data-gs-width="2" data-gs-height="6">
       <div id="instrument-list" class="chrome grid-stack-item-content">
-        <span>Instrument List</span>
+        <div id='instruments'></div>
       </div>
   </div>
   <div class="grid-stack-item"

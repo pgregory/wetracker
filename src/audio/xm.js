@@ -210,6 +210,10 @@ export default class XMPlayer {
     };
   }
 
+  setView(viewer) {
+    this.XMView = viewer;
+  }
+
   prettify_note(note) {
     if (note < 0) return "---";
     if (note == 96) return "^^^";
@@ -695,7 +699,7 @@ export default class XMPlayer {
 
     var offset = 0;
     var ticklen = 0|(this.f_smp * 2.5 / this.xm.bpm);
-    var scopewidth = this.XMView.scope_width;
+    var scopewidth = this.XMView._scope_width;
 
     while(buflen > 0) {
       if (this.cur_pat == -1 || this.cur_ticksamp >= ticklen) {
@@ -703,10 +707,10 @@ export default class XMPlayer {
         this.cur_ticksamp -= ticklen;
       }
       var tickduration = Math.min(buflen, ticklen - this.cur_ticksamp);
-      var VU = {}; //new Float32Array(this.xm.nchan);
+      var VU = new Float32Array(this.xm.nchan);
       var scopes = undefined;
-      //for (j = 0; j < this.xm.nchan; j++) {
-      for (j in song.song.tracks) {
+      for (j = 0; j < this.xm.nchan; j++) {
+      //for (j in song.song.tracks) {
         var scope;
         if (tickduration >= 4*scopewidth) {
           scope = new Float32Array(scopewidth);
@@ -715,8 +719,8 @@ export default class XMPlayer {
           }
         }
 
-        VU[j] = new Float32Array();
-        VU[j][0] = this.MixChannelIntoBuf(
+        //VU[j] = new Float32Array();
+        VU[j] = this.MixChannelIntoBuf(
             song.song.tracks[j].channelinfo, offset, offset + tickduration, dataL, dataR) /
           tickduration;
 

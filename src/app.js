@@ -6,11 +6,13 @@ import 'gridstack/dist/gridstack.css';
 import 'font-awesome-webpack';
 
 import PatternEditor from './pattern_editor';
-import gridTemplate from './templates/grid.dot';
+import Monitors from './components/monitors/monitors';
+import gridTemplate from './templates/grid.marko';
 import transportTemplate from './components/transport/templates/transport.dot';
 import './components/transport/styles.css';
 
 import XMPlayer from './audio/xm';
+import XMView from './audio/trackview';
 import modfile from '../data/onward.xm';
 
 import { song } from './utils/songmanager';
@@ -49,13 +51,12 @@ $(document).keydown((event) => {
 var transport = doT.template(transportTemplate);
 $(transport()).appendTo($('#transport'));
 
-var grid = doT.template(gridTemplate);
-$(grid()).appendTo($('#container'));
+$('#container').append($(gridTemplate.renderSync()));
 
 const PE = new PatternEditor();
-window.requestAnimationFrame(() => {
+/*window.requestAnimationFrame(() => {
   PE.render($('#pattern-editor'));
-});
+});*/
 
 var options = {
     cellHeight: 40,
@@ -86,6 +87,14 @@ function downloadXM(uri, player) {
     } else {
       console.log("unable to load", uri);
     }
+    const monitors = new Monitors();
+    window.requestAnimationFrame(() => {
+      monitors.render($('#monitors'));
+      document.getElementById('gfxpattern').height = $("#pattern-editor").height();
+      var trackview = new XMView(player);
+      player.setView(trackview);
+    });
+
   };
   xmReq.send(null);
 }
