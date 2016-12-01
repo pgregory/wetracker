@@ -9,6 +9,8 @@ import { song } from './utils/songmanager';
 import patternEditorMarko from './components/pattern_editor/templates/patterneditor.marko';
 import eventTemplate from './components/pattern_editor/templates/event.dot';
 
+import { toNote, toInstrument, toVolume, toPanning, toDelay, toFX } from './components/pattern_editor/templates/utils';
+
 // t = current time
 // b = start value
 // c = change in value
@@ -55,7 +57,7 @@ export default class PatternEditor {
         };
         $(t).find('.line .note-column').each( (i3,n) => {
           var notecolid = $(n).data('columnid');
-          track.columns.push({
+          var notecol = {
             id: notecolid,
             note: $(n).find('.item.note'),
             instrument: $(n).find('.item.instrument'),
@@ -63,13 +65,20 @@ export default class PatternEditor {
             panning: $(n).find('.item.panning'),
             delay: $(n).find('.item.delay'),
             fx: $(n).find('.item.fx'),
-          });
+          };
+          try {
+            notecol['eventdata'] = song.song.patterns[state.cursor.get('pattern')].rows[i][trackid].notedata[notecolid];
+          } catch(e) {
+            notecol['eventdata'] = undefined;
+          }
+          track.columns.push(notecol);
         });
         row.push(track);
       });
       this.row_cache.push(row);
     });
-    this.redrawAllRows();
+    //this.redrawAllRows();
+    console.log(this.row_cache);
 
     $('.sideTable').width($('#trackview').width());
     $('.leftSideTable').width($('#trackview').width());
@@ -187,16 +196,46 @@ export default class PatternEditor {
   }
 
   redrawAllRows() {
+    const curr_pattern_id = state.cursor.get('pattern');
+    const curr_pattern = song.song.patterns[curr_pattern_id];
+
     for(var rowi = 0, rowe = this.row_cache.length; rowi < rowe; rowi += 1) {
-      for(var tracki = 0, tracke = this.row_cache[rowi].length; tracki < tracke; tracki += 1) {
-        for(var notecoli = 0, notecole = this.row_cache[rowi][tracki].columns.length; notecoli < notecole; notecoli += 1) {
-          const notecol = this.row_cache[rowi][tracki].columns[notecoli];
-          notecol.note[0].innerHTML = '...';
-          notecol.instrument[0].innerHTML = '~~';
-          notecol.volume[0].innerHTML = '^^';
-          notecol.panning[0].innerHTML = '<>';
-          notecol.delay[0].innerHTML = ',,';
-          notecol.fx[0].innerHTML = '****';
+      const display_row = this.row_cache[rowi];
+      const curr_row = curr_pattern.rows[rowi]; 
+      for(var tracki = 0, tracke = display_row.length; tracki < tracke; tracki += 1) {
+        const display_track = display_row[tracki];
+        const curr_track = curr_row[display_track.id];
+        for(var notecoli = 0, notecole = display_track.columns.length; notecoli < notecole; notecoli += 1) {
+          const display_notecol = display_track.columns[notecoli];
+          const curr_notecol = curr_track.notedata[song.song.tracks[tracki].columns[notecoli].id];
+          // If there is data in the new pattern, check if we need to render it.
+          if(curr_notecol) {
+            const diff = (curr_notecol.note !== display_notecol.eventdata.note) ||
+                         (curr_notecol.instrument !== display_notecol.eventdata.instrument) ||
+                         (curr_notecol.volume !== display_notecol.eventdata.volume) ||
+                         (curr_notecol.panning !== display_notecol.eventdata.panning) ||
+                         (curr_notecol.delay !== display_notecol.eventdata.delay) ||
+                         (curr_notecol.fxtype !== display_notecol.eventdata.fxtype) ||
+                         (curr_notecol.fxparam !== display_notecol.eventdata.fxparam);
+            if(diff) {
+              display_notecol.note[0].innerHTML = toNote(curr_notecol.note);
+              display_notecol.instrument[0].innerHTML = toInstrument(curr_notecol.instrument);
+              display_notecol.volume[0].innerHTML = toVolume(curr_notecol.volume);
+              display_notecol.panning[0].innerHTML = toPanning(curr_notecol.panning);
+              display_notecol.delay[0].innerHTML = toDelay(curr_notecol.delay);
+              display_notecol.fx[0].innerHTML = toFX(curr_notecol.fxtype, curr_notecol.fxparam);
+            }
+          } else {
+            // If the new pattern is empty in this event, but the previous wasn't, empty it.
+            if(display_notecol.notedata) {
+              display_notecol.note[0].innerHTML = toNote(undefined);
+              display_notecol.instrument[0].innerHTML = toInstrument(undefined);
+              display_notecol.volume[0].innerHTML = toVolume(undefined);
+              display_notecol.panning[0].innerHTML = toPanning(undefined);
+              display_notecol.delay[0].innerHTML = toDelay(undefined);
+              display_notecol.fx[0].innerHTML = toFX(undefined, undefined);
+            }
+          }
         }
       }
     }
