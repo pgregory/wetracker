@@ -11,7 +11,7 @@ import transportTemplate from './components/transport/templates/transport.dot';
 import './components/transport/styles.css';
 
 import XMPlayer from './audio/xm';
-import modfile from '../data/claustrophobia.xm';
+import modfile from '../data/onward.xm';
 
 import { song } from './utils/songmanager';
 import { state } from './state';

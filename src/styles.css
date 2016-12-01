@@ -56,7 +56,7 @@ body {
   padding: 3px;
 }
 
-.row .tick {
+.row .tick, .ghost-row .tick {
   color: #999;
   font-family: monospace;
   width: 40px;
@@ -67,7 +67,7 @@ body {
   color: #FFF;
 }
 
-.beat-row {
+.beat-row, .ghost-beat-row {
   background: #333;
 }
 
@@ -83,18 +83,14 @@ body {
   display: flex;
 }
 
-.line {
+.line, .ghost-line {
   font-family: monospace;
   line-height: 1;
   display: flex;
 }
 
-.line .note,
-.line .instrument,
-.line .volume,
-.line .panning,
-.line .delay,
-.line .fx {
+.line .item,
+.ghost-line .item {
   margin-right: 2px;
   display: inline-block;
 }
@@ -126,7 +122,7 @@ body {
   color: #311;
 }
 
-.line .volume {
+.line .volume, .ghost-line .volume {
   color: #666;
   width: 18px;
 }
@@ -139,7 +135,7 @@ body {
   color: #111;
 }
 
-.line .panning {
+.line .panning, .ghost-line .panning {
   color: #969;
   width: 18px;
 }
@@ -178,6 +174,11 @@ body {
 .pattern-cursor-row .line .fx.event-cursor {
   color: #333;
 }
+
+.ghost-line .item {
+  color: #444;
+}
+
 
 .xscroll .leftSideTable,
 .xscroll .sideTable {

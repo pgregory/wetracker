@@ -90,15 +90,15 @@ export default class PatternEditor {
       $(v).width($(`#trackview td[data-trackid="${$(v).data('trackid')}"]`).width());
     });
 
-    var visibleRows = Math.floor(($('.xscroll').height() - $('#trackheader').height()) / 15.0);
-    var topPadding = Math.floor(visibleRows/2.0);
-    var bottomPadding = Math.ceil(visibleRows/2.0);
+    this.visibleRows = Math.floor(($('.xscroll').height() - $('#trackheader').height()) / 15.0);
+    this.topPadding = Math.floor(this.visibleRows/2.0);
+    this.bottomPadding = Math.ceil(this.visibleRows/2.0);
 
-    $('.topPadding').height(topPadding*15.0);
-    $('.bottomPadding').height(bottomPadding*15.0);
+    //$('.topPadding').height(this.topPadding*15.0);
+    //$('.bottomPadding').height(this.bottomPadding*15.0);
 
-    this.patternRows = $('#trackview tr');
-    this.timelineRows = $('#timeline tr');
+    this.patternRows = $('#trackview tr.row');
+    this.timelineRows = $('#timeline tr.row');
 
     this.events = $(".sideTable")[0];
     this.timeline = $("#timeline")[0];
@@ -114,12 +114,13 @@ export default class PatternEditor {
   onScroll(e) {
     if (Math.abs(e.originalEvent.deltaY) > Math.abs(e.originalEvent.deltaX)) {
       this.yoff += e.originalEvent.deltaY;
-      if (this.yoff < 0) {
+      /*if (this.yoff < 0) {
         this.yoff = (this.events.scrollHeight - this.events.clientHeight) - 8;
       } else if (this.yoff >= ((this.events.scrollHeight - this.events.clientHeight) - 8)) {
         this.yoff = 0;
-      }
+      }*/
       var row = Math.floor((this.yoff) / 15.0);
+      row = (row % song.song.patterns[state.cursor.get('pattern')].numrows);
       state.set({
         cursor: {
           row
@@ -154,18 +155,18 @@ export default class PatternEditor {
       //$(this.target).empty();
       //this.render(this.target);
     }
-    var rowOffset = state.cursor.get("row") * 15.0;
+    var rowOffset = (state.cursor.get("row") * 15.0) + ((song.song.patterns[state.cursor.get('pattern')].numrows - this.topPadding) * 15.0);
 
     this.timeline.scrollTop = rowOffset;
     this.events.scrollTop = rowOffset;
 
-    $('tr.pattern-cursor-row').removeClass('pattern-cursor-row');
+    $('#trackview').find('tr.pattern-cursor-row').removeClass('pattern-cursor-row');
     $('.event-cursor').removeClass('event-cursor');
 
-    this.timelineRows.eq(state.cursor.get("row") + 1).addClass('pattern-cursor-row');
-    this.patternRows.eq(state.cursor.get("row") + 1).addClass('pattern-cursor-row');
+    //this.timelineRows.eq(state.cursor.get("row")).addClass('pattern-cursor-row');
+    //this.patternRows.eq(state.cursor.get("row")).addClass('pattern-cursor-row');
 
-    var itemCursor = this.patternRows.eq(state.cursor.get("row") + 1).find(`.line:eq(${state.cursor.get("track")}) .note-column:eq(${state.cursor.get("column")}) .item:eq(${state.cursor.get("item")})`);
+    var itemCursor = this.patternRows.eq(state.cursor.get("row")).find(`.line:eq(${state.cursor.get("track")}) .note-column:eq(${state.cursor.get("column")}) .item:eq(${state.cursor.get("item")})`);
     itemCursor.addClass('event-cursor');
 
     /* If the cursor has moved to a different track, column or item,
@@ -209,7 +210,7 @@ export default class PatternEditor {
           const display_notecol = display_track.columns[notecoli];
           const curr_notecol = curr_track.notedata[song.song.tracks[tracki].columns[notecoli].id];
           // If there is data in the new pattern, check if we need to render it.
-          if(curr_notecol) {
+          if(curr_notecol && display_notecol && display_notecol.eventdata) {
             const diff = (curr_notecol.note !== display_notecol.eventdata.note) ||
                          (curr_notecol.instrument !== display_notecol.eventdata.instrument) ||
                          (curr_notecol.volume !== display_notecol.eventdata.volume) ||
