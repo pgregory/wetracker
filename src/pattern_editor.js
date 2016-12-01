@@ -38,7 +38,6 @@ export default class PatternEditor {
   render(target) {
     try {
       $(target).html(patternEditorMarko.renderToString({ song: song.song, cursor: state.cursor.toJS() }));
-      this.anotherPattern = $(patternEditorMarko.renderToString({song: song.song, cursor: state.cursor.toJS() }));
     } catch(e) {
       console.log(e);
     }
@@ -47,29 +46,30 @@ export default class PatternEditor {
 
     this.row_cache = [];
     $("#trackview .row").each( (i,v) => {
-      var row = {};
+      var row = [];
       $(v).find('td.trackrow').each( (i2, t) => {
         var trackid = $(t).data('trackid');
-        var track = { 
-          columns: {
-          },
+        var track = {
+          id: trackid,
+          columns: []
         };
         $(t).find('.line .note-column').each( (i3,n) => {
           var notecolid = $(n).data('columnid');
-          track.columns[notecolid] = {
+          track.columns.push({
+            id: notecolid,
             note: $(n).find('.item.note'),
             instrument: $(n).find('.item.instrument'),
             volume: $(n).find('.item.volume'),
             panning: $(n).find('.item.panning'),
             delay: $(n).find('.item.delay'),
             fx: $(n).find('.item.fx'),
-          };
+          });
         });
-        row[trackid] = track;
+        row.push(track);
       });
       this.row_cache.push(row);
     });
-    //this.redrawAllRows();
+    this.redrawAllRows();
 
     $('.sideTable').width($('#trackview').width());
     $('.leftSideTable').width($('#trackview').width());
@@ -142,41 +142,41 @@ export default class PatternEditor {
   updateCursor(timestamp) {
     if(state.cursor.get('pattern') !== this.lastCursor.pattern) {
       this.redrawAllRows();
+      //$(this.target).empty();
       //this.render(this.target);
-    } else {
-      var rowOffset = state.cursor.get("row") * 15.0;
+    }
+    var rowOffset = state.cursor.get("row") * 15.0;
 
-      this.timeline.scrollTop = rowOffset;
-      this.events.scrollTop = rowOffset;
+    this.timeline.scrollTop = rowOffset;
+    this.events.scrollTop = rowOffset;
 
-      $('tr.pattern-cursor-row').removeClass('pattern-cursor-row');
-      $('.event-cursor').removeClass('event-cursor');
+    $('tr.pattern-cursor-row').removeClass('pattern-cursor-row');
+    $('.event-cursor').removeClass('event-cursor');
 
-      this.timelineRows.eq(state.cursor.get("row") + 1).addClass('pattern-cursor-row');
-      this.patternRows.eq(state.cursor.get("row") + 1).addClass('pattern-cursor-row');
+    this.timelineRows.eq(state.cursor.get("row") + 1).addClass('pattern-cursor-row');
+    this.patternRows.eq(state.cursor.get("row") + 1).addClass('pattern-cursor-row');
 
-      var itemCursor = this.patternRows.eq(state.cursor.get("row") + 1).find(`.line:eq(${state.cursor.get("track")}) .note-column:eq(${state.cursor.get("column")}) .item:eq(${state.cursor.get("item")})`);
-      itemCursor.addClass('event-cursor');
+    var itemCursor = this.patternRows.eq(state.cursor.get("row") + 1).find(`.line:eq(${state.cursor.get("track")}) .note-column:eq(${state.cursor.get("column")}) .item:eq(${state.cursor.get("item")})`);
+    itemCursor.addClass('event-cursor');
 
-      /* If the cursor has moved to a different track, column or item,
-       * check if it's still visible and scroll into view if not.
-       */
-      if ((this.lastCursor.item !== state.cursor.get("item")) ||
-          (this.lastCursor.track !== state.cursor.get("track")) ||
-          (this.lastCursor.column !== state.cursor.get("column"))) {
-        const item = itemCursor[0].parentElement;
-        let offsetParent = item.offsetParent;
-        let offset = item.offsetLeft;
-        while (!(offsetParent.parentElement.classList.contains('sideTable'))) {
-          offset += offsetParent.offsetLeft;
-          offsetParent = offsetParent.offsetParent;
-        }
+    /* If the cursor has moved to a different track, column or item,
+     * check if it's still visible and scroll into view if not.
+     */
+    if ((this.lastCursor.item !== state.cursor.get("item")) ||
+        (this.lastCursor.track !== state.cursor.get("track")) ||
+        (this.lastCursor.column !== state.cursor.get("column"))) {
+      const item = itemCursor[0].parentElement;
+      let offsetParent = item.offsetParent;
+      let offset = item.offsetLeft;
+      while (!(offsetParent.parentElement.classList.contains('sideTable'))) {
+        offset += offsetParent.offsetLeft;
+        offsetParent = offsetParent.offsetParent;
+      }
 
-        if (((offset + item.clientWidth) - this.xscroll.scrollLeft) > this.events.parentElement.clientWidth) {
-          this.scrollHorizTo(this.xscroll, ((offset + item.clientWidth) - this.events.parentElement.clientWidth) + 6, 100);
-        } else if (offset < this.xscroll.scrollLeft) {
-          this.scrollHorizTo(this.xscroll, offset - 6, 100);
-        }
+      if (((offset + item.clientWidth) - this.xscroll.scrollLeft) > this.events.parentElement.clientWidth) {
+        this.scrollHorizTo(this.xscroll, ((offset + item.clientWidth) - this.events.parentElement.clientWidth) + 6, 100);
+      } else if (offset < this.xscroll.scrollLeft) {
+        this.scrollHorizTo(this.xscroll, offset - 6, 100);
       }
     }
     this.lastCursor = state.cursor.toJS();
@@ -187,18 +187,16 @@ export default class PatternEditor {
   }
 
   redrawAllRows() {
-    for(var rowi in this.row_cache) {
-      var row = this.row_cache[rowi];
-      for(var trackid in row) {
-        var track = row[trackid];
-        for(var notecolid in track.columns) {
-          var notecol = track.columns[notecolid];
-          notecol.note.text('...');
-          notecol.instrument.text('~~');
-          notecol.volume.text('^^');
-          notecol.panning.text('<>');
-          notecol.delay.text(',,');
-          notecol.fx.text('****');
+    for(var rowi = 0, rowe = this.row_cache.length; rowi < rowe; rowi += 1) {
+      for(var tracki = 0, tracke = this.row_cache[rowi].length; tracki < tracke; tracki += 1) {
+        for(var notecoli = 0, notecole = this.row_cache[rowi][tracki].columns.length; notecoli < notecole; notecoli += 1) {
+          const notecol = this.row_cache[rowi][tracki].columns[notecoli];
+          notecol.note[0].innerHTML = '...';
+          notecol.instrument[0].innerHTML = '~~';
+          notecol.volume[0].innerHTML = '^^';
+          notecol.panning[0].innerHTML = '<>';
+          notecol.delay[0].innerHTML = ',,';
+          notecol.fx[0].innerHTML = '****';
         }
       }
     }

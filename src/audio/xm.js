@@ -198,7 +198,7 @@ export default class XMPlayer {
           state.set({
             cursor: {
               row: e.row,
-              pattern: `p${player.cur_pat}`,
+              pattern: `p${e.pat}`,
             }
           });
           this.shown_row = e.row;
