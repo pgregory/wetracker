@@ -1,0 +1,24 @@
+.monitors {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.monitors .monitors-row {
+  display: flex;
+  flex-direction: row;
+  flex-grow: 1;
+  font-size: 0.75em;
+  font-family: monospace;
+  text-transform: uppercase;
+}
+
+.monitors .monitor {
+  border: 1px solid white;
+  flex: 1;
+}
+
+
+.monitors .blank {
+  flex: 1;
+}
