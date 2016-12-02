@@ -5,7 +5,7 @@ import 'gridstack';
 import 'gridstack/dist/gridstack.css';
 import 'font-awesome-webpack';
 
-import PatternEditor from './pattern_editor';
+import PatternEditorCanvas from './components/pattern_editor/pattern_editor_canvas';
 import Monitors from './components/monitors/monitors';
 import gridTemplate from './templates/grid.marko';
 import transportTemplate from './components/transport/templates/transport.dot';
@@ -53,10 +53,7 @@ $(transport()).appendTo($('#transport'));
 
 $('#container').append($(gridTemplate.renderSync()));
 
-const PE = new PatternEditor();
-/*window.requestAnimationFrame(() => {
-  PE.render($('#pattern-editor'));
-});*/
+//const PE = new PatternEditorCanvas($('#gfxpattern'));
 
 var options = {
     cellHeight: 40,
@@ -67,8 +64,8 @@ var options = {
     alwaysShowResizeHandle: true,
 };
 $('.grid-stack').gridstack(options).on('resizestop', function(event, ui) {
-  $('#pattern-editor').empty();
-  PE.render($('#pattern-editor'));
+  //$('#pattern-editor').empty();
+  //PE.render($('#pattern-editor'));
 }).on('change', function(event, items) {
   console.log("Changed");
 });
@@ -90,9 +87,16 @@ function downloadXM(uri, player) {
     const monitors = new Monitors();
     window.requestAnimationFrame(() => {
       monitors.render($('#monitors'));
-      document.getElementById('gfxpattern').height = $("#pattern-editor").height();
-      var trackview = new XMView(player);
-      player.setView(trackview);
+      var h = $("#pattern-editor").height();
+      h = Math.floor(h/12.0);
+      if(h%2 === 0) h -= 1;
+      h *= 12.0;
+      console.log(h);
+      var canvas = document.getElementById('gfxpattern');
+      canvas.height = h;
+      const PE = new PatternEditorCanvas(canvas);
+      //var trackview = new XMView(player);
+      //player.setView(trackview);
     });
 
   };

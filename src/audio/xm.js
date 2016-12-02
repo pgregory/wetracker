@@ -175,7 +175,8 @@ export default class XMPlayer {
 
     this.XMView = {
       audio_events: [],
-      shown_row: 0,
+      shown_row: undefined,
+      shown_pat: undefined,
       pushEvent: function(player, e) {
         this.audio_events.push(e);
         if(this.audio_events.length == 1) {
@@ -194,7 +195,9 @@ export default class XMPlayer {
           }
           return;
         }
-        if(e.row !== this.shown_row) {
+        if(e.row !== this.shown_row ||
+           e.pat !== this.shown_pat) {
+          console.log(e.pat);
           state.set({
             cursor: {
               row: e.row,
@@ -202,6 +205,7 @@ export default class XMPlayer {
             }
           });
           this.shown_row = e.row;
+          this.shown_pat = e.pat;
         }
         if(player.playing) {
           window.requestAnimationFrame(() => this.redrawScreen.bind(this)(player));
@@ -861,17 +865,17 @@ export default class XMPlayer {
         channelinfo,
       });
     }
-    console.log("header len " + hlen);
+    //console.log("header len " + hlen);
 
-    console.log("songlen %d, %d channels, %d patterns, %d instruments", songlen, this.xm.nchan, npat, ninst);
-    console.log("loop @%d", this.xm.song_looppos);
-    console.log("flags=%d tempo %d bpm %d", this.xm.flags, this.xm.tempo, this.xm.bpm);
+    //console.log("songlen %d, %d channels, %d patterns, %d instruments", songlen, this.xm.nchan, npat, ninst);
+    //console.log("loop @%d", this.xm.song_looppos);
+    //console.log("flags=%d tempo %d bpm %d", this.xm.flags, this.xm.tempo, this.xm.bpm);
 
     this.xm.songpats = [];
     for (i = 0; i < songlen; i++) {
       this.xm.songpats.push(dv.getUint8(0x50 + i));
     }
-    console.log("song patterns: ", this.xm.songpats);
+    //console.log("song patterns: ", this.xm.songpats);
 
     var idx = hlen;
     this.xm.patterns = [];
@@ -880,7 +884,7 @@ export default class XMPlayer {
       var patheaderlen = dv.getUint32(idx, true);
       var patrows = dv.getUint16(idx + 5, true);
       var patsize = dv.getUint16(idx + 7, true);
-      console.log("pattern %d: %d bytes, %d rows", i, patsize, patrows);
+      //console.log("pattern %d: %d bytes, %d rows", i, patsize, patrows);
       idx += 9;
 
       song.song.patterns[`p${i}`] = {
@@ -973,8 +977,8 @@ export default class XMPlayer {
         // FIXME: ignoring keymaps for now and assuming 1 sample / instrument
         // var keymap = getarray(dv, idx+0x21);
         var samphdrsiz = dv.getUint32(idx+0x1d, true);
-        console.log("hdrsiz %d; instrument %s: '%s' %d samples, samphdrsiz %d",
-            hdrsiz, (i+1).toString(16), instname, nsamp, samphdrsiz);
+        //console.log("hdrsiz %d; instrument %s: '%s' %d samples, samphdrsiz %d",
+        //    hdrsiz, (i+1).toString(16), instname, nsamp, samphdrsiz);
         idx += hdrsiz;
         var totalsamples = 0;
         var samps = [];
@@ -992,15 +996,15 @@ export default class XMPlayer {
           if (samplooplen === 0) {
             samptype &= ~3;
           }
-          console.log("sample %d: len %d name '%s' loop %d/%d vol %d offset %s",
-              j, samplen, sampname, samploop, samplooplen, sampvol, sampleoffset.toString(16));
-          console.log("           type %d note %s(%d) finetune %d pan %d",
-              samptype, this.prettify_note(sampnote + 12*4), sampnote, sampfinetune, samppan);
-          console.log("           vol env", env_vol, env_vol_sustain,
-              env_vol_loop_start, env_vol_loop_end, "type", env_vol_type,
-              "fadeout", vol_fadeout);
-          console.log("           pan env", env_pan, env_pan_sustain,
-              env_pan_loop_start, env_pan_loop_end, "type", env_pan_type);
+          //console.log("sample %d: len %d name '%s' loop %d/%d vol %d offset %s",
+              //j, samplen, sampname, samploop, samplooplen, sampvol, sampleoffset.toString(16));
+          //console.log("           type %d note %s(%d) finetune %d pan %d",
+              //samptype, this.prettify_note(sampnote + 12*4), sampnote, sampfinetune, samppan);
+          //console.log("           vol env", env_vol, env_vol_sustain,
+              //env_vol_loop_start, env_vol_loop_end, "type", env_vol_type,
+              //"fadeout", vol_fadeout);
+          //console.log("           pan env", env_pan, env_pan_sustain,
+              //env_pan_loop_start, env_pan_loop_end, "type", env_pan_type);
           var samp = {
             'len': samplen, 'loop': samploop,
             'looplen': samplooplen, 'note': sampnote, 'fine': sampfinetune,
@@ -1067,14 +1071,14 @@ export default class XMPlayer {
         }
       } else {
         idx += hdrsiz;
-        console.log("empty instrument", i, hdrsiz, idx);
+        //console.log("empty instrument", i, hdrsiz, idx);
       }
       this.xm.instruments.push(inst);
     }
 
     this.nextRow();
 
-    console.log("loaded \"" + this.xm.songname + "\"");
+    //console.log("loaded \"" + this.xm.songname + "\"");
     return true;
   }
 

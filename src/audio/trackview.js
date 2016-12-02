@@ -188,7 +188,7 @@ export default class XMView {
     canv.height = pattern.length * rh;
     var ctx = canv.getContext('2d');
     ctx.imageSmoothingEnabled = false;
-    ctx.fillcolor='#000';
+    ctx.fillStyle='#000';
     ctx.fillRect(0, 0, canv.width, canv.height);
     for (var j = 0; j < pattern.length; j++) {
       var row = pattern[j];
@@ -297,7 +297,7 @@ export default class XMView {
 
         // volume in dB as a green bar
         var vu_y = -Math.log(VU[j])*10;
-        ctx.fillRect(x, vu_y, 2, canvas.height-vu_y);
+        ctx.fillRect(10, vu_y, 5, canvas.height-vu_y);
 
         var scale = canvas.width/this._scope_width;
 
