@@ -197,7 +197,6 @@ export default class XMPlayer {
         }
         if(e.row !== this.shown_row ||
            e.pat !== this.shown_pat) {
-          console.log(e.pat);
           state.set({
             cursor: {
               row: e.row,
