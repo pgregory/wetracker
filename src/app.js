@@ -19,6 +19,8 @@ import { song } from './utils/songmanager';
 import { state } from './state';
 import { cursor } from './utils/cursor';
 
+import styles from './styles.css';
+
 $(document).keydown((event) => {
   switch (event.key) {
     case "ArrowUp": {
