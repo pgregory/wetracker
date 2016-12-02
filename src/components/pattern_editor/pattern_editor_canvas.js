@@ -157,6 +157,84 @@ export default class PatternEditorCanvas {
     }
   };
 
+  eventPositionInPatternCanvas(cursor) {
+    var cx = this._event_left_margin + (cursor.track * this._pattern_cellwidth);
+    var cy = cursor.row * this._pattern_row_height + ((this._pattern_row_height - 8)/2);
+    return {
+      cx,
+      cy,
+    };
+  }
+
+  renderEvent(ctx, col, dx, dy) {
+    var cw = this._pattern_character_width;
+    var rh = this._pattern_row_height;
+    if ((!col.note || note === -1) &&
+        (!col.instrument || col.instrument === -1) &&
+        (!col.volume || col.volume < 0x10) &&
+        (!col.fxtype || col.fxtype === 0) &&
+        (!col.fxparam || col.fxparam === 0)) {
+      ctx.drawImage(this.empty_event_canvas, dx, dy);
+    } else {
+      // render note
+      var note = col.note;
+      if (note == null || note === -1) {
+        // no note = ...
+        ctx.drawImage(this.fontimg, 8*39, 0, 8, 8, dx, dy, this._pattern_note_width, 8);
+      } else {
+        var notechars = this._note_names[note%12];
+        var octavechar = ~~(note/12) * 8;
+        ctx.drawImage(this.fontimg, notechars[0], 0, 8, 8, dx, dy, 8, 8);
+        ctx.drawImage(this.fontimg, notechars[1], 0, 8, 8, dx + cw, dy, 8, 8);
+        ctx.drawImage(this.fontimg, octavechar, 0, 8, 8, dx + (cw*2), dy, 8, 8);
+      }
+      dx += this._pattern_note_width + this._element_spacing;
+
+      // render instrument
+      var inst = col.instrument;
+      if (inst && inst != -1) {  // no instrument = render nothing
+        ctx.drawImage(this.fontimg, 8*(inst>>4), 0, 8, 8, dx, dy, 8, 8);
+        ctx.drawImage(this.fontimg, 8*(inst&15), 0, 8, 8, dx+cw, dy, 8, 8);
+      }
+      dx += this._pattern_inst_width + this._element_spacing;
+
+      // render volume
+      var vol = col.volume;
+      if (vol == null || vol < 0x10) {
+        // no volume = ..
+        ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx, dy, cw, 8);
+        ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx+cw, dy, cw, 8);
+      } else {
+        ctx.drawImage(this.fontimg, 8*(vol>>4), 0, 8, 8, dx, dy, cw, 8);
+        ctx.drawImage(this.fontimg, 8*(vol&15), 0, 8, 8, dx+cw, dy, cw, 8);
+      }
+      dx += this._pattern_volu_width + this._element_spacing;
+
+      // render effect
+      var eff = col.fxtype;
+      var effdata = col.fxparam;
+      if ((eff && eff !== 0) || (effdata && effdata !== 0)) {
+        // draw effect with tiny font (4px space + effect type 0..9a..z)
+        if (eff > 15) {
+          ctx.drawImage(this.fontimg, 8*(eff>>4), 0, 8, 8, dx, dy, cw, 8);
+        } else {
+          ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx, dy, cw, 8);
+        }
+        ctx.drawImage(this.fontimg, 8*(eff&15), 0, 8, 8, dx+cw, dy, cw, 8);
+        dx += cw*2+2;
+        // (hexadecimal 4-width font)
+        ctx.drawImage(this.fontimg, 8*(effdata>>4), 0, 8, 8, dx, dy, cw, 8);
+        ctx.drawImage(this.fontimg, 8*(effdata&15), 0, 8, 8, dx+cw, dy, cw, 8);
+      } else {
+        // no effect = ...
+        ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx, dy, cw, 8);
+        ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx+cw, dy, cw, 8);
+        ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx+cw+cw+2, dy, cw, 8);
+        ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx+cw+cw+2+cw, dy, cw, 8);
+      }
+    }
+  }
+
   renderPattern(patternid) {
     var cw = this._pattern_character_width;
     var rh = this._pattern_row_height;
@@ -188,71 +266,7 @@ export default class PatternEditorCanvas {
             var col = track.notedata[colinfo.id];
             if (col) {
               var dx = (displayColumn*cellwidth) + this._event_left_margin;
-
-              if ((!col.note || note === -1) &&
-                  (!col.instrument || col.instrument === -1) &&
-                  (!col.volume || col.volume < 0x10) &&
-                  (!col.fxtype || col.fxtype === 0) &&
-                  (!col.fxparam || col.fxparam === 0)) {
-                ctx.drawImage(this.empty_event_canvas, dx, dy);
-              } else {
-                // render note
-                var note = col.note;
-                if (!note || note === -1) {
-                  // no note = ...
-                  ctx.drawImage(this.fontimg, 8*39, 0, 8, 8, dx, dy, this._pattern_note_width, 8);
-                } else {
-                  var notechars = this._note_names[note%12];
-                  var octavechar = ~~(note/12) * 8;
-                  ctx.drawImage(this.fontimg, notechars[0], 0, 8, 8, dx, dy, 8, 8);
-                  ctx.drawImage(this.fontimg, notechars[1], 0, 8, 8, dx + cw, dy, 8, 8);
-                  ctx.drawImage(this.fontimg, octavechar, 0, 8, 8, dx + (cw*2), dy, 8, 8);
-                }
-                dx += this._pattern_note_width + this._element_spacing;
-
-                // render instrument
-                var inst = col.instrument;
-                if (inst && inst != -1) {  // no instrument = render nothing
-                  ctx.drawImage(this.fontimg, 8*(inst>>4), 0, 8, 8, dx, dy, 8, 8);
-                  ctx.drawImage(this.fontimg, 8*(inst&15), 0, 8, 8, dx+cw, dy, 8, 8);
-                }
-                dx += this._pattern_inst_width + this._element_spacing;
-
-                // render volume
-                var vol = col.volumne;
-                if (!vol || vol < 0x10) {
-                  // no volume = ..
-                  ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx, dy, cw, 8);
-                  ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx+cw, dy, cw, 8);
-                } else {
-                  ctx.drawImage(this.fontimg, 8*(vol>>4), 0, 8, 8, dx, dy, cw, 8);
-                  ctx.drawImage(this.fontimg, 8*(vol&15), 0, 8, 8, dx+cw, dy, cw, 8);
-                }
-                dx += this._pattern_volu_width + this._element_spacing;
-
-                // render effect
-                var eff = col.fxtype;
-                var effdata = col.fxparam;
-                if ((eff && eff !== 0) || (effdata && effdata !== 0)) {
-                  // draw effect with tiny font (4px space + effect type 0..9a..z)
-                  if (eff > 15) {
-                    ctx.drawImage(this.fontimg, 8*(eff>>4), 0, 8, 8, dx, dy, cw, 8);
-                  } else {
-                    ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx, dy, cw, 8);
-                  }
-                  ctx.drawImage(this.fontimg, 8*(eff&15), 0, 8, 8, dx+cw, dy, cw, 8);
-                  dx += cw*2+2;
-                  // (hexadecimal 4-width font)
-                  ctx.drawImage(this.fontimg, 8*(effdata>>4), 0, 8, 8, dx, dy, cw, 8);
-                  ctx.drawImage(this.fontimg, 8*(effdata&15), 0, 8, 8, dx+cw, dy, cw, 8);
-                } else {
-                  // no effect = ...
-                  ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx, dy, cw, 8);
-                  ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx+cw, dy, cw, 8);
-                  ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx+cw+cw+2, dy, cw, 8);
-                  ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx+cw+cw+2+cw, dy, cw, 8);
-                }
-              }
+              this.renderEvent(ctx, col, dx, dy);
             } else {
               // Render empty column
             }
@@ -396,14 +410,14 @@ export default class PatternEditorCanvas {
     animateScroll();
   }
 
-  updateCursor(timestamp) {
-  }
-
   onCursorChanged(state) {
     window.requestAnimationFrame(this.render.bind(this));
   }
 
-  onEventChanged(cursor) {
+  onEventChanged(cursor, event) {
+    var pos = this.eventPositionInPatternCanvas(cursor);
+    var ctx = this.pat_canvas.getContext('2d');
+    this.renderEvent(ctx, event, pos.cx, pos.cy);
   }
 }
 

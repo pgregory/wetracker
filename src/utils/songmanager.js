@@ -46,7 +46,7 @@ export class SongManager {
     notecol['note'] = 0;
     notecol['volume'] = 0x40;
 
-    this.eventChanged(cursor);
+    this.eventChanged(cursor, notecol);
   }
 }
 
