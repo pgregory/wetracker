@@ -42,6 +42,28 @@ export default class PatternEditorCanvas {
     this._pattern_inst_width = this._pattern_character_width * 2;
     this._pattern_volu_width = this._pattern_character_width * 2;
     this._pattern_effe_width = (this._pattern_character_width * 4);
+    this._cursor_offsets = [
+      this._pattern_note_width + this._element_spacing,
+      this._pattern_character_width,
+      this._pattern_character_width + this._element_spacing,
+      this._pattern_character_width,
+      this._pattern_character_width + this._element_spacing,
+      this._pattern_character_width,
+      this._pattern_character_width + 2,
+      this._pattern_character_width,
+      this._pattern_character_width,
+    ];
+    this._cursor_sizes = [
+      this._pattern_note_width,
+      this._pattern_character_width,
+      this._pattern_character_width,
+      this._pattern_character_width,
+      this._pattern_character_width,
+      this._pattern_character_width,
+      this._pattern_character_width,
+      this._pattern_character_width,
+      this._pattern_character_width,
+    ];
     // N-O II VV EFF
     this._pattern_cellwidth = this._event_left_margin + 
                               (this._pattern_note_width + this._element_spacing) + 
@@ -66,6 +88,9 @@ export default class PatternEditorCanvas {
 
     this.audio_events;
     this.paused_events;
+    this.shown_row;
+    this.shown_track;
+    this.shown_column;
     this.shown_row;
     this.xoffset;
 
@@ -247,6 +272,9 @@ export default class PatternEditorCanvas {
     }
     if (state.cursor.get("row") !== this.shown_row || 
         state.cursor.get("pattern") !== this.pat_canvas_patnum ||
+        state.cursor.get("track") !== this.shown_track ||
+        state.cursor.get("column") !== this.shown_column ||
+        state.cursor.get("item") !== this.shown_item ||
         this.hscroll.scrollLeft() !== this.xoffset) {
       if (state.cursor.get("pattern") !== this.pat_canvas_patnum) {
         var p = song.song.patterns[state.cursor.get("pattern")];
@@ -305,12 +333,30 @@ export default class PatternEditorCanvas {
       ctx.fillRect(this.hscroll.scrollLeft(),0, this.timeline_canvas.width, this._pattern_header_height);
 
       // Draw the cursor row.
+      var cy = gfx.height/2 - (this._pattern_row_height/2);
       ctx.globalCompositeOperation = 'lighten';
       ctx.fillStyle = '#2a5684';
-      ctx.fillRect(0, gfx.height/2 - (this._pattern_row_height/2), gfx.width, this._pattern_row_height);
+      ctx.fillRect(0, cy, gfx.width, this._pattern_row_height);
+
+      // Draw the individual cursor
+      ctx.fillStyle = '#0F0';
+      ctx.globalCompositeOperation = 'darken';
+      var cx = this.timeline_canvas.width + this._timeline_right_margin + this._event_left_margin;
+      cx += state.cursor.get("track") * this._pattern_cellwidth;
+      for(var i = 0; i < state.cursor.get("item"); i += 1) {
+        cx += this._cursor_offsets[i];
+      }
+      ctx.fillRect(cx, cy, this._cursor_sizes[state.cursor.get("item")], this._pattern_row_height);
       ctx.globalCompositeOperation = 'source-over';
+      ctx.strokeStyle = '#0F0';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(cx-1, cy-1, this._cursor_sizes[state.cursor.get("item")]+2, this._pattern_row_height+2);
+
 
       this.shown_row = state.cursor.get("row");
+      this.shown_track = state.cursor.get("track");
+      this.shown_column = state.cursor.get("column");
+      this.shown_item = state.cursor.get("item");
       this.xoffset = this.hscroll.scrollLeft();
     }
   }

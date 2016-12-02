@@ -177,6 +177,7 @@ export default class XMPlayer {
       audio_events: [],
       shown_row: undefined,
       shown_pat: undefined,
+      _scope_width: 50,
       pushEvent: function(player, e) {
         this.audio_events.push(e);
         if(this.audio_events.length == 1) {
@@ -201,6 +202,11 @@ export default class XMPlayer {
             cursor: {
               row: e.row,
               pattern: `p${e.pat}`,
+            },
+            tracks: {
+              t: e.t,
+              vu: e.vu,
+              scopes: e.scopes,
             }
           });
           this.shown_row = e.row;
@@ -722,7 +728,6 @@ export default class XMPlayer {
           }
         }
 
-        //VU[j] = new Float32Array();
         VU[j] = this.MixChannelIntoBuf(
             song.song.tracks[j].channelinfo, offset, offset + tickduration, dataL, dataR) /
           tickduration;

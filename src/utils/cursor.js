@@ -4,11 +4,14 @@ import { song } from './songmanager';
 
 const items = [
   'note',
-  'instrument',
-  'volume',
-  'panning',
-  'delay',
-  'fx',
+  'instrument_h',
+  'instrument_l',
+  'volume_h',
+  'volume_l',
+  'fxtype_h',
+  'fxtype_l',
+  'fxparam_h',
+  'fxparam_l',
 ];
 
 export class CursorManager {
@@ -42,7 +45,7 @@ export class CursorManager {
     let column = state.cursor.get("column");
     item -= 1;
     if (item < 0 ) {
-      item = 5; 
+      item = items.length-1; 
       column -= 1;
       if (column < 0) {
         track -= 1;
