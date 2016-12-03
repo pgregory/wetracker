@@ -20,6 +20,86 @@ function easeInOutQuad(tc, b, c, d) {
   return ((-c / 2) * ((t * (t - 2)) - 1)) + b;
 }
 
+/* Generate tinted versions of the base bitmap font
+ * Code from http://www.playmycode.com/blog/2011/06/realtime-image-tinting-on-html5-canvas/
+ */
+function generateRGBKs( img ) {
+  var w = img.width;
+  var h = img.height;
+  var rgbks = [];
+
+  var canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+
+  var ctx = canvas.getContext("2d");
+  ctx.drawImage( img, 0, 0 );
+
+  var pixels = ctx.getImageData( 0, 0, w, h ).data;
+
+  // 4 is used to ask for 3 images: red, green, blue and
+  // black in that order.
+  for ( var rgbI = 0; rgbI < 4; rgbI++ ) {
+    var canvas = document.createElement("canvas");
+    canvas.width  = w;
+    canvas.height = h;
+
+    var ctx = canvas.getContext('2d');
+    ctx.drawImage( img, 0, 0 );
+    var to = ctx.getImageData( 0, 0, w, h );
+    var toData = to.data;
+
+    for (
+      var i = 0, len = pixels.length;
+        i < len;
+      i += 4
+    ) {
+      toData[i  ] = (rgbI === 0) ? pixels[i  ] : 0;
+      toData[i+1] = (rgbI === 1) ? pixels[i+1] : 0;
+      toData[i+2] = (rgbI === 2) ? pixels[i+2] : 0;
+      toData[i+3] =                pixels[i+3]    ;
+    }
+
+    ctx.putImageData( to, 0, 0 );
+
+    // image is _slightly_ faster then canvas for this, so convert
+    var imgComp = new Image();
+    imgComp.src = canvas.toDataURL();
+
+    rgbks.push( imgComp );
+  }
+
+  return rgbks;
+}
+
+function generateTintImage( img, rgbks, red, green, blue ) {
+  var buff = document.createElement( "canvas" );
+  buff.width  = img.width;
+  buff.height = img.height;
+
+  var ctx  = buff.getContext("2d");
+
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = 'copy';
+  ctx.drawImage( rgbks[3], 0, 0 );
+
+  ctx.globalCompositeOperation = 'lighter';
+  if ( red > 0 ) {
+    ctx.globalAlpha = red   / 255.0;
+    ctx.drawImage( rgbks[0], 0, 0 );
+  }
+  if ( green > 0 ) {
+    ctx.globalAlpha = green / 255.0;
+    ctx.drawImage( rgbks[1], 0, 0 );
+  }
+  if ( blue > 0 ) {
+    ctx.globalAlpha = blue  / 255.0;
+    ctx.drawImage( rgbks[2], 0, 0 );
+  }
+
+  return buff;
+}
+
 export default class PatternEditorCanvas {
   constructor(canvas) {
     this.yoff = 0;
@@ -117,6 +197,15 @@ export default class PatternEditorCanvas {
   imageLoaded() {
     this.fontloaded = true;
 
+    // Generate tinted version
+    var rgbks = generateRGBKs( this.fontimg );
+    this.noteFont = generateTintImage( this.fontimg, rgbks, 255, 255, 255 );
+    this.instrumentFont = generateTintImage( this.fontimg, rgbks, 255, 102, 102 );
+    this.volumeFont = generateTintImage( this.fontimg, rgbks, 102, 102, 102 );
+    this.panningFont = generateTintImage( this.fontimg, rgbks, 153, 102, 153 );
+    this.delayFont = generateTintImage( this.fontimg, rgbks, 153, 153, 102 );
+    this.fxFont = generateTintImage( this.fontimg, rgbks, 200, 200, 0 );
+
     var ctx = this.empty_event_canvas.getContext('2d');
     var dx = 0;
     var cw = this._pattern_character_width;
@@ -175,17 +264,17 @@ export default class PatternEditorCanvas {
       } else {
         var notechars = this._note_names[note%12];
         var octavechar = ~~(note/12) * 8;
-        ctx.drawImage(this.fontimg, notechars[0], 0, 8, 8, dx, dy, 8, 8);
-        ctx.drawImage(this.fontimg, notechars[1], 0, 8, 8, dx + cw, dy, 8, 8);
-        ctx.drawImage(this.fontimg, octavechar, 0, 8, 8, dx + (cw*2), dy, 8, 8);
+        ctx.drawImage(this.noteFont, notechars[0], 0, 8, 8, dx, dy, 8, 8);
+        ctx.drawImage(this.noteFont, notechars[1], 0, 8, 8, dx + cw, dy, 8, 8);
+        ctx.drawImage(this.noteFont, octavechar, 0, 8, 8, dx + (cw*2), dy, 8, 8);
       }
       dx += this._pattern_note_width + this._element_spacing;
 
       // render instrument
       var inst = col.instrument;
       if (inst && inst != -1) {  // no instrument = render nothing
-        ctx.drawImage(this.fontimg, 8*(inst>>4), 0, 8, 8, dx, dy, 8, 8);
-        ctx.drawImage(this.fontimg, 8*(inst&15), 0, 8, 8, dx+cw, dy, 8, 8);
+        ctx.drawImage(this.instrumentFont, 8*(inst>>4), 0, 8, 8, dx, dy, 8, 8);
+        ctx.drawImage(this.instrumentFont, 8*(inst&15), 0, 8, 8, dx+cw, dy, 8, 8);
       }
       dx += this._pattern_inst_width + this._element_spacing;
 
@@ -196,8 +285,8 @@ export default class PatternEditorCanvas {
         ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx, dy, cw, 8);
         ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx+cw, dy, cw, 8);
       } else {
-        ctx.drawImage(this.fontimg, 8*(vol>>4), 0, 8, 8, dx, dy, cw, 8);
-        ctx.drawImage(this.fontimg, 8*(vol&15), 0, 8, 8, dx+cw, dy, cw, 8);
+        ctx.drawImage(this.volumeFont, 8*(vol>>4), 0, 8, 8, dx, dy, cw, 8);
+        ctx.drawImage(this.volumeFont, 8*(vol&15), 0, 8, 8, dx+cw, dy, cw, 8);
       }
       dx += this._pattern_volu_width + this._element_spacing;
 
@@ -207,21 +296,21 @@ export default class PatternEditorCanvas {
       if ((eff && eff !== 0) || (effdata && effdata !== 0)) {
         // draw effect with tiny font (4px space + effect type 0..9a..z)
         if (eff > 15) {
-          ctx.drawImage(this.fontimg, 8*(eff>>4), 0, 8, 8, dx, dy, cw, 8);
+          ctx.drawImage(this.fxFont, 8*(eff>>4), 0, 8, 8, dx, dy, cw, 8);
         } else {
-          ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx, dy, cw, 8);
+          ctx.drawImage(this.fxFont, 312, 0, 8, 8, dx, dy, cw, 8);
         }
-        ctx.drawImage(this.fontimg, 8*(eff&15), 0, 8, 8, dx+cw, dy, cw, 8);
+        ctx.drawImage(this.fxFont, 8*(eff&15), 0, 8, 8, dx+cw, dy, cw, 8);
         dx += cw*2+2;
         // (hexadecimal 4-width font)
-        ctx.drawImage(this.fontimg, 8*(effdata>>4), 0, 8, 8, dx, dy, cw, 8);
-        ctx.drawImage(this.fontimg, 8*(effdata&15), 0, 8, 8, dx+cw, dy, cw, 8);
+        ctx.drawImage(this.fxFont, 8*(effdata>>4), 0, 8, 8, dx, dy, cw, 8);
+        ctx.drawImage(this.fxFont, 8*(effdata&15), 0, 8, 8, dx+cw, dy, cw, 8);
       } else {
         // no effect = ...
-        ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx, dy, cw, 8);
-        ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx+cw, dy, cw, 8);
-        ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx+cw+cw+2, dy, cw, 8);
-        ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx+cw+cw+2+cw, dy, cw, 8);
+        ctx.drawImage(this.fxFont, 312, 0, 8, 8, dx, dy, cw, 8);
+        ctx.drawImage(this.fxFont, 312, 0, 8, 8, dx+cw, dy, cw, 8);
+        ctx.drawImage(this.fxFont, 312, 0, 8, 8, dx+cw+cw+2, dy, cw, 8);
+        ctx.drawImage(this.fxFont, 312, 0, 8, 8, dx+cw+cw+2+cw, dy, cw, 8);
       }
     }
   }
