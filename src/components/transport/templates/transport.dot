@@ -1,4 +1,5 @@
 <div class="transport">
+  <div class="item"><button id="new" class="fa fa-file-text-o"></button></div>
   <div class="item"><button class="fa fa-floppy-o"></button></div>
   <div class="item"><button class="fa fa-file-o"></button></div>
   <div class="item"><button id="play" class="fa fa-play"></button></div>
