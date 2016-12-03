@@ -83,14 +83,7 @@ export default class PatternEditorCanvas {
     this.fontimg.src = fontimage;
 
     this._fontmap_notes = [8*5, 8*22, 8*28];
-    this.pat_canvas_patnum;
 
-    this.audio_events;
-    this.paused_events;
-    this.shown_row;
-    this.shown_track;
-    this.shown_column;
-    this.shown_row;
     this.xoffset;
 
     // canvas to render patterns onto
@@ -257,22 +250,24 @@ export default class PatternEditorCanvas {
 
       for (var tracki = 0; tracki < song.song.tracks.length; tracki += 1) {
         var trackinfo = song.song.tracks[tracki];
-        var track = row[trackinfo.id];
+        var track = row ? row[trackinfo.id] : undefined;
         for (var coli = 0; coli < trackinfo.columns.length; coli += 1) {
           var colinfo = trackinfo.columns[coli];
+          var dx = (displayColumn*cellwidth) + this._event_left_margin;
           if (track) {
             var col = track.notedata[colinfo.id];
             if (col) {
-              var dx = (displayColumn*cellwidth) + this._event_left_margin;
               this.renderEvent(ctx, col, dx, dy);
             } else {
-              // Render empty column
+              // Render empty event
+              this.renderEvent(ctx, {}, dx, dy);
             }
           } else {
-            // Render empty track
+            // Render empty event
+            this.renderEvent(ctx, {}, dx, dy);
           }
+          displayColumn += 1;
         }
-        displayColumn += 1;
       }
     }
   }
@@ -282,17 +277,16 @@ export default class PatternEditorCanvas {
       window.requestAnimationFrame(() => this.render() );
       return;
     }
-    if (state.cursor.get("row") !== this.shown_row || 
-        state.cursor.get("pattern") !== this.pat_canvas_patnum ||
-        state.cursor.get("track") !== this.shown_track ||
-        state.cursor.get("column") !== this.shown_column ||
-        state.cursor.get("item") !== this.shown_item ||
+    if (state.cursor.get("row") !== this.lastCursor.row || 
+        state.cursor.get("pattern") !== this.lastCursor.pattern ||
+        state.cursor.get("track") !== this.lastCursor.track ||
+        state.cursor.get("column") !== this.lastCursor.column ||
+        state.cursor.get("item") !== this.lastCursor.item ||
         this.hscroll.scrollLeft() !== this.xoffset) {
-      if (state.cursor.get("pattern") !== this.pat_canvas_patnum) {
+      if (state.cursor.get("pattern") !== this.lastCursor.pattern) {
         var p = song.song.patterns[state.cursor.get("pattern")];
         if (p) {
           this.renderPattern(state.cursor.get("pattern"));
-          this.pat_canvas_patnum = state.cursor.get("pattern");
         }
       }
 
@@ -364,11 +358,7 @@ export default class PatternEditorCanvas {
       ctx.lineWidth = 1;
       ctx.strokeRect(cx-1, cy-1, this._cursor_sizes[state.cursor.get("item")]+2, this._pattern_row_height+2);
 
-
-      this.shown_row = state.cursor.get("row");
-      this.shown_track = state.cursor.get("track");
-      this.shown_column = state.cursor.get("column");
-      this.shown_item = state.cursor.get("item");
+      this.lastCursor = state.cursor.toJS();
       this.xoffset = this.hscroll.scrollLeft();
     }
   }
@@ -393,22 +383,38 @@ export default class PatternEditorCanvas {
 
   /* eslint no-param-reassign: ["error", { "props": false }]*/
   scrollHorizTo(element, to, duration) {
-    const start = element.scrollLeft;
+    const start = element.scrollLeft();
     const change = to - start;
     let currentTime = 0;
     const increment = 20;
 
     function animateScroll() {
       currentTime += increment;
-      element.scrollLeft = easeInOutQuad(currentTime, start, change, duration);
+      element.scrollLeft(easeInOutQuad(currentTime, start, change, duration));
+      this.render();
       if (currentTime < duration) {
-        setTimeout(animateScroll, increment);
+        setTimeout(animateScroll.bind(this), increment);
       }
     }
-    animateScroll();
+    animateScroll.bind(this)();
   }
 
   onCursorChanged(state) {
+    /* If the cursor has moved to a different track, column or item,
+     * check if it's still visible and scroll into view if not.
+     */
+    if ((this.lastCursor.item !== state.cursor.get("item")) ||
+        (this.lastCursor.track !== state.cursor.get("track")) ||
+        (this.lastCursor.column !== state.cursor.get("column"))) {
+      var pos = this.eventPositionInPatternCanvas(state.cursor.toJS());
+      var maxpos = this.hscroll.width() - this.timeline_canvas.width + this._timeline_right_margin;
+      var minpos = this.timeline_canvas.width + this._timeline_right_margin;
+      if(((pos.cx + this._pattern_cellwidth) - this.hscroll.scrollLeft()) > maxpos) {
+       this.scrollHorizTo(this.hscroll, ((pos.cx + this._pattern_cellwidth) - maxpos) + 8, 100); 
+      } else if((pos.cx - this.hscroll.scrollLeft()) < minpos) {
+        this.scrollHorizTo(this.hscroll, pos.cx - 6, 100);
+      }
+    }
     window.requestAnimationFrame(this.render.bind(this));
   }
 
