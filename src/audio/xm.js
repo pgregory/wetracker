@@ -201,6 +201,7 @@ export default class XMPlayer {
             cursor: {
               row: e.row,
               pattern: e.pat,
+              sequence: e.songpos,
             },
             tracks: {
               t: e.t,

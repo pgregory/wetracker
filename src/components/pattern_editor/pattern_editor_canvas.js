@@ -226,7 +226,7 @@ export default class PatternEditorCanvas {
     }
   }
 
-  renderPattern(patternid) {
+  renderPattern(pattern) {
     var cw = this._pattern_character_width;
     var rh = this._pattern_row_height;
 
@@ -237,8 +237,6 @@ export default class PatternEditorCanvas {
     ctx.imageSmoothingEnabled = false;
     ctx.fillStyle='#000';
     ctx.fillRect(0, 0, this.pat_canvas.width, this.pat_canvas.height);
-
-    var pattern = song.song.patterns[patternid];
 
     this.pat_canvas.width = song.song.tracks.length * cellwidth;
     this.pat_canvas.height = pattern.numrows * rh;
@@ -278,15 +276,15 @@ export default class PatternEditorCanvas {
       return;
     }
     if (state.cursor.get("row") !== this.lastCursor.row || 
-        state.cursor.get("pattern") !== this.lastCursor.pattern ||
+        state.cursor.get("sequence") !== this.lastCursor.sequence ||
         state.cursor.get("track") !== this.lastCursor.track ||
         state.cursor.get("column") !== this.lastCursor.column ||
         state.cursor.get("item") !== this.lastCursor.item ||
         this.hscroll.scrollLeft() !== this.xoffset) {
-      if (state.cursor.get("pattern") !== this.lastCursor.pattern) {
-        var p = song.song.patterns[state.cursor.get("pattern")];
+      if (state.cursor.get("sequence") !== this.lastCursor.sequence) {
+        var p = song.song.patterns[song.song.sequence[state.cursor.get("sequence")].pattern];
         if (p) {
-          this.renderPattern(state.cursor.get("pattern"));
+          this.renderPattern(p);
         }
       }
 
@@ -332,7 +330,7 @@ export default class PatternEditorCanvas {
 
       // Draw the timline fixed to the left of the view.
       var tlw = this.timeline_canvas.width;
-      var tlh = this._pattern_row_height * song.song.patterns[state.cursor.get("pattern")].numrows;
+      var tlh = this._pattern_row_height * song.song.patterns[song.song.sequence[state.cursor.get("sequence")].pattern].numrows;
       ctx.fillStyle = '#000';
       ctx.fillRect(this.hscroll.scrollLeft(),0, this.timeline_canvas.width, gfx.height);
       ctx.drawImage(this.timeline_canvas, 0, 0, tlw, tlh, this.hscroll.scrollLeft(), gfx.height / 2 - (this._pattern_row_height/2) - this._pattern_row_height*(state.cursor.get("row")), tlw, tlh);

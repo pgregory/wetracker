@@ -7,6 +7,7 @@ import 'font-awesome-webpack';
 
 import PatternEditorCanvas from './components/pattern_editor/pattern_editor_canvas';
 import Monitors from './components/monitors/monitors';
+import SequenceEditor from './components/sequence_editor/sequence_editor';
 import gridTemplate from './templates/grid.marko';
 import transportTemplate from './components/transport/templates/transport.dot';
 import './components/transport/styles.css';
@@ -86,19 +87,18 @@ function downloadXM(uri, player) {
     } else {
       console.log("unable to load", uri);
     }
+    var canvas = document.getElementById('gfxpattern');
+    const PE = new PatternEditorCanvas(canvas);
     const monitors = new Monitors($('#monitors'));
+    const SE = new SequenceEditor($('#sequence-editor'));
     window.requestAnimationFrame(() => {
       monitors.render();
+      SE.render();
       var h = $("#pattern-editor").height();
       h = Math.floor(h/12.0);
       if(h%2 === 0) h -= 1;
       h *= 12.0;
-      console.log(h);
-      var canvas = document.getElementById('gfxpattern');
       canvas.height = h;
-      const PE = new PatternEditorCanvas(canvas);
-      //var trackview = new XMView(player);
-      //player.setView(trackview);
     });
 
   };
