@@ -160,11 +160,11 @@ export default class PatternEditorCanvas {
   renderEvent(ctx, col, dx, dy) {
     var cw = this._pattern_character_width;
     var rh = this._pattern_row_height;
-    if ((!col.note || note === -1) &&
-        (!col.instrument || col.instrument === -1) &&
-        (!col.volume || col.volume < 0x10) &&
-        (!col.fxtype || col.fxtype === 0) &&
-        (!col.fxparam || col.fxparam === 0)) {
+    if ((col.note == null || col.note === -1) &&
+        (col.instrument == null || col.instrument === -1) &&
+        (col.volume == null || col.volume < 0x10) &&
+        (col.fxtype == null || col.fxtype === 0) &&
+        (col.fxparam == null || col.fxparam === 0)) {
       ctx.drawImage(this.empty_event_canvas, dx, dy);
     } else {
       // render note
