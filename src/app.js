@@ -45,6 +45,10 @@ $(document).keydown((event) => {
       cursor.rowDown(4);
       break;
     }
+    case "t": {
+      PE.stressPatternRender(100);
+      break;
+    }
     default:
       return;
   }
@@ -57,6 +61,7 @@ $(transport()).appendTo($('#transport'));
 $('#container').append($(gridTemplate.renderSync()));
 
 //const PE = new PatternEditorCanvas($('#gfxpattern'));
+let PE = undefined;
 
 var options = {
     cellHeight: 40,
@@ -88,7 +93,7 @@ function downloadXM(uri, player) {
       console.log("unable to load", uri);
     }
     var canvas = document.getElementById('gfxpattern');
-    const PE = new PatternEditorCanvas(canvas);
+    PE = new PatternEditorCanvas(canvas);
     const monitors = new Monitors($('#monitors'));
     const SE = new SequenceEditor($('#sequence-editor'));
     window.requestAnimationFrame(() => {

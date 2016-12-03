@@ -7,7 +7,6 @@
       "name": "Track 01",
       "type": "play",
       "color": "#008800",
-      "id": "track1",
       "columns": [
           {
             "id": "c1"
@@ -19,7 +18,6 @@
       "name": "Track 02",
       "type": "play",
       "color": "#008800",
-      "id": "track2",
       "columns": [
           {
             "id": "c1"
@@ -31,7 +29,6 @@
       "name": "Track 03",
       "type": "play",
       "color": "#008800",
-      "id": "track3",
       "columns": [
           {
             "id": "c1"
@@ -43,7 +40,6 @@
       "name": "Track 04",
       "type": "play",
       "color": "#008800",
-      "id": "track4",
       "columns": [
           {
             "id": "c1"
@@ -55,26 +51,37 @@
   ],
   "sequence": [
     {
-      "pattern": "p1"
+      "pattern": 0
     }
   ],
-  "patterns": {
-    "p1": {
+  "patterns": [
+    {
+      "patternid": "p1",
       "numrows": 64,
       "rows": [
-        {
-          "track1": {
-            "notedata": {
-              "c1": { "note": 0, "fxtype": 10 }
-            }
+        [
+          {
+            "trackindex": 0,
+            "notedata": [
+              { 
+                "columnindex": 0,
+                "note": 0, 
+                "fxtype": 10
+              }
+            ]
           },
-          "track2": {
-            "notedata": {
-              "c1": { "note": 1, "volume": 40 }
-            }
+          {
+            "trackindex": 1,
+            "notedata": [
+              { 
+                "columnindex": 0,
+                "note": 1, 
+                "volume": 40
+              }
+            ]
           }
-        }
+        ]
       ]
     }
-  }
+  ]
 }

@@ -324,16 +324,17 @@ export default class XMPlayer {
       this.setCurrentPattern();
     }
     var r2 = song.song.patterns[this.cur_pat].rows[this.cur_row];
-    for (var trackid in r2) {
-      var track = r2[trackid];
-      var trackinfo = song.song.tracks.find((t) => t.id === trackid);
+    for (var trackindex = 0; trackindex < r2.length; trackindex += 1) {
+      var track = r2[trackindex];
+      var trackinfo = song.song.tracks[track.trackindex];
       if (trackinfo) {
         var ch = trackinfo.channelinfo;
         var inst = ch.inst;
         var triggernote = false;
+        var event = track.notedata[0];
         // instrument trigger
-        if (track.notedata['c1'].note != -1) {
-          inst = this.xm.instruments[track.notedata['c1'].instrument - 1];
+        if (event.note != -1) {
+          inst = this.xm.instruments[event.instrument - 1];
           if (inst && inst.samplemap) {
             ch.inst = inst;
             // retrigger unless overridden below
@@ -350,13 +351,13 @@ export default class XMPlayer {
         }
 
         // note trigger
-        if ("note" in track.notedata['c1'] && track.notedata['c1'].note != -1) {
-          if (track.notedata['c1'].note == 96) {
+        if ("note" in event && event.note != -1) {
+          if (event.note == 96) {
             ch.release = 1;
             triggernote = false;
           } else {
             if (inst && inst.samplemap) {
-              var note = track.notedata['c1'].note;
+              var note = event.note;
               ch.note = note;
               ch.samp = inst.samples[inst.samplemap[ch.note]];
               if (triggernote) {
@@ -372,8 +373,8 @@ export default class XMPlayer {
         }
 
         ch.voleffectfn = undefined;
-        if ("volume" in track.notedata['c1'] && track.notedata['c1'].volume != -1) {  // volume column
-          var v = track.notedata['c1'].volume;
+        if ("volume" in event && event.volume != -1) {  // volume column
+          var v = event.volume;
           ch.voleffectdata = v & 0x0f;
           if (v < 0x10) {
             console.log("channel", i, "invalid volume", v.toString(16));
@@ -410,9 +411,9 @@ export default class XMPlayer {
           }
         }
 
-        if("fxtype" in track.notedata['c1']) {
-          ch.effect = track.notedata['c1'].fxtype;
-          ch.effectdata = track.notedata['c1'].fxparam;
+        if("fxtype" in event) {
+          ch.effect = event.fxtype;
+          ch.effectdata = event.fxparam;
           if (ch.effect < 36) {
             ch.effectfn = this.effects_t1[ch.effect];
             var eff_t0 = this.effects_t0[ch.effect];
@@ -424,8 +425,8 @@ export default class XMPlayer {
           }
 
           // special handling for portamentos: don't trigger the note
-          if (ch.effect == 3 || ch.effect == 5 || track.notedata['c1'].volume >= 0xf0) {
-            if (track.notedata['c1'].note != -1) {
+          if (ch.effect == 3 || ch.effect == 5 || event.volume >= 0xf0) {
+            if (event.note != -1) {
               ch.periodtarget = this.periodForNote(ch, ch.note);
             }
             triggernote = false;
@@ -818,7 +819,7 @@ export default class XMPlayer {
     this.xm = {};
 
     song.song.tracks = [];
-    song.song.patterns = {};
+    song.song.patterns = [];
     song.song.sequence = [];
 
     this.xm.songname = this.getstring(dv, 17, 20);
@@ -880,7 +881,7 @@ export default class XMPlayer {
 
     for (i = 0; i < songlen; i++) {
       var pat = dv.getUint8(0x50 + i);
-      song.song.sequence.push({pattern: `p${pat}`});
+      song.song.sequence.push({pattern: pat});
     }
     //console.log("song patterns: ", song.song.sequence);
 
@@ -892,14 +893,15 @@ export default class XMPlayer {
       //console.log("pattern %d: %d bytes, %d rows", i, patsize, patrows);
       idx += 9;
 
-      song.song.patterns[`p${i}`] = {
+      song.song.patterns[i] = {
+        patternid: `p${i}`,
         numrows: patrows,
         rows: [],
       };
 
       for (j = 0; patsize > 0 && j < patrows; j++) {
-        var row = {};
-        for (k = 0; k < this.xm.nchan; k++) {
+        var row = [];
+        for (k = 0; k < song.song.tracks.length; k++) {
           var byte0 = dv.getUint8(idx); idx++;
           var note = -1, inst = -1, vol = -1, efftype = 0, effparam = 0;
           if (byte0 & 0x80) {
@@ -928,15 +930,22 @@ export default class XMPlayer {
             effparam = dv.getUint8(idx); idx++;
           }
           var notecol = {
-            note,
-            instrument: inst,
-            volume: vol,
-            fxtype: efftype,
-            fxparam: effparam,
           };
-          row[`track${k}`] = { notedata: { c1: notecol }};
+          row[k] = { 
+            trackindex: k,
+            notedata: [
+              {
+                columnindex: 0,
+                note,
+                instrument: inst,
+                volume: vol,
+                fxtype: efftype,
+                fxparam: effparam,
+              }
+            ]
+          };
         }
-        song.song.patterns[`p${i}`].rows.push(row);
+        song.song.patterns[i].rows.push(row);
       }
     }
 

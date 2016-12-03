@@ -330,31 +330,22 @@ export default class PatternEditorCanvas {
     this.pat_canvas.width = song.song.tracks.length * cellwidth;
     this.pat_canvas.height = pattern.numrows * rh;
 
-    for (var j = 0; j < pattern.numrows; j++) {
+    for (var j = 0; j < pattern.rows.length; j++) {
       var row = pattern.rows[j];
       var dy = j * rh + ((rh - 8)/2);
-      var displayColumn = 0;
+      var trackColumn = 0;
 
-      for (var tracki = 0; tracki < song.song.tracks.length; tracki += 1) {
-        var trackinfo = song.song.tracks[tracki];
-        var track = row ? row[trackinfo.id] : undefined;
-        for (var coli = 0; coli < trackinfo.columns.length; coli += 1) {
-          var colinfo = trackinfo.columns[coli];
-          var dx = (displayColumn*cellwidth) + this._event_left_margin;
-          if (track) {
-            var col = track.notedata[colinfo.id];
-            if (col) {
-              this.renderEvent(ctx, col, dx, dy);
-            } else {
-              // Render empty event
-              this.renderEvent(ctx, {}, dx, dy);
-            }
-          } else {
-            // Render empty event
-            this.renderEvent(ctx, {}, dx, dy);
-          }
-          displayColumn += 1;
+      for (var tracki = 0; tracki < row.length; tracki += 1) {
+        var track = row[tracki];
+        var trackinfo = song.song.tracks[track.trackindex];
+        for (var coli = 0; coli < track.notedata.length; coli += 1) {
+          var col = track.notedata[coli];
+          var colinfo = trackinfo.columns[col.columnindex];
+          var dx = ((trackColumn + coli) * cellwidth) + this._event_left_margin;
+          this.renderEvent(ctx, col, dx, dy);
+
         }
+        trackColumn += trackinfo.columns.length;
       }
     }
     // Render beat rows in a separate loop to avoid thrashing state changes
@@ -368,6 +359,13 @@ export default class PatternEditorCanvas {
       }
     }
     ctx.globalCompositeOperation = 'source-over';
+  }
+
+  stressPatternRender(count) {
+    for(var i = 0; i < count; i +=1 ) {
+      this.renderPattern(song.song.patterns[song.song.sequence[state.cursor.get("sequence")].pattern]);
+      console.log(i);
+    }
   }
 
   render() {
