@@ -24,7 +24,6 @@ export default class PatternEditorCanvas {
   constructor(canvas) {
     this.yoff = 0;
     this.lastCursor = state.cursor;
-    this.events = null;
     this.rendered = false;
 
     this.canvas = canvas;
@@ -108,19 +107,18 @@ export default class PatternEditorCanvas {
     this.hscroll = $(canvas).closest('.hscroll');
     $(canvas).on('mousewheel', this.onScroll.bind(this));
 
-    var gfxpattern = document.getElementById("gfxpattern");
-    gfxpattern.width = this.timeline_canvas.width + this._timeline_right_margin + (this._pattern_cellwidth * song.song.tracks.length);
-
     // reset display
-    this.shown_row = undefined;
-    this.pat_canvas_patnum = undefined;
-
-    this.audio_events = [];
-    this.paused_events = [];
+    this.init();
     this.render();
 
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
     Signal.connect(song, "eventChanged", this, "onEventChanged");
+    Signal.connect(song, "songChanged", this, "onSongChanged");
+  }
+
+  init() {
+    var gfxpattern = document.getElementById("gfxpattern");
+    gfxpattern.width = this.timeline_canvas.width + this._timeline_right_margin + (this._pattern_cellwidth * song.song.tracks.length);
   }
 
   imageLoaded() {
@@ -418,6 +416,12 @@ export default class PatternEditorCanvas {
     var pos = this.eventPositionInPatternCanvas(cursor);
     var ctx = this.pat_canvas.getContext('2d');
     this.renderEvent(ctx, event, pos.cx, pos.cy);
+  }
+
+  onSongChanged() {
+    this.lastCursor = {};
+    this.init();
+    this.render();
   }
 }
 

@@ -9,15 +9,17 @@ import monitorsTemplate from './templates/monitors.marko';
 import styles from './styles.css';
 
 export default class Monitors {
-  constructor() {
+  constructor(target) {
     this._scope_width = 50,
+    this.target = target;
 
     Signal.connect(state, "tracksChanged", this, "onTracksChanged");
+    Signal.connect(song, "songChanged", this, "onSongChanged");
   }
 
-  render(target) {
+  render() {
     var columns = Math.ceil(song.song.tracks.length / 2.0);
-    $(target).append(monitorsTemplate.renderSync({song: song.song, columns}));
+    $(this.target).append(monitorsTemplate.renderSync({song: song.song, columns}));
   }
 
   onTracksChanged() {
@@ -53,5 +55,10 @@ export default class Monitors {
         }
       }
     }
+  }
+
+  onSongChanged() {
+    this.target.empty();
+    this.render();
   }
 }
