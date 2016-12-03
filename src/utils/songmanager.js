@@ -1,11 +1,13 @@
 import songdata from '../../data/song.json';
 import Signal from '../utils/signal';
+import Immutable from 'immutable';
 
 export class SongManager {
   constructor() {
-    this.song = songdata;
+    this.song = Immutable.fromJS(songdata).toJS();
 
     this.eventChanged = Signal.signal(false);
+    this.songChanged = Signal.signal(false);
   }
 
   findEventAtCursor(cursor) {
@@ -47,6 +49,12 @@ export class SongManager {
     notecol['volume'] = 0x40;
 
     this.eventChanged(cursor, notecol);
+  }
+
+  newSong() {
+    this.song = Immutable.fromJS(songdata).toJS();
+
+    this.songChanged();
   }
 }
 
