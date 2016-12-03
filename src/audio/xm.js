@@ -1071,6 +1071,15 @@ export default class XMPlayer {
     this.nextRow();
 
     //console.log("loaded \"" + this.xm.songname + "\"");
+
+    /*function download(text, name, type) {
+      var a = document.createElement("a");
+      var file = new Blob([text], {type: type});
+      a.href = URL.createObjectURL(file);
+      a.download = name;
+      a.click();
+    }
+    download(JSON.stringify(this.xm.instruments), 'instruments.txt', 'text/plain'); */
     return true;
   }
 
