@@ -86,9 +86,9 @@ function downloadXM(uri, player) {
     } else {
       console.log("unable to load", uri);
     }
-    const monitors = new Monitors();
+    const monitors = new Monitors($('#monitors'));
     window.requestAnimationFrame(() => {
-      monitors.render($('#monitors'));
+      monitors.render();
       var h = $("#pattern-editor").height();
       h = Math.floor(h/12.0);
       if(h%2 === 0) h -= 1;
