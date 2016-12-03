@@ -426,8 +426,24 @@ export default class PatternEditorCanvas {
 
   onSongChanged() {
     this.lastCursor = {};
+    // Reset the pattern editor for the new song.
+    var pattern = undefined;
+    try {
+      pattern = song.song.sequence[0].pattern;
+    } catch(e) {
+      // It's ok, just leave it undefined for now.
+      pattern = undefined;
+    }
     this.init();
-    this.render();
+    state.set({
+      cursor: {
+        pattern,
+        row: 0,
+        track: 0,
+        column: 0,
+        item: 0,
+      }
+    });
   }
 }
 
