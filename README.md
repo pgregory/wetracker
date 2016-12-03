@@ -1,11 +1,9 @@
 
 ![Screenshot](http://pgregory.github.io/wetracker/images/screenshot.png)
 
-Take a look at a short video of the current status [here](https://youtu.be/YHOuZ-R9W3g)
-
 WeTracker is a project to create an online, collaborative music creation suite.
 The interface is designed to be flexible and configurable, using
-[react-grid-layout](https://github.com/STRML/react-grid-layout) for layout, which
+[gridstack.js](https://github.com/troolee/gridstack.js) for layout, which
 allows an infinite amount of configuration, place your widgets in any location you
 like, instead of being constrained to the typical docker style interface. The
 screenshot above shows the current, work-in-progress, 
@@ -18,14 +16,12 @@ The project will ultimately allow collaborative editing at varyious levels,
 including live interactive editing by multiple users, and turn based non-realtime
 music creation.
 
-This project is very early in its development, feel free to provide feedback and
-ideas, or clone the project and contribute via pull requests.
-
-WeTracker is built on React, using 
-[react-boilerplate](https://github.com/mxstbr/react-boilerplate). To try it out 
-for yourself, clone this repo and run:
+WeTracker is very early in development, I welcome ideas and suggestions, and of course
+any contributions.
 
 ```
 npm install
 npm run start
 ```
+Visit the [website](https://pgregory.github.io/wetracker/) for more up to date information 
+and semi-regular blog updates.
