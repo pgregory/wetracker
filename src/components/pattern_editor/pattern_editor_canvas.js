@@ -357,6 +357,17 @@ export default class PatternEditorCanvas {
         }
       }
     }
+    // Render beat rows in a separate loop to avoid thrashing state changes
+    ctx.globalCompositeOperation = 'lighten';
+    for (var j = 0; j < pattern.numrows; j++) {
+      var dy = j * rh;
+      if (j % song.song.lpb == 0) {
+        // Render a beat marker
+        ctx.fillStyle = '#333';
+        ctx.fillRect(0, dy, this.pat_canvas.width, this._pattern_row_height);
+      }
+    }
+    ctx.globalCompositeOperation = 'source-over';
   }
 
   render() {

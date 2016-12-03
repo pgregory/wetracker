@@ -829,9 +829,14 @@ export default class XMPlayer {
     var npat = dv.getUint16(0x46, true);
     var ninst = dv.getUint16(0x48, true);
     this.xm.flags = dv.getUint16(0x4a, true);
-    this.xm.tempo = dv.getUint16(0x4c, true);
-    this.xm.bpm = dv.getUint16(0x4e, true);
+    var tempo = dv.getUint16(0x4c, true);
+    this.xm.tempo = tempo;
+    var bpm = dv.getUint16(0x4e, true);
+    this.xm.bpm = bpm;
     this.xm.global_volume = this.max_global_volume;
+
+    song.song.lpb = tempo;
+    song.song.bpm = bpm;
 
     var i, j, k;
 
