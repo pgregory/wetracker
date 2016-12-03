@@ -70,8 +70,7 @@ export default class XMPlayer {
     this.popfilter_alpha = 0.9837;
 
     this.cur_songpos = -1;
-    this.cur_pat = -1;
-    this.cur_pat2 = -1;
+    this.cur_pat = undefined;
     this.cur_row = 64;
     this.cur_ticksamp = 0;
     this.cur_tick = 6;
@@ -201,7 +200,7 @@ export default class XMPlayer {
           state.set({
             cursor: {
               row: e.row,
-              pattern: `p${e.pat}`,
+              pattern: e.pat,
             },
             tracks: {
               t: e.t,
@@ -291,15 +290,15 @@ export default class XMPlayer {
   }
 
   setCurrentPattern() {
-    var nextPat = this.xm.songpats[this.cur_songpos];
+    var nextPat = song.song.sequence[this.cur_songpos].pattern;
 
     // check for out of range pattern index
-    while (nextPat >= this.xm.patterns.length) {
-      if (this.cur_songpos + 1 < this.xm.songpats.length) {
+    while (!nextPat in song.song.patterns) {
+      if (this.cur_songpos + 1 < song.song.sequence.length) {
         // first try skipping the position
         this.cur_songpos++;
       } else if ((this.cur_songpos === this.xm.song_looppos && this.cur_songpos !== 0)
-        || this.xm.song_looppos >= this.xm.songpats.length) {
+        || this.xm.song_looppos >= song.song.sequence.length) {
         // if we allready tried song_looppos or if song_looppos
         // is out of range, go to the first position
         this.cur_songpos = 0;
@@ -308,23 +307,22 @@ export default class XMPlayer {
         this.cur_songpos = this.xm.song_looppos;
       }
 
-      nextPat = this.xm.songpats[this.cur_songpos];
+      nextPat = song.song.sequence[this.cur_songpos].pattern;
     }
 
     this.cur_pat = nextPat;
-    this.cur_pat2 = song.song.patterns[`p${nextPat}`];
   }
 
   nextRow() {
     this.cur_row++;
-    if (this.cur_pat == -1 || this.cur_row >= this.xm.patterns[this.cur_pat].length) {
+    if (this.cur_pat == null || this.cur_row >= song.song.patterns[this.cur_pat].rows.length) {
       this.cur_row = 0;
       this.cur_songpos++;
-      if (this.cur_songpos >= this.xm.songpats.length)
+      if (this.cur_songpos >= song.song.sequence.length)
         this.cur_songpos = this.xm.song_looppos;
       this.setCurrentPattern();
     }
-    var r2 = this.cur_pat2.rows[this.cur_row];
+    var r2 = song.song.patterns[this.cur_pat].rows[this.cur_row];
     for (var trackid in r2) {
       var track = r2[trackid];
       var trackinfo = song.song.tracks.find((t) => t.id === trackid);
@@ -487,13 +485,13 @@ export default class XMPlayer {
       }
       if (isNaN(ch.period)) {
         console.log(this.prettify_notedata(
-              this.cur_pat2.rows[this.cur_row][j]),
+              song.song.patterns[this.cur_pat].rows[this.cur_row][j]),
             "set channel", j, "period to NaN");
       }
       if (inst === undefined) continue;
       if (ch.env_vol === undefined) {
         console.log(this.prettify_notedata(
-              this.cur_pat2.rows[this.cur_row][j]),
+              song.song.patterns[this.cur_pat].rows[this.cur_row][j]),
             "set channel", j, "env_vol to undefined, but note is playing");
         continue;
       }
@@ -711,7 +709,7 @@ export default class XMPlayer {
     var scopewidth = this.XMView._scope_width;
 
     while(buflen > 0) {
-      if (this.cur_pat == -1 || this.cur_ticksamp >= ticklen) {
+      if (this.cur_pat == null || this.cur_ticksamp >= ticklen) {
         this.nextTick(this.f_smp);
         this.cur_ticksamp -= ticklen;
       }
@@ -820,6 +818,7 @@ export default class XMPlayer {
 
     song.song.tracks = [];
     song.song.patterns = {};
+    song.song.sequence = [];
 
     this.xm.songname = this.getstring(dv, 17, 20);
     var hlen = dv.getUint32(0x3c, true) + 0x3c;
@@ -831,7 +830,6 @@ export default class XMPlayer {
     this.xm.flags = dv.getUint16(0x4a, true);
     this.xm.tempo = dv.getUint16(0x4c, true);
     this.xm.bpm = dv.getUint16(0x4e, true);
-    this.xm.channelinfo = [];
     this.xm.global_volume = this.max_global_volume;
 
     var i, j, k;
@@ -853,7 +851,6 @@ export default class XMPlayer {
         vibratospeed: 1,
         vibratotype: 0,
       };
-      this.xm.channelinfo.push(channelinfo);
       song.song.tracks.push({
         id: `track${i}`,
         fxcolumns: 1,
@@ -875,16 +872,14 @@ export default class XMPlayer {
     //console.log("loop @%d", this.xm.song_looppos);
     //console.log("flags=%d tempo %d bpm %d", this.xm.flags, this.xm.tempo, this.xm.bpm);
 
-    this.xm.songpats = [];
     for (i = 0; i < songlen; i++) {
-      this.xm.songpats.push(dv.getUint8(0x50 + i));
+      var pat = dv.getUint8(0x50 + i);
+      song.song.sequence.push({pattern: `p${pat}`});
     }
-    //console.log("song patterns: ", this.xm.songpats);
+    //console.log("song patterns: ", song.song.sequence);
 
     var idx = hlen;
-    this.xm.patterns = [];
     for (i = 0; i < npat; i++) {
-      var pattern = [];
       var patheaderlen = dv.getUint32(idx, true);
       var patrows = dv.getUint16(idx + 5, true);
       var patsize = dv.getUint16(idx + 7, true);
@@ -897,8 +892,7 @@ export default class XMPlayer {
       };
 
       for (j = 0; patsize > 0 && j < patrows; j++) {
-        var row = [];
-        var row2 = {};
+        var row = {};
         for (k = 0; k < this.xm.nchan; k++) {
           var byte0 = dv.getUint8(idx); idx++;
           var note = -1, inst = -1, vol = -1, efftype = 0, effparam = 0;
@@ -927,9 +921,6 @@ export default class XMPlayer {
             efftype = dv.getUint8(idx); idx++;
             effparam = dv.getUint8(idx); idx++;
           }
-          var notedata = [note, inst, vol, efftype, effparam];
-          row.push(notedata);
-
           var notecol = {
             note,
             instrument: inst,
@@ -937,13 +928,10 @@ export default class XMPlayer {
             fxtype: efftype,
             fxparam: effparam,
           };
-          row2[`track${k}`] = { notedata: { c1: notecol }};
+          row[`track${k}`] = { notedata: { c1: notecol }};
         }
-        pattern.push(row);
-        song.song.patterns[`p${i}`].rows.push(row2);
+        song.song.patterns[`p${i}`].rows.push(row);
       }
-      this.xm.patterns.push(pattern);
-
     }
 
     this.xm.instruments = [];
@@ -1117,7 +1105,7 @@ export default class XMPlayer {
       this.jsNode.disconnect(this.gainNode);
       this.playing = false;
     }
-    this.cur_pat = -1;
+    this.cur_pat = undefined;
     this.cur_row = 64;
     this.cur_songpos = -1;
     this.cur_ticksamp = 0;
@@ -1249,9 +1237,9 @@ export default class XMPlayer {
   }
 
   eff_t0_b(ch, data) {  // song jump (untested)
-    if (data < this.xm.songpats.length) {
+    if (data < song.song.sequence.length) {
       this.cur_songpos = data;
-      this.cur_pat = this.xm.songpats[this.cur_songpos];
+      this.cur_pat = song.song.sequence[this.cur_songpos];
       this.cur_row = -1;
     }
   }
@@ -1262,9 +1250,9 @@ export default class XMPlayer {
 
   eff_t0_d(ch, data) {  // pattern jump
     this.cur_songpos++;
-    if (this.cur_songpos >= this.xm.songpats.length)
+    if (this.cur_songpos >= song.song.sequence.length)
       this.cur_songpos = this.xm.song_looppos;
-    this.cur_pat = this.xm.songpats[this.cur_songpos];
+    this.cur_pat = song.song.sequence[this.cur_songpos];
     this.cur_row = (data >> 4) * 10 + (data & 0x0f) - 1;
   }
 

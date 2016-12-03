@@ -2,7 +2,7 @@
   "tracks": [
     {
       "fxcolumns": 1,
-      "name": "Lead",
+      "name": "Track 01",
       "type": "play",
       "color": "#008800",
       "id": "track1",
@@ -14,7 +14,7 @@
     },
     {
       "fxcolumns": 1,
-      "name": "Lead",
+      "name": "Track 02",
       "type": "play",
       "color": "#008800",
       "id": "track2",
@@ -26,7 +26,7 @@
     },
     {
       "fxcolumns": 1,
-      "name": "Lead",
+      "name": "Track 03",
       "type": "play",
       "color": "#008800",
       "id": "track3",
@@ -38,7 +38,7 @@
     },
     {
       "fxcolumns": 1,
-      "name": "Lead",
+      "name": "Track 04",
       "type": "play",
       "color": "#008800",
       "id": "track4",
@@ -50,6 +50,11 @@
     }
   ],
   "instruments": [
+  ],
+  "sequence": [
+    {
+      "pattern": "p1"
+    }
   ],
   "patterns": {
     "p1": {
