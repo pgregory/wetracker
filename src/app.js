@@ -51,7 +51,11 @@ $(document).keydown((event) => {
         a.download = name;
         a.click();
       }
-      download(JSON.stringify(song.song.instruments[18]), 'cymbal.json', 'text/plain'); 
+      download(JSON.stringify(song.song.instruments[state.cursor.get("instrument")]), 
+               song.song.instruments[state.cursor.get("instrument")].name ?
+                 `${song.song.instruments[state.cursor.get("instrument")].name}.json` : 
+                 `instrument_${state.cursor.get("instrument")}.json`, 
+               'text/plain'); 
       break;
     }
     default: {

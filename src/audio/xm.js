@@ -1,7 +1,9 @@
+import Signal from '../utils/signal';
+
 import { state } from '../state';
 import { song } from '../utils/songmanager';
 
-class Envelope {
+export class Envelope {
   constructor(points, type, sustain, loopstart, loopend) {
     this.points = points;
     this.type = type;
@@ -252,6 +254,8 @@ export default class XMPlayer {
     this.playing = false;
 
     this.XMView = new XMViewObject(this);
+
+    Signal.connect(song, 'songChanged', this, 'onSongChanged');
   }
 
   setView(viewer) {
@@ -380,7 +384,7 @@ export default class XMPlayer {
             }
           ]
         };
-        if(trackindex < row.length && row[trackindex] != null) {
+        if(row && trackindex < row.length && row[trackindex] != null) {
           track = row[trackindex];
         }
         var trackinfo = song.song.tracks[trackindex];
@@ -1202,6 +1206,16 @@ export default class XMPlayer {
     this.nextRow();
     if (this.XMView.stop) this.XMView.stop();
     //init();
+  }
+
+  onSongChanged() {
+    this.cur_pat = undefined;
+    this.cur_row = 768;
+    this.cur_songpos = -1;
+    this.cur_ticksamp = 0;
+    song.song.globalVolume = this.max_global_volume;
+
+    this.nextRow();
   }
 
   eff_t1_0(ch) {  // arpeggio

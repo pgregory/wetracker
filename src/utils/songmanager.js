@@ -1,7 +1,11 @@
 import songdata from '../../data/song.json';
 import cymbal from '../../data/cymbal.json';
+import pad from '../../data/instrument_3.json';
+
 import Signal from '../utils/signal';
 import Immutable from 'immutable';
+
+import { Envelope } from '../audio/xm';
 
 export class SongManager {
   constructor() {
@@ -61,6 +65,7 @@ export class SongManager {
   newSong() {
     this.song = Immutable.fromJS(songdata).toJS();
     this.song.instruments.push(Immutable.fromJS(cymbal).toJS());
+    this.song.instruments.push(Immutable.fromJS(pad).toJS());
 
     // Initialise the channelinfo for each track, temporary.
     for(var i = 0; i < this.song.tracks.length; i += 1) {
@@ -81,6 +86,23 @@ export class SongManager {
         vibratotype: 0,
       };
       this.song.tracks[i].channelinfo = channelinfo;
+    }
+
+    // Initialise the instruments
+    for(i = 0; i < this.song.instruments.length; i += 1) {
+      var inst = this.song.instruments[i];
+      inst.env_vol = new Envelope(
+        inst.env_vol.points,
+        inst.env_vol.type,
+        inst.env_vol.sustain,
+        inst.env_vol.loopstart,
+        inst.env_vol.loop_end);
+      inst.env_pan = new Envelope(
+        inst.env_pan.points,
+        inst.env_pan.type,
+        inst.env_pan.sustain,
+        inst.env_pan.loopstart,
+        inst.env_pan.loop_end);
     }
 
     this.songChanged();
