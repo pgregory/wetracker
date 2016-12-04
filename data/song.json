@@ -1,6 +1,10 @@
 {
+  "name": "SongName",
   "bpm": 122,
   "lpb": 4,
+  "globalVolume": 0,
+  "globalVolumeslide": 0,
+  "loopPosition": 0,
   "tracks": [
     {
       "fxcolumns": 1,

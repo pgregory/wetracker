@@ -154,8 +154,7 @@ export default class XMPlayer {
     this.cur_row = 64;
     this.cur_ticksamp = 0;
     this.cur_tick = 6;
-    this.xm = {};  // contains all song data
-    this.xm.global_volume = this.max_global_volume = 128;
+    song.song.globalVolume = this.max_global_volume = 128;
 
     this.effects_t0 = [  // effect functions on tick 0
       this.eff_t1_0,  // 1, arpeggio is processed on all ticks
@@ -334,14 +333,14 @@ export default class XMPlayer {
       if (this.cur_songpos + 1 < song.song.sequence.length) {
         // first try skipping the position
         this.cur_songpos++;
-      } else if ((this.cur_songpos === this.xm.song_looppos && this.cur_songpos !== 0)
-        || this.xm.song_looppos >= song.song.sequence.length) {
+      } else if ((this.cur_songpos === song.song.loopPosition && this.cur_songpos !== 0)
+        || song.song.loopPosition >= song.song.sequence.length) {
         // if we allready tried song_looppos or if song_looppos
         // is out of range, go to the first position
         this.cur_songpos = 0;
       } else {
         // try going to song_looppos
-        this.cur_songpos = this.xm.song_looppos;
+        this.cur_songpos = song.song.loopPosition;
       }
 
       nextPat = song.song.sequence[this.cur_songpos].pattern;
@@ -356,7 +355,7 @@ export default class XMPlayer {
       this.cur_row = 0;
       this.cur_songpos++;
       if (this.cur_songpos >= song.song.sequence.length)
-        this.cur_songpos = this.xm.song_looppos;
+        this.cur_songpos = song.song.loopPosition;
       this.setCurrentPattern();
     }
     var pattern = song.song.patterns[this.cur_pat];
@@ -388,7 +387,7 @@ export default class XMPlayer {
           }
           // instrument trigger
           if ("note" in event && event.note != -1) {
-            inst = this.xm.instruments[event.instrument - 1];
+            inst = song.song.instruments[event.instrument - 1];
             if (inst && inst.samplemap) {
               ch.inst = inst;
               // retrigger unless overridden below
@@ -400,7 +399,7 @@ export default class XMPlayer {
                 ch.fine = ch.samp.fine;
               }
             } else {
-              // console.log("invalid inst", r[i][1], instruments.length);
+              // console.log("invalid inst", r[i][1], song.song.instruments.length);
             }
           }
 
@@ -529,7 +528,7 @@ export default class XMPlayer {
       ch = song.song.tracks[j].channelinfo;
       ch.periodoffset = 0;
     }
-    if (this.cur_tick >= this.xm.tempo) {
+    if (this.cur_tick >= song.song.lpb) {
       this.cur_tick = 0;
       this.nextRow();
     }
@@ -607,8 +606,8 @@ export default class XMPlayer {
     var volE = ch.volE / 64.0;    // current volume envelope
     var panE = 4*(ch.panE - 32);  // current panning envelope
     var p = panE + ch.pan - 128;  // final pan
-    var volL = this.xm.global_volume * volE * (128 - p) * ch.vol / (64 * 128 * 128);
-    var volR = this.xm.global_volume * volE * (128 + p) * ch.vol / (64 * 128 * 128);
+    var volL = song.song.globalVolume * volE * (128 - p) * ch.vol / (64 * 128 * 128);
+    var volR = song.song.globalVolume * volE * (128 + p) * ch.vol / (64 * 128 * 128);
     if (volL < 0) volL = 0;
     if (volR < 0) volR = 0;
     if (volR === 0 && volL === 0)
@@ -762,7 +761,7 @@ export default class XMPlayer {
     }
 
     var offset = 0;
-    var ticklen = 0|(this.f_smp * 2.5 / this.xm.bpm);
+    var ticklen = 0|(this.f_smp * 2.5 / song.song.bpm);
     var scopewidth = this.XMView._scope_width;
 
     while(buflen > 0) {
@@ -771,7 +770,7 @@ export default class XMPlayer {
         this.cur_ticksamp -= ticklen;
       }
       var tickduration = Math.min(buflen, ticklen - this.cur_ticksamp);
-      var VU = new Float32Array(this.xm.nchan);
+      var VU = new Float32Array(song.song.tracks.length);
       var scopes = undefined;
       for (j = 0; j < song.song.tracks.length; j++) {
         var scope;
@@ -870,32 +869,32 @@ export default class XMPlayer {
 
   load(arrayBuf) {
     var dv = new DataView(arrayBuf);
-    this.xm = {};
 
     song.song.tracks = [];
     song.song.patterns = [];
     song.song.sequence = [];
 
-    this.xm.songname = this.getstring(dv, 17, 20);
+    var songname = this.getstring(dv, 17, 20);
     var hlen = dv.getUint32(0x3c, true) + 0x3c;
     var songlen = dv.getUint16(0x40, true);
-    this.xm.song_looppos = dv.getUint16(0x42, true);
-    this.xm.nchan = dv.getUint16(0x44, true);
+    var looppos = dv.getUint16(0x42, true);
+    var numTracks = dv.getUint16(0x44, true);
     var npat = dv.getUint16(0x46, true);
     var ninst = dv.getUint16(0x48, true);
-    this.xm.flags = dv.getUint16(0x4a, true);
+    var flags = dv.getUint16(0x4a, true);
+    this.flags = flags;
     var tempo = dv.getUint16(0x4c, true);
-    this.xm.tempo = tempo;
     var bpm = dv.getUint16(0x4e, true);
-    this.xm.bpm = bpm;
-    this.xm.global_volume = this.max_global_volume;
+
+    song.song.globalVolume = this.max_global_volume;
 
     song.song.lpb = tempo;
     song.song.bpm = bpm;
+    song.song.loopPosition = looppos;
 
     var i, j, k;
 
-    for (i = 0; i < this.xm.nchan; i++) {
+    for (i = 0; i < numTracks; i++) {
       var channelinfo = {
         number: i,
         filterstate: new Float32Array(3),
@@ -929,9 +928,9 @@ export default class XMPlayer {
     }
     //console.log("header len " + hlen);
 
-    //console.log("songlen %d, %d channels, %d patterns, %d instruments", songlen, this.xm.nchan, npat, ninst);
-    //console.log("loop @%d", this.xm.song_looppos);
-    //console.log("flags=%d tempo %d bpm %d", this.xm.flags, this.xm.tempo, this.xm.bpm);
+    //console.log("songlen %d, %d channels, %d patterns, %d instruments", songlen, song.song.tracks.length, song.song.patterns.length, song.song.intruments.length);
+    //console.log("loop @%d", song.song.loopPosition);
+    //console.log("flags=%d lpb %d bpm %d", this.flags, song.song.lpb, song.song.bpm);
 
     for (i = 0; i < songlen; i++) {
       var pat = dv.getUint8(0x50 + i);
@@ -1003,7 +1002,7 @@ export default class XMPlayer {
       }
     }
 
-    this.xm.instruments = [];
+    song.song.instruments = [];
     // now load instruments
     for (i = 0; i < ninst; i++) {
       var hdrsiz = dv.getUint32(idx, true);
@@ -1134,12 +1133,12 @@ export default class XMPlayer {
         idx += hdrsiz;
         //console.log("empty instrument", i, hdrsiz, idx);
       }
-      this.xm.instruments.push(inst);
+      song.song.instruments.push(inst);
     }
 
     this.nextRow();
 
-    //console.log("loaded \"" + this.xm.songname + "\"");
+    //console.log("loaded \"" + song.song.name + "\"");
 
     /*function download(text, name, type) {
       var a = document.createElement("a");
@@ -1148,7 +1147,7 @@ export default class XMPlayer {
       a.download = name;
       a.click();
     }
-    download(JSON.stringify(this.xm.instruments), 'instruments.txt', 'text/plain'); */
+    download(JSON.stringify(song.song.instruments), 'instruments.txt', 'text/plain'); */
     return true;
   }
 
@@ -1187,7 +1186,7 @@ export default class XMPlayer {
     this.cur_row = 768;
     this.cur_songpos = -1;
     this.cur_ticksamp = 0;
-    this.xm.global_volume = this.max_global_volume;
+    song.song.globalVolume = this.max_global_volume;
 
     this.nextRow();
     if (this.XMView.stop) this.XMView.stop();
@@ -1331,7 +1330,7 @@ export default class XMPlayer {
   eff_t0_d(ch, data) {  // pattern jump
     this.cur_songpos++;
     if (this.cur_songpos >= song.song.sequence.length)
-      this.cur_songpos = this.xm.song_looppos;
+      this.cur_songpos = song.song.loopPosition;
     this.cur_pat = song.song.sequence[this.cur_songpos];
     this.cur_row = (data >> 4) * 10 + (data & 0x0f) - 1;
   }
@@ -1390,9 +1389,9 @@ export default class XMPlayer {
       console.log("tempo 0?");
       return;
     } else if (data < 0x20) {
-      this.xm.tempo = data;
+      song.song.lpb = data;
     } else {
-      this.xm.bpm = data;
+      song.song.bpm = data;
     }
   }
 
@@ -1400,23 +1399,23 @@ export default class XMPlayer {
     if (data <= 0x40) {
       // volume gets multiplied by 2 to match
       // the initial max global volume of 128
-      this.xm.global_volume = Math.max(0, data * 2);
+      song.song.globalVolume = Math.max(0, data * 2);
     } else {
-      this.xm.global_volume = this.max_global_volume;
+      song.song.globalVolume = this.max_global_volume;
     }
   }
 
   eff_t0_h(ch, data) {  // global volume slide
     if (data) {
       // same as Axy but multiplied by 2
-      this.xm.global_volumeslide = (-(data & 0x0f) + (data >> 4)) * 2;
+      song.song.globalVolumeslide = (-(data & 0x0f) + (data >> 4)) * 2;
     }
   }
 
   eff_t1_h(ch) {  // global volume slide
-    if (this.xm.global_volumeslide !== undefined) {
-      this.xm.global_volume = Math.max(0, Math.min(this.max_global_volume,
-        this.xm.global_volume + this.xm.global_volumeslide));
+    if (song.song.globalVolumeslide !== undefined) {
+      song.song.globalVolume = Math.max(0, Math.min(this.max_global_volume,
+        song.song.globalVolume + song.song.globalVolumeslide));
     }
   }
 
