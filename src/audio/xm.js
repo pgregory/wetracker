@@ -58,6 +58,7 @@ class EnvelopeFollower {
 class XMViewObject {
   constructor(player) {
       this.audio_events = [],
+      this.paused_events = [],
       this.shown_row = undefined,
       this.shown_pat = undefined,
       this._scope_width = 50,
@@ -65,6 +66,31 @@ class XMViewObject {
       this.player = player;
 
       this.redrawScreen = this.redrawScreen.bind(this);
+  }
+
+  pause() {
+    // grab all the audio events
+    var t = this.player.audioctx.currentTime;
+    while (this.audio_events.length > 0) {
+      var e = this.audio_events.shift();
+      e.t -= t;
+      this.paused_events.push(e);
+    }
+  }
+
+  resume() {
+    var t = this.player.audioctx.currentTime;
+    while (this.paused_events.length > 0) {
+      var e = this.paused_events.shift();
+      e.t += t;
+      this.audio_events.push(e);
+    }
+    window.requestAnimationFrame(this.redrawScreen);
+  }
+
+  stop() {
+    this.audio_events = [];
+    this.paused_events = [];
   }
 
   pushEvent(e) {
@@ -1161,6 +1187,8 @@ export default class XMPlayer {
     this.cur_songpos = -1;
     this.cur_ticksamp = 0;
     this.xm.global_volume = this.max_global_volume;
+
+    this.nextRow();
     if (this.XMView.stop) this.XMView.stop();
     //init();
   }

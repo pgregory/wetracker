@@ -120,6 +120,9 @@ $(document).ready(() => {
   $('#stop').click((e) => {
     player.stop();
   });
+  $('#pause').click((e) => {
+    player.pause();
+  });
   $('#new').click((e) => {
     song.newSong();
   });
