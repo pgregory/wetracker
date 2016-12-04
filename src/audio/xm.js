@@ -949,6 +949,7 @@ export default class XMPlayer {
 
       song.song.patterns[i] = {
         patternid: `p${i}`,
+        name: `Pattern ${i}`,
         numrows: patrows,
         rows: [],
       };

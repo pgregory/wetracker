@@ -4,7 +4,7 @@
   </div>
   <div class={"sequence-row": true, "current-pattern": data.cursor.sequence === loop.getIndex()} for(p in data.song.sequence | status-var=loop)>
     <div class="sequence-index"><div>${loop.getIndex()}</div></div>
-    <div class="sequence-pattern"><div>${p.pattern}</div></div>
+    <div class="sequence-pattern"><div>${p.pattern} : ${data.song.patterns[p.pattern].name}</div></div>
   </div>
   <div class="sequence-bottom-padding">
     <div></div>
