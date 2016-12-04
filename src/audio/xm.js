@@ -1183,7 +1183,7 @@ export default class XMPlayer {
       this.playing = false;
     }
     this.cur_pat = undefined;
-    this.cur_row = 64;
+    this.cur_row = 768;
     this.cur_songpos = -1;
     this.cur_ticksamp = 0;
     this.xm.global_volume = this.max_global_volume;
