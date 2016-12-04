@@ -771,8 +771,8 @@ export default class XMPlayer {
       if (this.XMView.pushEvent) {
         this.XMView.pushEvent({
           t: e.playbackTime + (0.0 + offset) / this.f_smp,
-          //vu: VU,
-          //scopes: scopes,
+          vu: VU,
+          scopes: scopes,
           songpos: this.cur_songpos,
           pat: this.cur_pat,
           row: this.cur_row
