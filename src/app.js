@@ -1,5 +1,4 @@
 import 'babel-polyfill';
-import doT from 'dot';
 import $ from 'jquery';
 import 'gridstack';
 import 'gridstack/dist/gridstack.css';
@@ -8,8 +7,10 @@ import 'font-awesome-webpack';
 import PatternEditorCanvas from './components/pattern_editor/pattern_editor_canvas';
 import Monitors from './components/monitors/monitors';
 import SequenceEditor from './components/sequence_editor/sequence_editor';
+
 import gridTemplate from './templates/grid.marko';
-import transportTemplate from './components/transport/templates/transport.dot';
+import transportTemplate from './components/transport/templates/transport.marko';
+
 import './components/transport/styles.css';
 
 import XMPlayer from './audio/xm';
@@ -55,8 +56,7 @@ $(document).keydown((event) => {
   event.preventDefault();
 });
 
-var transport = doT.template(transportTemplate);
-$(transport()).appendTo($('#transport'));
+$(transportTemplate.renderSync()).appendTo($('#transport'));
 
 $('#container').append($(gridTemplate.renderSync()));
 

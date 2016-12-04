@@ -7,7 +7,6 @@ import { state } from './state';
 import { song } from './utils/songmanager';
 
 import patternEditorMarko from './components/pattern_editor/templates/patterneditor.marko';
-import eventTemplate from './components/pattern_editor/templates/event.dot';
 
 import { toNote, toInstrument, toVolume, toPanning, toDelay, toFX } from './components/pattern_editor/templates/utils';
 
