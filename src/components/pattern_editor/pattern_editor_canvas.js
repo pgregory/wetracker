@@ -259,8 +259,8 @@ export default class PatternEditorCanvas {
   };
 
   eventPositionInPatternCanvas(cursor) {
-    var cx = this._event_left_margin + (cursor.track * this._pattern_cellwidth);
-    var cy = cursor.row * this._pattern_row_height + ((this._pattern_row_height - 8)/2);
+    var cx = ((cursor.track + cursor.column) * this._pattern_cellwidth);
+    var cy = cursor.row * this._pattern_row_height;
     return {
       cx,
       cy,
@@ -336,8 +336,14 @@ export default class PatternEditorCanvas {
     }
   }
 
+
+  clearEvent(ctx, dx, dy) {
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = "#000";
+    ctx.clearRect(dx, dy, this._pattern_cellwidth, this._pattern_row_height);
+  }
+
   renderPattern(pattern) {
-    console.log("Render Pattern");
     var cw = this._pattern_character_width;
     var rh = this._pattern_row_height;
 
@@ -381,6 +387,16 @@ export default class PatternEditorCanvas {
         ctx.fillStyle = '#333';
         ctx.fillRect(0, dy, this.pat_canvas.width, this._pattern_row_height);
       }
+    }
+    ctx.globalCompositeOperation = 'source-over';
+  }
+
+  renderEventBeat(ctx, cursor, cx, cy) {
+    ctx.globalCompositeOperation = 'lighten';
+    if (cursor.row % song.song.lpb == 0) {
+      // Render a beat marker
+      ctx.fillStyle = '#333';
+      ctx.fillRect(cx, cy, this._pattern_cellwidth, this._pattern_row_height);
     }
     ctx.globalCompositeOperation = 'source-over';
   }
@@ -541,7 +557,10 @@ export default class PatternEditorCanvas {
   onEventChanged(cursor, event) {
     var pos = this.eventPositionInPatternCanvas(cursor);
     var ctx = this.pat_canvas.getContext('2d');
-    this.renderEvent(ctx, event, pos.cx, pos.cy);
+    this.clearEvent(ctx, pos.cx, pos.cy);
+    this.renderEvent(ctx, event, pos.cx + this._event_left_margin, pos.cy + (this._pattern_row_height - 8)/2);
+    this.renderEventBeat(ctx, cursor, pos.cx, pos.cy);
+    this.render();
   }
 
   onSongChanged() {

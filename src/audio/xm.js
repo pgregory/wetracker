@@ -347,6 +347,13 @@ export default class XMPlayer {
     }
 
     this.cur_pat = nextPat;
+
+    state.set({
+      cursor: {
+        sequence: this.cur_songpos,
+        pattern: this.cur_pat,
+      }
+    });
   }
 
   nextRow() {
@@ -870,9 +877,11 @@ export default class XMPlayer {
   load(arrayBuf) {
     var dv = new DataView(arrayBuf);
 
-    song.song.tracks = [];
-    song.song.patterns = [];
-    song.song.sequence = [];
+    var newSong = {};
+
+    newSong.tracks = [];
+    newSong.patterns = [];
+    newSong.sequence = [];
 
     var songname = this.getstring(dv, 17, 20);
     var hlen = dv.getUint32(0x3c, true) + 0x3c;
@@ -886,11 +895,11 @@ export default class XMPlayer {
     var tempo = dv.getUint16(0x4c, true);
     var bpm = dv.getUint16(0x4e, true);
 
-    song.song.globalVolume = this.max_global_volume;
+    newSong.globalVolume = this.max_global_volume;
 
-    song.song.lpb = tempo;
-    song.song.bpm = bpm;
-    song.song.loopPosition = looppos;
+    newSong.lpb = tempo;
+    newSong.bpm = bpm;
+    newSong.loopPosition = looppos;
 
     var i, j, k;
 
@@ -911,7 +920,7 @@ export default class XMPlayer {
         vibratospeed: 1,
         vibratotype: 0,
       };
-      song.song.tracks.push({
+      newSong.tracks.push({
         id: `track${i}`,
         fxcolumns: 1,
         name: `Track${i}`,
@@ -928,15 +937,15 @@ export default class XMPlayer {
     }
     //console.log("header len " + hlen);
 
-    //console.log("songlen %d, %d channels, %d patterns, %d instruments", songlen, song.song.tracks.length, song.song.patterns.length, song.song.intruments.length);
-    //console.log("loop @%d", song.song.loopPosition);
-    //console.log("flags=%d lpb %d bpm %d", this.flags, song.song.lpb, song.song.bpm);
+    //console.log("songlen %d, %d channels, %d patterns, %d instruments", songlen, newSong.tracks.length, newSong.patterns.length, newSong.intruments.length);
+    //console.log("loop @%d", newSong.loopPosition);
+    //console.log("flags=%d lpb %d bpm %d", this.flags, newSong.lpb, newSong.bpm);
 
     for (i = 0; i < songlen; i++) {
       var pat = dv.getUint8(0x50 + i);
-      song.song.sequence.push({pattern: pat});
+      newSong.sequence.push({pattern: pat});
     }
-    //console.log("song patterns: ", song.song.sequence);
+    //console.log("song patterns: ", newSong.sequence);
 
     var idx = hlen;
     for (i = 0; i < npat; i++) {
@@ -946,7 +955,7 @@ export default class XMPlayer {
       //console.log("pattern %d: %d bytes, %d rows", i, patsize, patrows);
       idx += 9;
 
-      song.song.patterns[i] = {
+      newSong.patterns[i] = {
         patternid: `p${i}`,
         name: `Pattern ${i}`,
         numrows: patrows,
@@ -955,7 +964,7 @@ export default class XMPlayer {
 
       for (j = 0; patsize > 0 && j < patrows; j++) {
         var row = [];
-        for (k = 0; k < song.song.tracks.length; k++) {
+        for (k = 0; k < newSong.tracks.length; k++) {
           var byte0 = dv.getUint8(idx); idx++;
           var note = -1, inst = -1, vol = -1, efftype = 0, effparam = 0;
           if (byte0 & 0x80) {
@@ -998,11 +1007,11 @@ export default class XMPlayer {
             };
           }
         }
-        song.song.patterns[i].rows.push(row);
+        newSong.patterns[i].rows.push(row);
       }
     }
 
-    song.song.instruments = [];
+    newSong.instruments = [];
     // now load instruments
     for (i = 0; i < ninst; i++) {
       var hdrsiz = dv.getUint32(idx, true);
@@ -1133,12 +1142,14 @@ export default class XMPlayer {
         idx += hdrsiz;
         //console.log("empty instrument", i, hdrsiz, idx);
       }
-      song.song.instruments.push(inst);
+      newSong.instruments.push(inst);
     }
+
+    song.setSong(newSong);
 
     this.nextRow();
 
-    //console.log("loaded \"" + song.song.name + "\"");
+    //console.log("loaded \"" + newSong.name + "\"");
 
     /*function download(text, name, type) {
       var a = document.createElement("a");
@@ -1147,7 +1158,7 @@ export default class XMPlayer {
       a.download = name;
       a.click();
     }
-    download(JSON.stringify(song.song.instruments), 'instruments.txt', 'text/plain'); */
+    download(JSON.stringify(newSong.instruments), 'instruments.txt', 'text/plain'); */
     return true;
   }
 

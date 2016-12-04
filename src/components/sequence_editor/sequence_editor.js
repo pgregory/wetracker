@@ -55,9 +55,11 @@ export default class SequenceEditor {
     row = ((row % maxrow) + maxrow) % maxrow;
 
     if(row !== this.lastCursor.sequence) {
+      var pattern = song.song.sequence[row].pattern;
       state.set({
         cursor: {
           sequence: row,
+          pattern,
         }
       });
     }

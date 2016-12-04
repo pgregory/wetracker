@@ -21,6 +21,7 @@ import modfile from '../data/onward.xm';
 import { song } from './utils/songmanager';
 import { state } from './state';
 import { cursor } from './utils/cursor';
+import { virtualKeyboard } from './utils/virtualkeyboard';
 
 import styles from './styles.css';
 
@@ -42,17 +43,24 @@ $(document).keydown((event) => {
       cursor.itemLeft();
       break;
     }
-    case "a": {
-      song.addNoteToSong(state.cursor.toJS());
-      cursor.rowDown(4);
-      break;
-    }
     case "t": {
-      PE.stressPatternRender(100);
+      function download(text, name, type) {
+        var a = document.createElement("a");
+        var file = new Blob([text], {type: type});
+        a.href = URL.createObjectURL(file);
+        a.download = name;
+        a.click();
+      }
+      download(JSON.stringify(song.song.instruments[18]), 'cymbal.json', 'text/plain'); 
       break;
     }
-    default:
+    default: {
+      if(virtualKeyboard.handleKeyAtCursor(event)) {
+        cursor.rowDown(4);
+        break;
+      }
       return;
+    }
   }
   event.preventDefault();
 });

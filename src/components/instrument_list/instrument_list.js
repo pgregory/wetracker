@@ -22,7 +22,6 @@ export default class Monitors {
     $(this.target).append(instrumentsTemplate.renderSync({song: song.song, cursor: state.cursor.toJS()}));
 
     this.rowHeight = $(this.target).find(".instrument-row")[0].clientHeight;
-    console.log(this.rowHeight);
 
     $(this.target).find(".instruments-top-padding").height(
       ($(this.target).height()-this.rowHeight)/2.0);
