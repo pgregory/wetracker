@@ -6,7 +6,7 @@ import Signal from '../../utils/signal';
 import { state } from '../../state';
 import { song } from '../../utils/songmanager';
 
-import fontimage from '../../../static/ft2font.png';
+import fontimage from '../../../static/ft2font-single.png';
 
 // t = current time
 // b = start value
@@ -199,14 +199,35 @@ export default class PatternEditorCanvas {
 
     // Generate tinted version
     var rgbks = generateRGBKs( this.fontimg );
-    this.noteFont = generateTintImage( this.fontimg, rgbks, 255, 255, 255 );
-    this.instrumentFont = generateTintImage( this.fontimg, rgbks, 255, 102, 102 );
-    this.volumeFont = generateTintImage( this.fontimg, rgbks, 102, 102, 102 );
-    this.panningFont = generateTintImage( this.fontimg, rgbks, 153, 102, 153 );
-    this.delayFont = generateTintImage( this.fontimg, rgbks, 153, 153, 102 );
-    this.fxFont = generateTintImage( this.fontimg, rgbks, 200, 200, 0 );
+    var noteFont = generateTintImage( this.fontimg, rgbks, 255, 255, 255 );
+    var instrumentFont = generateTintImage( this.fontimg, rgbks, 255, 102, 102 );
+    var volumeFont = generateTintImage( this.fontimg, rgbks, 102, 102, 102 );
+    var panningFont = generateTintImage( this.fontimg, rgbks, 153, 102, 153 );
+    var delayFont = generateTintImage( this.fontimg, rgbks, 153, 153, 102 );
+    var fxFont = generateTintImage( this.fontimg, rgbks, 200, 200, 0 );
 
-    var ctx = this.empty_event_canvas.getContext('2d');
+    this.noteFontOffset = this.fontimg.height;
+    this.instrumentFontOffset = this.fontimg.height * 2;
+    this.volumeFontOffset = this.fontimg.height * 3;
+    this.panningFontOffset = this.fontimg.height * 4;
+    this.delayFontOffset = this.fontimg.height * 5 ;
+    this.fxFontOffset = this.fontimg.height * 6;
+
+    this.mixedFont = document.createElement( "canvas" );
+    this.mixedFont.width = this.fontimg.width;
+    this.mixedFont.height = this.fontimg.height * 7;
+    var ctx = this.mixedFont.getContext('2d');
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.drawImage( this.fontimg, 0, 0 );
+    ctx.drawImage( noteFont, 0, this.noteFontOffset );
+    ctx.drawImage( instrumentFont, 0, this.instrumentFontOffset );
+    ctx.drawImage( volumeFont, 0, this.volumeFontOffset );
+    ctx.drawImage( panningFont, 0, this.panningFontOffset );
+    ctx.drawImage( delayFont, 0, this.delayFontOffset );
+    ctx.drawImage( fxFont, 0, this.fxFontOffset );
+
+    ctx = this.empty_event_canvas.getContext('2d');
     var dx = 0;
     var cw = this._pattern_character_width;
     var rh = this._pattern_row_height;
@@ -225,7 +246,7 @@ export default class PatternEditorCanvas {
     ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx+cw+cw+2, 0, cw, 8);
     ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx+cw+cw+2+cw, 0, cw, 8);
 
-    var ctx = this.timeline_canvas.getContext('2d');
+    ctx = this.timeline_canvas.getContext('2d');
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, this.timeline_canvas.width, this.timeline_canvas.height);
     dx = 0;
@@ -260,21 +281,21 @@ export default class PatternEditorCanvas {
       var note = col.note;
       if (note == null || note === -1) {
         // no note = ...
-        ctx.drawImage(this.fontimg, 8*39, 0, 8, 8, dx, dy, this._pattern_note_width, 8);
+        ctx.drawImage(this.mixedFont, 8*39, 0, 8, 8, dx, dy, this._pattern_note_width, 8);
       } else {
         var notechars = this._note_names[note%12];
         var octavechar = ~~(note/12) * 8;
-        ctx.drawImage(this.noteFont, notechars[0], 0, 8, 8, dx, dy, 8, 8);
-        ctx.drawImage(this.noteFont, notechars[1], 0, 8, 8, dx + cw, dy, 8, 8);
-        ctx.drawImage(this.noteFont, octavechar, 0, 8, 8, dx + (cw*2), dy, 8, 8);
+        ctx.drawImage(this.mixedFont, notechars[0], this.noteFontOffset, 8, 8, dx, dy, 8, 8);
+        ctx.drawImage(this.mixedFont, notechars[1], this.noteFontOffset, 8, 8, dx + cw, dy, 8, 8);
+        ctx.drawImage(this.mixedFont, octavechar, this.noteFontOffset, 8, 8, dx + (cw*2), dy, 8, 8);
       }
       dx += this._pattern_note_width + this._element_spacing;
 
       // render instrument
       var inst = col.instrument;
       if (inst && inst != -1) {  // no instrument = render nothing
-        ctx.drawImage(this.instrumentFont, 8*(inst>>4), 0, 8, 8, dx, dy, 8, 8);
-        ctx.drawImage(this.instrumentFont, 8*(inst&15), 0, 8, 8, dx+cw, dy, 8, 8);
+        ctx.drawImage(this.mixedFont, 8*(inst>>4), this.instrumentFontOffset, 8, 8, dx, dy, 8, 8);
+        ctx.drawImage(this.mixedFont, 8*(inst&15), this.instrumentFontOffset, 8, 8, dx+cw, dy, 8, 8);
       }
       dx += this._pattern_inst_width + this._element_spacing;
 
@@ -282,11 +303,11 @@ export default class PatternEditorCanvas {
       var vol = col.volume;
       if (vol == null || vol < 0x10) {
         // no volume = ..
-        ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx, dy, cw, 8);
-        ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx+cw, dy, cw, 8);
+        ctx.drawImage(this.mixedFont, 312, 0, 8, 8, dx, dy, cw, 8);
+        ctx.drawImage(this.mixedFont, 312, 0, 8, 8, dx+cw, dy, cw, 8);
       } else {
-        ctx.drawImage(this.volumeFont, 8*(vol>>4), 0, 8, 8, dx, dy, cw, 8);
-        ctx.drawImage(this.volumeFont, 8*(vol&15), 0, 8, 8, dx+cw, dy, cw, 8);
+        ctx.drawImage(this.mixedFont, 8*(vol>>4), this.volumeFontOffset, 8, 8, dx, dy, cw, 8);
+        ctx.drawImage(this.mixedFont, 8*(vol&15), this.volumeFontOffset, 8, 8, dx+cw, dy, cw, 8);
       }
       dx += this._pattern_volu_width + this._element_spacing;
 
@@ -296,26 +317,27 @@ export default class PatternEditorCanvas {
       if ((eff && eff !== 0) || (effdata && effdata !== 0)) {
         // draw effect with tiny font (4px space + effect type 0..9a..z)
         if (eff > 15) {
-          ctx.drawImage(this.fxFont, 8*(eff>>4), 0, 8, 8, dx, dy, cw, 8);
+          ctx.drawImage(this.mixedFont, 8*(eff>>4), this.fxFontOffset, 8, 8, dx, dy, cw, 8);
         } else {
-          ctx.drawImage(this.fxFont, 312, 0, 8, 8, dx, dy, cw, 8);
+          ctx.drawImage(this.mixedFont, 312, 0, 8, 8, dx, dy, cw, 8);
         }
-        ctx.drawImage(this.fxFont, 8*(eff&15), 0, 8, 8, dx+cw, dy, cw, 8);
+        ctx.drawImage(this.mixedFont, 8*(eff&15), this.fxFontOffset, 8, 8, dx+cw, dy, cw, 8);
         dx += cw*2+2;
         // (hexadecimal 4-width font)
-        ctx.drawImage(this.fxFont, 8*(effdata>>4), 0, 8, 8, dx, dy, cw, 8);
-        ctx.drawImage(this.fxFont, 8*(effdata&15), 0, 8, 8, dx+cw, dy, cw, 8);
+        ctx.drawImage(this.mixedFont, 8*(effdata>>4), this.fxFontOffset, 8, 8, dx, dy, cw, 8);
+        ctx.drawImage(this.mixedFont, 8*(effdata&15), this.fxFontOffset, 8, 8, dx+cw, dy, cw, 8);
       } else {
         // no effect = ...
-        ctx.drawImage(this.fxFont, 312, 0, 8, 8, dx, dy, cw, 8);
-        ctx.drawImage(this.fxFont, 312, 0, 8, 8, dx+cw, dy, cw, 8);
-        ctx.drawImage(this.fxFont, 312, 0, 8, 8, dx+cw+cw+2, dy, cw, 8);
-        ctx.drawImage(this.fxFont, 312, 0, 8, 8, dx+cw+cw+2+cw, dy, cw, 8);
+        ctx.drawImage(this.mixedFont, 312, 0, 8, 8, dx, dy, cw, 8);
+        ctx.drawImage(this.mixedFont, 312, 0, 8, 8, dx+cw, dy, cw, 8);
+        ctx.drawImage(this.mixedFont, 312, 0, 8, 8, dx+cw+cw+2, dy, cw, 8);
+        ctx.drawImage(this.mixedFont, 312, 0, 8, 8, dx+cw+cw+2+cw, dy, cw, 8);
       }
     }
   }
 
   renderPattern(pattern) {
+    console.log("Render Pattern");
     var cw = this._pattern_character_width;
     var rh = this._pattern_row_height;
 

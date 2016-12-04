@@ -18,7 +18,7 @@ export class CursorManager {
   rowUp(count = 1) {
     let row = state.cursor.get("row") - count;
     if (row < 0) {
-      row = song.song.patterns['p1'].numrows + row;
+      row = song.song.patterns[state.cursor.get("pattern")].numrows + row;
     }
     state.set({
       cursor: {
@@ -29,8 +29,8 @@ export class CursorManager {
 
   rowDown(count = 1) {
     let row = state.cursor.get("row") + count;
-    if (row >= song.song.patterns['p1'].numrows) {
-      row = 0 + (row - song.song.patterns['p1'].numrows);
+    if (row >= song.song.patterns[state.cursor.get("pattern")].numrows) {
+      row = 0 + (row - song.song.patterns[state.cursor.get("pattern")].numrows);
     }
     state.set({
       cursor: {
