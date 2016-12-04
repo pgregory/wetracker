@@ -10,6 +10,7 @@ export class State {
       track: 0,
       column: 0,
       item: 0,
+      instrument: 0,
     });
 
     this.tracks = new Immutable.Map({

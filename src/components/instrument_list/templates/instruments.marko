@@ -1,0 +1,12 @@
+<div class="instruments">
+  <div class="instruments-top-padding">
+    <div></div>
+  </div>
+  <div class={"instrument-row": true, "current-instrument": data.cursor.instrument === loop.getIndex()} for(i in data.song.instruments | status-var=loop)>
+    <div class="instrument-index"><div>${loop.getIndex()}</div></div>
+    <div class="instrument-name"><div>${i.name}</div></div>
+  </div>
+  <div class="instruments-bottom-padding">
+    <div></div>
+  </div>
+</div>

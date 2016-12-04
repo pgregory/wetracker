@@ -7,6 +7,7 @@ import 'font-awesome-webpack';
 import PatternEditorCanvas from './components/pattern_editor/pattern_editor_canvas';
 import Monitors from './components/monitors/monitors';
 import SequenceEditor from './components/sequence_editor/sequence_editor';
+import InstrumentList from './components/instrument_list/instrument_list';
 
 import gridTemplate from './templates/grid.marko';
 import transportTemplate from './components/transport/templates/transport.marko';
@@ -96,9 +97,11 @@ function downloadXM(uri, player) {
     PE = new PatternEditorCanvas(canvas);
     const monitors = new Monitors($('#monitors'));
     const SE = new SequenceEditor($('#sequence-editor'));
+    const IL = new InstrumentList($('#instrument-list'));
     window.requestAnimationFrame(() => {
       monitors.render();
       SE.render();
+      IL.render();
       var h = $("#pattern-editor").height();
       h = Math.floor(h/12.0);
       if(h%2 === 0) h -= 1;
