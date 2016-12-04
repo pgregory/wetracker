@@ -3,7 +3,8 @@
 }
 
 .sequence {
-  display: table;
+  display: flex;
+  flex-direction: column;
   height: 100%;
   width: 100%;
   color: white;
@@ -15,6 +16,8 @@
   display: flex;
   border-left: 2px solid rgba(0,0,0,0);
   padding: 2px;
+  flex-shrink: 0;
+  overflow-x: hidden;
 }
 
 .sequence .sequence-row.current-pattern {
@@ -41,9 +44,17 @@
 .sequence .sequence-pattern {
   display: table-cell;
   text-align: left;
+  overflow: hidden;
 }
 
 .sequence .sequence-pattern div {
   padding-left: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sequence .sequence-top-padding, .sequence .sequence-bottom-padding {
+  flex-shrink: 0;
 }
 

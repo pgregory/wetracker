@@ -23,10 +23,10 @@ export default class SequenceEditor {
 
     this.rowHeight = $(this.target).find(".sequence-row")[0].clientHeight;
 
-    $(this.target).find(".sequence-top-padding").height(
+    $(this.target).find(".sequence-top-padding div").height(
       ($(this.target).height()-this.rowHeight)/2.0);
 
-    $(this.target).find(".sequence-bottom-padding").height(
+    $(this.target).find(".sequence-bottom-padding div").height(
       ($(this.target).height()-this.rowHeight)/2.0);
 
     $(this.target).find('.sequence').on('mousewheel', this.onScroll.bind(this));

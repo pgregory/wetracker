@@ -3,7 +3,8 @@
 }
 
 .instruments {
-  display: table;
+  display: flex;
+  flex-direction: column;
   height: 100%;
   width: 100%;
   color: white;
@@ -15,6 +16,8 @@
   display: flex;
   border-left: 2px solid rgba(0,0,0,0);
   padding: 2px;
+  flex-shrink: 0;
+  overflow-x: hidden;
 }
 
 .instruments .instrument-row.current-instrument {
@@ -41,9 +44,16 @@
 .instruments .instrument-name {
   display: table-cell;
   text-align: left;
+  overflow: hidden;
 }
 
 .instruments .instrument-name div {
   padding-left: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
+.instruments .instrument-top-padding, .instruments .instrument-bottom-padding {
+  flex-shrink: 0;
+}

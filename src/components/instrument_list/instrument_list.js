@@ -23,10 +23,10 @@ export default class Monitors {
 
     this.rowHeight = $(this.target).find(".instrument-row")[0].clientHeight;
 
-    $(this.target).find(".instruments-top-padding").height(
+    $(this.target).find(".instruments-top-padding div").height(
       ($(this.target).height()-this.rowHeight)/2.0);
 
-    $(this.target).find(".instruments-bottom-padding").height(
+    $(this.target).find(".instruments-bottom-padding div").height(
       ($(this.target).height()-this.rowHeight)/2.0);
 
     $(this.target).find('.instruments').on('mousewheel', this.onScroll.bind(this));
