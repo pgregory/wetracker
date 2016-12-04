@@ -369,11 +369,27 @@ export default class PatternEditorCanvas {
         if(track) {
           for (var coli = 0; coli < track.notedata.length; coli += 1) {
             var col = track.notedata[coli];
-            var colinfo = trackinfo.columns[col.columnindex];
             var dx = ((trackColumn + coli) * cellwidth) + this._event_left_margin;
             this.renderEvent(ctx, col, dx, dy);
-
           }
+        } else {
+          for (var coli = 0; coli < trackinfo.columns.length; coli += 1) {
+            var dx = ((trackColumn + coli) * cellwidth) + this._event_left_margin;
+            this.renderEvent(ctx, {}, dx, dy);
+          }
+        }
+        trackColumn += trackinfo.columns.length;
+      }
+    }
+    // Fill in empty rows
+    for (; j < pattern.numrows; j++) {
+      var dy = j * rh + ((rh - 8)/2);
+      var trackColumn = 0;
+
+      for (var tracki = 0; tracki < song.song.tracks.length; tracki += 1) {
+        for (var coli = 0; coli < trackinfo.columns.length; coli += 1) {
+          var dx = ((trackColumn + coli) * cellwidth) + this._event_left_margin;
+          this.renderEvent(ctx, {}, dx, dy);
         }
         trackColumn += trackinfo.columns.length;
       }
