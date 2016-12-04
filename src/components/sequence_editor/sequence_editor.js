@@ -41,8 +41,8 @@ export default class SequenceEditor {
 
   onCursorChanged() {
     if (state.cursor.get("sequence") != this.lastCursor.sequence) {
-      $(".current-pattern").removeClass('current-pattern');
-      $(`.sequence-row:eq(${state.cursor.get("sequence")})`).addClass('current-pattern');
+      $(this.target).find(".current-pattern").removeClass('current-pattern');
+      $(this.target).find(".sequence-row").eq(state.cursor.get("sequence")).addClass('current-pattern');
       $(this.target).scrollTop(state.cursor.get("sequence")*this.rowHeight);
     }
     this.lastCursor = state.cursor.toJS();
@@ -54,9 +54,7 @@ export default class SequenceEditor {
     var maxrow = song.song.sequence.length;
     row = ((row % maxrow) + maxrow) % maxrow;
 
-    if(row !== this.lastCursor.row) {
-      $(this.target).scrollTop(row*this.rowHeight);
-
+    if(row !== this.lastCursor.sequence) {
       state.set({
         cursor: {
           sequence: row,

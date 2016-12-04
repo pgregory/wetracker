@@ -26,13 +26,16 @@
   display: table-cell;
   text-align: center;
   min-width: 24px;
-
 }
 
 .sequence .sequence-index div {
   padding: 0 3px;
   border: 1px solid gray;
   border-radius: 2px;
+}
+
+.sequence .sequence-row.current-pattern .sequence-index div {
+  background: #090;
 }
 
 .sequence .sequence-pattern {
