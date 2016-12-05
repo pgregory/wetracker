@@ -44,7 +44,7 @@ $(document).keydown((event) => {
       cursor.itemLeft();
       break;
     }
-    case "t": {
+/*    case "s": {
       function download(text, name, type) {
         var a = document.createElement("a");
         var file = new Blob([text], {type: type});
@@ -58,7 +58,7 @@ $(document).keydown((event) => {
                  `instrument_${state.cursor.get("instrument")}.json`, 
                'text/plain'); 
       break;
-    }
+    }*/
     default: {
       if(virtualKeyboard.handleKeyAtCursor(event)) {
         cursor.rowDown(4);
