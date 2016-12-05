@@ -57,8 +57,12 @@ export default class Monitors {
     }
   }
 
-  onSongChanged() {
-    this.target.empty();
+  refresh() {
+    $(this.target).empty();
     this.render();
+  }
+
+  onSongChanged() {
+    this.refresh();
   }
 }

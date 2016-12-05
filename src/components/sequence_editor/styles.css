@@ -1,5 +1,6 @@
 #sequence-editor {
   overflow-y: hidden;
+  flex: 1;
 }
 
 .sequence {

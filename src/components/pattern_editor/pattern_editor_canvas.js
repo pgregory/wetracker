@@ -445,6 +445,12 @@ export default class PatternEditorCanvas {
       var gfx = document.getElementById("gfxpattern");
       var ctx = gfx.getContext('2d');
 
+      var h = $("#pattern-editor").height();
+      h = Math.floor(h/12.0);
+      if(h%2 === 0) h -= 1;
+      h *= 12.0;
+      gfx.height = h;
+
       var patternheight = gfx.height - this._pattern_header_height;
 
       ctx.imageSmoothingEnabled = false;
@@ -513,6 +519,11 @@ export default class PatternEditorCanvas {
       this.lastCursor = state.cursor.toJS();
       this.xoffset = this.hscroll.scrollLeft();
     }
+  }
+
+  refresh() {
+    $(this.target).empty();
+    this.render();
   }
 
   onScroll(e) {

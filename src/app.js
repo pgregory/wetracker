@@ -8,6 +8,7 @@ import PatternEditorCanvas from './components/pattern_editor/pattern_editor_canv
 import Monitors from './components/monitors/monitors';
 import SequenceEditor from './components/sequence_editor/sequence_editor';
 import InstrumentList from './components/instrument_list/instrument_list';
+import SampleEditor from './components/sample_editor/sample_editor';
 
 import gridTemplate from './templates/grid.marko';
 import transportTemplate from './components/transport/templates/transport.marko';
@@ -75,6 +76,10 @@ $('#container').append($(gridTemplate.renderSync()));
 
 //const PE = new PatternEditorCanvas($('#gfxpattern'));
 let PE = undefined;
+let sequenceEditor = undefined;
+let monitors = undefined;
+let instrumentList = undefined;
+let sampleEditor = undefined;
 
 var options = {
     cellHeight: 40,
@@ -85,8 +90,11 @@ var options = {
     alwaysShowResizeHandle: true,
 };
 $('.grid-stack').gridstack(options).on('resizestop', function(event, ui) {
-  //$('#pattern-editor').empty();
-  //PE.render($('#pattern-editor'));
+  PE.refresh();
+  sequenceEditor.refresh();
+  instrumentList.refresh();
+  sampleEditor.refresh();
+  monitors.refresh();
 }).on('change', function(event, items) {
   console.log("Changed");
 });
@@ -107,18 +115,16 @@ function downloadXM(uri, player) {
     }
     var canvas = document.getElementById('gfxpattern');
     PE = new PatternEditorCanvas(canvas);
-    const monitors = new Monitors($('#monitors'));
-    const SE = new SequenceEditor($('#sequence-editor'));
-    const IL = new InstrumentList($('#instrument-list'));
+    monitors = new Monitors($('#monitors'));
+    sequenceEditor = new SequenceEditor($('#sequence-editor'));
+    instrumentList = new InstrumentList($('#instrument-list'));
+    sampleEditor = new SampleEditor($('#sample-editor'));
     window.requestAnimationFrame(() => {
+      PE.render();
       monitors.render();
-      SE.render();
-      IL.render();
-      var h = $("#pattern-editor").height();
-      h = Math.floor(h/12.0);
-      if(h%2 === 0) h -= 1;
-      h *= 12.0;
-      canvas.height = h;
+      sequenceEditor.render();
+      instrumentList.render();
+      sampleEditor.render();
     });
 
   };

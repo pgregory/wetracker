@@ -34,9 +34,13 @@ export default class SequenceEditor {
     this.lastCursor = state.cursor.toJS();
   }
 
-  onSongChanged() {
-    this.target.empty();
+  refresh() {
+    $(this.target).empty();
     this.render();
+  }
+
+  onSongChanged() {
+    this.refresh();
   }
 
   onCursorChanged() {

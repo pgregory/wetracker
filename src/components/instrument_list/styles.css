@@ -1,5 +1,6 @@
 #instrument-list {
   overflow-y: hidden;
+  flex: 1;
 }
 
 .instruments {
