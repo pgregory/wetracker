@@ -601,7 +601,7 @@ export default class PatternEditorCanvas {
     this.clearEvent(ctx, pos.cx, pos.cy);
     this.renderEvent(ctx, event, pos.cx + this._event_left_margin, pos.cy + (this._pattern_row_height - 8)/2);
     this.renderEventBeat(ctx, cursor, pos.cx, pos.cy);
-    this.render();
+    this.redrawCanvas();
   }
 
   onSongChanged() {

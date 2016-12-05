@@ -23,6 +23,7 @@ import { song } from './utils/songmanager';
 import { state } from './state';
 import { cursor } from './utils/cursor';
 import { virtualKeyboard } from './utils/virtualkeyboard';
+import { hexInput } from './utils/hexinput';
 
 import styles from './styles.css';
 
@@ -63,6 +64,11 @@ $(document).keydown((event) => {
       if(virtualKeyboard.handleKeyAtCursor(event)) {
         cursor.rowDown(4);
         break;
+      } else {
+        if(hexInput.handleKeyAtCursor(event)) {
+          cursor.rowDown(4);
+          break;
+        }
       }
       return;
     }
