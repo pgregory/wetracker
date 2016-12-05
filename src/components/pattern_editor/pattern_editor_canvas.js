@@ -8,6 +8,8 @@ import { song } from '../../utils/songmanager';
 
 import fontimage from '../../../static/ft2font-single.png';
 
+import patternEditorTemplate from './templates/patterneditor.marko';
+
 // t = current time
 // b = start value
 // c = change in value
@@ -101,12 +103,11 @@ function generateTintImage( img, rgbks, red, green, blue ) {
 }
 
 export default class PatternEditorCanvas {
-  constructor(canvas) {
+  constructor(target) {
     this.yoff = 0;
     this.lastCursor = state.cursor;
-    this.rendered = false;
 
-    this.canvas = canvas;
+    this.target = target;
 
     this._pattern_row_height = 12;
     this._pattern_character_width = 8;
@@ -177,21 +178,14 @@ export default class PatternEditorCanvas {
     this.timeline_canvas.height = this._pattern_row_height * 99;
     this.timeline_canvas.width = 30;
 
-    this.hscroll = $(canvas).closest('.hscroll');
-    $(canvas).on('mousewheel', this.onScroll.bind(this));
-
-    // reset display
-    this.init();
-    this.render();
 
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
     Signal.connect(song, "eventChanged", this, "onEventChanged");
     Signal.connect(song, "songChanged", this, "onSongChanged");
   }
 
-  init() {
-    var gfxpattern = document.getElementById("gfxpattern");
-    gfxpattern.width = this.timeline_canvas.width + this._timeline_right_margin + (this._pattern_cellwidth * song.song.tracks.length);
+  initWidth() {
+    this.canvas.width = this.timeline_canvas.width + this._timeline_right_margin + (this._pattern_cellwidth * song.song.tracks.length);
   }
 
   imageLoaded() {
@@ -425,8 +419,20 @@ export default class PatternEditorCanvas {
   }
 
   render() {
+    console.log("Render PE");
+    $(this.target).append(patternEditorTemplate.renderToString());
+    this.canvas = $(this.target).find('canvas')[0];
+
+    this.initWidth();
+    this.hscroll = $(this.canvas).closest('.hscroll');
+    $(this.canvas).on('mousewheel', this.onScroll.bind(this));
+
+    this.updateCanvas();
+  }
+
+  updateCanvas() {
     if(!this.fontloaded) {
-      window.requestAnimationFrame(() => this.render() );
+      window.requestAnimationFrame(() => this.updateCanvas() );
       return;
     }
     if (state.cursor.get("row") !== this.lastCursor.row || 
@@ -442,88 +448,96 @@ export default class PatternEditorCanvas {
         }
       }
 
-      var gfx = document.getElementById("gfxpattern");
-      var ctx = gfx.getContext('2d');
-
-      var h = $("#pattern-editor").height();
-      h = Math.floor(h/12.0);
-      if(h%2 === 0) h -= 1;
-      h *= 12.0;
-      gfx.height = h;
-
-      var patternheight = gfx.height - this._pattern_header_height;
-
-      ctx.imageSmoothingEnabled = false;
-      ctx.fillStyle = '#000';
-      ctx.fillRect(0, 0, gfx.width, gfx.height);
-      ctx.globalCompositeOperation = 'source-over';
-      ctx.drawImage(this.pat_canvas, this.timeline_canvas.width + this._timeline_right_margin, gfx.height / 2 - (this._pattern_row_height/2) - this._pattern_row_height*(state.cursor.get("row")));
-      ctx.fillStyle = '#000';
-      ctx.clearRect(0, 0, gfx.width, this._pattern_header_height);
-      ctx.font = "16px monospace";
-      ctx.textAlign = "center";
-      for(var i = 0; i < song.song.tracks.length; i += 1) {
-        var dx = this.timeline_canvas.width + this._timeline_right_margin + (i * this._pattern_cellwidth);
-        ctx.fillStyle = '#000';
-        ctx.fillRect(dx, 0, this._pattern_cellwidth, this._pattern_header_height);
-        ctx.fillStyle = '#FFF';
-        var trackname = song.song.tracks[i].name;
-        ctx.fillText(trackname, dx + (this._pattern_cellwidth/2), 15, this._pattern_cellwidth);
-      }
-
-      ctx.lineWidth = 2;
-      ctx.strokeStyle = '#FFF';
-      ctx.beginPath();
-      ctx.moveTo(this.timeline_canvas.width + 1, 0);
-      ctx.lineTo(gfx.width, 0);
-      ctx.lineTo(gfx.width, gfx.height);
-      ctx.lineTo(this.timeline_canvas.width + 1, gfx.height);
-      //ctx.lineTo(this.timeline_canvas.width + this._timeline_right_margin, 0);
-      for(var i = 1; i < song.song.tracks.length; i += 1) {
-        var dx = this.timeline_canvas.width + this._timeline_right_margin + (i * this._pattern_cellwidth);
-        ctx.moveTo(dx, 0);
-        ctx.lineTo(dx, gfx.height);
-      }
-      ctx.moveTo(this.hscroll.scrollLeft() + this.timeline_canvas.width + 1, 0);
-      ctx.lineTo(this.hscroll.scrollLeft() + this.timeline_canvas.width + 1, gfx.height);
-      ctx.stroke();
-
-      // Draw the timline fixed to the left of the view.
-      var tlw = this.timeline_canvas.width;
-      var tlh = this._pattern_row_height * song.song.patterns[song.song.sequence[state.cursor.get("sequence")].pattern].numrows;
-      ctx.fillStyle = '#000';
-      ctx.fillRect(this.hscroll.scrollLeft(),0, this.timeline_canvas.width, gfx.height);
-      ctx.drawImage(this.timeline_canvas, 0, 0, tlw, tlh, this.hscroll.scrollLeft(), gfx.height / 2 - (this._pattern_row_height/2) - this._pattern_row_height*(state.cursor.get("row")), tlw, tlh);
-      ctx.fillRect(this.hscroll.scrollLeft(),0, this.timeline_canvas.width, this._pattern_header_height);
-
-      // Draw the cursor row.
-      var cy = gfx.height/2 - (this._pattern_row_height/2);
-      ctx.globalCompositeOperation = 'lighten';
-      ctx.fillStyle = '#2a5684';
-      ctx.fillRect(0, cy, gfx.width, this._pattern_row_height);
-
-      // Draw the individual cursor
-      ctx.fillStyle = '#0F0';
-      ctx.globalCompositeOperation = 'darken';
-      var cx = this.timeline_canvas.width + this._timeline_right_margin + this._event_left_margin;
-      cx += state.cursor.get("track") * this._pattern_cellwidth;
-      for(var i = 0; i < state.cursor.get("item"); i += 1) {
-        cx += this._cursor_offsets[i];
-      }
-      ctx.fillRect(cx, cy, this._cursor_sizes[state.cursor.get("item")], this._pattern_row_height);
-      ctx.globalCompositeOperation = 'source-over';
-      ctx.strokeStyle = '#0F0';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(cx-1, cy-1, this._cursor_sizes[state.cursor.get("item")]+2, this._pattern_row_height+2);
+      this.redrawCanvas();
 
       this.lastCursor = state.cursor.toJS();
       this.xoffset = this.hscroll.scrollLeft();
     }
   }
 
+  redrawCanvas() {
+    if(!this.fontloaded) {
+      window.requestAnimationFrame(() => this.redrawCanvas() );
+      return;
+    }
+    var ctx = this.canvas.getContext('2d');
+
+    var h = $("#pattern-editor").height();
+    h = Math.floor((h-11)/this._pattern_row_height);
+    if(h%2 === 0) h -= 1;
+    h *= this._pattern_row_height;
+    this.canvas.height = h;
+
+    var patternheight = this.canvas.height - this._pattern_header_height;
+
+    ctx.imageSmoothingEnabled = false;
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.drawImage(this.pat_canvas, this.timeline_canvas.width + this._timeline_right_margin, this.canvas.height / 2 - (this._pattern_row_height/2) - this._pattern_row_height*(state.cursor.get("row")));
+    ctx.fillStyle = '#000';
+    ctx.clearRect(0, 0, this.canvas.width, this._pattern_header_height);
+    ctx.font = "16px monospace";
+    ctx.textAlign = "center";
+    for(var i = 0; i < song.song.tracks.length; i += 1) {
+      var dx = this.timeline_canvas.width + this._timeline_right_margin + (i * this._pattern_cellwidth);
+      ctx.fillStyle = '#000';
+      ctx.fillRect(dx, 0, this._pattern_cellwidth, this._pattern_header_height);
+      ctx.fillStyle = '#FFF';
+      var trackname = song.song.tracks[i].name;
+      ctx.fillText(trackname, dx + (this._pattern_cellwidth/2), 15, this._pattern_cellwidth);
+    }
+
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#FFF';
+    ctx.beginPath();
+    ctx.moveTo(this.timeline_canvas.width + 1, 0);
+    ctx.lineTo(this.canvas.width, 0);
+    ctx.lineTo(this.canvas.width, this.canvas.height);
+    ctx.lineTo(this.timeline_canvas.width + 1, this.canvas.height);
+    //ctx.lineTo(this.timeline_canvas.width + this._timeline_right_margin, 0);
+    for(var i = 1; i < song.song.tracks.length; i += 1) {
+      var dx = this.timeline_canvas.width + this._timeline_right_margin + (i * this._pattern_cellwidth);
+      ctx.moveTo(dx, 0);
+      ctx.lineTo(dx, this.canvas.height);
+    }
+    ctx.moveTo(this.hscroll.scrollLeft() + this.timeline_canvas.width + 1, 0);
+    ctx.lineTo(this.hscroll.scrollLeft() + this.timeline_canvas.width + 1, this.canvas.height);
+    ctx.stroke();
+
+    // Draw the timline fixed to the left of the view.
+    var tlw = this.timeline_canvas.width;
+    var tlh = this._pattern_row_height * song.song.patterns[song.song.sequence[state.cursor.get("sequence")].pattern].numrows;
+    ctx.fillStyle = '#000';
+    ctx.fillRect(this.hscroll.scrollLeft(),0, this.timeline_canvas.width, this.canvas.height);
+    ctx.drawImage(this.timeline_canvas, 0, 0, tlw, tlh, this.hscroll.scrollLeft(), this.canvas.height / 2 - (this._pattern_row_height/2) - this._pattern_row_height*(state.cursor.get("row")), tlw, tlh);
+    ctx.fillRect(this.hscroll.scrollLeft(),0, this.timeline_canvas.width, this._pattern_header_height);
+
+    // Draw the cursor row.
+    var cy = this.canvas.height/2 - (this._pattern_row_height/2);
+    ctx.globalCompositeOperation = 'lighten';
+    ctx.fillStyle = '#2a5684';
+    ctx.fillRect(0, cy, this.canvas.width, this._pattern_row_height);
+
+    // Draw the individual cursor
+    ctx.fillStyle = '#0F0';
+    ctx.globalCompositeOperation = 'darken';
+    var cx = this.timeline_canvas.width + this._timeline_right_margin + this._event_left_margin;
+    cx += state.cursor.get("track") * this._pattern_cellwidth;
+    for(var i = 0; i < state.cursor.get("item"); i += 1) {
+      cx += this._cursor_offsets[i];
+    }
+    ctx.fillRect(cx, cy, this._cursor_sizes[state.cursor.get("item")], this._pattern_row_height);
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.strokeStyle = '#0F0';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(cx-1, cy-1, this._cursor_sizes[state.cursor.get("item")]+2, this._pattern_row_height+2);
+  }
+
   refresh() {
     $(this.target).empty();
     this.render();
+    window.requestAnimationFrame(() => this.redrawCanvas());
   }
 
   onScroll(e) {
@@ -539,7 +553,7 @@ export default class PatternEditorCanvas {
       });
     } else {
       this.hscroll.scrollLeft(this.hscroll.scrollLeft() + e.originalEvent.deltaX);
-      this.render();
+      this.updateCanvas();
     }
     e.preventDefault();
   }
@@ -554,7 +568,7 @@ export default class PatternEditorCanvas {
     function animateScroll() {
       currentTime += increment;
       element.scrollLeft(easeInOutQuad(currentTime, start, change, duration));
-      this.render();
+      this.updateCanvas();
       if (currentTime < duration) {
         setTimeout(animateScroll.bind(this), increment);
       }
@@ -578,7 +592,7 @@ export default class PatternEditorCanvas {
         this.scrollHorizTo(this.hscroll, pos.cx - 6, 100);
       }
     }
-    window.requestAnimationFrame(this.render.bind(this));
+    window.requestAnimationFrame(this.updateCanvas.bind(this));
   }
 
   onEventChanged(cursor, event) {
@@ -600,7 +614,7 @@ export default class PatternEditorCanvas {
       // It's ok, just leave it undefined for now.
       pattern = undefined;
     }
-    this.init();
+    this.initWidth();
     state.set({
       cursor: {
         pattern,

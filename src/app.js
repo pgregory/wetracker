@@ -113,7 +113,7 @@ function downloadXM(uri, player) {
     } else {
       console.log("unable to load", uri);
     }
-    var canvas = document.getElementById('gfxpattern');
+    var canvas = document.getElementById('pattern-editor');
     PE = new PatternEditorCanvas(canvas);
     monitors = new Monitors($('#monitors'));
     sequenceEditor = new SequenceEditor($('#sequence-editor'));
