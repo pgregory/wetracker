@@ -19,8 +19,14 @@ export class State {
       scopes: [],
     });
 
+    this.transport = new Immutable.Map({
+      step: 4,
+      octave: 4,
+    });
+
     this.cursorChanged = Signal.signal(true);
     this.tracksChanged = Signal.signal(true);
+    this.transportChanged = Signal.signal(true);
   }
 
 
@@ -33,6 +39,11 @@ export class State {
     if ('tracks' in state ) {
       this.tracks = this.tracks.merge(state.tracks);
       this.tracksChanged();
+    }
+
+    if ('transport' in state ) {
+      this.transport = this.transport.merge(state.transport);
+      this.transportChanged();
     }
   }
 }

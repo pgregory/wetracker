@@ -53,7 +53,7 @@ export class VirtualKeyboard {
     if (event.ctrlKey || event.shiftKey || event.metaKey ) {
       return false;
     }
-    var current_octave = 4; // Note: should get this from the state soon.
+    var current_octave = state.transport.get("octave"); 
     if (event.key in this.mappingTable) {
       song.addNoteToSong(state.cursor.toJS(), this.mappingTable[event.key] + (12 * current_octave), state.cursor.get("instrument") + 1); 
       return true;

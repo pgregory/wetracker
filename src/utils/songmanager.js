@@ -12,11 +12,24 @@ export class SongManager {
     this.eventChanged = Signal.signal(false);
     this.songChanged = Signal.signal(false);
 
-    this.noteEntries = [
+    this.eventEntries = [
+      'note',
       'instrument',
       'volume',
       'fxtype',
       'fxparam',
+    ];
+
+    this.eventIndices = [
+      0,
+      1,
+      1,
+      2,
+      2,
+      3,
+      3,
+      4,
+      4,
     ];
 
     this.newSong();
@@ -69,6 +82,32 @@ export class SongManager {
     this.eventChanged(cursor, notecol);
   }
 
+  deleteItemAtCursor(cursor) {
+    const notecol = this.findEventAtCursor(cursor);
+
+    const eventItem = this.eventIndices[cursor.item];
+    if (eventItem < this.eventEntries.length) {
+      const entry = this.eventEntries[eventItem];
+
+      switch(entry) {
+        case "note":
+        case "instrument":
+        case "volume":
+          notecol[entry] = -1;
+          break;
+        case "fxtype":
+        case "fxparam":
+          notecol["fxtype"] = 0;
+          notecol["fxparam"] = 0;
+          break;
+        default:
+          notecol[entry] = 0;
+          break;
+      }
+      this.eventChanged(cursor, notecol);
+    }
+  }
+
   setHexValueAtCursor(cursor, value) {
     const notecol = this.findEventAtCursor(cursor);
     let vald = value;
@@ -78,9 +117,9 @@ export class SongManager {
       mask = 0x0F;
     }
 
-    const noteitem = Math.floor((cursor.item - 1) / 2);
-    if (noteitem < this.noteEntries.length) {
-      const entry = this.noteEntries[noteitem];
+    const eventItem = this.eventIndices[cursor.item];
+    if (eventItem < this.eventEntries.length) {
+      const entry = this.eventEntries[eventItem];
 
       notecol[entry] = (notecol[entry] & mask) | vald;
       this.eventChanged(cursor, notecol);

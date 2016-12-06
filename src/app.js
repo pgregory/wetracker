@@ -4,6 +4,7 @@ import 'gridstack';
 import 'gridstack/dist/gridstack.css';
 import 'font-awesome-webpack';
 
+import Transport from './components/transport/transport';
 import PatternEditorCanvas from './components/pattern_editor/pattern_editor_canvas';
 import Monitors from './components/monitors/monitors';
 import SequenceEditor from './components/sequence_editor/sequence_editor';
@@ -11,7 +12,6 @@ import InstrumentList from './components/instrument_list/instrument_list';
 import SampleEditor from './components/sample_editor/sample_editor';
 
 import gridTemplate from './templates/grid.marko';
-import transportTemplate from './components/transport/templates/transport.marko';
 
 import './components/transport/styles.css';
 
@@ -28,21 +28,57 @@ import { hexInput } from './utils/hexinput';
 import styles from './styles.css';
 
 $(document).keydown((event) => {
+  if ($(event.target).is('input, textarea, select')) {
+    return;
+  }
   switch (event.key) {
     case "ArrowUp": {
       cursor.rowUp();
-      break;
+      event.preventDefault();
+      return;
     }
     case "ArrowDown": {
       cursor.rowDown();
-      break;
+      event.preventDefault();
+      return;
     }
     case "ArrowRight": {
       cursor.itemRight();
-      break;
+      event.preventDefault();
+      return;
     }
     case "ArrowLeft": {
       cursor.itemLeft();
+      break;
+    }
+    case "Backspace":
+    case "Delete": {
+      if (event.ctrlKey || event.shiftKey || event.metaKey ) {
+        break;
+      }
+      song.deleteItemAtCursor(state.cursor.toJS());
+      event.preventDefault();
+      return;
+    }
+    case "{":
+    case "}": {
+      state.set({
+        transport: {
+          step: event.key == "{" ? Math.max(0, state.transport.get("step") - 1) :
+                                   state.transport.get("step") + 1,
+        },
+      });
+      break;
+    }
+
+    case "\"":
+    case "|": {
+      state.set({
+        transport: {
+          octave: event.key == "\"" ? Math.max(0, state.transport.get("octave") - 1) :
+                                      state.transport.get("octave") + 1,
+        },
+      });
       break;
     }
 /*    case "s": {
@@ -62,25 +98,24 @@ $(document).keydown((event) => {
     }*/
     default: {
       if(virtualKeyboard.handleKeyAtCursor(event)) {
-        cursor.rowDown(4);
-        break;
+        cursor.rowDown(state.transport.get("step"));
+        event.preventDefault();
+        return;
       } else {
         if(hexInput.handleKeyAtCursor(event)) {
-          cursor.rowDown(4);
-          break;
+          cursor.rowDown(state.transport.get("step"));
+          event.preventDefault();
+          return;
         }
       }
-      return;
+      break;
     }
   }
-  event.preventDefault();
 });
-
-$(transportTemplate.renderSync()).appendTo($('#transport'));
 
 $('#container').append($(gridTemplate.renderSync()));
 
-//const PE = new PatternEditorCanvas($('#gfxpattern'));
+let transport = undefined;
 let PE = undefined;
 let sequenceEditor = undefined;
 let monitors = undefined;
@@ -138,6 +173,8 @@ function downloadXM(uri, player) {
 }
 
 $(document).ready(() => {
+  transport = new Transport("#transport");
+  transport.render();
   var player = new XMPlayer();
   downloadXM(modfile, player);
 
