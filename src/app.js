@@ -172,11 +172,14 @@ $(document).ready(() => {
     $('#play').click((e) => {
       player.play();
     });
-    $('#stop').click((e) => {
-      player.stop();
+    $('#play-pattern').click((e) => {
+      player.playPattern(state.cursor.get("pattern"));
     });
-    $('#pause').click((e) => {
+    $('#stop').click((e) => {
       player.pause();
+    });
+    $('#reset').click((e) => {
+      player.reset();
     });
     $('#new').click((e) => {
       song.newSong();

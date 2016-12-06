@@ -153,6 +153,7 @@ export default class XMPlayer {
 
     this.cur_songpos = -1;
     this.cur_pat = undefined;
+    this.cyclePattern = undefined;
     this.cur_row = 64;
     this.cur_ticksamp = 0;
     this.cur_tick = 6;
@@ -256,6 +257,7 @@ export default class XMPlayer {
     this.XMView = new XMViewObject(this);
 
     Signal.connect(song, 'songChanged', this, 'onSongChanged');
+    Signal.connect(state, "cursorChanged", this, "onCursorChanged");
   }
 
   setView(viewer) {
@@ -363,11 +365,17 @@ export default class XMPlayer {
   nextRow() {
     this.cur_row++;
     if (this.cur_pat == null || this.cur_row >= song.song.patterns[this.cur_pat].numrows) {
-      this.cur_row = 0;
-      this.cur_songpos++;
-      if (this.cur_songpos >= song.song.sequence.length)
-        this.cur_songpos = song.song.loopPosition;
-      this.setCurrentPattern();
+      if (this.cyclePattern != null) {
+        this.cur_pat = this.cyclePattern;
+        this.cur_row = 0;
+      } else {
+        this.cur_row = 0;
+        this.cur_songpos++;
+        if (this.cur_songpos >= song.song.sequence.length) {
+          this.cur_songpos = song.song.loopPosition;
+        }
+        this.setCurrentPattern();
+      }
     }
     var pattern = song.song.patterns[this.cur_pat];
     if(this.cur_row < pattern.rows.length) {
@@ -1166,8 +1174,29 @@ export default class XMPlayer {
     return true;
   }
 
+  playPattern(pattern) {
+    this.cyclePattern = pattern;
+    this.cur_pat = pattern;
+    this.cur_row = 0;
+    
+    console.log(this.cur_songpos);
+
+    state.set({
+      cursor: {
+        pattern: pattern,
+        row: 0,
+      },
+    });
+
+    this._play();
+  }
 
   play() {
+    this.cyclePattern = null;
+    this._play();
+  }
+
+  _play() {
     if (!this.playing) {
       // put paused events back into action, if any
       if (this.XMView.resume) this.XMView.resume();
@@ -1175,12 +1204,12 @@ export default class XMPlayer {
       this.jsNode.connect(this.gainNode);
 
       // hack to get iOS to play anything
-      var temp_osc = this.audioctx.createOscillator();
+      /*var temp_osc = this.audioctx.createOscillator();
       temp_osc.connect(this.audioctx.destination);
       if (temp_osc.noteOn) temp_osc.start = temp_osc.noteOn;
       temp_osc.start(0);
       temp_osc.stop();
-      temp_osc.disconnect();
+      temp_osc.disconnect();*/
     }
     this.playing = true;
   }
@@ -1193,7 +1222,7 @@ export default class XMPlayer {
     this.playing = false;
   }
 
-  stop() {
+  reset() {
     if (this.playing) {
       this.jsNode.disconnect(this.gainNode);
       this.playing = false;
@@ -1202,9 +1231,17 @@ export default class XMPlayer {
     this.cur_row = 768;
     this.cur_songpos = -1;
     this.cur_ticksamp = 0;
-    song.song.globalVolume = this.max_global_volume;
-
     this.nextRow();
+
+    state.set({
+      cursor: {
+        sequence: this.cur_songpos,
+        pattern: this.cur_pat,
+        row: this.cur_row,
+      },
+    });
+
+    song.song.globalVolume = this.max_global_volume;
     if (this.XMView.stop) this.XMView.stop();
     //init();
   }
@@ -1217,6 +1254,12 @@ export default class XMPlayer {
     song.song.globalVolume = this.max_global_volume;
 
     this.nextRow();
+  }
+
+  onCursorChanged() {
+    if (state.cursor.get("sequence") != this.cur_songpos) {
+      this.cur_songpos = state.cursor.get("sequence");
+    }
   }
 
   eff_t1_0(ch) {  // arpeggio
