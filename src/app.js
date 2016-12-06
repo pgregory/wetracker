@@ -3,6 +3,12 @@ import $ from 'jquery';
 import 'gridstack';
 import 'gridstack/dist/gridstack.css';
 import 'font-awesome-webpack';
+import 'jquery-ui/widgets/dialog';
+import 'jquery-ui/../themes/base/base.css';
+import 'jquery-ui/../themes/base/core.css';
+import 'jquery-ui/../themes/base/theme.css';
+import 'jquery-ui/../themes/base/dialog.css';
+import 'jquery-ui/../themes/base/resizable.css';
 
 import Transport from './components/transport/transport';
 import PatternEditorCanvas from './components/pattern_editor/pattern_editor_canvas';
@@ -15,8 +21,7 @@ import gridTemplate from './templates/grid.marko';
 
 import './components/transport/styles.css';
 
-import XMPlayer from './audio/xm';
-import XMView from './audio/trackview';
+import { player } from './audio/xm';
 import modfile from '../data/onward.xm';
 
 import { song } from './utils/songmanager';
@@ -141,23 +146,6 @@ $('.grid-stack').gridstack(options).on('resizestop', function(event, ui) {
 });
 
 
-function downloadXM(uri, player) {
-  var xmReq = new XMLHttpRequest();
-  xmReq.open("GET", uri, true);
-  xmReq.responseType = "arraybuffer";
-  xmReq.onload = function (xmEvent) {
-    var arrayBuffer = xmReq.response;
-    if (arrayBuffer) {
-      if(player.load(arrayBuffer)) {
-        //player.play();
-      }
-    } else {
-      console.log("unable to load", uri);
-    }
-  };
-  xmReq.send(null);
-}
-
 $(document).ready(() => {
   transport = new Transport("#transport");
   PE = new PatternEditorCanvas($('#pattern-editor'));
@@ -185,7 +173,33 @@ $(document).ready(() => {
       song.newSong();
     });
     $('#load').click((e) => {
-      song.downloadSong(modfile, player);
+      $( "#dialog" ).empty();
+      $( "#dialog" ).append($("<input type=\"file\" id=\"file-input\" />"));
+      $( "#dialog" ).dialog({
+        width: 500,
+        modal: true,
+        buttons: {
+          Ok: function() {
+            var files = $("#file-input")[0].files;
+            if (files.length > 0) {
+              song.loadSongFromFile(files[0], (result) => {
+                song.setSong(result);
+              });
+            }
+            $( this ).dialog( "close" );
+          },
+          Cancel: function() {
+            $( this ).dialog( "close" );
+          },
+          Demo: function() {
+            song.downloadSong(modfile);
+            $( this ).dialog( "close" );
+          }
+        }
+      });
+    });
+    $('#save').click((e) => {
+      song.saveSongToLocal();
     });
 
     PE.render();
@@ -194,8 +208,4 @@ $(document).ready(() => {
     instrumentList.render();
     sampleEditor.render();
   });
-
-  var player = new XMPlayer();
-  //downloadXM(modfile, player);
-
 });

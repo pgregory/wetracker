@@ -5,7 +5,8 @@ import pad from '../../data/instrument_3.json';
 import Signal from '../utils/signal';
 import Immutable from 'immutable';
 
-import { Envelope } from '../audio/xm';
+import Envelope from '../audio/envelope';
+import { xmloader } from './xmloader';
 
 export class SongManager {
   constructor() {
@@ -126,11 +127,7 @@ export class SongManager {
     }
   }
 
-  newSong() {
-    this.song = Immutable.fromJS(songdata).toJS();
-    this.song.instruments.push(Immutable.fromJS(cymbal).toJS());
-    this.song.instruments.push(Immutable.fromJS(pad).toJS());
-
+  initialiseSong() {
     // Initialise the channelinfo for each track, temporary.
     for(var i = 0; i < this.song.tracks.length; i += 1) {
       var channelinfo = {
@@ -155,19 +152,31 @@ export class SongManager {
     // Initialise the instruments
     for(i = 0; i < this.song.instruments.length; i += 1) {
       var inst = this.song.instruments[i];
-      inst.env_vol = new Envelope(
-        inst.env_vol.points,
-        inst.env_vol.type,
-        inst.env_vol.sustain,
-        inst.env_vol.loopstart,
-        inst.env_vol.loop_end);
-      inst.env_pan = new Envelope(
-        inst.env_pan.points,
-        inst.env_pan.type,
-        inst.env_pan.sustain,
-        inst.env_pan.loopstart,
-        inst.env_pan.loop_end);
+      if (inst.env_vol) {
+        inst.env_vol = new Envelope(
+          inst.env_vol.points,
+          inst.env_vol.type,
+          inst.env_vol.sustain,
+          inst.env_vol.loopstart,
+          inst.env_vol.loop_end);
+      }
+      if (inst.env_pan) {
+        inst.env_pan = new Envelope(
+          inst.env_pan.points,
+          inst.env_pan.type,
+          inst.env_pan.sustain,
+          inst.env_pan.loopstart,
+          inst.env_pan.loop_end);
+      }
     }
+  }
+
+  newSong() {
+    this.song = Immutable.fromJS(songdata).toJS();
+    this.song.instruments.push(Immutable.fromJS(cymbal).toJS());
+    this.song.instruments.push(Immutable.fromJS(pad).toJS());
+
+    this.initialiseSong();
 
     this.songChanged();
   }
@@ -175,10 +184,12 @@ export class SongManager {
   setSong(song) {
     this.song = song;
 
+    this.initialiseSong();
+
     this.songChanged();
   }
 
-  downloadSong(uri, player) {
+  downloadSong(uri) {
     let xmReq = new XMLHttpRequest();
     xmReq.open("GET", uri, true);
     xmReq.responseType = "arraybuffer";
@@ -186,8 +197,9 @@ export class SongManager {
     xmReq.onload = (xmEvent) => {
       const arrayBuffer = xmReq.response;
       if (arrayBuffer) {
-        if(player.load(arrayBuffer)) {
-          console.log(`Song ${_this.song.name} loaded`);
+        var newSong = xmloader.load(arrayBuffer);
+        if (newSong) {
+          song.setSong(newSong);
         }
       } else {
         console.log("Unable to load", uri);
@@ -196,6 +208,42 @@ export class SongManager {
     xmReq.send(null);
   }
 
+  saveSongToLocal() {
+    function download(text, name, type) {
+      var a = document.createElement("a");
+      var file = new Blob([text], {type: type});
+      a.href = URL.createObjectURL(file);
+      a.download = name;
+      a.click();
+    }
+    download(JSON.stringify(this.song), this.song.name ? `${this.song.name}.json` : 'wetracker-song.json', 'text/plain');
+  }
+
+  loadSongFromFile(file, callback) {
+    if (!file) {
+      return;
+    }
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var contents = e.target.result;
+      try {
+        var song = JSON.parse(contents);
+        if (callback) {
+          callback(song);
+        }
+      } catch(e) {
+        reader.onload = function(e) {
+          var contents = e.target.result;
+          var song = xmloader.load(contents);
+          if (callback) {
+            callback(song);
+          }
+        };
+        reader.readAsArrayBuffer(file);
+      }
+    };
+    reader.readAsText(file);
+  }
 }
 
 export let song = new SongManager(); 
