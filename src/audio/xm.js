@@ -335,7 +335,7 @@ export default class XMPlayer {
     var nextPat = song.song.sequence[this.cur_songpos].pattern;
 
     // check for out of range pattern index
-    while (!nextPat in song.song.patterns) {
+    while (nextPat >= song.song.patterns.length) {
       if (this.cur_songpos + 1 < song.song.sequence.length) {
         // first try skipping the position
         this.cur_songpos++;
@@ -348,18 +348,10 @@ export default class XMPlayer {
         // try going to song_looppos
         this.cur_songpos = song.song.loopPosition;
       }
-
       nextPat = song.song.sequence[this.cur_songpos].pattern;
     }
 
     this.cur_pat = nextPat;
-
-    state.set({
-      cursor: {
-        sequence: this.cur_songpos,
-        pattern: this.cur_pat,
-      }
-    });
   }
 
   nextRow() {
@@ -1179,8 +1171,6 @@ export default class XMPlayer {
     this.cur_pat = pattern;
     this.cur_row = 0;
     
-    console.log(this.cur_songpos);
-
     state.set({
       cursor: {
         pattern: pattern,
@@ -1257,7 +1247,7 @@ export default class XMPlayer {
   }
 
   onCursorChanged() {
-    if (state.cursor.get("sequence") != this.cur_songpos) {
+    if (!this.playing && state.cursor.get("sequence") != this.cur_songpos) {
       this.cur_songpos = state.cursor.get("sequence");
     }
   }

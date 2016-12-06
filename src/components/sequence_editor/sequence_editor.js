@@ -44,7 +44,6 @@ export default class SequenceEditor {
   }
 
   onCursorChanged() {
-    console.log("Cursor Changed", state.cursor.get("sequence"));
     if (state.cursor.get("sequence") != this.lastCursor.sequence) {
       $(this.target).find(".current-pattern").removeClass('current-pattern');
       $(this.target).find(".sequence-row").eq(state.cursor.get("sequence")).addClass('current-pattern');
