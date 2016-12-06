@@ -65,26 +65,6 @@
       "numrows": 64,
       "rows": [
         [
-          {
-            "trackindex": 0,
-            "notedata": [
-              { 
-                "columnindex": 0,
-                "note": 0, 
-                "fxtype": 10
-              }
-            ]
-          },
-          {
-            "trackindex": 1,
-            "notedata": [
-              { 
-                "columnindex": 0,
-                "note": 1, 
-                "volume": 40
-              }
-            ]
-          }
         ]
       ]
     }
