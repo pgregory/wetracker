@@ -1166,6 +1166,7 @@ export default class XMPlayer {
     return true;
   }
 
+
   play() {
     if (!this.playing) {
       // put paused events back into action, if any

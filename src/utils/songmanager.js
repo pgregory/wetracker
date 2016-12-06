@@ -177,6 +177,25 @@ export class SongManager {
 
     this.songChanged();
   }
+
+  downloadSong(uri, player) {
+    let xmReq = new XMLHttpRequest();
+    xmReq.open("GET", uri, true);
+    xmReq.responseType = "arraybuffer";
+    const _this = this;
+    xmReq.onload = (xmEvent) => {
+      const arrayBuffer = xmReq.response;
+      if (arrayBuffer) {
+        if(player.load(arrayBuffer)) {
+          console.log(`Song ${_this.song.name} loaded`);
+        }
+      } else {
+        console.log("Unable to load", uri);
+      }
+    };
+    xmReq.send(null);
+  }
+
 }
 
 export let song = new SongManager(); 

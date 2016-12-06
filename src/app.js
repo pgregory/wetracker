@@ -154,40 +154,45 @@ function downloadXM(uri, player) {
     } else {
       console.log("unable to load", uri);
     }
-    var canvas = document.getElementById('pattern-editor');
-    PE = new PatternEditorCanvas(canvas);
-    monitors = new Monitors($('#monitors'));
-    sequenceEditor = new SequenceEditor($('#sequence-editor'));
-    instrumentList = new InstrumentList($('#instrument-list'));
-    sampleEditor = new SampleEditor($('#sample-editor'));
-    window.requestAnimationFrame(() => {
-      PE.render();
-      monitors.render();
-      sequenceEditor.render();
-      instrumentList.render();
-      sampleEditor.render();
-    });
-
   };
   xmReq.send(null);
 }
 
 $(document).ready(() => {
   transport = new Transport("#transport");
-  transport.render();
-  var player = new XMPlayer();
-  downloadXM(modfile, player);
+  PE = new PatternEditorCanvas($('#pattern-editor'));
+  monitors = new Monitors($('#monitors'));
+  sequenceEditor = new SequenceEditor($('#sequence-editor'));
+  instrumentList = new InstrumentList($('#instrument-list'));
+  sampleEditor = new SampleEditor($('#sample-editor'));
 
-  $('#play').click((e) => {
-    player.play();
+  window.requestAnimationFrame(() => {
+
+    transport.render();
+    $('#play').click((e) => {
+      player.play();
+    });
+    $('#stop').click((e) => {
+      player.stop();
+    });
+    $('#pause').click((e) => {
+      player.pause();
+    });
+    $('#new').click((e) => {
+      song.newSong();
+    });
+    $('#load').click((e) => {
+      song.downloadSong(modfile, player);
+    });
+
+    PE.render();
+    monitors.render();
+    sequenceEditor.render();
+    instrumentList.render();
+    sampleEditor.render();
   });
-  $('#stop').click((e) => {
-    player.stop();
-  });
-  $('#pause').click((e) => {
-    player.pause();
-  });
-  $('#new').click((e) => {
-    song.newSong();
-  });
+
+  var player = new XMPlayer();
+  //downloadXM(modfile, player);
+
 });
