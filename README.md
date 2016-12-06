@@ -34,17 +34,17 @@ but at the same time, you can't save anything, so try it out and come back with 
 Basic operation: It starts with an empty song, one pattern and a couple of sample instruments. There is
 currently no way to create new patterns or songs. You can make any changes you like to the pattern, the 
 keyboard is normal Fasttracker style, 
-
+```
   Z,X,C,V,B,N,M = C,D,E,F,G,A,B 
   S,D = C#, D#
   G,H,J = F#, G#, A#
   Q,W,E,R,T,Y,U = C,D,E,F,G,A,B one octave up
   2,3 = C#, D# one octave up
-  5,6,7 = F#, G#, A# one otave up
+  5,6,7 = F#, G#, A# one octave up
   
   0-9 A-F = Hex input on all other event elements
   Delete = Deletes the item under the cursor
-  
+```  
 Currently there is no record mode, you edit all the time. Scrolling with the mouse wheel is the normal way
 to work in most components, including the pattern editor, the sequence list and the instrument list.
 
