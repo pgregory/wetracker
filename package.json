@@ -5,7 +5,10 @@
   "main": "./src/app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack-dev-server --inline"
+    "dev": "webpack-dev-server --inline",
+    "build": "NODE_ENV=production webpack --progress --hide-modules --config webpack.config.js",
+    "postinstall": "npm run build",
+    "start": "node server.js"
   },
   "author": "",
   "license": "ISC",
