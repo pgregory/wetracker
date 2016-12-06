@@ -25,3 +25,8 @@ npm run start
 ```
 Visit the [website](https://pgregory.github.io/wetracker/) for more up to date information 
 and semi-regular blog updates.
+
+The current development status is deployed to Heroku for you to tinker with. You can't break anything, 
+but at the same time, you can't save anything, so try it out and come back with suggestions and comments.
+
+[https://wetracker.herokuapp.com/](https://wetracker.herokuapp.com/)
