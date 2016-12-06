@@ -26,8 +26,7 @@ npm run start
 Visit the [website](https://pgregory.github.io/wetracker/) for more up to date information 
 and semi-regular blog updates.
 
-The current development status is deployed to Heroku for you to tinker with. You can't break anything, 
-but at the same time, you can't save anything, so try it out and come back with suggestions and comments.
+The current development status is deployed to Heroku for you to tinker with. 
 
 [https://wetracker.herokuapp.com/](https://wetracker.herokuapp.com/)
 
@@ -48,6 +47,15 @@ keyboard is normal Fasttracker style,
 Currently there is no record mode, you edit all the time. Scrolling with the mouse wheel is the normal way
 to work in most components, including the pattern editor, the sequence list and the instrument list.
 
-The first icon will reset the song, the third will load a sample song, onward.xm, PLAY plays the song, PLAY 
-in a circle plays the current pattern, PAUSE pauses, REWIND resets. You can edit the step and octave values, 
+The toolbar has some basic functionality.
+
+* ![new](http://pgregory.github.io/wetracker/images/new_song_icon.png) - Reset to the default empty song.
+* ![save](http://pgregory.github.io/wetracker/images/save_song_icon.png) - Download your current song as WeTracker JSON format.
+* ![load](http://pgregory.github.io/wetracker/images/load_song_icon.png) - Load a song, in WeTracker JSON format or FastTrackerII .xm format.
+* ![play](http://pgregory.github.io/wetracker/images/play_icon.png) - Play the song from the current position.
+* ![play pattern](http://pgregory.github.io/wetracker/images/play_pattern_icon.png) - Play the current pattern in a continuous cycle.
+* ![pause](http://pgregory.github.io/wetracker/images/pause_icon.png) - Pause playback.
+* ![restart](http://pgregory.github.io/wetracker/images/play_icon.png) - Go back to the start of the song.
+
+You can edit the step and octave values in the toolbar, 
 or use "{" and "}" to increment/decrement step, and """ and "|" to increment and decrement octave.
