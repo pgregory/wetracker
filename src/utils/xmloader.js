@@ -2,6 +2,11 @@ import Envelope from '../audio/envelope';
 
 class XMLoader {
   constructor() {
+    // for pretty-printing notes
+    this._note_names = [
+      "C-", "C#", "D-", "D#", "E-", "F-",
+      "F#", "G-", "G#", "A-", "A#", "B-"
+    ];
   }
 
   getstring(dv, offset, len) {
@@ -72,6 +77,37 @@ class XMLoader {
     samp.type = 1;
   }
 
+  prettify_note(note) {
+    if (note < 0) return "---";
+    if (note == 96) return "^^^";
+    return this._note_names[note%12] + ~~(note/12);
+  }
+
+  prettify_number(num) {
+    if (num == -1) return "--";
+    if (num < 10) return "0" + num;
+    return num;
+  }
+
+  prettify_volume(num) {
+    if (num < 0x10) return "--";
+    return num.toString(16);
+  }
+
+  prettify_effect(t, p) {
+    if (t >= 10) t = String.fromCharCode(55 + t);
+    if (p < 16) p = '0' + p.toString(16);
+    else p = p.toString(16);
+    return t + p;
+  }
+
+  prettify_notedata(data) {
+    return (this.prettify_note(data[0]) + " " + this.prettify_number(data[1]) + " " +
+        this.prettify_volume(data[2]) + " " +
+        this.prettify_effect(data[3], data[4]));
+  }
+
+
   load(arrayBuf) {
     var dv = new DataView(arrayBuf);
 
@@ -133,24 +169,37 @@ class XMLoader {
         channelinfo,
       });
     }
-    //console.log("header len " + hlen);
+    console.log("header len " + hlen);
 
-    //console.log("songlen %d, %d channels, %d patterns, %d instruments", songlen, newSong.tracks.length, newSong.patterns.length, newSong.intruments.length);
-    //console.log("loop @%d", newSong.loopPosition);
-    //console.log("flags=%d lpb %d bpm %d", this.flags, newSong.lpb, newSong.bpm);
+    console.log("songlen %d, %d channels, %d patterns, %d instruments", songlen, numTracks, npat, ninst);
+    console.log("loop @%d", newSong.loopPosition);
+    console.log("flags=%d lpb %d bpm %d", this.flags, newSong.lpb, newSong.bpm);
 
+    let maxPat = 0;
     for (i = 0; i < songlen; i++) {
       var pat = dv.getUint8(0x50 + i);
       newSong.sequence.push({pattern: pat});
+      maxPat = Math.max(maxPat, pat);
     }
-    //console.log("song patterns: ", newSong.sequence);
+    console.log("song patterns: ", newSong.sequence);
+
+    // Fill in the pattern list first, to the maxPat, in case there are any
+    // patterns specified in the sequence that aren't in the pattern list.
+    for (i = 0; i <= maxPat; i++) {
+      newSong.patterns[i] = {
+        patternid: `p${i}`,
+        name: `Pattern ${i}`,
+        numrows: 32,
+        rows: [],
+      };
+    }
 
     var idx = hlen;
     for (i = 0; i < npat; i++) {
       var patheaderlen = dv.getUint32(idx, true);
       var patrows = dv.getUint16(idx + 5, true);
       var patsize = dv.getUint16(idx + 7, true);
-      //console.log("pattern %d: %d bytes, %d rows", i, patsize, patrows);
+      console.log("pattern %d: %d bytes, %d rows", i, patsize, patrows);
       idx += 9;
 
       newSong.patterns[i] = {
@@ -208,7 +257,7 @@ class XMLoader {
         newSong.patterns[i].rows.push(row);
       }
     }
-
+    
     newSong.instruments = [];
     // now load instruments
     for (i = 0; i < ninst; i++) {
@@ -244,8 +293,8 @@ class XMLoader {
         // FIXME: ignoring keymaps for now and assuming 1 sample / instrument
         // var keymap = getarray(dv, idx+0x21);
         var samphdrsiz = dv.getUint32(idx+0x1d, true);
-        //console.log("hdrsiz %d; instrument %s: '%s' %d samples, samphdrsiz %d",
-        //    hdrsiz, (i+1).toString(16), instname, nsamp, samphdrsiz);
+        console.log("hdrsiz %d; instrument %s: '%s' %d samples, samphdrsiz %d",
+            hdrsiz, (i+1).toString(16), instname, nsamp, samphdrsiz);
         idx += hdrsiz;
         var totalsamples = 0;
         var samps = [];
@@ -263,15 +312,15 @@ class XMLoader {
           if (samplooplen === 0) {
             samptype &= ~3;
           }
-          //console.log("sample %d: len %d name '%s' loop %d/%d vol %d offset %s",
-              //j, samplen, sampname, samploop, samplooplen, sampvol, sampleoffset.toString(16));
-          //console.log("           type %d note %s(%d) finetune %d pan %d",
-              //samptype, this.prettify_note(sampnote + 12*4), sampnote, sampfinetune, samppan);
-          //console.log("           vol env", env_vol, env_vol_sustain,
-              //env_vol_loop_start, env_vol_loop_end, "type", env_vol_type,
-              //"fadeout", vol_fadeout);
-          //console.log("           pan env", env_pan, env_pan_sustain,
-              //env_pan_loop_start, env_pan_loop_end, "type", env_pan_type);
+          console.log("sample %d: len %d name '%s' loop %d/%d vol %d offset %s",
+              j, samplen, sampname, samploop, samplooplen, sampvol, sampleoffset.toString(16));
+          console.log("           type %d note %s(%d) finetune %d pan %d",
+              samptype, this.prettify_note(sampnote + 12*4), sampnote, sampfinetune, samppan);
+          console.log("           vol env", env_vol, env_vol_sustain,
+              env_vol_loop_start, env_vol_loop_end, "type", env_vol_type,
+              "fadeout", vol_fadeout);
+          console.log("           pan env", env_pan, env_pan_sustain,
+              env_pan_loop_start, env_pan_loop_end, "type", env_pan_type);
           var samp = {
             'len': samplen, 'loop': samploop,
             'looplen': samplooplen, 'note': sampnote, 'fine': sampfinetune,
@@ -338,16 +387,14 @@ class XMLoader {
         }
       } else {
         idx += hdrsiz;
-        //console.log("empty instrument", i, hdrsiz, idx);
+        console.log("empty instrument", i, hdrsiz, idx);
       }
       newSong.instruments.push(inst);
     }
 
-    //song.setSong(newSong);
+    console.log(newSong);
 
-    //this.nextRow();
-
-    //console.log("loaded \"" + newSong.name + "\"");
+    console.log("loaded \"" + newSong.name + "\"");
 
     /*function download(text, name, type) {
       var a = document.createElement("a");

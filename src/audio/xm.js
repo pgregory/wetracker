@@ -214,7 +214,7 @@ class XMPlayer {
     var audioContext = window.AudioContext || window.webkitAudioContext;
     this.audioctx = new audioContext();
     this.gainNode = this.audioctx.createGain();
-    this.gainNode.gain.value = 1.0;  // master volume
+    this.gainNode.gain.value = 0.5;  // master volume
 
     if (this.audioctx.createScriptProcessor === undefined) {
       this.jsNode = this.audioctx.createJavaScriptNode(16384, 0, 2);
