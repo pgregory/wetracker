@@ -133,6 +133,7 @@ var options = {
     resizable: {
       handles: 'n, ne, e, se, s, sw, w, nw'
     },
+    handleClass: 'widget-titlebar',
     alwaysShowResizeHandle: true,
 };
 $('.grid-stack').gridstack(options).on('resizestop', function(event, ui) {
