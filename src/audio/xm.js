@@ -866,6 +866,12 @@ class XMPlayer {
     this._play();
   }
 
+  toggleMuteTrack(index) {
+    if (index < this.tracks.length) {
+      this.tracks[index].mute = !this.tracks[index].mute;
+    }
+  }
+
   _play() {
     if (!this.playing) {
       // put paused events back into action, if any

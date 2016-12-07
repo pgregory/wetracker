@@ -3,6 +3,7 @@ import $ from 'jquery';
 import Signal from '../../utils/signal';
 import { state } from '../../state';
 import { song } from '../../utils/songmanager';
+import { player } from '../../audio/xm';
 
 import monitorsTemplate from './templates/monitors.marko';
 
@@ -20,6 +21,14 @@ export default class Monitors {
   render() {
     var columns = Math.ceil(song.song.tracks.length / 2.0);
     $(this.target).append(monitorsTemplate.renderSync({song: song.song, columns}));
+
+    $(this.target).find(".monitor-canvas").click((e) => {
+      this.clickTrack($(e.target).data('trackindex'));
+    }); 
+  }
+
+  clickTrack(index) {
+    player.toggleMuteTrack(index);
   }
 
   onTracksChanged() {
