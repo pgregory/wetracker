@@ -121,6 +121,9 @@ class XMPlayer {
 
     this.f_smp = 44100;  // updated by play callback, default value here
 
+    this.tracks = [];
+    this.envelopes = [];
+
     // per-sample exponential moving average for volume changes (to prevent pops
     // and clicks); evaluated every 8 samples
     this.popfilter_alpha = 0.9837;
@@ -349,7 +352,7 @@ class XMPlayer {
         }
         var trackinfo = song.song.tracks[trackindex];
         if (trackinfo) {
-          var ch = trackinfo.channelinfo;
+          var ch = this.tracks[trackindex];
           var inst = ch.inst;
           var triggernote = false;
           var event = {};
@@ -361,6 +364,7 @@ class XMPlayer {
             inst = song.song.instruments[event.instrument - 1];
             if (inst && inst.samplemap) {
               ch.inst = inst;
+              ch.envelopes = this.envelopes[event.instrument - 1];
               // retrigger unless overridden below
               triggernote = true;
               if (ch.note && inst.samplemap) {
@@ -468,8 +472,8 @@ class XMPlayer {
                   // alone
                   ch.envtick = 0;
                   ch.release = 0;
-                  ch.env_vol = new EnvelopeFollower(inst.env_vol);
-                  ch.env_pan = new EnvelopeFollower(inst.env_pan);
+                  ch.env_vol = new EnvelopeFollower(ch.envelopes.env_vol);
+                  ch.env_pan = new EnvelopeFollower(ch.envelopes.env_pan);
                 }
               }
             }
@@ -480,8 +484,8 @@ class XMPlayer {
             if (ch.effect != 9) ch.off = 0;
             ch.release = 0;
             ch.envtick = 0;
-            ch.env_vol = new EnvelopeFollower(inst.env_vol);
-            ch.env_pan = new EnvelopeFollower(inst.env_pan);
+            ch.env_vol = new EnvelopeFollower(ch.envelopes.env_vol);
+            ch.env_pan = new EnvelopeFollower(ch.envelopes.env_pan);
             if (ch.note) {
               ch.period = this.periodForNote(ch, ch.note);
             }
@@ -500,7 +504,7 @@ class XMPlayer {
     this.cur_tick++;
     var j, ch;
     for (j in song.song.tracks) {
-      ch = song.song.tracks[j].channelinfo;
+      ch = this.tracks[j];
       ch.periodoffset = 0;
     }
     if (this.cur_tick >= song.song.lpb) {
@@ -508,7 +512,7 @@ class XMPlayer {
       this.nextRow();
     }
     for (j in song.song.tracks) {
-      ch = song.song.tracks[j].channelinfo;
+      ch = this.tracks[j];
       var inst = ch.inst;
       if (this.cur_tick !== 0) {
         if(ch.voleffectfn) ch.voleffectfn.bind(this)(ch);
@@ -757,7 +761,7 @@ class XMPlayer {
         }
 
         VU[j] = this.MixChannelIntoBuf(
-            song.song.tracks[j].channelinfo, offset, offset + tickduration, dataL, dataR) /
+            this.tracks[j], offset, offset + tickduration, dataL, dataR) /
           tickduration;
 
         if (tickduration >= 4*scopewidth) {
@@ -918,6 +922,54 @@ class XMPlayer {
     this.cur_songpos = -1;
     this.cur_ticksamp = 0;
     song.song.globalVolume = this.max_global_volume;
+
+    this.tracks = [];
+
+    // Initialise the channelinfo for each track.
+    for(var i = 0; i < song.song.tracks.length; i += 1) {
+      var trackinfo = {
+        number: i,
+        filterstate: new Float32Array(3),
+        vol: 0,
+        pan: 128,
+        period: 1920 - 48*16,
+        vL: 0, vR: 0,   // left right volume envelope followers (changes per sample)
+        vLprev: 0, vRprev: 0,
+        mute: 0,
+        volE: 0, panE: 0,
+        retrig: 0,
+        vibratopos: 0,
+        vibratodepth: 1,
+        vibratospeed: 1,
+        vibratotype: 0,
+      };
+      this.tracks.push(trackinfo);
+    }
+
+    this.envelopes = [];
+    // Initialise the instrument envelope objects
+    for(i = 0; i < song.song.instruments.length; i += 1) {
+      const inst = song.song.instruments[i];
+      let env_vol = undefined;
+      let env_pan = undefined;
+      if (inst.env_vol) {
+        env_vol = new Envelope(
+          inst.env_vol.points,
+          inst.env_vol.type,
+          inst.env_vol.sustain,
+          inst.env_vol.loopstart,
+          inst.env_vol.loop_end);
+      }
+      if (inst.env_pan) {
+        env_pan = new Envelope(
+          inst.env_pan.points,
+          inst.env_pan.type,
+          inst.env_pan.sustain,
+          inst.env_pan.loopstart,
+          inst.env_pan.loop_end);
+      }
+      this.envelopes.push({ env_vol, env_pan });
+    }
 
     this.nextRow();
   }

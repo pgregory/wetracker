@@ -5,7 +5,6 @@ import pad from '../../data/instrument_3.json';
 import Signal from '../utils/signal';
 import Immutable from 'immutable';
 
-import Envelope from '../audio/envelope';
 import { xmloader } from './xmloader';
 
 export class SongManager {
@@ -127,64 +126,16 @@ export class SongManager {
     }
   }
 
-  initialiseSong() {
-    // Initialise the channelinfo for each track, temporary.
-    for(var i = 0; i < this.song.tracks.length; i += 1) {
-      var channelinfo = {
-        number: i,
-        filterstate: new Float32Array(3),
-        vol: 0,
-        pan: 128,
-        period: 1920 - 48*16,
-        vL: 0, vR: 0,   // left right volume envelope followers (changes per sample)
-        vLprev: 0, vRprev: 0,
-        mute: 0,
-        volE: 0, panE: 0,
-        retrig: 0,
-        vibratopos: 0,
-        vibratodepth: 1,
-        vibratospeed: 1,
-        vibratotype: 0,
-      };
-      this.song.tracks[i].channelinfo = channelinfo;
-    }
-
-    // Initialise the instruments
-    for(i = 0; i < this.song.instruments.length; i += 1) {
-      var inst = this.song.instruments[i];
-      if (inst.env_vol) {
-        inst.env_vol = new Envelope(
-          inst.env_vol.points,
-          inst.env_vol.type,
-          inst.env_vol.sustain,
-          inst.env_vol.loopstart,
-          inst.env_vol.loop_end);
-      }
-      if (inst.env_pan) {
-        inst.env_pan = new Envelope(
-          inst.env_pan.points,
-          inst.env_pan.type,
-          inst.env_pan.sustain,
-          inst.env_pan.loopstart,
-          inst.env_pan.loop_end);
-      }
-    }
-  }
-
   newSong() {
     this.song = Immutable.fromJS(songdata).toJS();
     this.song.instruments.push(Immutable.fromJS(cymbal).toJS());
     this.song.instruments.push(Immutable.fromJS(pad).toJS());
-
-    this.initialiseSong();
 
     this.songChanged();
   }
 
   setSong(song) {
     this.song = song;
-
-    this.initialiseSong();
 
     this.songChanged();
   }

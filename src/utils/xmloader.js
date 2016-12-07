@@ -1,4 +1,3 @@
-import Envelope from '../audio/envelope';
 
 class XMLoader {
   constructor() {
@@ -138,22 +137,6 @@ class XMLoader {
     var i, j, k;
 
     for (i = 0; i < numTracks; i++) {
-      var channelinfo = {
-        number: i,
-        filterstate: new Float32Array(3),
-        vol: 0,
-        pan: 128,
-        period: 1920 - 48*16,
-        vL: 0, vR: 0,   // left right volume envelope followers (changes per sample)
-        vLprev: 0, vRprev: 0,
-        mute: 0,
-        volE: 0, panE: 0,
-        retrig: 0,
-        vibratopos: 0,
-        vibratodepth: 1,
-        vibratospeed: 1,
-        vibratotype: 0,
-      };
       newSong.tracks.push({
         id: `track${i}`,
         fxcolumns: 1,
@@ -166,7 +149,6 @@ class XMLoader {
             id: 'c1',
           },
         ],
-        channelinfo,
       });
     }
     console.log("header len " + hlen);
@@ -360,30 +342,44 @@ class XMLoader {
             env_vol.push(env_end_tick + fadeout_ticks);
             env_vol.push(0);
           }
-          inst.env_vol = new Envelope(
-              env_vol,
-              env_vol_type,
-              env_vol_sustain,
-              env_vol_loop_start,
-              env_vol_loop_end);
+          inst.env_vol = { 
+              points: env_vol,
+              type: env_vol_type,
+              sustain: env_vol_sustain,
+              loopstart: env_vol_loop_start,
+              loopend: env_vol_loop_end,
+          };
         } else {
           // no envelope, then just make a default full-volume envelope.
           // i thought this would use fadeout, but apparently it doesn't.
-          inst.env_vol = new Envelope([0, 64, 1, 0], 2, 0, 0, 0);
+          inst.env_vol = {
+            points: [0, 64, 1, 0], 
+            type: 2,
+            sustain: 0,
+            loopstart: 0,
+            loopend: 0,
+          };
         }
         if (env_pan_type) {
           if (!(env_pan_type & 2)) {  // if there's no sustain point, create one
             env_pan_sustain = env_pan.length / 2;
           }
-          inst.env_pan = new Envelope(
-              env_pan,
-              env_pan_type,
-              env_pan_sustain,
-              env_pan_loop_start,
-              env_pan_loop_end);
+          inst.env_pan = { 
+              points: env_pan,
+              type: env_pan_type,
+              sustain: env_pan_sustain,
+              loopstart: env_pan_loop_start,
+              loopend: env_pan_loop_end,
+          };
         } else {
           // create a default empty envelope
-          inst.env_pan = new Envelope([0, 32], 0, 0, 0, 0);
+          inst.env_pan = {
+            points: [0, 32],
+            type: 0,
+            sustain: 0,
+            loopstart: 0,
+            loopend: 0,
+          };
         }
       } else {
         idx += hdrsiz;
