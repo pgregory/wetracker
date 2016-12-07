@@ -444,6 +444,10 @@ class XMPlayer {
               if (eff_t0 && eff_t0.bind(this)(ch, ch.effectdata)) {
                 triggernote = false;
               }
+              // If effect B or D, jump or pattern break, don't process any more columns.
+              if (ch.effect === 0xb || ch.effect === 0xd ) {
+                break;
+              }
             } else {
               console.log("channel", i, "effect > 36", ch.effect);
             }
@@ -1049,7 +1053,7 @@ class XMPlayer {
   eff_t0_b(ch, data) {  // song jump (untested)
     if (data < song.song.sequence.length) {
       this.cur_songpos = data;
-      this.cur_pat = song.song.sequence[this.cur_songpos];
+      this.cur_pat = song.song.sequence[this.cur_songpos].pattern;
       this.cur_row = -1;
     }
   }
@@ -1062,7 +1066,7 @@ class XMPlayer {
     this.cur_songpos++;
     if (this.cur_songpos >= song.song.sequence.length)
       this.cur_songpos = song.song.loopPosition;
-    this.cur_pat = song.song.sequence[this.cur_songpos];
+    this.cur_pat = song.song.sequence[this.cur_songpos].pattern;
     this.cur_row = (data >> 4) * 10 + (data & 0x0f) - 1;
   }
 
