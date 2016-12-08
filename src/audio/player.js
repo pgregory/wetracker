@@ -87,6 +87,7 @@ class Player {
   constructor() {
     this.tracks = [];
     this.envelopes = [];
+    this.instruments = [];
 
     // per-sample exponential moving average for volume changes (to prevent pops
     // and clicks); evaluated every 8 samples
@@ -315,8 +316,8 @@ class Player {
         }
         var trackinfo = song.song.tracks[trackindex];
         if (trackinfo) {
-          var ch = this.tracks[trackindex];
-          var inst = ch.inst;
+          //var ch = this.tracks[trackindex];
+          //var inst = ch.inst;
           var triggernote = false;
           var event = {};
           if ("notedata" in track && track.notedata.length > 0) {
@@ -324,88 +325,90 @@ class Player {
           }
           // instrument trigger
           if ("note" in event && event.note != -1) {
-            inst = song.song.instruments[event.instrument - 1];
+            /*inst = song.song.instruments[event.instrument - 1];
             if (inst && inst.samplemap) {
-              ch.inst = inst;
-              ch.envelopes = this.envelopes[event.instrument - 1];
+              //ch.inst = inst;
+              //ch.envelopes = this.envelopes[event.instrument - 1];
               // retrigger unless overridden below
               triggernote = true;
               if (ch.note && inst.samplemap) {
-                ch.samp = inst.samples[inst.samplemap[ch.note]];
-                ch.vol = ch.samp.vol;
-                ch.pan = ch.samp.pan;
-                ch.fine = ch.samp.fine;
+                //ch.samp = inst.samples[inst.samplemap[ch.note]];
+                //ch.vol = ch.samp.vol;
+                //ch.pan = ch.samp.pan;
+                //ch.fine = ch.samp.fine;
               }
             } else {
               // console.log("invalid inst", r[i][1], song.song.instruments.length);
-            }
+            }*/
+            triggernote = true;
           }
 
           // note trigger
           if ("note" in event && event.note != -1) {
             if (event.note == 96) {
-              ch.release = 1;
+              //ch.release = 1;
               triggernote = false;
             } else {
-              if (inst && inst.samplemap) {
+              /*if (inst && inst.samplemap) {
                 var note = event.note;
-                ch.note = note;
-                ch.samp = inst.samples[inst.samplemap[ch.note]];
+                //ch.note = note;
+                //ch.samp = inst.samples[inst.samplemap[ch.note]];
                 if (triggernote) {
                   // if we were already triggering the note, reset vol/pan using
                   // (potentially) new sample
-                  ch.pan = ch.samp.pan;
-                  ch.vol = ch.samp.vol;
-                  ch.fine = ch.samp.fine;
+                  //ch.pan = ch.samp.pan;
+                  //ch.vol = ch.samp.vol;
+                  //ch.fine = ch.samp.fine;
                 }
                 triggernote = true;
-              }
+              }*/
+              triggernote = true;
             }
           }
 
-          ch.voleffectfn = undefined;
+          //ch.voleffectfn = undefined;
           if ("volume" in event && event.volume != -1) {  // volume column
             var v = event.volume;
-            ch.voleffectdata = v & 0x0f;
+            //ch.voleffectdata = v & 0x0f;
             if (v < 0x10) {
               console.log("channel", i, "invalid volume", v.toString(16));
             } else if (v <= 0x50) {
-              ch.vol = v - 0x10;
+              //ch.vol = v - 0x10;
             } else if (v >= 0x60 && v < 0x70) {  // volume slide down
-              ch.voleffectfn = function(ch) {
-                ch.vol = Math.max(0, ch.vol - ch.voleffectdata);
-              };
+              //ch.voleffectfn = function(ch) {
+              //  ch.vol = Math.max(0, ch.vol - ch.voleffectdata);
+              //};
             } else if (v >= 0x70 && v < 0x80) {  // volume slide up
-              ch.voleffectfn = function(ch) {
-                ch.vol = Math.min(64, ch.vol + ch.voleffectdata);
-              };
+              //ch.voleffectfn = function(ch) {
+              //  ch.vol = Math.min(64, ch.vol + ch.voleffectdata);
+              //};
             } else if (v >= 0x80 && v < 0x90) {  // fine volume slide down
-              ch.vol = Math.max(0, ch.vol - (v & 0x0f));
+              //ch.vol = Math.max(0, ch.vol - (v & 0x0f));
             } else if (v >= 0x90 && v < 0xa0) {  // fine volume slide up
-              ch.vol = Math.min(64, ch.vol + (v & 0x0f));
+              //ch.vol = Math.min(64, ch.vol + (v & 0x0f));
             } else if (v >= 0xa0 && v < 0xb0) {  // vibrato speed
-              ch.vibratospeed = v & 0x0f;
+              //ch.vibratospeed = v & 0x0f;
             } else if (v >= 0xb0 && v < 0xc0) {  // vibrato w/ depth
-              ch.vibratodepth = v & 0x0f;
-              ch.voleffectfn = this.effects_t1[4];  // use vibrato effect directly
-              var tempeffectfn = this.effects_t1[4];
-              if(tempeffectfn) tempeffectfn.bind(this)(ch);  // and also call it on tick 0
+              //ch.vibratodepth = v & 0x0f;
+              //ch.voleffectfn = this.effects_t1[4];  // use vibrato effect directly
+              //var tempeffectfn = this.effects_t1[4];
+              //if(tempeffectfn) tempeffectfn.bind(this)(ch);  // and also call it on tick 0
             } else if (v >= 0xc0 && v < 0xd0) {  // set panning
-              ch.pan = (v & 0x0f) * 0x11;
+              //ch.pan = (v & 0x0f) * 0x11;
             } else if (v >= 0xf0 && v <= 0xff) {  // portamento
-              if (v & 0x0f) {
-                ch.portaspeed = (v & 0x0f) << 4;
-              }
-              ch.voleffectfn = this.effects_t1[3].bind(this);  // just run 3x0
+              //if (v & 0x0f) {
+              //  ch.portaspeed = (v & 0x0f) << 4;
+              //}
+              //ch.voleffectfn = this.effects_t1[3].bind(this);  // just run 3x0
             } else {
               console.log("track", track, "volume effect", v.toString(16));
             }
           }
 
           if("fxtype" in event) {
-            ch.effect = event.fxtype;
-            ch.effectdata = event.fxparam;
-            if (ch.effect < 36) {
+            //ch.effect = event.fxtype;
+            //ch.effectdata = event.fxparam;
+            /*if (ch.effect < 36) {
               ch.effectfn = this.effects_t1[ch.effect];
               var eff_t0 = this.effects_t0[ch.effect];
               if (eff_t0 && eff_t0.bind(this)(ch, ch.effectdata)) {
@@ -417,10 +420,10 @@ class Player {
               }
             } else {
               console.log("channel", i, "effect > 36", ch.effect);
-            }
+            }*/
 
             // special handling for portamentos: don't trigger the note
-            if (ch.effect == 3 || ch.effect == 5 || event.volume >= 0xf0) {
+            /*if (ch.effect == 3 || ch.effect == 5 || event.volume >= 0xf0) {
               if (event.note != -1) {
                 ch.periodtarget = this.periodForNote(ch, ch.note);
               }
@@ -439,23 +442,27 @@ class Player {
                   ch.env_pan = new EnvelopeFollower(ch.envelopes.env_pan);
                 }
               }
-            }
+            }*/
           }
 
           if (triggernote) {
             // there's gotta be a less hacky way to handle offset commands...
-            if (ch.effect != 9) ch.off = 0;
-            ch.release = 0;
-            ch.envtick = 0;
-            ch.env_vol = new EnvelopeFollower(ch.envelopes.env_vol);
-            ch.env_pan = new EnvelopeFollower(ch.envelopes.env_pan);
-            if (ch.note) {
-              ch.period = this.periodForNote(ch, ch.note);
-            }
+            //if (ch.effect != 9) ch.off = 0;
+            //ch.release = 0;
+            //ch.envtick = 0;
+            //ch.env_vol = new EnvelopeFollower(ch.envelopes.env_vol);
+            //ch.env_pan = new EnvelopeFollower(ch.envelopes.env_pan);
+            //if (ch.note) {
+            //  ch.period = this.periodForNote(ch, ch.note);
+            //}
             // waveforms 0-3 are retriggered on new notes while 4-7 are continuous
-            if (ch.vibratotype < 4) {
-              ch.vibratopos = 0;
-            }
+            //if (ch.vibratotype < 4) {
+            //  ch.vibratopos = 0;
+            //}
+            var node = this.audioctx.createBufferSource();
+            node.connect(this.gainNode);
+            node.buffer = this.instruments[0].samples[0];
+            node.start(this.nextTickTime);
           }
         }
       }
@@ -466,15 +473,15 @@ class Player {
   nextTick() {
     this.cur_tick++;
     var j, ch;
-    for (j in song.song.tracks) {
+    /*for (j in song.song.tracks) {
       ch = this.tracks[j];
       ch.periodoffset = 0;
-    }
+    }*/
     if (this.cur_tick >= song.song.lpb) {
       this.cur_tick = 0;
       this.nextRow();
     }
-    for (j in song.song.tracks) {
+    /*for (j in song.song.tracks) {
       ch = this.tracks[j];
       var inst = ch.inst;
       if (this.cur_tick !== 0) {
@@ -496,24 +503,27 @@ class Player {
       ch.volE = ch.env_vol.Tick(ch.release);
       ch.panE = ch.env_pan.Tick(ch.release);
       this.updateChannelPeriod(ch, ch.period + ch.periodoffset);
+    }*/
+    if (this.XMView.pushEvent) {
+      this.XMView.pushEvent({
+        t: this.nextTickTime,
+        songpos: this.cur_songpos,
+        pat: this.cur_pat,
+        row: this.cur_row
+      });
     }
   }
 
   scheduler() {
     //console.log("Tick!");
 
-    var secondsPerBeat = 60.0 / song.song.bpm;
+    var msPerTick = 2.5 / song.song.bpm;
     var notes = 0;
     while(this.nextTickTime < (this.audioctx.currentTime + this.scheduleAheadTime)) {
-      var osc = this.audioctx.createOscillator();
-      osc.connect(this.gainNode);
-      osc.frequency.value = 220;
-      osc.start(this.nextTickTime);
-      osc.stop(this.nextTickTime + 0.05);
+      this.nextTick();
       notes += 1;
-      this.nextTickTime += 0.25 * secondsPerBeat; 
+      this.nextTickTime += msPerTick; 
     }
-    console.log("Scheduled ", notes);
   }
 
   playPattern(pattern) {
@@ -598,6 +608,8 @@ class Player {
     this.cur_ticksamp = 0;
     song.song.globalVolume = this.max_global_volume;
 
+    console.log("Song changed");
+
     this.tracks = [];
 
     // Initialise the channelinfo for each track.
@@ -625,7 +637,7 @@ class Player {
     // Initialise the instrument envelope objects
     for(i = 0; i < song.song.instruments.length; i += 1) {
       const inst = song.song.instruments[i];
-      let env_vol = undefined;
+      /*let env_vol = undefined;
       let env_pan = undefined;
       if (inst.env_vol) {
         env_vol = new Envelope(
@@ -643,7 +655,23 @@ class Player {
           inst.env_pan.loopstart,
           inst.env_pan.loop_end);
       }
-      this.envelopes.push({ env_vol, env_pan });
+      this.envelopes.push({ env_vol, env_pan });*/
+
+      var buf = this.audioctx.createBuffer(1, inst.samples[0].len, this.audioctx.sampleRate);
+      var chan = buf.getChannelData(0);
+      try {
+        for(var s = 0; s < inst.samples[0].len; s += 1) {
+          chan[s] = inst.samples[0].sampledata[s];
+        }
+        this.instruments.push({
+          samples: [
+            buf,
+          ]
+        });
+        console.log("Sample copied");
+      } catch(e) {
+        console.log(e);
+      }
     }
 
     this.nextRow();
