@@ -21,7 +21,7 @@ import gridTemplate from './templates/grid.marko';
 
 import './components/transport/styles.css';
 
-import { player } from './audio/xm';
+import { player } from './audio/player';
 import modfile from '../data/onward.xm';
 
 import { song } from './utils/songmanager';
