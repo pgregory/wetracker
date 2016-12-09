@@ -86,6 +86,7 @@ class XMViewObject {
 class PlayerInstrument {
   constructor(inst, ctx) {
     this.inst = inst; // A reference to the instrument in the song
+    this.ctx = ctx;
 
     // Build AudioBuffers from the sample data stored in the song
     this.buffers = [];
@@ -101,6 +102,16 @@ class PlayerInstrument {
       }
       this.buffers.push(buf);
     }
+  }
+
+  playNoteOnChannel(channel, time, note) {
+    const node = this.ctx.createBufferSource();
+    const rate = 8363 * Math.pow(2, (note - 48) / 12.0) / this.ctx.sampleRate;  
+    node.playbackRate.value = rate;
+    node.connect(channel.gainNode);
+    const buffer = this.buffers[this.inst.samplemap[note]];
+    node.buffer = buffer;
+    node.start(time);
   }
 }
 
@@ -339,7 +350,6 @@ class Player {
         if (trackinfo) {
           var ch = this.tracks[trackindex];
           var inst = ch.inst;
-          var buffers = ch.buffers;
           var triggernote = false;
           var event = {};
           if ("notedata" in track && track.notedata.length > 0) {
@@ -355,7 +365,6 @@ class Player {
               triggernote = true;
               if (ch.note && inst.samplemap) {
                 ch.samp = inst.inst.samples[inst.inst.samplemap[ch.note]];
-                ch.buffer = inst.buffers[inst.inst.samplemap[ch.note]];
                 ch.vol = ch.samp.vol;
                 ch.pan = ch.samp.pan;
                 ch.fine = ch.samp.fine;
@@ -376,7 +385,6 @@ class Player {
                 var note = event.note;
                 ch.note = note;
                 ch.samp = inst.inst.samples[inst.inst.samplemap[note]];
-                ch.buffer = inst.buffers[inst.inst.samplemap[note]];
                 if (triggernote) {
                   // if we were already triggering the note, reset vol/pan using
                   // (potentially) new sample
@@ -483,12 +491,7 @@ class Player {
             if (ch.vibratotype < 4) {
               ch.vibratopos = 0;
             }
-            var node = this.audioctx.createBufferSource();
-            var rate = 8363 * Math.pow(2, (ch.note - 48) / 12.0) / this.audioctx.sampleRate;  
-            node.playbackRate.value = rate;
-            node.connect(this.gainNode);
-            node.buffer = ch.buffer;
-            node.start(this.nextTickTime);
+            ch.inst.playNoteOnChannel(ch, this.nextTickTime, ch.note);
           }
         }
       }
@@ -655,8 +658,10 @@ class Player {
         vibratodepth: 1,
         vibratospeed: 1,
         vibratotype: 0,
+        gainNode: this.audioctx.createGain(),
       };
       this.tracks.push(trackinfo);
+      trackinfo.gainNode.connect(this.audioctx.destination);
     }
 
     this.envelopes = [];
