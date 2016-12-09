@@ -121,28 +121,26 @@ export default class PatternEditorCanvas {
     this._pattern_note_width = this._pattern_character_width * 3;
     this._pattern_inst_width = this._pattern_character_width * 2;
     this._pattern_volu_width = this._pattern_character_width * 2;
-    this._pattern_effe_width = (this._pattern_character_width * 4);
+    this._pattern_effe_width = (this._pattern_character_width * 3);
     this._cursor_offsets = [
-      this._pattern_note_width + this._element_spacing,
-      this._pattern_character_width,
-      this._pattern_character_width + this._element_spacing,
-      this._pattern_character_width,
-      this._pattern_character_width + this._element_spacing,
-      this._pattern_character_width,
-      this._pattern_character_width + 2,
-      this._pattern_character_width,
-      this._pattern_character_width,
+      0,                                                      // Note
+      this._pattern_note_width + this._element_spacing,       // Instr1
+      this._pattern_character_width,                          // Instr2
+      this._pattern_character_width + this._element_spacing,  // Vol1
+      this._pattern_character_width,                          // Vol2
+      this._pattern_character_width + this._element_spacing,  // FX Type
+      this._pattern_character_width + 2,                      // FX Param1
+      this._pattern_character_width,                          // FX Param2
     ];
     this._cursor_sizes = [
-      this._pattern_note_width,
-      this._pattern_character_width,
-      this._pattern_character_width,
-      this._pattern_character_width,
-      this._pattern_character_width,
-      this._pattern_character_width,
-      this._pattern_character_width,
-      this._pattern_character_width,
-      this._pattern_character_width,
+      this._pattern_note_width,                               // Note
+      this._pattern_character_width,                          // Instr1
+      this._pattern_character_width,                          // Instr2
+      this._pattern_character_width,                          // Vol1
+      this._pattern_character_width,                          // Vol2
+      this._pattern_character_width,                          // FX Type
+      this._pattern_character_width,                          // FX Param1
+      this._pattern_character_width,                          // FX Param2
     ];
     // N-O II VV EFF
     this._pattern_cellwidth = this._event_left_margin + 
@@ -236,9 +234,8 @@ export default class PatternEditorCanvas {
     dx += this._pattern_volu_width + this._pattern_spacing;
     // render effect
     ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx, 0, cw, 8);
-    ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx+cw, 0, cw, 8);
-    ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx+cw+cw+2, 0, cw, 8);
-    ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx+cw+cw+2+cw, 0, cw, 8);
+    ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx+cw+2, 0, cw, 8);
+    ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx+cw+2+cw, 0, cw, 8);
 
     ctx = this.timeline_canvas.getContext('2d');
     ctx.fillStyle = '#000';
@@ -267,8 +264,8 @@ export default class PatternEditorCanvas {
     if ((col.note == null || col.note === -1) &&
         (col.instrument == null || col.instrument === -1) &&
         (col.volume == null || col.volume < 0x10) &&
-        (col.fxtype == null || col.fxtype === 0) &&
-        (col.fxparam == null || col.fxparam === 0)) {
+        (col.fxtype == null || col.fxtype === -1) &&
+        (col.fxparam == null)) {
       ctx.drawImage(this.empty_event_canvas, dx, dy);
     } else {
       // render note
@@ -308,24 +305,18 @@ export default class PatternEditorCanvas {
       // render effect
       var eff = col.fxtype;
       var effdata = col.fxparam;
-      if ((eff && eff !== 0) || (effdata && effdata !== 0)) {
+      if ((eff != null && eff !== -1) || (effdata != null && effdata !== -1)) {
         // draw effect with tiny font (4px space + effect type 0..9a..z)
-        if (eff > 15) {
-          ctx.drawImage(this.mixedFont, 8*(eff>>4), this.fxFontOffset, 8, 8, dx, dy, cw, 8);
-        } else {
-          ctx.drawImage(this.mixedFont, 312, 0, 8, 8, dx, dy, cw, 8);
-        }
-        ctx.drawImage(this.mixedFont, 8*(eff&15), this.fxFontOffset, 8, 8, dx+cw, dy, cw, 8);
-        dx += cw*2+2;
+        ctx.drawImage(this.mixedFont, 8*eff, this.fxFontOffset, 8, 8, dx, dy, cw, 8);
+        dx += cw+2;
         // (hexadecimal 4-width font)
         ctx.drawImage(this.mixedFont, 8*(effdata>>4), this.fxFontOffset, 8, 8, dx, dy, cw, 8);
         ctx.drawImage(this.mixedFont, 8*(effdata&15), this.fxFontOffset, 8, 8, dx+cw, dy, cw, 8);
       } else {
         // no effect = ...
         ctx.drawImage(this.mixedFont, 312, 0, 8, 8, dx, dy, cw, 8);
-        ctx.drawImage(this.mixedFont, 312, 0, 8, 8, dx+cw, dy, cw, 8);
-        ctx.drawImage(this.mixedFont, 312, 0, 8, 8, dx+cw+cw+2, dy, cw, 8);
-        ctx.drawImage(this.mixedFont, 312, 0, 8, 8, dx+cw+cw+2+cw, dy, cw, 8);
+        ctx.drawImage(this.mixedFont, 312, 0, 8, 8, dx+cw+2, dy, cw, 8);
+        ctx.drawImage(this.mixedFont, 312, 0, 8, 8, dx+cw+2+cw, dy, cw, 8);
       }
     }
   }
@@ -524,7 +515,7 @@ export default class PatternEditorCanvas {
     ctx.globalCompositeOperation = 'darken';
     var cx = this.timeline_canvas.width + this._timeline_right_margin + this._event_left_margin;
     cx += state.cursor.get("track") * this._pattern_cellwidth;
-    for(var i = 0; i < state.cursor.get("item"); i += 1) {
+    for(var i = 1; i <= state.cursor.get("item"); i += 1) {
       cx += this._cursor_offsets[i];
     }
     ctx.fillRect(cx, cy, this._cursor_sizes[state.cursor.get("item")], this._pattern_row_height);

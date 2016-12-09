@@ -195,7 +195,7 @@ class XMLoader {
         var row = [];
         for (k = 0; k < newSong.tracks.length; k++) {
           var byte0 = dv.getUint8(idx); idx++;
-          var note = -1, inst = -1, vol = -1, efftype = 0, effparam = 0;
+          var note = -1, inst = -1, vol = -1, efftype = -1, effparam = -1;
           if (byte0 & 0x80) {
             if (byte0 & 0x01) {
               note = dv.getUint8(idx) - 1; idx++;
@@ -221,7 +221,7 @@ class XMLoader {
             efftype = dv.getUint8(idx); idx++;
             effparam = dv.getUint8(idx); idx++;
           }
-          if(note !== -1 || inst !== -1 || vol !== -1 || efftype !== 0 || effparam !== 0) {
+          if(note !== -1 || inst !== -1 || vol !== -1 || efftype !== -1 || effparam !== -1) {
             row[k] = { 
               notedata: [
                 {

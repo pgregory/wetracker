@@ -21,15 +21,14 @@ export class SongManager {
     ];
 
     this.eventIndices = [
-      0,
-      1,
-      1,
-      2,
-      2,
-      3,
-      3,
-      4,
-      4,
+      { itemIndex: 0, mask: 0, shift: 0 },
+      { itemIndex: 1, mask: 0x0F, shift: 4},
+      { itemIndex: 1, mask: 0xF0, shift: 0},
+      { itemIndex: 2, mask: 0x0F, shift: 4},
+      { itemIndex: 2, mask: 0xF0, shift: 0},
+      { itemIndex: 3, mask: 0x00, shift: 0},
+      { itemIndex: 4, mask: 0x0F, shift: 4},
+      { itemIndex: 4, mask: 0xF0, shift: 0},
     ];
 
     this.newSong();
@@ -85,7 +84,7 @@ export class SongManager {
   deleteItemAtCursor(cursor) {
     const notecol = this.findEventAtCursor(cursor);
 
-    const eventItem = this.eventIndices[cursor.item];
+    const eventItem = this.eventIndices[cursor.item].itemIndex;
     if (eventItem < this.eventEntries.length) {
       const entry = this.eventEntries[eventItem];
 
@@ -110,18 +109,29 @@ export class SongManager {
 
   setHexValueAtCursor(cursor, value) {
     const notecol = this.findEventAtCursor(cursor);
-    let vald = value;
-    let mask = 0xF0;
-    if(cursor.item % 2 !== 0) {
-      vald = vald << 4;
-      mask = 0x0F;
-    }
 
-    const eventItem = this.eventIndices[cursor.item];
+    const eventItem = this.eventIndices[cursor.item].itemIndex;
     if (eventItem < this.eventEntries.length) {
       const entry = this.eventEntries[eventItem];
+      const mask = this.eventIndices[cursor.item].mask
+      const shift = this.eventIndices[cursor.item].shift
+      const vald = value << shift;
 
       notecol[entry] = (notecol[entry] & mask) | vald;
+      this.eventChanged(cursor, notecol);
+    }
+  }
+
+  setFXAtCursor(cursor, value) {
+    const notecol = this.findEventAtCursor(cursor);
+    let vald = value;
+    if(cursor.item !== 5) {
+      return;
+    }
+
+    const eventItem = this.eventIndices[cursor.item].itemIndex;
+    if (eventItem < this.eventEntries.length) {
+      notecol.fxtype = value;
       this.eventChanged(cursor, notecol);
     }
   }
