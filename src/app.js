@@ -29,6 +29,7 @@ import { state } from './state';
 import { cursor } from './utils/cursor';
 import { virtualKeyboard } from './utils/virtualkeyboard';
 import { hexInput } from './utils/hexinput';
+import { fxInput } from './utils/fxinput';
 
 import styles from './styles.css';
 
@@ -111,6 +112,12 @@ $(document).keydown((event) => {
           cursor.rowDown(state.transport.get("step"));
           event.preventDefault();
           return;
+        } else {
+          if(fxInput.handleKeyAtCursor(event)) {
+            cursor.rowDown(state.transport.get("step"));
+            event.preventDefault();
+            return;
+          }
         }
       }
       break;
