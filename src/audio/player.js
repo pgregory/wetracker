@@ -105,13 +105,23 @@ class PlayerInstrument {
   }
 
   playNoteOnChannel(channel, time, note) {
+    console.log("playNoteOnChannel");
     const node = this.ctx.createBufferSource();
+    this.gainNode = this.ctx.createGain();
+    this.gainNode.connect(channel.gainNode);
     const rate = 8363 * Math.pow(2, (note - 48) / 12.0) / this.ctx.sampleRate;  
     node.playbackRate.value = rate;
-    node.connect(channel.gainNode);
+    node.connect(this.gainNode);
     const buffer = this.buffers[this.inst.samplemap[note]];
     node.buffer = buffer;
+    this.setVolume(channel.vol, time);
     node.start(time);
+  }
+
+  setVolume(volume, time) {
+    if (this.gainNode) {
+      this.gainNode.gain.setValueAtTime(volume/0x40, time);
+    }
   }
 }
 
@@ -510,7 +520,7 @@ class Player {
       this.cur_tick = 0;
       this.nextRow();
     }
-    /*for (j in song.song.tracks) {
+    for (j in song.song.tracks) {
       ch = this.tracks[j];
       var inst = ch.inst;
       if (this.cur_tick !== 0) {
@@ -523,16 +533,16 @@ class Player {
             "set channel", j, "period to NaN");
       }
       if (inst === undefined) continue;
-      if (ch.env_vol === undefined) {
+      /*if (ch.env_vol === undefined) {
         console.log(this.prettify_notedata(
               song.song.patterns[this.cur_pat].rows[this.cur_row][j]),
             "set channel", j, "env_vol to undefined, but note is playing");
         continue;
-      }
-      ch.volE = ch.env_vol.Tick(ch.release);
-      ch.panE = ch.env_pan.Tick(ch.release);
-      this.updateChannelPeriod(ch, ch.period + ch.periodoffset);
-    }*/
+      }*/
+      //ch.volE = ch.env_vol.Tick(ch.release);
+      //ch.panE = ch.env_pan.Tick(ch.release);
+      //this.updateChannelPeriod(ch, ch.period + ch.periodoffset);
+    }
     if (this.XMView.pushEvent) {
       this.XMView.pushEvent({
         t: this.nextTickTime,
@@ -833,6 +843,7 @@ class Player {
 
   eff_t0_c(ch, data) {  // set volume
     ch.vol = Math.min(64, data);
+    ch.inst.setVolume(Math.min(64, data), this.audioctx.currentTime);
   }
 
   eff_t0_d(ch, data) {  // pattern jump
