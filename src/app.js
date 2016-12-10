@@ -22,7 +22,7 @@ import gridTemplate from './templates/grid.marko';
 import './components/transport/styles.css';
 
 import { player } from './audio/player';
-import modfile from '../data/onward.xm';
+import modfile from '../data/test-song.xm';
 
 import { song } from './utils/songmanager';
 import { state } from './state';

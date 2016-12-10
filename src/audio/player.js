@@ -110,10 +110,69 @@ class XMViewObject {
 }
 
 class PlayerInstrument {
+  constructor(instrument, channel, note, time) {
+    this.instrument = instrument;
+    this.sourceNode = instrument.ctx.createBufferSource();
+    this.gainNode = instrument.ctx.createGain();
+    this.gainNode.connect(channel.gainNode);
+    const rate = this.periodForNote(channel, note);
+    //const rate = 8363 * Math.pow(2, (note - 48) / 12.0) / instrument.ctx.sampleRate;  
+    this.sourceNode.playbackRate.value = rate;
+    this.sourceNode.connect(this.gainNode);
+    const sample = instrument.samples[instrument.inst.samplemap[note]];
+    this.sourceNode.buffer = sample.buffer;
+    if (sample.loop) {
+      this.sourceNode.loop = sample.loop;
+      this.sourceNode.loopStart = sample.loopStart;
+      this.sourceNode.loopEnd = sample.loopEnd;
+    }
+    this.volumeEnvelope = new EnvelopeFollower(instrument.envelopes.volume);
+    this.panningEnvelope = new EnvelopeFollower(instrument.envelopes.panning);
+    this.sourceNode.start(time);
+  }
+
+  updateVolumeEnvelope(time, release) {
+    let volE = this.volumeEnvelope.Tick(release);
+    //let panE = this.panningEnvelope.Tick(release);
+    //this.updateChannelPeriod(ch, ch.period + ch.periodoffset);
+    //volE = ch.volE / 64.0;    // current volume envelope
+    //panE = 4*(ch.panE - 32);  // current panning envelope
+    //var p = panE + ch.pan - 128;  // final pan
+    //this.gainNode.gain.value = volE / 64;
+  }
+
+  stop(time) {
+    this.sourceNode.stop(time);
+  }
+
+  updateChannelPeriod(ch, period) {
+    var freq = 8363 * Math.pow(2, (1152.0 - period) / 192.0);
+    if (isNaN(freq)) {
+      console.log("invalid period!", period);
+      return;
+    }
+    var rate = freq / this.instrument.ctx.sampleRate;
+
+    this.sourceNode.playbackRate.value = rate;
+    
+    //ch.doff = freq / this.f_smp;
+    //ch.filter = this.filterCoeffs(ch.doff / 2);
+  }
+
+  periodForNote(ch, note) {
+    return 1920 - (note + ch.samp.note)*16 - ch.fine / 8.0;
+  }
+}
+
+class Instrument {
   constructor(inst, ctx) {
     this.inst = inst; // A reference to the instrument in the song
     this.ctx = ctx;
     this.samples = [];
+    this.envelopes = {
+      volume: undefined,
+      panning: undefined,
+    };
 
     // Build AudioBuffers from the sample data stored in the song
     this.buffers = [];
@@ -142,37 +201,34 @@ class PlayerInstrument {
         loopEnd,
       });
     }
+    if (inst.env_vol) {
+      this.envelopes.volume = new Envelope(
+        inst.env_vol.points,
+        inst.env_vol.type,
+        inst.env_vol.sustain,
+        inst.env_vol.loopstart,
+        inst.env_vol.loop_end);
+    }
+    if (inst.env_pan) {
+      this.envelopes.panning = new Envelope(
+        inst.env_pan.points,
+        inst.env_pan.type,
+        inst.env_pan.sustain,
+        inst.env_pan.loopstart,
+        inst.env_pan.loop_end);
+    }
   }
 
   playNoteOnChannel(channel, time, note) {
-    const node = this.ctx.createBufferSource();
-    this.gainNode = this.ctx.createGain();
-    this.gainNode.connect(channel.gainNode);
-    const rate = 8363 * Math.pow(2, (note - 48) / 12.0) / this.ctx.sampleRate;  
-    node.playbackRate.value = rate;
-    node.connect(this.gainNode);
-    const sample = this.samples[this.inst.samplemap[note]];
-    node.buffer = sample.buffer;
-    if (sample.loop) {
-      node.loop = sample.loop;
-      node.loopStart = sample.loopStart;
-      node.loopEnd = sample.loopEnd;
-    }
-    this.setVolume(channel.vol/64, time);
-    node.start(time);
+    console.log(channel, time, note);
+    return new PlayerInstrument(this, channel, note, time);
   }
 
-  setVolume(volume, time) {
-    if (this.gainNode) {
-      this.gainNode.gain.setValueAtTime(volume, time);
-    }
-  }
 }
 
 class Player {
   constructor() {
     this.tracks = [];
-    this.envelopes = [];
     this.instruments = [];
 
     // per-sample exponential moving average for volume changes (to prevent pops
@@ -414,7 +470,6 @@ class Player {
             inst = this.instruments[event.instrument - 1];
             if (inst && inst.inst && inst.inst.samplemap) {
               ch.inst = inst;
-              ch.envelopes = this.envelopes[event.instrument - 1];
               // retrigger unless overridden below
               triggernote = true;
               if (ch.note && inst.samplemap) {
@@ -514,8 +569,8 @@ class Player {
                 ch.periodtarget = this.periodForNote(ch, ch.note);
               }
               triggernote = false;
-              if (inst.inst && inst.inst.samplemap) {
-                if (ch.env_vol == undefined) {
+              if (inst && inst.inst && inst.inst.samplemap) {
+                if (ch.currentlyPlaying == undefined) {
                   // note wasn't already playing; we basically have to ignore the
                   // portamento and just trigger
                   triggernote = true;
@@ -524,8 +579,8 @@ class Player {
                   // alone
                   ch.envtick = 0;
                   ch.release = 0;
-                  ch.env_vol = new EnvelopeFollower(ch.envelopes.env_vol);
-                  ch.env_pan = new EnvelopeFollower(ch.envelopes.env_pan);
+                  //ch.env_vol = new EnvelopeFollower(ch.envelopes.env_vol);
+                  //ch.env_pan = new EnvelopeFollower(ch.envelopes.env_pan);
                 }
               }
             }
@@ -536,8 +591,8 @@ class Player {
             if (ch.effect != 9) ch.off = 0;
             ch.release = 0;
             ch.envtick = 0;
-            ch.env_vol = new EnvelopeFollower(ch.envelopes.env_vol);
-            ch.env_pan = new EnvelopeFollower(ch.envelopes.env_pan);
+            //ch.env_vol = new EnvelopeFollower(ch.envelopes.env_vol);
+            //ch.env_pan = new EnvelopeFollower(ch.envelopes.env_pan);
             if (ch.note) {
               ch.period = this.periodForNote(ch, ch.note);
             }
@@ -545,7 +600,10 @@ class Player {
             if (ch.vibratotype < 4) {
               ch.vibratopos = 0;
             }
-            ch.inst.playNoteOnChannel(ch, this.nextTickTime, ch.note);
+            if(ch.currentlyPlaying) {
+              ch.currentlyPlaying.stop(this.nextTickTime);
+            }
+            ch.currentlyPlaying = ch.inst.playNoteOnChannel(ch, this.nextTickTime, ch.note);
           }
         }
       }
@@ -556,10 +614,10 @@ class Player {
   nextTick() {
     this.cur_tick++;
     var j, ch;
-    /*for (j in song.song.tracks) {
+    for (j in song.song.tracks) {
       ch = this.tracks[j];
       ch.periodoffset = 0;
-    }*/
+    }
     if (this.cur_tick >= song.song.lpb) {
       this.cur_tick = 0;
       this.nextRow();
@@ -577,32 +635,16 @@ class Player {
             "set channel", j, "period to NaN");
       }
       if (inst === undefined) continue;
-      if (ch.env_vol === undefined) {
+      /*if (ch.env_vol === undefined) {
         console.log(this.prettify_notedata(
               song.song.patterns[this.cur_pat].rows[this.cur_row][j]),
             "set channel", j, "env_vol to undefined, but note is playing");
         continue;
-      }
-      ch.volE = ch.env_vol.Tick(ch.release);
-      ch.panE = ch.env_pan.Tick(ch.release);
-      //this.updateChannelPeriod(ch, ch.period + ch.periodoffset);
-      var volE = ch.volE / 64.0;    // current volume envelope
-      var panE = 4*(ch.panE - 32);  // current panning envelope
-      var p = panE + ch.pan - 128;  // final pan
-      var volL = song.song.globalVolume * volE * (128 - p) * ch.vol / (64 * 128 * 128);
-      var volR = song.song.globalVolume * volE * (128 + p) * ch.vol / (64 * 128 * 128);
-      var volC = song.song.globalVolume * volE * ch.vol / (64 * 128);
-      if (volL < 0) volL = 0;
-      if (volR < 0) volR = 0;
-      if(ch.inst) {
-        ch.inst.setVolume(Math.min(64, volC), this.nextTickTime);
-      }
-      /*if (volR === 0 && volL === 0)
-        return;
-      if (isNaN(volR) || isNaN(volL)) {
-        console.log("NaN volume!?", ch.number, volL, volR, volE, panE, ch.vol);
-        return;
       }*/
+      if(ch.currentlyPlaying) {
+        ch.currentlyPlaying.updateVolumeEnvelope(this.nextTickTime, ch.release);
+        ch.currentlyPlaying.updateChannelPeriod(ch, ch.period + ch.periodoffset);
+      }
     }
     if (this.XMView.pushEvent) {
       this.XMView.pushEvent({
@@ -664,6 +706,7 @@ class Player {
       this.timerID = setInterval(() => { this.scheduler(); }, this.lookahead);
     }
     this.playing = true;
+    this.nextRow();
   }
 
   pause() {
@@ -686,7 +729,6 @@ class Player {
     this.cur_row = 768;
     this.cur_songpos = -1;
     this.cur_ticksamp = 0;
-    this.nextRow();
 
     state.set({
       cursor: {
@@ -703,9 +745,10 @@ class Player {
 
   onSongChanged() {
     this.cur_pat = undefined;
-    this.cur_row = 768;
+    this.cur_row = -1;
     this.cur_songpos = -1;
     this.cur_ticksamp = 0;
+    this.playing = false;
     song.song.globalVolume = this.max_global_volume;
 
     console.log("Song changed");
@@ -733,43 +776,22 @@ class Player {
       };
       this.tracks.push(trackinfo);
       trackinfo.gainNode.connect(this.audioctx.destination);
+      trackinfo.gainNode.gain.value = 1.0;
     }
 
-    this.envelopes = [];
     this.instruments = [];
     // Initialise the instrument envelope objects
     for(i = 0; i < song.song.instruments.length; i += 1) {
       const inst = song.song.instruments[i];
-      let env_vol = undefined;
-      let env_pan = undefined;
-      if (inst.env_vol) {
-        env_vol = new Envelope(
-          inst.env_vol.points,
-          inst.env_vol.type,
-          inst.env_vol.sustain,
-          inst.env_vol.loopstart,
-          inst.env_vol.loop_end);
-      }
-      if (inst.env_pan) {
-        env_pan = new Envelope(
-          inst.env_pan.points,
-          inst.env_pan.type,
-          inst.env_pan.sustain,
-          inst.env_pan.loopstart,
-          inst.env_pan.loop_end);
-      }
-      this.envelopes.push({ env_vol, env_pan });
 
-      this.instruments.push(new PlayerInstrument(inst, this.audioctx));
+      this.instruments.push(new Instrument(inst, this.audioctx));
     }
-
-    this.nextRow();
   }
 
   onCursorChanged() {
-    if (!this.playing && state.cursor.get("sequence") != this.cur_songpos) {
+    /*if (!this.playing && state.cursor.get("sequence") != this.cur_songpos) {
       this.cur_songpos = state.cursor.get("sequence");
-    }
+    }*/
   }
 
   eff_t1_0(ch) {  // arpeggio
@@ -889,8 +911,13 @@ class Player {
   }
 
   eff_t1_a(ch) {  // volume slide
+    // TODO: Can we do a linearRampToValueAtTime to take the load of tick processing
+    // away here?
     if (ch.volumeslide !== undefined) {
       ch.vol = Math.max(0, Math.min(64, ch.vol + ch.volumeslide));
+      if(ch.gainNode) {
+        ch.gainNode.gain.setValueAtTime(Math.min(64, ch.vol)/64, this.nextTickTime);
+      }
     }
   }
 
@@ -904,8 +931,8 @@ class Player {
 
   eff_t0_c(ch, data) {  // set volume
     ch.vol = Math.min(64, data);
-    if(ch.inst) {
-      ch.inst.setVolume(Math.min(64, data)/64, this.nextTickTime);
+    if(ch.gainNode) {
+      ch.gainNode.gain.setValueAtTime(Math.min(64, data)/64, this.nextTickTime);
     }
   }
 
