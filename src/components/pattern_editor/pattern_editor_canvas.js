@@ -305,7 +305,7 @@ export default class PatternEditorCanvas {
       // render effect
       var eff = col.fxtype;
       var effdata = col.fxparam;
-      if ((eff != null && eff !== -1) || (effdata != null)) {
+      if ((eff != null && eff !== -1)) {
         // draw effect with tiny font (4px space + effect type 0..9a..z)
         ctx.drawImage(this.mixedFont, 8*eff, this.fxFontOffset, 8, 8, dx, dy, cw, 8);
         dx += cw+2;
