@@ -134,11 +134,10 @@ class PlayerInstrument {
   updateVolumeEnvelope(time, release) {
     let volE = this.volumeEnvelope.Tick(release);
     //let panE = this.panningEnvelope.Tick(release);
-    //this.updateChannelPeriod(ch, ch.period + ch.periodoffset);
     //volE = ch.volE / 64.0;    // current volume envelope
     //panE = 4*(ch.panE - 32);  // current panning envelope
     //var p = panE + ch.pan - 128;  // final pan
-    //this.gainNode.gain.value = volE / 64;
+    this.gainNode.gain.value = volE / 64;
   }
 
   stop(time) {
@@ -220,7 +219,6 @@ class Instrument {
   }
 
   playNoteOnChannel(channel, time, note) {
-    console.log(channel, time, note);
     return new PlayerInstrument(this, channel, note, time);
   }
 
@@ -240,7 +238,7 @@ class Player {
     this.cyclePattern = undefined;
     this.cur_row = 64;
     this.cur_ticksamp = 0;
-    this.cur_tick = 6;
+    this.cur_tick = 0;
     song.song.globalVolume = this.max_global_volume = 128;
 
     this.effects_t0 = [  // effect functions on tick 0
@@ -448,8 +446,8 @@ class Player {
               notes: -1,
               instrument: -1,
               volumne: -1,
-              fxtype: 0,
-              fxparam: 0,
+              fxtype: -1,
+              fxparam: -1,
             }
           ]
         };
@@ -472,9 +470,12 @@ class Player {
               ch.inst = inst;
               // retrigger unless overridden below
               triggernote = true;
-              if (ch.note && inst.samplemap) {
+              if (ch.note && inst.inst.samplemap) {
                 ch.samp = inst.inst.samples[inst.inst.samplemap[ch.note]];
                 ch.vol = ch.samp.vol;
+                if(ch.gainNode) {
+                  ch.gainNode.gain.setValueAtTime(Math.min(64, ch.vol)/64, this.nextTickTime);
+                }
                 ch.pan = ch.samp.pan;
                 ch.fine = ch.samp.fine;
               }
@@ -490,7 +491,7 @@ class Player {
               ch.release = 1;
               triggernote = false;
             } else {
-              if (inst.inst && inst.inst.samplemap) {
+              if (inst && inst.inst && inst.inst.samplemap) {
                 var note = event.note;
                 ch.note = note;
                 ch.samp = inst.inst.samples[inst.inst.samplemap[note]];
@@ -499,6 +500,9 @@ class Player {
                   // (potentially) new sample
                   ch.pan = ch.samp.pan;
                   ch.vol = ch.samp.vol;
+                  if(ch.gainNode) {
+                    ch.gainNode.gain.setValueAtTime(Math.min(64, ch.vol)/64, this.nextTickTime);
+                  }
                   ch.fine = ch.samp.fine;
                 }
                 triggernote = true;
@@ -546,7 +550,8 @@ class Player {
             }
           }
 
-          if("fxtype" in event) {
+          ch.effectfn = undefined;
+          if("fxtype" in event && event.fxtype != -1) {
             ch.effect = event.fxtype;
             ch.effectdata = event.fxparam;
             if (ch.effect < 36) {
@@ -575,6 +580,7 @@ class Player {
                   // portamento and just trigger
                   triggernote = true;
                 } else if (ch.release) {
+                  console.log("Releaing");
                   // reset envelopes if note was released but leave offset/pitch/etc
                   // alone
                   ch.envtick = 0;
@@ -671,7 +677,7 @@ class Player {
   playPattern(pattern) {
     this.cyclePattern = pattern;
     this.cur_pat = pattern;
-    this.cur_row = 0;
+    this.cur_row = -1;
     
     state.set({
       cursor: {
@@ -811,6 +817,7 @@ class Player {
   eff_t1_1(ch) {  // pitch slide up
     if (ch.slideupspeed !== undefined) {
       // is this limited? it appears not
+      console.log("eff_t1_1");
       ch.period -= ch.slideupspeed;
     }
   }
