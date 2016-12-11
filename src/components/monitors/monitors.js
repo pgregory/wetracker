@@ -3,7 +3,7 @@ import $ from 'jquery';
 import Signal from '../../utils/signal';
 import { state } from '../../state';
 import { song } from '../../utils/songmanager';
-import { player } from '../../audio/xm';
+import { player } from '../../audio/player';
 
 import monitorsTemplate from './templates/monitors.marko';
 
@@ -33,35 +33,58 @@ export default class Monitors {
 
   onTracksChanged() {
     var e = state.tracks.toJS();
-    if (e.scopes !== undefined) {
-      // update VU meters & oscilliscopes
-      for (var j = 0; j < song.song.tracks.length; j++) {
-        var canvas = document.getElementById(`vu${j}`);
-        var ctx = canvas.getContext("2d");
-        ctx.fillStyle = '#000';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // update VU meters & oscilliscopes
+    for (var j = 0; j < song.song.tracks.length; j++) {
+      var canvas = document.getElementById(`vu${j}`);
+      var ctx = canvas.getContext("2d");
+      var ch = player.tracks[j];
+
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      if(e.states[j].mute) {
+        ctx.font = "48px monospace";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "#900";
+        ctx.fillText("MUTE", canvas.width/2, canvas.height/2);
+      } else {
         ctx.fillStyle = '#0f0';
         ctx.strokeStyle = '#55acff';
+        ctx.lineWidth = 2;
 
-        var x = 0; //this._pattern_border; // + j * this._pattern_cellwidth;
+        //var x = 0; //this._pattern_border; // + j * this._pattern_cellwidth;
         // render channel number
         //this.drawText(''+j, x, 1, ctx);
 
         // volume in dB as a green bar
-        var vu_y = -Math.log(e.vu[j])*10;
-        ctx.fillRect(10, vu_y, 5, canvas.height-vu_y);
+        //var vu_y = -Math.log(e.vu[j])*10;
+        //ctx.fillRect(10, vu_y, 5, canvas.height-vu_y);
+        
+        const scopeData = e.scopes[j].scopeData;
+        const bufferLength = e.scopes[j].bufferLength;
 
-        var scale = canvas.width/this._scope_width;
+        ctx.beginPath();
 
-        // oscilloscope
-        var scope = e.scopes[j];
-        if (scope) {
-          ctx.beginPath();
-          for (var k = 0; k < this._scope_width; k++) {
-            ctx.lineTo((x + 1 + k)*scale, (canvas.height/2) - 16 * scope[k]);
+        const sliceWidth = canvas.width * 1.0 / bufferLength;
+        let x = 0;
+
+        for (var i = 0; i < bufferLength; i++) {
+
+          const v = scopeData[i] / 128.0;
+          const y = v * canvas.height / 2;
+
+          if (i === 0) {
+            ctx.moveTo(x, y);
+          } else {
+            ctx.lineTo(x, y);
           }
-          ctx.stroke();
+
+          x += sliceWidth;
         }
+
+        ctx.lineTo(canvas.width, canvas.height / 2);
+        ctx.stroke(); 
       }
     }
   }

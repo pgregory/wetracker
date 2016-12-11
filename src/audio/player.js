@@ -98,6 +98,7 @@ class XMViewObject {
           t: e.t,
           vu: e.vu,
           scopes: e.scopes,
+          states: e.states,
         }
       });
       this.shown_row = e.row;
@@ -111,6 +112,7 @@ class XMViewObject {
 
 class PlayerInstrument {
   constructor(instrument, channel, note, time) {
+    this.channel = channel;
     this.instrument = instrument;
     this.sourceNode = instrument.ctx.createBufferSource();
     this.gainNode = instrument.ctx.createGain();
@@ -132,12 +134,15 @@ class PlayerInstrument {
   }
 
   updateVolumeEnvelope(time, release) {
-    let volE = this.volumeEnvelope.Tick(release);
+    let volE = this.volumeEnvelope.Tick(release) / 64.0;
     //let panE = this.panningEnvelope.Tick(release);
     //volE = ch.volE / 64.0;    // current volume envelope
     //panE = 4*(ch.panE - 32);  // current panning envelope
     //var p = panE + ch.pan - 128;  // final pan
-    this.gainNode.gain.value = volE / 64;
+
+    let vol = song.song.globalVolume * volE * this.channel.vol / (128 * 64);
+    
+    this.gainNode.gain.value = vol;
   }
 
   stop(time) {
@@ -222,6 +227,34 @@ class Instrument {
     return new PlayerInstrument(this, channel, note, time);
   }
 
+}
+
+class Track {
+  constructor(ctx, destination) {
+    this.ctx = ctx;
+    this.filterstate = new Float32Array(3);
+    this.vol = 0;
+    this.pan = 128;
+    this.period = 1920 - 48*16;
+    this.vL = 0; 
+    this.vR = 0;   // left right volume envelope followers (changes per sample)
+    this.vLprev = 0;
+    this.vRprev = 0;
+    this.mute = 0;
+    this.volE = 0;
+    this.panE = 0;
+    this.retrig = 0;
+    this.vibratopos = 0;
+    this.vibratodepth = 1;
+    this.vibratospeed = 1;
+    this.vibratotype = 0;
+    this.gainNode = this.ctx.createGain();
+    this.analyser = this.ctx.createAnalyser();
+
+    this.gainNode.connect(this.analyser);
+    this.analyser.connect(destination);
+    this.gainNode.gain.value = 1.0;
+  }
 }
 
 class Player {
@@ -333,7 +366,7 @@ class Player {
     this.playing = false;
     this.timerID = undefined;
     this.lookahead = 20;
-    this.scheduleAheadTime = 0.1;
+    this.scheduleAheadTime = 0.05;
 
     this.XMView = new XMViewObject(this);
 
@@ -458,56 +491,54 @@ class Player {
         if (trackinfo) {
           var ch = this.tracks[trackindex];
           var inst = ch.inst;
-          var triggernote = false;
+          ch.triggernote = false;
           var event = {};
           if ("notedata" in track && track.notedata.length > 0) {
             event = track.notedata[0];
           }
           // instrument trigger
-          if ("note" in event && event.note != -1) {
+          if ("note" in event && event.note !== -1 && event.instrument && event.instrument !== -1) {
             inst = this.instruments[event.instrument - 1];
             if (inst && inst.inst && inst.inst.samplemap) {
               ch.inst = inst;
               // retrigger unless overridden below
-              triggernote = true;
+              ch.triggernote = true;
               if (ch.note && inst.inst.samplemap) {
                 ch.samp = inst.inst.samples[inst.inst.samplemap[ch.note]];
                 ch.vol = ch.samp.vol;
-                if(ch.gainNode) {
+                /*if(ch.gainNode) {
                   ch.gainNode.gain.setValueAtTime(Math.min(64, ch.vol)/64, this.nextTickTime);
-                }
+                }*/
                 ch.pan = ch.samp.pan;
                 ch.fine = ch.samp.fine;
               }
-            } else {
-              console.log("invalid inst", event.instrument, this.instruments.length, inst);
-            }
-            triggernote = true;
+            } 
+            ch.triggernote = true;
           }
 
           // note trigger
           if ("note" in event && event.note != -1) {
             if (event.note == 96) {
               ch.release = 1;
-              triggernote = false;
+              ch.triggernote = false;
             } else {
               if (inst && inst.inst && inst.inst.samplemap) {
                 var note = event.note;
                 ch.note = note;
                 ch.samp = inst.inst.samples[inst.inst.samplemap[note]];
-                if (triggernote) {
+                if (ch.triggernote) {
                   // if we were already triggering the note, reset vol/pan using
                   // (potentially) new sample
                   ch.pan = ch.samp.pan;
                   ch.vol = ch.samp.vol;
-                  if(ch.gainNode) {
+                  /*if(ch.gainNode) {
                     ch.gainNode.gain.setValueAtTime(Math.min(64, ch.vol)/64, this.nextTickTime);
-                  }
+                  }*/
                   ch.fine = ch.samp.fine;
                 }
-                triggernote = true;
+                ch.triggernote = true;
               }
-              triggernote = true;
+              ch.triggernote = true;
             }
           }
 
@@ -558,7 +589,7 @@ class Player {
               ch.effectfn = this.effects_t1[ch.effect];
               var eff_t0 = this.effects_t0[ch.effect];
               if (eff_t0 && eff_t0.bind(this)(ch, ch.effectdata)) {
-                triggernote = false;
+                ch.triggernote = false;
               }
               // If effect B or D, jump or pattern break, don't process any more columns.
               if (ch.effect === 0xb || ch.effect === 0xd ) {
@@ -573,12 +604,12 @@ class Player {
               if (event.note != -1) {
                 ch.periodtarget = this.periodForNote(ch, ch.note);
               }
-              triggernote = false;
+              ch.triggernote = false;
               if (inst && inst.inst && inst.inst.samplemap) {
                 if (ch.currentlyPlaying == undefined) {
                   // note wasn't already playing; we basically have to ignore the
                   // portamento and just trigger
-                  triggernote = true;
+                  ch.triggernote = true;
                 } else if (ch.release) {
                   console.log("Releaing");
                   // reset envelopes if note was released but leave offset/pitch/etc
@@ -592,7 +623,7 @@ class Player {
             }
           }
 
-          if (triggernote) {
+          if (ch.triggernote) {
             // there's gotta be a less hacky way to handle offset commands...
             if (ch.effect != 9) ch.off = 0;
             ch.release = 0;
@@ -606,10 +637,6 @@ class Player {
             if (ch.vibratotype < 4) {
               ch.vibratopos = 0;
             }
-            if(ch.currentlyPlaying) {
-              ch.currentlyPlaying.stop(this.nextTickTime);
-            }
-            ch.currentlyPlaying = ch.inst.playNoteOnChannel(ch, this.nextTickTime, ch.note);
           }
         }
       }
@@ -628,7 +655,10 @@ class Player {
       this.cur_tick = 0;
       this.nextRow();
     }
-    for (j in song.song.tracks) {
+
+    const scopes = [];
+    const states = [];
+    for (j = 0; j < song.song.tracks.length; j += 1) {
       ch = this.tracks[j];
       var inst = ch.inst;
       if (this.cur_tick !== 0) {
@@ -640,13 +670,28 @@ class Player {
               song.song.patterns[this.cur_pat].rows[this.cur_row][j]),
             "set channel", j, "period to NaN");
       }
-      if (inst === undefined) continue;
-      /*if (ch.env_vol === undefined) {
-        console.log(this.prettify_notedata(
-              song.song.patterns[this.cur_pat].rows[this.cur_row][j]),
-            "set channel", j, "env_vol to undefined, but note is playing");
+      const bufferLength = ch.analyser.frequencyBinCount;
+      const scopeData = new Uint8Array(bufferLength);
+      ch.analyser.getByteTimeDomainData(scopeData);
+      scopes.push({
+        scopeData,
+        bufferLength,
+      });
+
+      states.push({
+        mute: ch.mute,
+      });
+
+      if (inst === undefined) 
         continue;
-      }*/
+
+      if (ch.triggernote) {
+        if(ch.currentlyPlaying) {
+          ch.currentlyPlaying.stop(this.nextTickTime);
+        }
+        ch.currentlyPlaying = ch.inst.playNoteOnChannel(ch, this.nextTickTime, ch.note);
+        ch.triggernote = false;
+      }
       if(ch.currentlyPlaying) {
         ch.currentlyPlaying.updateVolumeEnvelope(this.nextTickTime, ch.release);
         ch.currentlyPlaying.updateChannelPeriod(ch, ch.period + ch.periodoffset);
@@ -655,6 +700,8 @@ class Player {
     if (this.XMView.pushEvent) {
       this.XMView.pushEvent({
         t: this.nextTickTime,
+        scopes,
+        states,
         songpos: this.cur_songpos,
         pat: this.cur_pat,
         row: this.cur_row
@@ -663,13 +710,9 @@ class Player {
   }
 
   scheduler() {
-    //console.log("Tick!");
-
     var msPerTick = 2.5 / song.song.bpm;
-    var notes = 0;
     while(this.nextTickTime < (this.audioctx.currentTime + this.scheduleAheadTime)) {
       this.nextTick();
-      notes += 1;
       this.nextTickTime += msPerTick; 
     }
   }
@@ -697,6 +740,12 @@ class Player {
   toggleMuteTrack(index) {
     if (index < this.tracks.length) {
       this.tracks[index].mute = !this.tracks[index].mute;
+      console.log(this.tracks[index].mute);
+      if(this.tracks[index].mute) {
+        this.tracks[index].gainNode.gain.value = 0;
+      } else {
+        this.tracks[index].gainNode.gain.value = 1;
+      }
     }
   }
 
@@ -712,7 +761,7 @@ class Player {
       this.timerID = setInterval(() => { this.scheduler(); }, this.lookahead);
     }
     this.playing = true;
-    this.nextRow();
+    //this.nextRow();
   }
 
   pause() {
@@ -763,26 +812,8 @@ class Player {
 
     // Initialise the channelinfo for each track.
     for(var i = 0; i < song.song.tracks.length; i += 1) {
-      var trackinfo = {
-        number: i,
-        filterstate: new Float32Array(3),
-        vol: 0,
-        pan: 128,
-        period: 1920 - 48*16,
-        vL: 0, vR: 0,   // left right volume envelope followers (changes per sample)
-        vLprev: 0, vRprev: 0,
-        mute: 0,
-        volE: 0, panE: 0,
-        retrig: 0,
-        vibratopos: 0,
-        vibratodepth: 1,
-        vibratospeed: 1,
-        vibratotype: 0,
-        gainNode: this.audioctx.createGain(),
-      };
+      var trackinfo = new Track(this.audioctx, this.audioctx.destination);
       this.tracks.push(trackinfo);
-      trackinfo.gainNode.connect(this.audioctx.destination);
-      trackinfo.gainNode.gain.value = 1.0;
     }
 
     this.instruments = [];
@@ -817,7 +848,6 @@ class Player {
   eff_t1_1(ch) {  // pitch slide up
     if (ch.slideupspeed !== undefined) {
       // is this limited? it appears not
-      console.log("eff_t1_1");
       ch.period -= ch.slideupspeed;
     }
   }
@@ -922,9 +952,9 @@ class Player {
     // away here?
     if (ch.volumeslide !== undefined) {
       ch.vol = Math.max(0, Math.min(64, ch.vol + ch.volumeslide));
-      if(ch.gainNode) {
+      /*if(ch.gainNode) {
         ch.gainNode.gain.setValueAtTime(Math.min(64, ch.vol)/64, this.nextTickTime);
-      }
+      }*/
     }
   }
 
@@ -938,9 +968,9 @@ class Player {
 
   eff_t0_c(ch, data) {  // set volume
     ch.vol = Math.min(64, data);
-    if(ch.gainNode) {
+    /*if(ch.gainNode) {
       ch.gainNode.gain.setValueAtTime(Math.min(64, data)/64, this.nextTickTime);
-    }
+    }*/
   }
 
   eff_t0_d(ch, data) {  // pattern jump
