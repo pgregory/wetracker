@@ -32,7 +32,7 @@ export default class Monitors {
   }
 
   onTracksChanged() {
-    var e = state.tracks.toJS();
+    var e = state.tracks;
     // update VU meters & oscilliscopes
     for (var j = 0; j < song.song.tracks.length; j++) {
       var canvas = document.getElementById(`vu${j}`);
@@ -42,7 +42,7 @@ export default class Monitors {
       ctx.fillStyle = '#000';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      if(e.states[j].mute) {
+      if(e.getIn(['states', j, 'mute'])) {
         ctx.font = "48px monospace";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
@@ -61,8 +61,8 @@ export default class Monitors {
         //var vu_y = -Math.log(e.vu[j])*10;
         //ctx.fillRect(10, vu_y, 5, canvas.height-vu_y);
         
-        const scopeData = e.scopes[j].scopeData;
-        const bufferLength = e.scopes[j].bufferLength;
+        const scopeData = e.getIn(['scopes', j, 'scopeData']);
+        const bufferLength = e.getIn(['scopes', j, 'bufferLength']);
 
         ctx.beginPath();
 

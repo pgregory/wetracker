@@ -151,7 +151,7 @@ class PlayerInstrument {
     this.sourceNode.disconnect();
   }
 
-  updateChannelPeriod(ch, period) {
+  updateChannelPeriod(time, period) {
     var freq = 8363 * Math.pow(2, (1152.0 - period) / 192.0);
     if (isNaN(freq)) {
       console.log("invalid period!", period);
@@ -254,10 +254,18 @@ class Track {
     this.vibratotype = 0;
     this.gainNode = this.ctx.createGain();
     this.analyser = this.ctx.createAnalyser();
+    
+    this.analyser.fftSize = 256;
+    this.analyserBufferLength = this.analyser.frequencyBinCount;
+    this.analyserScopeData = new Uint8Array(this.analyserBufferLength);
 
     this.gainNode.connect(this.analyser);
     this.analyser.connect(destination);
     this.gainNode.gain.value = 1.0;
+  }
+
+  updateAnalyserScopeData() {
+    this.analyser.getByteTimeDomainData(this.analyserScopeData);
   }
 }
 
@@ -674,12 +682,10 @@ class Player {
               song.song.patterns[this.cur_pat].rows[this.cur_row][j]),
             "set channel", j, "period to NaN");
       }
-      const bufferLength = ch.analyser.frequencyBinCount;
-      const scopeData = new Uint8Array(bufferLength);
-      ch.analyser.getByteTimeDomainData(scopeData);
+      ch.updateAnalyserScopeData();
       scopes.push({
-        scopeData,
-        bufferLength,
+        scopeData: ch.analyserScopeData,
+        bufferLength: ch.analyserBufferLength,
       });
 
       states.push({
@@ -698,7 +704,7 @@ class Player {
       }
       if(ch.currentlyPlaying) {
         ch.currentlyPlaying.updateVolumeEnvelope(this.nextTickTime, ch.release);
-        ch.currentlyPlaying.updateChannelPeriod(ch, ch.period + ch.periodoffset);
+        ch.currentlyPlaying.updateChannelPeriod(this.nextTickTime, ch.period + ch.periodoffset);
       }
     }
     if (this.XMView.pushEvent) {
