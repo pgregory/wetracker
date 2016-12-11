@@ -147,6 +147,8 @@ class PlayerInstrument {
 
   stop(time) {
     this.sourceNode.stop(time);
+    this.gainNode.disconnect();
+    this.sourceNode.disconnect();
   }
 
   updateChannelPeriod(ch, period) {
@@ -181,29 +183,31 @@ class Instrument {
     // Build AudioBuffers from the sample data stored in the song
     this.buffers = [];
     if (inst.samples && inst.samples.length > 0) {
-      const buf = ctx.createBuffer(1, inst.samples[0].len, ctx.sampleRate);
-      var chan = buf.getChannelData(0);
-      var loop = false;
-      var loopStart = -1;
-      var loopEnd = -1;
-      try {
-        for(var s = 0; s < inst.samples[0].len; s += 1) {
-          chan[s] = inst.samples[0].sampledata[s];
+      for(var i = 0; i < inst.samples.length; i += 1) {
+        const buf = ctx.createBuffer(1, inst.samples[i].len, ctx.sampleRate);
+        var chan = buf.getChannelData(0);
+        var loop = false;
+        var loopStart = -1;
+        var loopEnd = -1;
+        try {
+          for(var s = 0; s < inst.samples[0].len; s += 1) {
+            chan[s] = inst.samples[i].sampledata[s];
+          }
+          if (inst.samples[i].looplen !== 0) {
+            loop = true;
+            loopStart = (buf.duration / buf.length) * inst.samples[i].loop;
+            loopEnd = loopStart + ((buf.duration / buf.length) * inst.samples[i].looplen);
+          }
+        } catch(e) {
+          console.log(e);
         }
-        if (inst.samples[0].looplen !== 0) {
-          loop = true;
-          loopStart = (buf.duration / buf.length) * inst.samples[0].loop;
-          loopEnd = loopStart + ((buf.duration / buf.length) * inst.samples[0].looplen);
-        }
-      } catch(e) {
-        console.log(e);
+        this.samples.push({
+          buffer: buf,
+          loop,
+          loopStart,
+          loopEnd,
+        });
       }
-      this.samples.push({
-        buffer: buf,
-        loop,
-        loopStart,
-        loopEnd,
-      });
     }
     if (inst.env_vol) {
       this.envelopes.volume = new Envelope(
