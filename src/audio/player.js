@@ -123,11 +123,9 @@ class PlayerInstrument {
     this.sourceNode.connect(this.gainNode);
     const sample = instrument.samples[instrument.inst.samplemap[note]];
     this.sourceNode.buffer = sample.buffer;
-    if (sample.loop) {
-      this.sourceNode.loop = sample.loop;
-      this.sourceNode.loopStart = sample.loopStart;
-      this.sourceNode.loopEnd = sample.loopEnd;
-    }
+    this.sourceNode.loop = sample.loop;
+    this.sourceNode.loopStart = sample.loopStart;
+    this.sourceNode.loopEnd = sample.loopEnd;
     this.volumeEnvelope = new EnvelopeFollower(instrument.envelopes.volume);
     this.panningEnvelope = new EnvelopeFollower(instrument.envelopes.panning);
     this.sourceNode.onended = () => this.onEnded();
@@ -201,7 +199,7 @@ class Instrument {
           for(var s = 0; s < inst.samples[0].len; s += 1) {
             chan[s] = inst.samples[i].sampledata[s];
           }
-          if (inst.samples[i].looplen !== 0) {
+          if ((inst.samples[i].type & 3) == 1 && inst.samples[i].looplen !== 0) {
             loop = true;
             loopStart = (buf.duration / buf.length) * inst.samples[i].loop;
             loopEnd = loopStart + ((buf.duration / buf.length) * inst.samples[i].looplen);
