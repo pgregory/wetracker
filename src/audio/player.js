@@ -190,29 +190,31 @@ class Instrument {
     this.buffers = [];
     if (inst.samples && inst.samples.length > 0) {
       for(var i = 0; i < inst.samples.length; i += 1) {
-        const buf = ctx.createBuffer(1, inst.samples[i].len, ctx.sampleRate);
-        var chan = buf.getChannelData(0);
-        var loop = false;
-        var loopStart = -1;
-        var loopEnd = -1;
-        try {
-          for(var s = 0; s < inst.samples[0].len; s += 1) {
-            chan[s] = inst.samples[i].sampledata[s];
+        if(inst.samples[i].len > 0 ) {
+          const buf = ctx.createBuffer(1, inst.samples[i].len, ctx.sampleRate);
+          var chan = buf.getChannelData(0);
+          var loop = false;
+          var loopStart = -1;
+          var loopEnd = -1;
+          try {
+            for(var s = 0; s < inst.samples[0].len; s += 1) {
+              chan[s] = inst.samples[i].sampledata[s];
+            }
+            if ((inst.samples[i].type & 3) == 1 && inst.samples[i].looplen !== 0) {
+              loop = true;
+              loopStart = (buf.duration / buf.length) * inst.samples[i].loop;
+              loopEnd = loopStart + ((buf.duration / buf.length) * inst.samples[i].looplen);
+            }
+          } catch(e) {
+            console.log(e);
           }
-          if ((inst.samples[i].type & 3) == 1 && inst.samples[i].looplen !== 0) {
-            loop = true;
-            loopStart = (buf.duration / buf.length) * inst.samples[i].loop;
-            loopEnd = loopStart + ((buf.duration / buf.length) * inst.samples[i].looplen);
-          }
-        } catch(e) {
-          console.log(e);
+          this.samples.push({
+            buffer: buf,
+            loop,
+            loopStart,
+            loopEnd,
+          });
         }
-        this.samples.push({
-          buffer: buf,
-          loop,
-          loopStart,
-          loopEnd,
-        });
       }
     }
     if (inst.env_vol) {
@@ -685,11 +687,11 @@ class Player {
               song.song.patterns[this.cur_pat].rows[this.cur_row][j]),
             "set channel", j, "period to NaN");
       }
-      ch.updateAnalyserScopeData();
+      /*ch.updateAnalyserScopeData();
       scopes.push({
         scopeData: ch.analyserScopeData,
         bufferLength: ch.analyserBufferLength,
-      });
+      });*/
 
       states.push({
         mute: ch.mute,
