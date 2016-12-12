@@ -117,8 +117,8 @@ class PlayerInstrument {
     this.sourceNode = instrument.ctx.createBufferSource();
     this.gainNode = instrument.ctx.createGain();
     this.gainNode.connect(channel.gainNode);
-    const rate = this.periodForNote(channel, note);
-    //const rate = 8363 * Math.pow(2, (note - 48) / 12.0) / instrument.ctx.sampleRate;  
+    const period = this.periodForNote(channel, note);
+    const rate = this.rateForPeriod(period);
     this.sourceNode.playbackRate.value = rate;
     this.sourceNode.connect(this.gainNode);
     const sample = instrument.samples[instrument.inst.samplemap[note]];
@@ -130,6 +130,7 @@ class PlayerInstrument {
     }
     this.volumeEnvelope = new EnvelopeFollower(instrument.envelopes.volume);
     this.panningEnvelope = new EnvelopeFollower(instrument.envelopes.panning);
+    this.sourceNode.onended = () => this.onEnded();
     this.sourceNode.start(time);
   }
 
@@ -142,27 +143,34 @@ class PlayerInstrument {
 
     let vol = song.song.globalVolume * volE * this.channel.vol / (128 * 64);
     
-    this.gainNode.gain.value = vol;
+    //this.gainNode.gain.value = vol;
+    this.gainNode.gain.setValueAtTime(vol, time);
   }
 
   stop(time) {
     this.sourceNode.stop(time);
+  }
+
+  onEnded() {
     this.gainNode.disconnect();
     this.sourceNode.disconnect();
   }
 
   updateChannelPeriod(time, period) {
+    var rate = this.rateForPeriod(period);
+
+    //this.sourceNode.playbackRate.value = rate;
+    this.sourceNode.playbackRate.setValueAtTime(rate, time);
+  }
+
+  rateForPeriod(period) {
     var freq = 8363 * Math.pow(2, (1152.0 - period) / 192.0);
     if (isNaN(freq)) {
       console.log("invalid period!", period);
-      return;
+      return 0;
     }
     var rate = freq / this.instrument.ctx.sampleRate;
-
-    this.sourceNode.playbackRate.value = rate;
-    
-    //ch.doff = freq / this.f_smp;
-    //ch.filter = this.filterCoeffs(ch.doff / 2);
+    return rate;
   }
 
   periodForNote(ch, note) {
@@ -378,7 +386,7 @@ class Player {
     this.playing = false;
     this.timerID = undefined;
     this.lookahead = 20;
-    this.scheduleAheadTime = 0.05;
+    this.scheduleAheadTime = 0.1;
 
     this.XMView = new XMViewObject(this);
 
@@ -518,9 +526,6 @@ class Player {
               if (ch.note && inst.inst.samplemap) {
                 ch.samp = inst.inst.samples[inst.inst.samplemap[ch.note]];
                 ch.vol = ch.samp.vol;
-                /*if(ch.gainNode) {
-                  ch.gainNode.gain.setValueAtTime(Math.min(64, ch.vol)/64, this.nextTickTime);
-                }*/
                 ch.pan = ch.samp.pan;
                 ch.fine = ch.samp.fine;
               }
@@ -543,9 +548,6 @@ class Player {
                   // (potentially) new sample
                   ch.pan = ch.samp.pan;
                   ch.vol = ch.samp.vol;
-                  /*if(ch.gainNode) {
-                    ch.gainNode.gain.setValueAtTime(Math.min(64, ch.vol)/64, this.nextTickTime);
-                  }*/
                   ch.fine = ch.samp.fine;
                 }
                 ch.triggernote = true;
@@ -657,6 +659,9 @@ class Player {
 
 
   nextTick() {
+    if(this.audioctx.currentTime > this.nextTickTime) {
+      console.log("Lag!!!");
+    }
     this.cur_tick++;
     var j, ch;
     for (j in song.song.tracks) {
@@ -962,9 +967,6 @@ class Player {
     // away here?
     if (ch.volumeslide !== undefined) {
       ch.vol = Math.max(0, Math.min(64, ch.vol + ch.volumeslide));
-      /*if(ch.gainNode) {
-        ch.gainNode.gain.setValueAtTime(Math.min(64, ch.vol)/64, this.nextTickTime);
-      }*/
     }
   }
 
@@ -978,9 +980,6 @@ class Player {
 
   eff_t0_c(ch, data) {  // set volume
     ch.vol = Math.min(64, data);
-    /*if(ch.gainNode) {
-      ch.gainNode.gain.setValueAtTime(Math.min(64, data)/64, this.nextTickTime);
-    }*/
   }
 
   eff_t0_d(ch, data) {  // pattern jump
