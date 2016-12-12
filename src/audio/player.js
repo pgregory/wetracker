@@ -88,6 +88,21 @@ class XMViewObject {
     }
     if(e.row !== this.shown_row ||
        e.pat !== this.shown_pat) {
+      const scopes = [];
+      const states = [];
+
+      for (let j = 0; j < song.song.tracks.length; j += 1) {
+        const ch = this.player.tracks[j];
+        ch.updateAnalyserScopeData();
+        scopes.push({
+          scopeData: ch.analyserScopeData,
+          bufferLength: ch.analyserBufferLength,
+        });
+
+        states.push({
+          mute: ch.mute,
+        });
+      }
       state.set({
         cursor: {
           row: e.row,
@@ -97,8 +112,8 @@ class XMViewObject {
         tracks: {
           t: e.t,
           vu: e.vu,
-          scopes: e.scopes,
-          states: e.states,
+          scopes,
+          states,
         }
       });
       this.shown_row = e.row;
@@ -673,8 +688,6 @@ class Player {
       this.nextRow();
     }
 
-    const scopes = [];
-    const states = [];
     for (j = 0; j < song.song.tracks.length; j += 1) {
       ch = this.tracks[j];
       var inst = ch.inst;
@@ -687,16 +700,6 @@ class Player {
               song.song.patterns[this.cur_pat].rows[this.cur_row][j]),
             "set channel", j, "period to NaN");
       }
-      ch.updateAnalyserScopeData();
-      scopes.push({
-        scopeData: ch.analyserScopeData,
-        bufferLength: ch.analyserBufferLength,
-      });
-
-      states.push({
-        mute: ch.mute,
-      });
-
       if (inst === undefined) 
         continue;
 
@@ -715,8 +718,6 @@ class Player {
     if (this.XMView.pushEvent) {
       this.XMView.pushEvent({
         t: this.nextTickTime,
-        scopes,
-        states,
         songpos: this.cur_songpos,
         pat: this.cur_pat,
         row: this.cur_row
