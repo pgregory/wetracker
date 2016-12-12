@@ -400,8 +400,8 @@ class Player {
 
     this.playing = false;
     this.timerID = undefined;
-    this.lookahead = 20;
-    this.scheduleAheadTime = 0.1;
+    this.lookahead = 25;
+    this.scheduleAheadTime = 0.3;
 
     this.XMView = new XMViewObject(this);
 
