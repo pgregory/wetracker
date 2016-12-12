@@ -687,11 +687,11 @@ class Player {
               song.song.patterns[this.cur_pat].rows[this.cur_row][j]),
             "set channel", j, "period to NaN");
       }
-      /*ch.updateAnalyserScopeData();
+      ch.updateAnalyserScopeData();
       scopes.push({
         scopeData: ch.analyserScopeData,
         bufferLength: ch.analyserBufferLength,
-      });*/
+      });
 
       states.push({
         mute: ch.mute,
