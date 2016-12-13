@@ -195,7 +195,7 @@ class XMLoader {
         var row = [];
         for (k = 0; k < newSong.tracks.length; k++) {
           var byte0 = dv.getUint8(idx); idx++;
-          var note = -1, inst = -1, vol = -1, efftype = -1, effparam = 0;
+          var note = -1, inst = -1, vol = -1, efftype = 0, effparam = 0;
           if (byte0 & 0x80) {
             if (byte0 & 0x01) {
               note = dv.getUint8(idx) - 1; idx++;
@@ -221,7 +221,7 @@ class XMLoader {
             efftype = dv.getUint8(idx); idx++;
             effparam = dv.getUint8(idx); idx++;
           }
-          if(note !== -1 || inst !== -1 || vol !== -1 || efftype !== -1) {
+          if(note !== -1 || inst !== -1 || vol !== -1 || effparam !== 0) {
             row[k] = { 
               notedata: [
                 {
@@ -388,18 +388,8 @@ class XMLoader {
       newSong.instruments.push(inst);
     }
 
-    console.log(newSong);
-
     console.log("loaded \"" + newSong.name + "\"");
 
-    /*function download(text, name, type) {
-      var a = document.createElement("a");
-      var file = new Blob([text], {type: type});
-      a.href = URL.createObjectURL(file);
-      a.download = name;
-      a.click();
-    }
-    download(JSON.stringify(newSong.instruments), 'instruments.txt', 'text/plain'); */
     return newSong;
   }
 }
