@@ -634,18 +634,15 @@ class Player {
               }
               ch.triggernote = false;
               if (inst && inst.inst && inst.inst.samplemap) {
-                if (ch.currentlyPlaying == undefined) {
+                if (ch.currentlyPlaying == null) {
                   // note wasn't already playing; we basically have to ignore the
                   // portamento and just trigger
                   ch.triggernote = true;
                 } else if (ch.release) {
-                  console.log("Releaing");
                   // reset envelopes if note was released but leave offset/pitch/etc
                   // alone
                   ch.envtick = 0;
                   ch.release = 0;
-                  //ch.env_vol = new EnvelopeFollower(ch.envelopes.env_vol);
-                  //ch.env_pan = new EnvelopeFollower(ch.envelopes.env_pan);
                 }
               }
             }
@@ -656,8 +653,6 @@ class Player {
             if (ch.effect != 9) ch.off = 0;
             ch.release = 0;
             ch.envtick = 0;
-            //ch.env_vol = new EnvelopeFollower(ch.envelopes.env_vol);
-            //ch.env_pan = new EnvelopeFollower(ch.envelopes.env_pan);
             if (ch.note) {
               ch.period = this.periodForNote(ch, ch.note);
             }
