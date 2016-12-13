@@ -88,37 +88,39 @@ class XMViewObject {
     }
     if(e.row !== this.shown_row ||
        e.pat !== this.shown_pat) {
-      const scopes = [];
-      const states = [];
-
-      for (let j = 0; j < song.song.tracks.length; j += 1) {
-        const ch = this.player.tracks[j];
-        ch.updateAnalyserScopeData();
-        scopes.push({
-          scopeData: ch.analyserScopeData,
-          bufferLength: ch.analyserBufferLength,
-        });
-
-        states.push({
-          mute: ch.mute,
-        });
-      }
       state.set({
         cursor: {
           row: e.row,
           pattern: e.pat,
           sequence: e.songpos,
         },
-        tracks: {
-          t: e.t,
-          vu: e.vu,
-          scopes,
-          states,
-        }
       });
       this.shown_row = e.row;
       this.shown_pat = e.pat;
     }
+    const scopes = [];
+    const states = [];
+
+    for (let j = 0; j < song.song.tracks.length; j += 1) {
+      const ch = this.player.tracks[j];
+      ch.updateAnalyserScopeData();
+      scopes.push({
+        scopeData: ch.analyserScopeData,
+        bufferLength: ch.analyserBufferLength,
+      });
+
+      states.push({
+        mute: ch.mute,
+      });
+    }
+    state.set({
+      tracks: {
+        t: e.t,
+        vu: e.vu,
+        scopes,
+        states,
+      }
+    });
     if(this.player.playing) {
       window.requestAnimationFrame(this.redrawScreen);
     }
