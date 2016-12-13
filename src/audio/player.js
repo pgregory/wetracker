@@ -791,7 +791,6 @@ class Player {
 
   reset() {
     if (this.playing) {
-      this.jsNode.disconnect(this.gainNode);
       this.playing = false;
     }
     this.cur_pat = song.song.sequence[0].pattern;
