@@ -798,6 +798,13 @@ class Player {
     this.cur_row = 0;
     this.cur_songpos = 0;
     this.cur_ticksamp = 0;
+    this.cur_tick = 0;
+
+    for(let i = 0; i < this.tracks.length; i += 1) {
+      if(this.tracks[i].currentlyPlaying) {
+        this.tracks[i].currentlyPlaying.stop(this.audioctx.currentTime);
+      }
+    }
 
     state.set({
       cursor: {
