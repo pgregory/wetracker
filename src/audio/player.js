@@ -489,8 +489,7 @@ class Player {
     this.cur_pat = nextPat;
   }
 
-  nextRow() {
-    this.cur_row++;
+  processRow() {
     if (this.cur_pat == null || this.cur_row >= song.song.patterns[this.cur_pat].numrows) {
       if (this.cyclePattern != null) {
         this.cur_pat = this.cyclePattern;
@@ -670,14 +669,14 @@ class Player {
         }
       }
     }
+    this.cur_row++;
   }
 
 
-  nextTick() {
+  processTick() {
     if(this.audioctx.currentTime > this.nextTickTime) {
       console.log("Lag!!!");
     }
-    this.cur_tick++;
     var j, ch;
     for (j in song.song.tracks) {
       ch = this.tracks[j];
@@ -685,7 +684,10 @@ class Player {
     }
     if (this.cur_tick >= song.song.lpb) {
       this.cur_tick = 0;
-      this.nextRow();
+    }
+
+    if (this.cur_tick === 0) {
+      this.processRow();
     }
 
     for (j = 0; j < song.song.tracks.length; j += 1) {
@@ -723,12 +725,13 @@ class Player {
         row: this.cur_row
       });
     }
+    this.cur_tick++;
   }
 
   scheduler() {
     var msPerTick = 2.5 / song.song.bpm;
     while(this.nextTickTime < (this.audioctx.currentTime + this.scheduleAheadTime)) {
-      this.nextTick();
+      this.processTick();
       this.nextTickTime += msPerTick; 
     }
   }
@@ -796,9 +799,9 @@ class Player {
       this.jsNode.disconnect(this.gainNode);
       this.playing = false;
     }
-    this.cur_pat = undefined;
-    this.cur_row = 768;
-    this.cur_songpos = -1;
+    this.cur_pat = song.song.sequence[0].pattern;
+    this.cur_row = 0;
+    this.cur_songpos = 0;
     this.cur_ticksamp = 0;
 
     state.set({
@@ -811,16 +814,18 @@ class Player {
 
     song.song.globalVolume = this.max_global_volume;
     if (this.XMView.stop) this.XMView.stop();
-    //init();
   }
 
   onSongChanged() {
     this.cur_pat = undefined;
-    this.cur_row = -1;
-    this.cur_songpos = -1;
+    this.cur_row = 0;
+    this.cur_songpos = 0;
     this.cur_ticksamp = 0;
+    this.cur_tick = 0;
     this.playing = false;
     song.song.globalVolume = this.max_global_volume;
+
+    this.reset();
 
     console.log("Song changed");
 
