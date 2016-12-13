@@ -123,7 +123,7 @@ export default class PatternEditorCanvas {
     this._pattern_volu_width = this._pattern_character_width * 2;
     this._pattern_effe_width = (this._pattern_character_width * 3);
     this._cursor_offsets = [
-      0,                                                      // Note
+      this._event_left_margin,                                // Note
       this._pattern_note_width + this._element_spacing,       // Instr1
       this._pattern_character_width,                          // Instr2
       this._pattern_character_width + this._element_spacing,  // Vol1
@@ -416,6 +416,7 @@ export default class PatternEditorCanvas {
     this.initWidth();
     this.hscroll = $(this.canvas).closest('.hscroll');
     $(this.canvas).on('mousewheel', this.onScroll.bind(this));
+    $(this.canvas).on('click', this.onClick.bind(this));
 
     this.updateCanvas();
   }
@@ -547,6 +548,53 @@ export default class PatternEditorCanvas {
       this.updateCanvas();
     }
     e.preventDefault();
+  }
+
+  onClick(e) {
+    const cursor = this.cursorPositionFromMouse(e);
+    if (cursor) {
+      state.set({
+        cursor,
+      });
+    }
+  }
+
+  cursorPositionFromMouse(e) {
+    const xpos = e.offsetX - (this.timeline_canvas.width + this._timeline_right_margin);
+    const ypos = e.offsetY;
+
+    const track = Math.floor(xpos / this._pattern_cellwidth);
+    const itemOffset = Math.floor(xpos - (track * this._pattern_cellwidth));
+
+    let item = 0;
+    let cursorItemPos = this._cursor_offsets[item];
+    let cursorItemSize = this._cursor_sizes[item];
+    while(((itemOffset < cursorItemPos) ||
+           (itemOffset > (cursorItemPos + cursorItemSize)))) {
+      item += 1;
+      if (item >= this._cursor_offsets.length) {
+        return null;
+      }
+      cursorItemPos += this._cursor_offsets[item];
+      cursorItemSize = this._cursor_sizes[item];
+    }
+
+    var cy = this.canvas.height/2 - (this._pattern_row_height/2);
+    var clickRow = Math.floor((ypos - cy) / this._pattern_row_height);
+    var row = state.cursor.get("row") + clickRow;
+
+    const maxrow = song.song.patterns[state.cursor.get("pattern")].numrows;
+    if (row < 0) {
+      row = 0;
+    } else if (row >= maxrow) {
+     row = maxrow;
+    } 
+
+    return {
+      track,
+      item,
+      row,
+    };
   }
 
   /* eslint no-param-reassign: ["error", { "props": false }]*/
