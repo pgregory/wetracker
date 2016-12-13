@@ -1,6 +1,6 @@
-# Contributing to react-boilerplate
+# Contributing to WeTracker
 
-Love react-boilerplate and want to help? Thanks so much, there's something to do for everybody!
+Enjoying WeTracker? There's plenty of opportunity to help out if you're so inclined.
 
 Please take a moment to review this document in order to make the contribution process easy and effective for everyone involved.
 
@@ -8,7 +8,7 @@ Following these guidelines helps to communicate that you respect the time of the
 
 ## Using the issue tracker
 
-The [issue tracker](https://github.com/mxstbr/react-boilerplate/issues) is
+The [issue tracker](https://github.com/pgregory/wetracker/issues) is
 the preferred channel for [bug reports](#bugs), [features requests](#features)
 and [submitting pull requests](#pull-requests).
 
@@ -24,7 +24,7 @@ Guidelines for bug reports:
 
 2. **Check if the issue has been fixed** &mdash; try to reproduce it using the latest `master` or development branch in the repository.
 
-3. **Isolate the problem** &mdash; ideally create a [reduced test case](https://css-tricks.com/reduced-test-cases/) and a live example.
+3. **Isolate the problem** &mdash; if the issue is with a specific feature, provide either steps to reproduce, or preferably a sample project that highlights the issue, eliminate as much noise from the project as possible.
 
 A good bug report shouldn't leave others needing to chase you up for more information. Please try to be as detailed as possible in your report. What is your environment? What steps will reproduce the issue? What browser(s) and OS
 experience the problem? What would you expect to be the outcome? All these details will help people to fix any potential bugs.
@@ -40,7 +40,7 @@ Example:
 > 2. This is the second step
 > 3. Further steps, etc.
 >
-> `<url>` - a link to the reduced test case
+> `<attachment>` - a sample project 
 >
 > Any other information you want to share that is relevant to the issue being
 > reported. This might include the lines of code that you have identified as
@@ -81,11 +81,11 @@ included in the project:
 
    ```bash
    # Clone your fork of the repo into the current directory
-   git clone https://github.com/<your-username>/react-boilerplate.git
+   git clone https://github.com/<your-username>/wetracker.git
    # Navigate to the newly cloned directory
-   cd react-boilerplate
+   cd wetracker
    # Assign the original repo to a remote called "upstream"
-   git remote add upstream https://github.com/mxstbr/react-boilerplate.git
+   git remote add upstream https://github.com/pgregory/wetracker.git
    ```
 
 2. If you cloned a while ago, get the latest changes from upstream:
@@ -119,4 +119,4 @@ included in the project:
     with a clear title and description.
 
 **IMPORTANT**: By submitting a patch, you agree to allow the project
-owners to license your work under the terms of the [MIT License](https://github.com/mxstbr/react-boilerplate/blob/master/LICENSE.md).
+owners to license your work under the terms of the [MIT License](https://github.com/pgregory/wetracker/blob/master/LICENSE.md).
