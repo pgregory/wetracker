@@ -131,7 +131,9 @@ class PlayerInstrument {
     this.instrument = instrument;
     this.sourceNode = instrument.ctx.createBufferSource();
     this.gainNode = instrument.ctx.createGain();
-    this.gainNode.connect(channel.gainNode);
+    this.panningNode = instrument.ctx.createStereoPanner();
+    this.gainNode.connect(this.panningNode);
+    this.panningNode.connect(channel.gainNode);
     const period = this.periodForNote(channel, note);
     const rate = this.rateForPeriod(period);
     this.sourceNode.playbackRate.value = rate;
@@ -149,15 +151,13 @@ class PlayerInstrument {
 
   updateVolumeEnvelope(time, release) {
     let volE = this.volumeEnvelope.Tick(release) / 64.0;
-    //let panE = this.panningEnvelope.Tick(release);
-    //volE = ch.volE / 64.0;    // current volume envelope
-    //panE = 4*(ch.panE - 32);  // current panning envelope
-    //var p = panE + ch.pan - 128;  // final pan
+    let panE = 4*(this.panningEnvelope.Tick(release) - 32);
 
+    let pan = (panE + (this.channel.pan - 128)) / 256.0;  // final pan
     let vol = song.song.globalVolume * volE * this.channel.vol / (128 * 64);
-    
-    //this.gainNode.gain.value = vol;
+
     this.gainNode.gain.setValueAtTime(vol, time);
+    this.panningNode.pan.setValueAtTime(pan, time);
   }
 
   stop(time) {
