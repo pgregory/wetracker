@@ -221,7 +221,7 @@ class XMLoader {
             efftype = dv.getUint8(idx); idx++;
             effparam = dv.getUint8(idx); idx++;
           }
-          if(note !== -1 || inst !== -1 || vol !== -1 || effparam !== 0) {
+          if(note !== -1 || inst !== -1 || vol !== -1 || efftype != -1 || effparam !== 0) {
             row[k] = { 
               notedata: [
                 {
