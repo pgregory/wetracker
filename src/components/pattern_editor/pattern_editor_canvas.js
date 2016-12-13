@@ -535,14 +535,18 @@ export default class PatternEditorCanvas {
   onScroll(e) {
     if (Math.abs(e.originalEvent.deltaY) > Math.abs(e.originalEvent.deltaX)) {
       this.yoff += e.originalEvent.deltaY;
-      var row = Math.floor((this.yoff) / 15.0);
-      var maxrow = song.song.patterns[state.cursor.get('pattern')].numrows;
-      row = ((row % maxrow) + maxrow) % maxrow;
-      state.set({
-        cursor: {
-          row
-        }
-      });
+      if (Math.abs(this.yoff) >= this._pattern_row_height) {
+        const rowIncr = Math.floor(this.yoff / this._pattern_row_height);
+        let row = state.cursor.get("row") + rowIncr;
+        var maxrow = song.song.patterns[state.cursor.get('pattern')].numrows;
+        row = ((row % maxrow) + maxrow) % maxrow;
+        state.set({
+          cursor: {
+            row
+          }
+        });
+        this.yoff -= (rowIncr * this._pattern_row_height);
+      }
     } else {
       this.hscroll.scrollLeft(this.hscroll.scrollLeft() + e.originalEvent.deltaX);
       this.updateCanvas();
