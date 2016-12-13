@@ -265,7 +265,7 @@ export default class PatternEditorCanvas {
         (col.instrument == null || col.instrument === -1) &&
         (col.volume == null || col.volume < 0x10) &&
         (col.fxtype == null || col.fxtype === -1) &&
-        (col.fxparam == null)) {
+        ((col.fxparam == null) || (col.fxtype === 0 && col.fxparam === 0)) ) {
       ctx.drawImage(this.empty_event_canvas, dx, dy);
     } else {
       // render note
@@ -305,7 +305,7 @@ export default class PatternEditorCanvas {
       // render effect
       var eff = col.fxtype;
       var effdata = col.fxparam;
-      if ((eff != null && eff !== -1)) {
+      if ((eff != null && eff !== -1) && (eff !== 0 || effdata !== 0)) {
         // draw effect with tiny font (4px space + effect type 0..9a..z)
         ctx.drawImage(this.mixedFont, 8*eff, this.fxFontOffset, 8, 8, dx, dy, cw, 8);
         dx += cw+2;
