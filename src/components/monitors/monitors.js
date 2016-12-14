@@ -66,7 +66,7 @@ export default class Monitors {
 
         ctx.beginPath();
 
-        const sliceWidth = canvas.width * 1.0 / bufferLength;
+        const sliceWidth = canvas.width * (1.0 / (bufferLength - 1));
         let x = 0;
 
         for (var i = 0; i < bufferLength; i++) {
@@ -83,7 +83,6 @@ export default class Monitors {
           x += sliceWidth;
         }
 
-        ctx.lineTo(canvas.width, canvas.height / 2);
         ctx.stroke(); 
       }
     }
