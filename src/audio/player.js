@@ -4,6 +4,8 @@ import { state } from '../state';
 import { song } from '../utils/songmanager';
 import Envelope from './envelope';
 
+import TimerWorker from 'shared-worker!./timerworker';
+
 class EnvelopeFollower {
   constructor(env) {
     this.env = env;
@@ -401,14 +403,26 @@ class Player {
     this.gainNode.connect(this.audioctx.destination);
 
     this.playing = false;
-    this.timerID = undefined;
     this.lookahead = 25;
     this.scheduleAheadTime = 0.3;
 
     this.XMView = new XMViewObject(this);
 
+    this.timerWorker = new TimerWorker();
+    this.timerWorker.port.postMessage({"interval": this.lookahead});
+    this.timerWorker.port.onmessage = this.onTimerMessage.bind(this);
+    this.timerWorker.port.start();
+
     Signal.connect(song, 'songChanged', this, 'onSongChanged');
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
+  }
+
+  onTimerMessage(e) {
+    if( e.data === "tick") {
+      this.scheduler();
+    } else {
+      console.log("Timer message: " + e.data);
+    }
   }
 
   prettify_note(note) {
@@ -774,10 +788,9 @@ class Player {
 
       this.nextTickTime = this.audioctx.currentTime;
     
-      this.timerID = setInterval(() => { this.scheduler(); }, this.lookahead);
+      this.timerWorker.port.postMessage("start");
     }
     this.playing = true;
-    //this.nextRow();
   }
 
   pause() {
@@ -786,9 +799,8 @@ class Player {
       if (this.XMView.pause) this.XMView.pause();
     }
     this.playing = false;
-    if(this.timerID) {
-      clearInterval(this.timerID);
-    }
+
+    this.timerWorker.port.postMessage("stop");
   }
 
   reset() {
