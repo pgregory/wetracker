@@ -410,6 +410,8 @@ export default class PatternEditorCanvas {
   }
 
   render() {
+    $(this.target).addClass('pattern-editor');
+
     $(this.target).append(patternEditorTemplate.renderToString());
     this.canvas = $(this.target).find('canvas')[0];
 
@@ -454,7 +456,7 @@ export default class PatternEditorCanvas {
     }
     var ctx = this.canvas.getContext('2d');
 
-    var h = $("#pattern-editor").height();
+    var h = $(this.target).height();
     h = Math.floor((h-11)/this._pattern_row_height);
     if(h%2 === 0) h -= 1;
     h *= this._pattern_row_height;

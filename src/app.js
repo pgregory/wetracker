@@ -11,13 +11,10 @@ import 'jquery-ui/../themes/base/dialog.css';
 import 'jquery-ui/../themes/base/resizable.css';
 
 import Transport from './components/transport/transport';
-import PatternEditorCanvas from './components/pattern_editor/pattern_editor_canvas';
-import Monitors from './components/monitors/monitors';
-import SequenceEditor from './components/sequence_editor/sequence_editor';
-import InstrumentList from './components/instrument_list/instrument_list';
-import SampleEditor from './components/sample_editor/sample_editor';
+import Tabs from './components/tabs/tabs';
 
 import gridTemplate from './templates/grid.marko';
+import instrumentsViewTemplate from './templates/instrumentsview.marko';
 
 import './components/transport/styles.css';
 
@@ -125,46 +122,21 @@ $(document).keydown((event) => {
   }
 });
 
-$('#container').append($(gridTemplate.renderSync()));
+$('#song-view').append($(gridTemplate.renderToString()));
+$('#instruments-view').append($(instrumentsViewTemplate.renderToString()));
 
 let transport = undefined;
-let PE = undefined;
-let sequenceEditor = undefined;
-let monitors = undefined;
-let instrumentList = undefined;
-let sampleEditor = undefined;
-
-var options = {
-    cellHeight: 40,
-    verticalMargin: 5,
-    resizable: {
-      handles: 'n, ne, e, se, s, sw, w, nw'
-    },
-    handleClass: 'widget-titlebar',
-    alwaysShowResizeHandle: true,
-};
-$('.grid-stack').gridstack(options).on('resizestop', function(event, ui) {
-  PE.refresh();
-  sequenceEditor.refresh();
-  instrumentList.refresh();
-  sampleEditor.refresh();
-  monitors.refresh();
-}).on('change', function(event, items) {
-  console.log("Changed");
-});
-
+let tabs = undefined;
 
 $(document).ready(() => {
   transport = new Transport("#transport");
-  PE = new PatternEditorCanvas($('#pattern-editor'));
-  monitors = new Monitors($('#monitors'));
-  sequenceEditor = new SequenceEditor($('#sequence-editor'));
-  instrumentList = new InstrumentList($('#instrument-list'));
-  sampleEditor = new SampleEditor($('#sample-editor'));
+  tabs = new Tabs("#tabs");
 
   window.requestAnimationFrame(() => {
 
     transport.render();
+    tabs.render();
+
     $('#play').click((e) => {
       player.play();
     });
@@ -209,11 +181,6 @@ $(document).ready(() => {
     $('#save').click((e) => {
       song.saveSongToLocal();
     });
-
-    PE.render();
-    monitors.render();
-    sequenceEditor.render();
-    instrumentList.render();
-    sampleEditor.render();
   });
 });
+

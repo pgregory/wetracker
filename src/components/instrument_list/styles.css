@@ -1,4 +1,4 @@
-#instrument-list {
+.widget.instrument-list {
   overflow-y: hidden;
   flex: 1;
 }

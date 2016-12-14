@@ -19,7 +19,9 @@ export default class SequenceEditor {
   }
 
   render() {
-    $(this.target).append(sequencesTemplate.renderSync({song: song.song, cursor: state.cursor.toJS()}));
+    $(this.target).addClass('sequence-editor');
+
+    $(this.target).append(sequencesTemplate.renderToString({song: song.song, cursor: state.cursor.toJS()}));
 
     this.rowHeight = $(this.target).find(".sequence-row")[0].clientHeight;
 
@@ -30,6 +32,7 @@ export default class SequenceEditor {
       ($(this.target).height()-this.rowHeight)/2.0);
 
     $(this.target).find('.sequence').on('mousewheel', this.onScroll.bind(this));
+
 
     this.lastCursor = state.cursor.toJS();
   }

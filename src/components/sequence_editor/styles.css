@@ -1,4 +1,4 @@
-#sequence-editor {
+.widget.sequence-editor {
   overflow-y: hidden;
   flex: 1;
 }

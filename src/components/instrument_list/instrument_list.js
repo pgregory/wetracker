@@ -19,7 +19,9 @@ export default class Monitors {
   }
 
   render() {
-    $(this.target).append(instrumentsTemplate.renderSync({song: song.song, cursor: state.cursor.toJS()}));
+    $(this.target).addClass('instrument-list');
+
+    $(this.target).append(instrumentsTemplate.renderToString({song: song.song, cursor: state.cursor.toJS()}));
 
     this.rowHeight = $(this.target).find(".instrument-row")[0].clientHeight;
 

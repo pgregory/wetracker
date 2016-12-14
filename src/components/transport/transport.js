@@ -17,7 +17,7 @@ export default class Transport {
   }
 
   render() {
-    $(this.target).append(transportTemplate.renderSync({transport: state.transport.toJS()}));
+    $(this.target).append(transportTemplate.renderToString({transport: state.transport.toJS()}));
  
     $('input').bind("enterKey",function(e){
       console.log($("#step").val());

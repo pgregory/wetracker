@@ -19,8 +19,9 @@ export default class Monitors {
   }
 
   render() {
+    $(this.target).addClass('monitors');
     var columns = Math.ceil(song.song.tracks.length / 2.0);
-    $(this.target).append(monitorsTemplate.renderSync({song: song.song, columns}));
+    $(this.target).append(monitorsTemplate.renderToString({song: song.song, columns}));
 
     $(this.target).find(".monitor-canvas").click((e) => {
       this.clickTrack($(e.target).data('trackindex'));

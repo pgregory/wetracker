@@ -17,6 +17,7 @@ export default class SampleEditor {
   }
 
   render() {
+    $(this.target).addClass('sample-editor');
     var cur_instr = state.cursor.get("instrument");
     $(this.target).append(sampleTemplate.renderToString({samples: song.song.instruments[cur_instr].samples}));
 
