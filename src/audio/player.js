@@ -148,7 +148,7 @@ class PlayerInstrument {
     this.volumeEnvelope = new EnvelopeFollower(instrument.envelopes.volume);
     this.panningEnvelope = new EnvelopeFollower(instrument.envelopes.panning);
     this.sourceNode.onended = () => this.onEnded();
-    this.sourceNode.start(time);
+    this.sourceNode.start(time, (sample.buffer.duration / sample.buffer.length) * channel.off);
   }
 
   updateVolumeEnvelope(time, release) {
