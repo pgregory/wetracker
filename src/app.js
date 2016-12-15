@@ -71,6 +71,7 @@ $(document).keydown((event) => {
                                    state.transport.get("step") + 1,
         },
       });
+      event.preventDefault();
       break;
     }
 
@@ -82,6 +83,16 @@ $(document).keydown((event) => {
                                       state.transport.get("octave") + 1,
         },
       });
+      event.preventDefault();
+      break;
+    }
+    case " ": {
+      state.set({
+        cursor: {
+          record: !state.cursor.get("record"),
+        }
+      });
+      event.preventDefault();
       break;
     }
 /*    case "s": {

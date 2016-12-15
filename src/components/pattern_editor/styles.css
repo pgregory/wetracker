@@ -6,6 +6,10 @@
   flex: 1;
 }
 
+.chrome.grid-stack-item-content.record {
+  border-color: red;
+}
+
 .hscroll {
   overflow: auto;
   background: black;

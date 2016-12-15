@@ -637,6 +637,11 @@ export default class PatternEditorCanvas {
         this.scrollHorizTo(this.hscroll, pos.cx - 6, 100);
       }
     }
+
+    var widget = $(this.target).parent(".chrome");
+    if (widget.length > 0) {
+      widget.toggleClass("record", state.cursor.get("record"));
+    }
     window.requestAnimationFrame(this.updateCanvas.bind(this));
   }
 
