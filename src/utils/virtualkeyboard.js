@@ -3,6 +3,7 @@ import KeyboardJS from 'keyboardjs';
 
 import { song } from './songmanager';
 import { state } from '../state';
+import { player } from '../audio/player';
 import { cursor } from '../utils/cursor';
 
 export class VirtualKeyboard {
@@ -71,17 +72,25 @@ export class VirtualKeyboard {
         song.addNoteToSong(state.cursor.toJS(), this.mappingTable[event.key] + (12 * current_octave), state.cursor.get("instrument") + 1); 
         cursor.rowDown(state.transport.get("step"));
       }
-    } 
+    } else {
+      // Trigger note immediately if a VK note
+      if (event.key in this.mappingTable) {
+        const current_octave = state.transport.get("octave"); 
+        player.playNoteOnCurrentChannel(this.mappingTable[event.key] + (12 * current_octave));
+        event.preventRepeat();
+      }
+    }
   }
 
   handleKeyUp(event) {
     if (event.ctrlKey || event.shiftKey || event.metaKey ) {
       return false;
     }
-    var current_octave = state.transport.get("octave"); 
-    if (event.key in this.mappingTable) {
-      song.addNoteToSong(state.cursor.toJS(), this.mappingTable[event.key] + (12 * current_octave), state.cursor.get("instrument") + 1); 
-      return true;
+    if (!state.cursor.get("record")) {
+      // Trigger note immediately if a VK note
+      if (event.key in this.mappingTable) {
+        player.stopNoteOnCurrentChannel();
+      }
     }
     return false;
   }

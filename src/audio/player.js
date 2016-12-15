@@ -138,7 +138,7 @@ class PlayerInstrument {
     this.panningNode = instrument.ctx.createStereoPanner();
     this.gainNode.connect(this.panningNode);
     this.panningNode.connect(channel.gainNode);
-    const period = this.periodForNote(channel, note);
+    const period = instrument.periodForNote(channel, note, 0);
     const rate = this.rateForPeriod(period);
     this.sourceNode.playbackRate.value = rate;
     this.sourceNode.connect(this.gainNode);
@@ -150,7 +150,12 @@ class PlayerInstrument {
     this.volumeEnvelope = new EnvelopeFollower(instrument.envelopes.volume);
     this.panningEnvelope = new EnvelopeFollower(instrument.envelopes.panning);
     this.sourceNode.onended = () => this.onEnded();
-    this.sourceNode.start(time, (sample.buffer.duration / sample.buffer.length) * channel.off);
+
+    let offset = 0;
+    if (channel.off != null && channel.off > 0) {
+      offset = (sample.buffer.duration / sample.buffer.length) * channel.off;
+    }
+    this.sourceNode.start(time, offset);
   }
 
   updateVolumeEnvelope(time, release) {
@@ -190,9 +195,6 @@ class PlayerInstrument {
     return rate;
   }
 
-  periodForNote(ch, note) {
-    return 1920 - (note + ch.samp.note)*16 - ch.fine / 8.0;
-  }
 }
 
 class Instrument {
@@ -258,6 +260,10 @@ class Instrument {
     return new PlayerInstrument(this, channel, note, time);
   }
 
+  periodForNote(ch, note, fine) {
+    const sampNote = this.inst.samples[this.inst.samplemap[note]].note;
+    return 1920 - (note + sampNote)*16 - fine / 8.0;
+  }
 }
 
 class Track {
@@ -478,8 +484,24 @@ class Player {
     ch.filter = this.filterCoeffs(ch.doff / 2);
   }
 
-  periodForNote(ch, note) {
-    return 1920 - (note + ch.samp.note)*16 - ch.fine / 8.0;
+  playNoteOnCurrentChannel(note) {
+    const channel = this.tracks[state.cursor.get("track")];
+    const instrument = this.instruments[state.cursor.get("instrument")];
+    const time = this.audioctx.currentTime;
+    
+    if(channel.currentlyPlaying) {
+      channel.currentlyPlaying.stop(time);
+    }
+    channel.currentlyPlaying = instrument.playNoteOnChannel(channel, time, note);
+  }
+
+  stopNoteOnCurrentChannel() {
+    const channel = this.tracks[state.cursor.get("track")];
+    const time = this.audioctx.currentTime;
+    
+    if(channel.currentlyPlaying) {
+      channel.currentlyPlaying.stop(time);
+    }
   }
 
   setCurrentPattern() {
@@ -554,10 +576,10 @@ class Player {
               // retrigger unless overridden below
               ch.triggernote = true;
               if (ch.note && inst.inst.samplemap) {
-                ch.samp = inst.inst.samples[inst.inst.samplemap[ch.note]];
-                ch.vol = ch.samp.vol;
-                ch.pan = ch.samp.pan;
-                ch.fine = ch.samp.fine;
+                const samp = inst.inst.samples[inst.inst.samplemap[ch.note]];
+                ch.vol = samp.vol;
+                ch.pan = samp.pan;
+                ch.fine = samp.fine;
               }
             } 
             ch.triggernote = true;
@@ -572,13 +594,13 @@ class Player {
               if (inst && inst.inst && inst.inst.samplemap) {
                 var note = event.note;
                 ch.note = note;
-                ch.samp = inst.inst.samples[inst.inst.samplemap[note]];
                 if (ch.triggernote) {
                   // if we were already triggering the note, reset vol/pan using
                   // (potentially) new sample
-                  ch.pan = ch.samp.pan;
-                  ch.vol = ch.samp.vol;
-                  ch.fine = ch.samp.fine;
+                  const samp = inst.inst.samples[inst.inst.samplemap[note]];
+                  ch.pan = samp.pan;
+                  ch.vol = samp.vol;
+                  ch.fine = samp.fine;
                 }
                 ch.triggernote = true;
               }
@@ -646,7 +668,7 @@ class Player {
             // special handling for portamentos: don't trigger the note
             if (ch.effect == 3 || ch.effect == 5 || event.volume >= 0xf0) {
               if (event.note != -1) {
-                ch.periodtarget = this.periodForNote(ch, ch.note);
+                ch.periodtarget = ch.inst.periodForNote(ch, ch.note, ch.fine);
               }
               ch.triggernote = false;
               if (inst && inst.inst && inst.inst.samplemap) {
@@ -670,7 +692,7 @@ class Player {
             ch.release = 0;
             ch.envtick = 0;
             if (ch.note) {
-              ch.period = this.periodForNote(ch, ch.note);
+              ch.period = ch.inst.periodForNote(ch, ch.note, ch.fine);
             }
             // waveforms 0-3 are retriggered on new notes while 4-7 are continuous
             if (ch.vibratotype < 4) {
@@ -871,7 +893,7 @@ class Player {
     if (ch.effectdata !== 0 && ch.inst !== undefined) {
       var arpeggio = [0, ch.effectdata>>4, ch.effectdata&15];
       var note = ch.note + arpeggio[this.cur_tick % 3];
-      ch.period = this.periodForNote(ch, note);
+      ch.period = ch.inst.periodForNote(ch, note, ch.fine);
     }
   }
 
