@@ -9,6 +9,7 @@ import 'jquery-ui/../themes/base/core.css';
 import 'jquery-ui/../themes/base/theme.css';
 import 'jquery-ui/../themes/base/dialog.css';
 import 'jquery-ui/../themes/base/resizable.css';
+import KeyboardJS from 'keyboardjs';
 
 import Transport from './components/transport/transport';
 import Tabs from './components/tabs/tabs';
@@ -24,78 +25,20 @@ import modfile from '../data/test-song.xm';
 import { song } from './utils/songmanager';
 import { state } from './state';
 import { cursor } from './utils/cursor';
-import { virtualKeyboard } from './utils/virtualkeyboard';
-import { hexInput } from './utils/hexinput';
-import { fxInput } from './utils/fxinput';
+
+// Importing these is enough to instantiate the singelton and therefore
+// bind the key handlers.
+import './utils/virtualkeyboard';
+import './utils/hexinput';
+import './utils/fxinput';
 
 import styles from './styles.css';
 
-$(document).keydown((event) => {
+/*$(document).keydown((event) => {
   if ($(event.target).is('input, textarea, select')) {
     return;
   }
-  switch (event.key) {
-    case "ArrowUp": {
-      cursor.rowUp();
-      event.preventDefault();
-      return;
-    }
-    case "ArrowDown": {
-      cursor.rowDown();
-      event.preventDefault();
-      return;
-    }
-    case "ArrowRight": {
-      cursor.itemRight();
-      event.preventDefault();
-      return;
-    }
-    case "ArrowLeft": {
-      cursor.itemLeft();
-      break;
-    }
-    case "Backspace":
-    case "Delete": {
-      if (event.ctrlKey || event.shiftKey || event.metaKey ) {
-        break;
-      }
-      song.deleteItemAtCursor(state.cursor.toJS());
-      event.preventDefault();
-      return;
-    }
-    case "{":
-    case "}": {
-      state.set({
-        transport: {
-          step: event.key == "{" ? Math.max(0, state.transport.get("step") - 1) :
-                                   state.transport.get("step") + 1,
-        },
-      });
-      event.preventDefault();
-      break;
-    }
-
-    case "\"":
-    case "|": {
-      state.set({
-        transport: {
-          octave: event.key == "\"" ? Math.max(0, state.transport.get("octave") - 1) :
-                                      state.transport.get("octave") + 1,
-        },
-      });
-      event.preventDefault();
-      break;
-    }
-    case " ": {
-      state.set({
-        cursor: {
-          record: !state.cursor.get("record"),
-        }
-      });
-      event.preventDefault();
-      break;
-    }
-/*    case "s": {
+    case "s": {
       function download(text, name, type) {
         var a = document.createElement("a");
         var file = new Blob([text], {type: type});
@@ -109,29 +52,19 @@ $(document).keydown((event) => {
                  `instrument_${state.cursor.get("instrument")}.json`, 
                'text/plain'); 
       break;
-    }*/
-    default: {
-      if(virtualKeyboard.handleKeyAtCursor(event)) {
-        cursor.rowDown(state.transport.get("step"));
-        event.preventDefault();
-        return;
-      } else {
-        if(hexInput.handleKeyAtCursor(event)) {
-          cursor.rowDown(state.transport.get("step"));
-          event.preventDefault();
-          return;
-        } else {
-          if(fxInput.handleKeyAtCursor(event)) {
-            cursor.rowDown(state.transport.get("step"));
-            event.preventDefault();
-            return;
-          }
-        }
-      }
-      break;
     }
   }
+});*/
+
+KeyboardJS.bind("space", (e) => {
+  state.set({
+    cursor: {
+      record: !state.cursor.get("record"),
+    }
+  });
+  e.preventDefault();
 });
+
 
 $('#song-view').append($(gridTemplate.renderToString()));
 $('#instruments-view').append($(instrumentsViewTemplate.renderToString()));

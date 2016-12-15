@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import KeyboardJS from 'keyboardjs';
 
 import Signal from '../../utils/signal';
 import { state } from '../../state';
@@ -13,6 +14,26 @@ export default class Transport {
     this.target = target;
     this.lastTransport = undefined;
 
+    KeyboardJS.bind(["{", "}"], (e) => {
+      state.set({
+        transport: {
+          step: e.key == "{" ? Math.max(0, state.transport.get("step") - 1) :
+                               state.transport.get("step") + 1,
+        },
+      });
+      e.preventDefault();
+    });
+
+    KeyboardJS.bind(["quotationmark", "|"], (e) => {
+      state.set({
+        transport: {
+          octave: e.key == "\"" ? Math.max(0, state.transport.get("octave") - 1) :
+                                  state.transport.get("octave") + 1,
+        },
+      });
+      e.preventDefault();
+    });
+
     Signal.connect(state, "transportChanged", this, "onTransportChanged");
   }
 
@@ -20,7 +41,6 @@ export default class Transport {
     $(this.target).append(transportTemplate.renderToString({transport: state.transport.toJS()}));
  
     $('input').bind("enterKey",function(e){
-      console.log($("#step").val());
       state.set({
         transport: {
           step: parseInt($("#step").val()),
@@ -39,7 +59,6 @@ export default class Transport {
 
   onTransportChanged() {
     if (this.lastTransport !== state.transport) {
-      console.log(state.transport.get("step"));
       $(this.target).find("#step").val(state.transport.get("step"));
       $(this.target).find("#octave").val(state.transport.get("octave"));
 

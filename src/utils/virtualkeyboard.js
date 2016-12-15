@@ -1,10 +1,16 @@
 import Signal from '../utils/signal';
+import KeyboardJS from 'keyboardjs';
 
 import { song } from './songmanager';
 import { state } from '../state';
+import { cursor } from '../utils/cursor';
 
 export class VirtualKeyboard {
   constructor() {
+    this.validKeys = [
+      "z", "s", "x", "d", "c", "v", "g", "b", "h", "n", "j", "m", ",", "l", ".", ";", "/", 
+      "q", "2", "w", "3", "e", "r", "5", "t", "6", "y", "7", "u", "i", "9", "o", "0", "p", "[", "=", "]",
+    ];
     this.mappingTable = {
       "z": 0,   // C-0
       "s": 1,   // C#0
@@ -44,12 +50,31 @@ export class VirtualKeyboard {
       "=": 30,  // F#2
       "]": 31,  // G-2
     };
+
+    KeyboardJS.bind(this.validKeys, (e) => {
+      this.handleKeyDown(e);
+    }, (e) => {
+      this.handleKeyUp(e);
+    });
   }
 
-  handleKeyAtCursor(event) {
-    if (state.cursor.get("item") !== 0) {
-      return false;
+  handleKeyDown(event) {
+    if (event.ctrlKey || event.shiftKey || event.metaKey ) {
+      return;
     }
+    if (state.cursor.get("record")) {
+      if (state.cursor.get("item") !== 0) {
+        return;
+      }
+      const current_octave = state.transport.get("octave"); 
+      if (event.key in this.mappingTable) {
+        song.addNoteToSong(state.cursor.toJS(), this.mappingTable[event.key] + (12 * current_octave), state.cursor.get("instrument") + 1); 
+        cursor.rowDown(state.transport.get("step"));
+      }
+    } 
+  }
+
+  handleKeyUp(event) {
     if (event.ctrlKey || event.shiftKey || event.metaKey ) {
       return false;
     }

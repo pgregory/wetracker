@@ -1,7 +1,9 @@
 import Signal from '../utils/signal';
+import KeyboardJS from 'keyboardjs';
 
 import { song } from './songmanager';
 import { state } from '../state';
+import { cursor } from '../utils/cursor';
 
 export class FXInput {
   constructor() {
@@ -11,38 +13,43 @@ export class FXInput {
     this.alphaMax = "y".charCodeAt(0);
 
     this.validEffects = [
-      "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A",
-      "B", "C", "D", "E", "F", "G", "H", "K", "L", "P", "R", 
-      "T", "W", "X",
+      "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a",
+      "b", "c", "d", "e", "f", "g", "h", "k", "l", "p", "r", 
+      "t", "w", "x",
     ];
+
+    KeyboardJS.bind(this.validEffects, (e) => {
+      this.handleKeyAtCursor(e);
+    });
   }
 
   handleKeyAtCursor(event) {
-    // Can only input fx on the fx column.
-    if (state.cursor.get("item") !== 5) {
-      return false;
-    }
-    // Only support keys with no modifiers for now.
-    if (event.ctrlKey || event.shiftKey || event.metaKey ) {
-      return false;
-    }
-    // Check if it's a valid effect command
-    if (this.validEffects.indexOf(event.key.toUpperCase()) === -1) {
-      return false;
-    }
+    if (state.cursor.get("record")) {
+      // Can only input fx on the fx column.
+      if (state.cursor.get("item") !== 5) {
+        return;
+      }
+      // Only support keys with no modifiers for now.
+      if (event.ctrlKey || event.shiftKey || event.metaKey ) {
+        return;
+      }
+      // Check if it's a valid effect command
+      if (this.validEffects.indexOf(event.key) === -1) {
+        return;
+      }
 
-    let val = undefined;
-    const charcode = event.key.charCodeAt(0);
-    if (charcode >= this.numMin && charcode <= this.numMax) {
-      val = charcode - this.numMin;
-    } else if(charcode >= this.alphaMin && charcode <= this.alphaMax) {
-      val = (charcode - this.alphaMin) + 10;
-    } 
-    if(val != null) {
-      song.setFXAtCursor(state.cursor.toJS(), val); 
-      return true;
+      let val = undefined;
+      const charcode = event.key.charCodeAt(0);
+      if (charcode >= this.numMin && charcode <= this.numMax) {
+        val = charcode - this.numMin;
+      } else if(charcode >= this.alphaMin && charcode <= this.alphaMax) {
+        val = (charcode - this.alphaMin) + 10;
+      } 
+      if(val != null) {
+        song.setFXAtCursor(state.cursor.toJS(), val); 
+        cursor.rowDown(state.transport.get("step"));
+      }
     }
-    return false;
   }
 }
 

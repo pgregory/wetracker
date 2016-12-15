@@ -1,4 +1,6 @@
 import Signal from './signal';
+import KeyboardJS from 'keyboardjs';
+
 import { state } from '../state';
 import { song } from './songmanager';
 
@@ -15,6 +17,32 @@ const items = [
 ];
 
 export class CursorManager {
+  constructor() {
+    KeyboardJS.bind("down", (e) => {
+      this.rowDown();
+      e.preventDefault();
+    });
+    KeyboardJS.bind("up", (e) => {
+      this.rowUp();
+      e.preventDefault();
+    });
+    KeyboardJS.bind("right", (e) => {
+      this.itemRight();
+      e.preventDefault();
+    });
+    KeyboardJS.bind("left", (e) => {
+      this.itemLeft();
+      e.preventDefault();
+    });
+    KeyboardJS.bind("backspace", (e) => {
+      if (e.ctrlKey || e.shiftKey || e.metaKey ) {
+        return;
+      }
+      song.deleteItemAtCursor(state.cursor.toJS());
+      event.preventDefault();
+    });
+  }
+
   rowUp(count = 1) {
     let row = state.cursor.get("row") - count;
     if (row < 0) {
