@@ -333,15 +333,17 @@ class XMLoader {
         inst.samples = samps;
         if (env_vol_type) {
           // insert an automatic fadeout to 0 at the end of the envelope
+          // Removed: need the envelope to remain as defined for editing.
+          // Need to find another way to do fadeout.
           var env_end_tick = env_vol[env_vol.length-2];
           if (!(env_vol_type & 2)) {  // if there's no sustain point, create one
             env_vol_sustain = env_vol.length / 2;
           }
-          if (vol_fadeout > 0) {
+          /*if (vol_fadeout > 0) {
             var fadeout_ticks = 65536.0 / vol_fadeout;
             env_vol.push(env_end_tick + fadeout_ticks);
             env_vol.push(0);
-          }
+          }*/
           inst.env_vol = { 
               points: env_vol,
               type: env_vol_type,

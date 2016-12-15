@@ -9,6 +9,7 @@ import Monitors from '../monitors/monitors';
 import SequenceEditor from '../sequence_editor/sequence_editor';
 import InstrumentList from '../instrument_list/instrument_list';
 import SampleEditor from '../sample_editor/sample_editor';
+import InstrumentEditor from '../instrument_editor/instrument_editor';
 
 import tabsTemplate from './templates/tabs.marko';
 
@@ -35,6 +36,7 @@ export default class Tabs {
       'sequence-editor': (t) => { return new SequenceEditor(t); },
       'instrument-list': (t) => { return new InstrumentList(t) },
       'sample-editor': (t) => { return new SampleEditor(t) },
+      'instrument-editor': (t) => { return new InstrumentEditor(t) },
     };
   }
 
@@ -60,9 +62,9 @@ export default class Tabs {
     });
 
     $('.grid-stack').gridstack(this.options).on('resizestop', function(event, ui) {
-      for(let i = 0; i < this.widgets.length; i += 1) {
+      /*for(let i = 0; i < this.widgets.length; i += 1) {
         this.widgets[i].refresh();
-      }
+      }*/
     }).on('change', function(event, items) {
       console.log("Changed");
     });

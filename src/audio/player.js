@@ -20,6 +20,7 @@ class EnvelopeFollower {
       return this.env.points[this.env.sustain*2 + 1];
     }
 
+    // TODO: Need to take into account vol_fadeout when releasing.
     this.tick++;
     if (this.env.type & 4) {  // envelope loop?
       if (!release &&
