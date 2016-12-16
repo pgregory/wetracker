@@ -11,6 +11,7 @@ export class State {
       column: 0,
       item: 0,
       instrument: 0,
+      sample: 0,
       record: false,
     });
 

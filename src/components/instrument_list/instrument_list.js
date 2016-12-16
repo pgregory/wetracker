@@ -8,7 +8,7 @@ import instrumentsTemplate from './templates/instruments.marko';
 
 import styles from './styles.css';
 
-export default class Monitors {
+export default class InstrumentList {
   constructor(target) {
     this.target = target;
     this.yoff = 0;

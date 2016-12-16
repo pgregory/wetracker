@@ -309,7 +309,7 @@ class XMLoader {
             'len': samplen, 'loop': samploop,
             'looplen': samplooplen, 'note': sampnote, 'fine': sampfinetune,
             'pan': samppan, 'type': samptype, 'vol': sampvol,
-            'fileoffset': sampleoffset
+            'fileoffset': sampleoffset, 'name': sampname,
           };
           // length / pointers are all specified in bytes; fixup for 16-bit samples
           samps.push(samp);

@@ -13,13 +13,23 @@ export default class SampleEditor {
     this.target = target;
     this.lastCursor = state.cursor;
 
+    this.updateSample();
+
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
+  }
+
+  updateSample() {
+    const cur_instr = state.cursor.get("instrument");
+    const cur_sample = state.cursor.get("sample");
+
+    this.sample = song.song.instruments[cur_instr].samples[cur_sample];
   }
 
   render() {
     $(this.target).addClass('sample-editor');
     var cur_instr = state.cursor.get("instrument");
-    $(this.target).append(sampleTemplate.renderToString({samples: song.song.instruments[cur_instr].samples}));
+    $(this.target).append(sampleTemplate.renderToString({sample: this.sample}));
+
 
     var canvas = $(this.target).find('.sample .waveform canvas')[0];
     canvas.height = $('.sample .waveform').height();
@@ -29,10 +39,9 @@ export default class SampleEditor {
     var ctx = canvas.getContext('2d');
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    var sample = song.song.instruments[cur_instr].samples;
-    if (sample) {
-      var len = sample[0].len;
-      var samples = sample[0].sampledata;
+    if (this.sample) {
+      var len = this.sample.len;
+      var samples = this.sample.sampledata;
       var scale = Math.floor(len/canvas.width);
       ctx.strokeStyle = '#55acff';
       ctx.beginPath();
@@ -52,9 +61,15 @@ export default class SampleEditor {
   }
 
   onCursorChanged() {
-    if (state.cursor.get("instrument") !== this.lastCursor.get("instrument")) {
+    if ((state.cursor.get("instrument") !== this.lastCursor.get("instrument")) || 
+        (state.cursor.get("sample") !== this.lastCursor.get("sample"))) {
+      this.updateSample();
+
+      console.log(this.sample);
+
       this.target.empty();
       this.render();
+      
       this.lastCursor = state.cursor;
     }
   }

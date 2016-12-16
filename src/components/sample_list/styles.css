@@ -1,0 +1,60 @@
+.widget.sample-list {
+  overflow-y: hidden;
+  flex: 1;
+}
+
+.samples {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  color: white;
+  font-family: monospace;
+  margin-right: 0;
+}
+
+.samples .samples-row {
+  display: flex;
+  border-left: 2px solid rgba(0,0,0,0);
+  padding: 2px;
+  flex-shrink: 0;
+  overflow-x: hidden;
+}
+
+.samples .samples-row.current-sample {
+  border: 2px solid #444;
+  border-radius: 3px;
+}
+
+.samples .samples-index {
+  display: table-cell;
+  text-align: center;
+  min-width: 24px;
+}
+
+.samples .samples-index div {
+  padding: 0 3px;
+  border: 1px solid gray;
+  border-radius: 2px;
+}
+
+.samples .samples-row.current-sample .samples-index div {
+  background: #090;
+}
+
+.samples .samples-name {
+  display: table-cell;
+  text-align: left;
+  overflow: hidden;
+}
+
+.samples .samples-name div {
+  padding-left: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.samples .samples-top-padding, .sampless .samples-bottom-padding {
+  flex-shrink: 0;
+}

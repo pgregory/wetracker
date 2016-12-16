@@ -8,6 +8,7 @@ import PatternEditorCanvas from '../pattern_editor/pattern_editor_canvas';
 import Monitors from '../monitors/monitors';
 import SequenceEditor from '../sequence_editor/sequence_editor';
 import InstrumentList from '../instrument_list/instrument_list';
+import SampleList from '../sample_list/sample_list';
 import SampleEditor from '../sample_editor/sample_editor';
 import VolumeEnvelope from '../instrument_editor/volume_envelope';
 import PanningEnvelope from '../instrument_editor/panning_envelope';
@@ -37,6 +38,7 @@ export default class Tabs {
       'monitors': (t) => { return new Monitors(t); },
       'sequence-editor': (t) => { return new SequenceEditor(t); },
       'instrument-list': (t) => { return new InstrumentList(t) },
+      'sample-list': (t) => { return new SampleList(t) },
       'sample-editor': (t) => { return new SampleEditor(t) },
       'volume-envelope': (t) => { return new VolumeEnvelope(t) },
       'panning-envelope': (t) => { return new PanningEnvelope(t) },
