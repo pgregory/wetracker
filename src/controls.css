@@ -1,10 +1,8 @@
 .control-panel {
-  background-color: #444;
-  border-radius: 3px;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  height: 100%;
+  justify-content: flex-start;
 }
 
 .control-group {
