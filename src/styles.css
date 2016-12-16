@@ -84,6 +84,12 @@ ul.tab li a.active {
   flex-direction: column;
 }
 
+.widget {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
 .widget-titlebar {
   height: 16px;
   background: #444;
@@ -98,6 +104,8 @@ ul.tab li a.active {
   left: 2.5px;
   right: 2.5px;
   background: black;
+  display: flex;
+  flex-direction: column;
 }
 
 .grid-stack .grid-stack-placeholder > .placeholder-content {

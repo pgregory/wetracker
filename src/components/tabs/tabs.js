@@ -10,6 +10,8 @@ import SequenceEditor from '../sequence_editor/sequence_editor';
 import InstrumentList from '../instrument_list/instrument_list';
 import SampleEditor from '../sample_editor/sample_editor';
 import InstrumentEditor from '../instrument_editor/instrument_editor';
+import PanningEnvelope from '../instrument_editor/panning_envelope';
+import InstrumentControls from '../instrument_editor/instrument_controls';
 
 import tabsTemplate from './templates/tabs.marko';
 
@@ -37,6 +39,8 @@ export default class Tabs {
       'instrument-list': (t) => { return new InstrumentList(t) },
       'sample-editor': (t) => { return new SampleEditor(t) },
       'instrument-editor': (t) => { return new InstrumentEditor(t) },
+      'panning-envelope': (t) => { return new PanningEnvelope(t) },
+      'instrument-controls': (t) => { return new InstrumentControls(t) },
     };
   }
 

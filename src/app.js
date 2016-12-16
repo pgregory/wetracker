@@ -17,7 +17,7 @@ import Tabs from './components/tabs/tabs';
 import gridTemplate from './templates/grid.marko';
 import instrumentsViewTemplate from './templates/instrumentsview.marko';
 
-import './components/transport/styles.css';
+import './controls.css';
 
 import { player } from './audio/player';
 import modfile from '../data/test-song.xm';

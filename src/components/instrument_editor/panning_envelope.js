@@ -8,7 +8,7 @@ import instrumentTemplate from './templates/instrument.marko';
 
 import styles from './styles.css';
 
-export default class InstrumentEditor {
+export default class PanningEnvelope {
   constructor(target) {
     this.target = target;
     this.lastCursor = state.cursor;
@@ -83,10 +83,10 @@ export default class InstrumentEditor {
     // Draw in axes
     this.renderGridAndAxes();
 
-    const env_vol = this.instrument.env_vol;
-    if (env_vol) {
-      const len = env_vol.points.length;
-      const points = env_vol.points;
+    const env_pan = this.instrument.env_pan;
+    if (env_pan) {
+      const len = env_pan.points.length;
+      const points = env_pan.points;
 
       this.maxtick = 0;
 
@@ -238,23 +238,23 @@ export default class InstrumentEditor {
     let curveX = x;
 
     if (index > 0) {
-      if (curveX <= this.instrument.env_vol.points[(index - 1) * 2]) {
-        curveX = this.instrument.env_vol.points[(index - 1) * 2] + 1;
-      } else if (index < (this.instrument.env_vol.points.length / 2) &&
-                 curveX >= this.instrument.env_vol.points[(index + 1) * 2]) {
-        curveX = this.instrument.env_vol.points[(index + 1) * 2] - 1;
+      if (curveX <= this.instrument.env_pan.points[(index - 1) * 2]) {
+        curveX = this.instrument.env_pan.points[(index - 1) * 2] + 1;
+      } else if (index < (this.instrument.env_pan.points.length / 2) &&
+                 curveX >= this.instrument.env_pan.points[(index + 1) * 2]) {
+        curveX = this.instrument.env_pan.points[(index + 1) * 2] - 1;
       }
     } else {
       // Point 0 must be at tick 0
       curveX = 0;
     }
 
-    this.instrument.env_vol.points[index * 2] = curveX;
-    this.instrument.env_vol.points[(index * 2) + 1] = y;
+    this.instrument.env_pan.points[index * 2] = curveX;
+    this.instrument.env_pan.points[(index * 2) + 1] = y;
   }
 
   curvePointToCanvas(pointIndex) {
-    const points = this.instrument.env_vol.points;
+    const points = this.instrument.env_pan.points;
     const height = this.canvas.height;
 
     const px = (points[pointIndex] * this.zoom);
@@ -273,7 +273,7 @@ export default class InstrumentEditor {
   }
 
   curvePointAtCanvas(x, y) {
-    const len = this.instrument.env_vol.points.length;
+    const len = this.instrument.env_pan.points.length;
 
     for (let i = 0; i < len; i += 2) {
       const p = this.curvePointToCanvas(i);
@@ -294,7 +294,7 @@ export default class InstrumentEditor {
   }
 
   interpolateCurve(curveX) {
-    const points = this.instrument.env_vol.points;
+    const points = this.instrument.env_pan.points;
     const len = points.length;
 
     let prevX = points[0];
