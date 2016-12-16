@@ -8,13 +8,13 @@ import EnvelopeWidget from './envelope_widget';
 
 import styles from './styles.css';
 
-export default class PanningEnvelope extends EnvelopeWidget {
+export default class VolumeEnvelope extends EnvelopeWidget {
   constructor(target) {
     super(target);
   }
 
   setInstrument(instrument) {
     super.setInstrument(instrument);
-    this.envelope = instrument.env_pan;
+    this.envelope = instrument.env_vol;
   }
 }

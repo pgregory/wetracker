@@ -4,11 +4,9 @@ import Signal from '../../utils/signal';
 import { state } from '../../state';
 import { song } from '../../utils/songmanager';
 
-import instrumentTemplate from './templates/instrument.marko';
+import envelopeTemplate from './templates/envelope.marko';
 
-import styles from './styles.css';
-
-export default class InstrumentEditor {
+export default class EnvelopeWidget {
   constructor(target) {
     this.target = target;
     this.lastCursor = state.cursor;
@@ -22,8 +20,10 @@ export default class InstrumentEditor {
     this.curveY = undefined;
     this.left_margin = 20;
     this.instrument = undefined;
+    this.envelope = undefined;
 
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
+    Signal.connect(song, "songChanged", this, "onSongChanged");
   }
 
   renderGridAndAxes() {
@@ -83,10 +83,9 @@ export default class InstrumentEditor {
     // Draw in axes
     this.renderGridAndAxes();
 
-    const env_vol = this.instrument.env_vol;
-    if (env_vol) {
-      const len = env_vol.points.length;
-      const points = env_vol.points;
+    if (this.envelope) {
+      const len = this.envelope.points.length;
+      const points = this.envelope.points;
 
       this.maxtick = 0;
 
@@ -137,9 +136,8 @@ export default class InstrumentEditor {
   render() {
     $(this.target).addClass('instrument-editor');
     const cur_instr = state.cursor.get("instrument");
-    $(this.target).append(instrumentTemplate.renderToString({instrument: song.song.instruments[cur_instr]}));
+    $(this.target).append(envelopeTemplate.renderToString({instrument: song.song.instruments[cur_instr]}));
 
-    this.instrument = song.song.instruments[cur_instr];
 
     const canvas = $(this.target).find('.instrument .waveform canvas')[0];
     this.canvas = canvas;
@@ -157,55 +155,59 @@ export default class InstrumentEditor {
   }
 
   onScroll(e) {
-    const prevOffset = this.offset;
-    if (Math.abs(e.originalEvent.deltaY) > Math.abs(e.originalEvent.deltaX)) {
-      this.zoom += (e.originalEvent.deltaY/10);
-      this.zoom = Math.min(Math.max(this.zoom, 0.1), 100);
-    } else {
-      this.offset -= e.originalEvent.deltaX;
+    if (this.envelope) {
+      const prevOffset = this.offset;
+      if (Math.abs(e.originalEvent.deltaY) > Math.abs(e.originalEvent.deltaX)) {
+        this.zoom += (e.originalEvent.deltaY/10);
+        this.zoom = Math.min(Math.max(this.zoom, 0.1), 100);
+      } else {
+        this.offset -= e.originalEvent.deltaX;
+      }
+      this.offset = Math.min(Math.max(this.offset, -(((this.maxtick * 1.2) * this.zoom) - this.canvas.width)), 0);
+
+      const pos = this.curveFromCanvas(this.mouseX - this.left_margin - this.offset, this.mouseY);
+      this.curveX = pos.xcurve;
+      this.curveY = pos.ycurve;
+
+      $(this.canvas).toggleClass('moveable', (((this.maxtick * 1.2) * this.zoom) > this.canvas.width));
+
+      window.requestAnimationFrame(() => this.redrawCurve());
     }
-    this.offset = Math.min(Math.max(this.offset, -(((this.maxtick * 1.2) * this.zoom) - this.canvas.width)), 0);
-
-    const pos = this.curveFromCanvas(this.mouseX - this.left_margin - this.offset, this.mouseY);
-    this.curveX = pos.xcurve;
-    this.curveY = pos.ycurve;
-
-    $(this.canvas).toggleClass('moveable', (((this.maxtick * 1.2) * this.zoom) > this.canvas.width));
-
-    window.requestAnimationFrame(() => this.redrawCurve());
     e.preventDefault();
   }
 
   onMouseMove(e) {
-    const xpos = (e.offsetX - this.left_margin) - this.offset;
-    const ypos = e.offsetY;
+    if (this.envelope) {
+      const xpos = (e.offsetX - this.left_margin) - this.offset;
+      const ypos = e.offsetY;
 
-    const pos = this.curveFromCanvas(xpos, ypos);
-    this.curveX = pos.xcurve;
-    this.curveY = pos.ycurve;
+      const pos = this.curveFromCanvas(xpos, ypos);
+      this.curveX = pos.xcurve;
+      this.curveY = pos.ycurve;
 
-    const point = this.curvePointAtCanvas(xpos, ypos);
+      const point = this.curvePointAtCanvas(xpos, ypos);
 
-    if (this.dragging) {
-      if (this.currentPoint) {
-        this.setCurvePoint(this.currentPoint, pos.xcurve, pos.ycurve);
-      } else {
-        this.offset += (e.offsetX - this.mouseX);
-        this.offset = Math.min(Math.max(this.offset, -(((this.maxtick * 1.2) * this.zoom) - this.canvas.width)), 0);
+      if (this.dragging) {
+        if (this.currentPoint) {
+          this.setCurvePoint(this.currentPoint, pos.xcurve, pos.ycurve);
+        } else {
+          this.offset += (e.offsetX - this.mouseX);
+          this.offset = Math.min(Math.max(this.offset, -(((this.maxtick * 1.2) * this.zoom) - this.canvas.width)), 0);
+        }
       }
-    }
-    this.mouseX = e.offsetX;
-    this.mouseY = e.offsetY;
+      this.mouseX = e.offsetX;
+      this.mouseY = e.offsetY;
 
-    if (point != null) {
-      $(this.canvas).toggleClass('moveable', false);
-      $(this.canvas).toggleClass('dragging', true);
-    } else {
-      $(this.canvas).toggleClass('dragging', false);
-      $(this.canvas).toggleClass('moveable', (((this.maxtick * 1.2) * this.zoom) > this.canvas.width));
-    }
+      if (point != null) {
+        $(this.canvas).toggleClass('moveable', false);
+        $(this.canvas).toggleClass('dragging', true);
+      } else {
+        $(this.canvas).toggleClass('dragging', false);
+        $(this.canvas).toggleClass('moveable', (((this.maxtick * 1.2) * this.zoom) > this.canvas.width));
+      }
 
-    window.requestAnimationFrame(() => this.redrawCurve());
+      window.requestAnimationFrame(() => this.redrawCurve());
+    }
   }
 
   onMouseDown(e) {
@@ -238,23 +240,23 @@ export default class InstrumentEditor {
     let curveX = x;
 
     if (index > 0) {
-      if (curveX <= this.instrument.env_vol.points[(index - 1) * 2]) {
-        curveX = this.instrument.env_vol.points[(index - 1) * 2] + 1;
-      } else if (index < (this.instrument.env_vol.points.length / 2) &&
-                 curveX >= this.instrument.env_vol.points[(index + 1) * 2]) {
-        curveX = this.instrument.env_vol.points[(index + 1) * 2] - 1;
+      if (curveX <= this.envelope.points[(index - 1) * 2]) {
+        curveX = this.envelope.points[(index - 1) * 2] + 1;
+      } else if (index < (this.envelope.points.length / 2) &&
+                 curveX >= this.envelope.points[(index + 1) * 2]) {
+        curveX = this.envelope.points[(index + 1) * 2] - 1;
       }
     } else {
       // Point 0 must be at tick 0
       curveX = 0;
     }
 
-    this.instrument.env_vol.points[index * 2] = curveX;
-    this.instrument.env_vol.points[(index * 2) + 1] = y;
+    this.envelope.points[index * 2] = curveX;
+    this.envelope.points[(index * 2) + 1] = y;
   }
 
   curvePointToCanvas(pointIndex) {
-    const points = this.instrument.env_vol.points;
+    const points = this.envelope.points;
     const height = this.canvas.height;
 
     const px = (points[pointIndex] * this.zoom);
@@ -273,7 +275,7 @@ export default class InstrumentEditor {
   }
 
   curvePointAtCanvas(x, y) {
-    const len = this.instrument.env_vol.points.length;
+    const len = this.envelope.points.length;
 
     for (let i = 0; i < len; i += 2) {
       const p = this.curvePointToCanvas(i);
@@ -294,7 +296,7 @@ export default class InstrumentEditor {
   }
 
   interpolateCurve(curveX) {
-    const points = this.instrument.env_vol.points;
+    const points = this.envelope.points;
     const len = points.length;
 
     let prevX = points[0];
@@ -317,6 +319,10 @@ export default class InstrumentEditor {
     return val;
   }
 
+  setInstrument(instrument) {
+    this.instrument = instrument;
+  }
+
   refresh() {
     $(this.target).empty();
     this.render();
@@ -324,6 +330,7 @@ export default class InstrumentEditor {
 
   onCursorChanged() {
     if (state.cursor.get("instrument") !== this.lastCursor.get("instrument")) {
+      this.setInstrument(song.song.instruments[state.cursor.get("instrument")]);
       this.target.empty();
       this.render();
       this.lastCursor = state.cursor;
@@ -331,6 +338,7 @@ export default class InstrumentEditor {
   }
 
   onSongChanged() {
+    this.setInstrument(song.song.instruments[state.cursor.get("instrument")]);
     this.refresh();
   }
 }
