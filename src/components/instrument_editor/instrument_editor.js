@@ -14,7 +14,7 @@ export default class InstrumentEditor {
     this.lastCursor = state.cursor;
     this.zoom = 1;
     this.offset = 0;
-    this.currentPoint = 1;
+    this.currentPoint = undefined;
     this.mouseX = undefined;
     this.mouseY = undefined;
     this.dragging = false;
@@ -54,7 +54,7 @@ export default class InstrumentEditor {
     }
     ctx.strokeStyle = '#00D';
     ctx.beginPath();
-    let x = (this.offset % vdelta) + this.left_margin;
+    let x = (hdelta + (this.offset % hdelta)) + this.left_margin;
     for(let i = 0; i <= hcount; i += 1) {
       ctx.moveTo(x, 0);
       ctx.lineTo(x, this.canvas.height);
@@ -157,17 +157,20 @@ export default class InstrumentEditor {
   }
 
   onScroll(e) {
+    const prevOffset = this.offset;
     if (Math.abs(e.originalEvent.deltaY) > Math.abs(e.originalEvent.deltaX)) {
       this.zoom += (e.originalEvent.deltaY/10);
       this.zoom = Math.min(Math.max(this.zoom, 0.1), 100);
     } else {
       this.offset -= e.originalEvent.deltaX;
-      this.offset = Math.min(Math.max(this.offset, -(((this.maxtick * 1.2) * this.zoom) - this.canvas.width)), 0);
     }
+    this.offset = Math.min(Math.max(this.offset, -(((this.maxtick * 1.2) * this.zoom) - this.canvas.width)), 0);
 
-    const pos = this.curvePositionFromCoordinates(this.mouseX, this.mouseY);
+    const pos = this.curvePositionFromCoordinates(this.mouseX - this.left_margin - this.offset, this.mouseY);
     this.curveX = pos.xcurve;
     this.curveY = pos.ycurve;
+
+    $(this.canvas).toggleClass('moveable', (((this.maxtick * 1.2) * this.zoom) > this.canvas.width));
 
     window.requestAnimationFrame(() => this.redrawCurve());
     e.preventDefault();
@@ -197,14 +200,30 @@ export default class InstrumentEditor {
     const ypos = e.offsetY;
 
     const pos = this.curvePositionFromCoordinates(xpos, ypos);
-    this.mouseX = xpos;
-    this.mouseY = ypos;
     this.curveX = pos.xcurve;
     this.curveY = pos.ycurve;
 
+    const point = this.curvePointAtPosition(xpos, ypos);
+
     if (this.dragging) {
-      this.setCurvePoint(this.currentPoint, pos.xcurve, pos.ycurve);
+      if (this.currentPoint) {
+        this.setCurvePoint(this.currentPoint, pos.xcurve, pos.ycurve);
+      } else {
+        this.offset += (e.offsetX - this.mouseX);
+        this.offset = Math.min(Math.max(this.offset, -(((this.maxtick * 1.2) * this.zoom) - this.canvas.width)), 0);
+      }
     }
+    this.mouseX = e.offsetX;
+    this.mouseY = e.offsetY;
+
+    if (point != null) {
+      $(this.canvas).toggleClass('moveable', false);
+      $(this.canvas).toggleClass('dragging', true);
+    } else {
+      $(this.canvas).toggleClass('dragging', false);
+      $(this.canvas).toggleClass('moveable', (((this.maxtick * 1.2) * this.zoom) > this.canvas.width));
+    }
+
     window.requestAnimationFrame(() => this.redrawCurve());
   }
 
@@ -217,10 +236,12 @@ export default class InstrumentEditor {
     const point = this.curvePointAtPosition(xpos, ypos);
     if (point != null) {
       this.currentPoint = point;
-      this.dragging = true;
       this.setCurvePoint(this.currentPoint, pos.xcurve, pos.ycurve);
       window.requestAnimationFrame(() => this.redrawCurve());
+    } else {
+      this.currentPoint = undefined;
     }
+    this.dragging = true;
   }
 
   onMouseUp(e) {

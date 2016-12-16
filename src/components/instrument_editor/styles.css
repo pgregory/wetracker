@@ -18,3 +18,20 @@
   height: 100%;
 }
 
+.instrument .waveform canvas.dragging {
+  cursor: crosshair;
+}
+
+.instrument .waveform canvas.moveable {
+  cursor: move;
+  cursor: grab;
+  cursor: -webkit-grab;
+  cursor: -moz-grab;
+}
+
+.instrument .waveform canvas.moveable:active {
+  cursor: move;
+  cursor: grabbing;
+  cursor: -webkit-grabbing;
+  cursor: -moz-grabbing;
+}
