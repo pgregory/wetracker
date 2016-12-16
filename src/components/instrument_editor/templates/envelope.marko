@@ -2,59 +2,66 @@
   <div class="waveform"><canvas style="width:100%;height:100%;" class="waveform-canvas"></canvas></div>
   <div class="envelope-controls">
     <div class="control-panel">
-      <div class="control-group pointbuttons">
-        <div class="control">
-          <button class="fa fa-plus-square-o"></button>
+      <if(data.envelope != null)>
+        <div class="control-group">
+          <div class="control">
+            <label for="on">On</label>
+            <input type="checkbox" id="on" checked=((data.envelope.type & 1) !== 0)/>
+          </div>
         </div>
-        <div class="control">
-          <button class="fa fa-minus-square-o"></button>
+        <div class="control-group">
+          <div class="control">
+            <label for="sustain">Sustain</label>
+            <input type="checkbox" id="sustain" checked=((data.envelope.type & 2) !== 0)/>
+          </div>
+          <div class="control range">
+            <label for="sustain-point">
+              Point
+            </label>
+            <input
+              id="sustain-point"
+              class="range-input"
+              value="${data.envelope.sustain}"
+              type="text"
+            />
+          </div>
         </div>
-      </div>
-      <div class="control-group">
-        <div class="control">
-          <label for="sustain">Sustain</label>
-          <input type="checkbox" id="sustain"/>
+        <div class="control-group">
+          <div class="control">
+            <label for="loop">Loop</label>
+            <input type="checkbox" id="loop" checked=((data.envelope.type & 4) !== 0)/>
+          </div>
+          <div class="control range">
+            <label for="loop-start-point">
+              Start
+            </label>
+            <input
+              id="loop-start-point"
+              class="range-input"
+              value="${data.envelope.loopstart}"
+              type="text"
+            />
+          </div>
+          <div class="control range">
+            <label for="loop-end-point">
+              End
+            </label>
+            <input
+              id="loop-end-point"
+              class="range-input"
+              value="${data.envelope.loopend}"
+              type="text"
+            />
+          </div>
         </div>
-        <div class="control range">
-          <label for="sustain-point">
-            Point
-          </label>
-          <input
-            id="sustain-point"
-            class="range-input"
-            value="0"
-            type="text"
-          />
+      </if>
+      <else>
+        <div class="control-group">
+          <div class="control">
+            <button>Add</button>
+          </div> 
         </div>
-      </div>
-      <div class="control-group">
-        <div class="control">
-          <label for="loop">Loop</label>
-          <input type="checkbox" id="loop"/>
-        </div>
-        <div class="control range">
-          <label for="loop-start-point">
-            Start
-          </label>
-          <input
-            id="loop-start-point"
-            class="range-input"
-            value="0"
-            type="text"
-          />
-        </div>
-        <div class="control range">
-          <label for="loop-end-point">
-            End
-          </label>
-          <input
-            id="loop-end-point"
-            class="range-input"
-            value="0"
-            type="text"
-          />
-        </div>
-      </div>
+      </else>
     </div>
   </div>
 </div>

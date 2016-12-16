@@ -20,10 +20,16 @@ export default class InstrumentControls {
   render() {
     $(this.target).addClass('instrument-controls');
     const cur_instr = state.cursor.get("instrument");
-    $(this.target).append(controlsTemplate.renderToString({instrument: song.song.instruments[cur_instr]}));
 
-    this.instrument = song.song.instruments[cur_instr];
+    try {
+      this.instrument = song.song.instruments[cur_instr];
 
+      if (this.instrument && 'samples' in this.instrument && this.instrument.samples.length > 0) {
+        $(this.target).append(controlsTemplate.renderToString({instrument: this.instrument}));
+      }
+    } catch(e) {
+      console.log(e);
+    }
   }
 
   refresh() {

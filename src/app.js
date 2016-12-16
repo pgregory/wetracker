@@ -76,12 +76,12 @@ $(document).ready(() => {
   transport = new Transport("#transport");
   tabs = new Tabs("#tabs");
 
-  song.newSong();
 
   window.requestAnimationFrame(() => {
-
     transport.render();
     tabs.render();
+
+    song.newSong();
 
     $('#play').click((e) => {
       player.play();

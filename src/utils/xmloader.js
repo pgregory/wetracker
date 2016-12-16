@@ -264,6 +264,8 @@ class XMLoader {
         var env_pan_loop_start = dv.getUint8(idx+231);
         var env_pan_loop_end = dv.getUint8(idx+232);
         var vol_fadeout = dv.getUint16(idx+239, true);
+
+        inst.fadeout = vol_fadeout;
         var env_vol = [];
         for (j = 0; j < env_nvol*2; j++) {
           env_vol.push(dv.getUint16(idx+129+j*2, true));

@@ -69,8 +69,6 @@ export default class Tabs {
       /*for(let i = 0; i < this.widgets.length; i += 1) {
         this.widgets[i].refresh();
       }*/
-    }).on('change', function(event, items) {
-      console.log("Changed");
     });
 
     $('.widget').each((i, e) => {

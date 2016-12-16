@@ -116,7 +116,8 @@ export default class EnvelopeWidget {
 
       if (this.curveX != null) {
         ctx.save();
-        ctx.strokeStyle = '#444';
+        ctx.strokeStyle = '#888';
+        ctx.lineWidth = 2;
         ctx.setLineDash([4, 4]);
         ctx.beginPath();
         const val = this.interpolateCurve(this.curveX);
@@ -135,9 +136,8 @@ export default class EnvelopeWidget {
 
   render() {
     $(this.target).addClass('instrument-editor');
-    const cur_instr = state.cursor.get("instrument");
-    $(this.target).append(envelopeTemplate.renderToString({instrument: song.song.instruments[cur_instr]}));
 
+    $(this.target).append(envelopeTemplate.renderToString({instrument: this.instrument, envelope: this.envelope}));
 
     const canvas = $(this.target).find('.instrument .waveform canvas')[0];
     this.canvas = canvas;
@@ -148,10 +148,45 @@ export default class EnvelopeWidget {
     $(canvas).on('mouseup', this.onMouseUp.bind(this));
     $(canvas).on('mouseout', this.onMouseOut.bind(this));
 
+    $(this.target).find("input:checkbox").click((e) => {
+      this.changeOptions();
+    });
+    $(this.target).find("input:text").change((e) => {
+      this.changeOptions();
+    });
+
     canvas.height = $('.instrument .waveform').height();
     canvas.width = $('.instrument .waveform').width();
 
     this.redrawCurve();
+  }
+
+  changeOptions() {
+    if (this.envelope) {
+      const on = $(this.target).find("input:checkbox#on")[0].checked;
+      this.envelope.type = (this.envelope.type & 0xFE);
+      if (on) {
+        this.envelope.type = this.envelope.type | 0x1;
+      }
+
+      const sustain = $(this.target).find("input:checkbox#sustain")[0].checked;
+      this.envelope.type = (this.envelope.type & 0xFD);
+      if (sustain) {
+        this.envelope.type = this.envelope.type | 0x2;
+      }
+      const sustainPoint = parseInt($(this.target).find("input#sustain-point")[0].value);
+      this.envelope.sustain = sustainPoint;
+
+      const loop = $(this.target).find("input:checkbox#loop")[0].checked;
+      this.envelope.type = (this.envelope.type & 0xFB);
+      if (loop) {
+        this.envelope.type = this.envelope.type | 0x4;
+      }
+      const loopStart = parseInt($(this.target).find("input#loop-start-point")[0].value);
+      this.envelope.loopstart = loopStart;
+      const loopEnd = parseInt($(this.target).find("input#loop-end-point")[0].value);
+      this.envelope.loopend = loopEnd;
+    }
   }
 
   onScroll(e) {
