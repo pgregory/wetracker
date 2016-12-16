@@ -44,8 +44,8 @@ button.sm {
   align-items: center;
 }
 
-button.sm span.fa {
-  font-size: 0.75em;
+button.fa {
+  font-size: initial;
 }
 
 button:focus {
