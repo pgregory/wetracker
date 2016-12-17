@@ -25,13 +25,14 @@ export default class InstrumentList {
 
     this.rowHeight = $(this.target).find(".instrument-row")[0].clientHeight;
 
-    $(this.target).find(".instruments-top-padding div").height(
-      ($(this.target).height()-this.rowHeight)/2.0);
+    const containerHeight = $(this.target).find(".instruments-list").height();
+    $(this.target).find(".instruments-top-padding div").height((containerHeight - this.rowHeight)/2.0);
 
     $(this.target).find(".instruments-bottom-padding div").height(
-      ($(this.target).height()-this.rowHeight)/2.0);
+      (containerHeight-this.rowHeight)/2.0);
 
     $(this.target).find('.instruments').on('mousewheel', this.onScroll.bind(this));
+    $(this.target).find('#add-instrument').click((e) => song.addInstrument());
 
     this.lastCursor = state.cursor.toJS();
   }
@@ -49,7 +50,7 @@ export default class InstrumentList {
     if (state.cursor.get("instrument") !== this.lastCursor.instrument) {
       $(this.target).find(".current-instrument").removeClass('current-instrument');
       $(this.target).find(".instrument-row").eq(state.cursor.get("instrument")).addClass('current-instrument');
-      $(this.target).scrollTop(state.cursor.get("instrument")*this.rowHeight);
+      $(this.target).find(".instruments-list").scrollTop(state.cursor.get("instrument")*this.rowHeight);
     }
     this.lastCursor = state.cursor.toJS();
   }

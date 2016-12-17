@@ -25,21 +25,24 @@ export default class SampleList {
 
     $(this.target).append(samplesTemplate.renderToString({samples: this.instrument.samples, cursor: state.cursor.toJS()}));
 
-    this.rowHeight = $(this.target).find(".samples-row")[0].clientHeight;
+    console.log(this.instrument.samples.length);
+    if (this.instrument && this.instrument.samples && this.instrument.samples.length > 0) {
+      this.rowHeight = $(this.target).find(".samples-row")[0].clientHeight;
 
-    $(this.target).find(".samples-top-padding div").height(
-      ($(this.target).height()-this.rowHeight)/2.0);
+      $(this.target).find(".samples-top-padding div").height(
+        ($(this.target).height()-this.rowHeight)/2.0);
 
-    $(this.target).find(".samples-bottom-padding div").height(
-      ($(this.target).height()-this.rowHeight)/2.0);
+      $(this.target).find(".samples-bottom-padding div").height(
+        ($(this.target).height()-this.rowHeight)/2.0);
 
-    $(this.target).find('.samples').on('mousewheel', this.onScroll.bind(this));
-
+      $(this.target).find('.samples').on('mousewheel', this.onScroll.bind(this));
+    }
     this.lastCursor = state.cursor.toJS();
   }
 
   refresh() {
     $(this.target).empty();
+    this.updateSample();
     this.render();
   }
 
@@ -54,8 +57,9 @@ export default class SampleList {
   }
 
   onCursorChanged() {
-    if ((state.cursor.get("instrument") !== this.lastCursor.instrument) ||
-        (state.cursor.get("sample") !== this.lastCursor.sample)) {
+    if (state.cursor.get("instrument") !== this.lastCursor.instrument) {
+      this.refresh();
+    } else if (state.cursor.get("sample") !== this.lastCursor.sample) {
       this.updateSample();
 
       const cur_sample = state.cursor.get("sample");

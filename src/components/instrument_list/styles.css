@@ -3,6 +3,17 @@
   flex: 1;
 }
 
+.instruments .controls {
+  flex-grow: 0;
+  background: #444;
+  border-radius: 3px;
+}
+
+.instruments .instruments-list {
+  overflow-y: hidden;
+  flex-grow: 1;
+}
+
 .instruments {
   display: flex;
   flex-direction: column;

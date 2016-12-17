@@ -144,6 +144,14 @@ export class SongManager {
     this.songChanged();
   }
 
+  addInstrument() {
+    this.song.instruments.push({
+      'name': `Instrument ${this.song.instruments.length}`,
+      'number': this.song.instruments.length,
+    });
+    this.songChanged();
+  }
+
   setSong(song) {
     this.song = song;
 

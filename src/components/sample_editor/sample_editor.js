@@ -22,15 +22,14 @@ export default class SampleEditor {
     const cur_instr = state.cursor.get("instrument");
     const cur_sample = state.cursor.get("sample");
 
-    this.sample = song.song.instruments[cur_instr].samples[cur_sample];
+    try {
+      this.sample = song.song.instruments[cur_instr].samples[cur_sample];
+    } catch(e) {
+      this.sample = undefined;
+    }
   }
 
-  render() {
-    $(this.target).addClass('sample-editor');
-    var cur_instr = state.cursor.get("instrument");
-    $(this.target).append(sampleTemplate.renderToString({sample: this.sample}));
-
-
+  redrawWaveform() {
     var canvas = $(this.target).find('.sample .waveform canvas')[0];
     canvas.height = $('.sample .waveform').height();
     canvas.width = $('.sample .waveform').width();
@@ -55,6 +54,13 @@ export default class SampleEditor {
     }
   }
 
+  render() {
+    $(this.target).addClass('sample-editor');
+    $(this.target).append(sampleTemplate.renderToString({sample: this.sample}));
+
+    this.redrawWaveform();
+  }
+
   refresh() {
     $(this.target).empty();
     this.render();
@@ -65,10 +71,7 @@ export default class SampleEditor {
         (state.cursor.get("sample") !== this.lastCursor.get("sample"))) {
       this.updateSample();
 
-      console.log(this.sample);
-
-      this.target.empty();
-      this.render();
+      this.redrawWaveform();
       
       this.lastCursor = state.cursor;
     }
