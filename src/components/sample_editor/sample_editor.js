@@ -16,6 +16,7 @@ export default class SampleEditor {
     this.updateSample();
 
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
+    Signal.connect(song, "songChanged", this, "onSongChanged");
   }
 
   updateSample() {
@@ -63,6 +64,7 @@ export default class SampleEditor {
 
   refresh() {
     $(this.target).empty();
+    this.updateSample();
     this.render();
   }
 
@@ -78,6 +80,7 @@ export default class SampleEditor {
   }
 
   onSongChanged() {
-    this.refresh();
+    this.updateSample();
+    this.redrawWaveform();
   }
 }

@@ -152,6 +152,26 @@ export class SongManager {
     this.songChanged();
   }
 
+  addSampleToInstrument(instrumentIndex) {
+    try {
+      this.song.instruments[instrumentIndex].samples.push({
+        'len': 0, 
+        'loop': 0,
+        'looplen': 0, 
+        'note': 0, 
+        'fine': 0,
+        'pan': 0, 
+        'type': 0, 
+        'vol': 0x40,
+        'fileoffset': 0, 
+        'name': `Sample ${this.song.instruments[instrumentIndex].samples.length}`,
+      });
+      this.songChanged();
+    } catch(e) {
+      console.log(e);
+    }
+  }
+
   setSong(song) {
     this.song = song;
 
@@ -212,6 +232,26 @@ export class SongManager {
       }
     };
     reader.readAsText(file);
+  }
+
+  setInstrumentSampleData(instrumentIndex, sampleIndex, data) {
+    try {
+      const instrument = this.song.instruments[instrumentIndex];
+      while (sampleIndex >= instrument.samples.length) {
+        this.addSampleToInstrument(instrumentIndex);
+      }
+      const sample = instrument.samples[sampleIndex];
+
+      sample.sampledata = new Array(data.length);
+      for(let i = 0; i < data.length; i += 1) {
+        sample.sampledata[i] = data[i];
+      }
+      sample.len = data.length;
+
+      this.songChanged();
+    } catch(e) {
+      console.log(e);
+    }
   }
 }
 

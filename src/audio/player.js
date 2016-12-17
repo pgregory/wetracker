@@ -209,7 +209,6 @@ class Instrument {
     };
 
     // Build AudioBuffers from the sample data stored in the song
-    this.buffers = [];
     if (inst.samples && inst.samples.length > 0) {
       for(var i = 0; i < inst.samples.length; i += 1) {
         if(inst.samples[i].len > 0 ) {
@@ -889,6 +888,30 @@ class Player {
       this.cur_songpos = state.cursor.get("sequence");
     }*/
   }
+
+  /* Load a local sound file using the player specific knowledge of formats
+   */
+  loadSampleFromFile(file, callback) {
+    if (!file) {
+      return;
+    }
+    var reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        var contents = e.target.result;
+        this.audioctx.decodeAudioData(e.target.result, (data) => {
+          const floatData = data.getChannelData(0);
+          if (callback) {
+            callback(data, floatData);
+          }
+        });
+      } catch(e) {
+        console.log(e);
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
 
   eff_t1_0(ch) {  // arpeggio
     if (ch.effectdata !== 0 && ch.inst !== undefined) {

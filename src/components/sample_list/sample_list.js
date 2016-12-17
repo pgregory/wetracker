@@ -3,6 +3,7 @@ import $ from 'jquery';
 import Signal from '../../utils/signal';
 import { state } from '../../state';
 import { song } from '../../utils/songmanager';
+import { player } from '../../audio/player';
 
 import samplesTemplate from './templates/samples.marko';
 
@@ -25,17 +26,45 @@ export default class SampleList {
 
     $(this.target).append(samplesTemplate.renderToString({samples: this.instrument.samples, cursor: state.cursor.toJS()}));
 
-    console.log(this.instrument.samples.length);
     if (this.instrument && this.instrument.samples && this.instrument.samples.length > 0) {
       this.rowHeight = $(this.target).find(".samples-row")[0].clientHeight;
 
+      const containerHeight = $(this.target).find(".samples-list").height();
       $(this.target).find(".samples-top-padding div").height(
-        ($(this.target).height()-this.rowHeight)/2.0);
+        (containerHeight-this.rowHeight)/2.0);
 
       $(this.target).find(".samples-bottom-padding div").height(
-        ($(this.target).height()-this.rowHeight)/2.0);
+        (containerHeight-this.rowHeight)/2.0);
 
       $(this.target).find('.samples').on('mousewheel', this.onScroll.bind(this));
+      $(this.target).find('#add-sample').click((e) => song.addSampleToInstrument(this.cur_instr));
+
+
+      $(this.target).find('#load-sample').click((e) => {
+        $( "#dialog" ).empty();
+        $( "#dialog" ).append($("<input type=\"file\" id=\"file-input\" />"));
+        $( "#dialog" ).dialog({
+          width: 500,
+          modal: true,
+          buttons: {
+            Ok: function() {
+              var files = $("#file-input")[0].files;
+              if (files.length > 0) {
+                player.loadSampleFromFile(files[0], (audioData, floatData) => {
+                  const instrumentIndex = state.cursor.get("instrument");
+                  const sampleIndex = state.cursor.get("sample");
+                  song.setInstrumentSampleData(instrumentIndex, sampleIndex, floatData);
+                  player.instruments[instrumentIndex].samples[sampleIndex].buffer = audioData;
+                });
+              }
+              $( this ).dialog( "close" );
+            },
+            Cancel: function() {
+              $( this ).dialog( "close" );
+            },
+          }
+        });
+      });
     }
     this.lastCursor = state.cursor.toJS();
   }
@@ -47,8 +76,8 @@ export default class SampleList {
   }
 
   updateSample() {
-    const cur_instr = state.cursor.get("instrument");
-    this.instrument = song.song.instruments[cur_instr];
+    this.cur_instr = state.cursor.get("instrument");
+    this.instrument = song.song.instruments[this.cur_instr];
   }
 
   onSongChanged() {
@@ -66,7 +95,7 @@ export default class SampleList {
 
       $(this.target).find(".current-sample").removeClass('current-sample');
       $(this.target).find(".samples-row").eq(cur_sample).addClass('current-sample');
-      $(this.target).scrollTop(cur_sample*this.rowHeight);
+      $(this.target).find(".samples-list").scrollTop(cur_sample*this.rowHeight);
     }
     this.lastCursor = state.cursor.toJS();
   }

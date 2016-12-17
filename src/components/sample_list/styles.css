@@ -3,6 +3,22 @@
   flex: 1;
 }
 
+.samples .controls {
+  flex-grow: 0;
+  background: #444;
+  border-radius: 3px;
+}
+
+.samples .controls .sample-list-buttons {
+  flex-direction: row;
+  justify-content: space-around;
+}
+
+.samples .samples-list {
+  overflow-y: hidden;
+  flex-grow: 1;
+}
+
 .samples {
   display: flex;
   flex-direction: column;
