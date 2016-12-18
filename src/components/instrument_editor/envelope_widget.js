@@ -155,10 +155,19 @@ export default class EnvelopeWidget {
       this.changeOptions();
     });
 
+    $(this.target).find("#create-envelope").click((e) => {
+      this.createEnvelope(); 
+    });
+
     canvas.height = $('.instrument .waveform').height();
     canvas.width = $('.instrument .waveform').width();
 
     this.redrawCurve();
+  }
+
+  createEnvelope() {
+    this.refresh();
+    this.changeOptions();
   }
 
   changeOptions() {
@@ -223,7 +232,7 @@ export default class EnvelopeWidget {
       const point = this.curvePointAtCanvas(xpos, ypos);
 
       if (this.dragging) {
-        if (this.currentPoint) {
+        if (this.currentPoint != null) {
           this.setCurvePoint(this.currentPoint, pos.xcurve, pos.ycurve);
         } else {
           this.offset += (e.offsetX - this.mouseX);

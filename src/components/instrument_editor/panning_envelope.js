@@ -13,6 +13,21 @@ export default class PanningEnvelope extends EnvelopeWidget {
     super(target);
   }
 
+  createEnvelope() {
+    if(this.instrument) {
+      this.instrument.env_pan = {
+        points: [0, 32, 2, 32], 
+        type: 2,
+        sustain: 0,
+        loopstart: 0,
+        loopend: 0,
+      };
+    }
+    this.envelope = this.instrument.env_pan;
+
+    super.createEnvelope();
+  }
+
   setInstrument(instrument) {
     super.setInstrument(instrument);
     this.envelope = instrument.env_pan;
