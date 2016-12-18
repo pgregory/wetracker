@@ -169,8 +169,8 @@ export default class EnvelopeWidget {
       this.createEnvelope(); 
     });
 
-    canvas.height = $('.instrument .waveform').height();
-    canvas.width = $('.instrument .waveform').width();
+    canvas.height = $(this.target).find('.instrument .waveform').height();
+    canvas.width = $(this.target).find('.instrument .waveform').width();
 
     this.redrawCurve();
   }

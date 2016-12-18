@@ -13,10 +13,9 @@ import SampleEditor from '../sample_editor/sample_editor';
 import VolumeEnvelope from '../instrument_editor/volume_envelope';
 import PanningEnvelope from '../instrument_editor/panning_envelope';
 import InstrumentControls from '../instrument_editor/instrument_controls';
+import SampleMapper from '../sample_mapper/sample_mapper';
 
 import tabsTemplate from './templates/tabs.marko';
-
-//import styles from './styles.css';
 
 export default class Tabs {
   constructor(target) {
@@ -43,6 +42,7 @@ export default class Tabs {
       'volume-envelope': (t) => { return new VolumeEnvelope(t) },
       'panning-envelope': (t) => { return new PanningEnvelope(t) },
       'instrument-controls': (t) => { return new InstrumentControls(t) },
+      'sample-mapper': (t) => { return new SampleMapper(t) },
     };
   }
 
