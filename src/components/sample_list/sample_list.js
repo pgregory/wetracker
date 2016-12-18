@@ -19,6 +19,7 @@ export default class SampleList {
 
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
     Signal.connect(song, "songChanged", this, "onSongChanged");
+    Signal.connect(song, "instrumentChanged", this, "onInstrumentChanged");
   }
 
   render() {
@@ -35,37 +36,36 @@ export default class SampleList {
 
       $(this.target).find(".samples-bottom-padding div").height(
         (containerHeight-this.rowHeight)/2.0);
-
-      $(this.target).find('.samples').on('mousewheel', this.onScroll.bind(this));
-      $(this.target).find('#add-sample').click((e) => song.addSampleToInstrument(this.cur_instr));
-
-
-      $(this.target).find('#load-sample').click((e) => {
-        $( "#dialog" ).empty();
-        $( "#dialog" ).append($("<input type=\"file\" id=\"file-input\" />"));
-        $( "#dialog" ).dialog({
-          width: 500,
-          modal: true,
-          buttons: {
-            Ok: function() {
-              var files = $("#file-input")[0].files;
-              if (files.length > 0) {
-                player.loadSampleFromFile(files[0], (audioData, floatData) => {
-                  const instrumentIndex = state.cursor.get("instrument");
-                  const sampleIndex = state.cursor.get("sample");
-                  song.setInstrumentSampleData(instrumentIndex, sampleIndex, floatData);
-                  player.instruments[instrumentIndex].samples[sampleIndex].buffer = audioData;
-                });
-              }
-              $( this ).dialog( "close" );
-            },
-            Cancel: function() {
-              $( this ).dialog( "close" );
-            },
-          }
-        });
-      });
     }
+    $(this.target).find('.samples').on('mousewheel', this.onScroll.bind(this));
+    $(this.target).find('#add-sample').click((e) => song.addSampleToInstrument(this.cur_instr));
+
+
+    $(this.target).find('#load-sample').click((e) => {
+      $( "#dialog" ).empty();
+      $( "#dialog" ).append($("<input type=\"file\" id=\"file-input\" />"));
+      $( "#dialog" ).dialog({
+        width: 500,
+        modal: true,
+        buttons: {
+          Ok: function() {
+            var files = $("#file-input")[0].files;
+            if (files.length > 0) {
+              player.loadSampleFromFile(files[0], (audioData, floatData) => {
+                const instrumentIndex = state.cursor.get("instrument");
+                const sampleIndex = state.cursor.get("sample");
+                song.setInstrumentSampleData(instrumentIndex, sampleIndex, floatData);
+                player.instruments[instrumentIndex].samples[sampleIndex].buffer = audioData;
+              });
+            }
+            $( this ).dialog( "close" );
+          },
+          Cancel: function() {
+            $( this ).dialog( "close" );
+          },
+        }
+      });
+    });
     this.lastCursor = state.cursor.toJS();
   }
 
@@ -83,6 +83,13 @@ export default class SampleList {
   onSongChanged() {
     this.updateSample();
     this.refresh();
+  }
+
+  onInstrumentChanged(instrumentIndex) {
+    if(instrumentIndex == this.cur_instr) {
+      this.updateSample();
+      this.refresh();
+    }
   }
 
   onCursorChanged() {

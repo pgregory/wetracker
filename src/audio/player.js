@@ -211,12 +211,13 @@ class Instrument {
     // Build AudioBuffers from the sample data stored in the song
     if (inst.samples && inst.samples.length > 0) {
       for(var i = 0; i < inst.samples.length; i += 1) {
+        let sample = {};
         if(inst.samples[i].len > 0 ) {
           const buf = ctx.createBuffer(1, inst.samples[i].len, ctx.sampleRate);
-          var chan = buf.getChannelData(0);
-          var loop = false;
-          var loopStart = -1;
-          var loopEnd = -1;
+          let chan = buf.getChannelData(0);
+          let loop = false;
+          let loopStart = -1;
+          let loopEnd = -1;
           try {
             for(var s = 0; s < inst.samples[0].len; s += 1) {
               chan[s] = inst.samples[i].sampledata[s];
@@ -229,13 +230,14 @@ class Instrument {
           } catch(e) {
             console.log(e);
           }
-          this.samples.push({
+          sample = {
             buffer: buf,
             loop,
             loopStart,
             loopEnd,
-          });
+          };
         }
+        this.samples.push(sample);
       }
     }
     if (inst.env_vol) {
@@ -257,7 +259,10 @@ class Instrument {
   }
 
   playNoteOnChannel(channel, time, note) {
-    return new PlayerInstrument(this, channel, note, time);
+    if (this.samples[this.inst.samplemap[note]].buffer) {
+      return new PlayerInstrument(this, channel, note, time);
+    }
+    return null;
   }
 
   periodForNote(ch, note, fine) {
@@ -420,6 +425,8 @@ class Player {
     this.timerWorker.port.start();
 
     Signal.connect(song, 'songChanged', this, 'onSongChanged');
+    Signal.connect(song, 'instrumentChanged', this, 'onInstrumentChanged');
+    Signal.connect(song, 'instrumentListChanged', this, 'onInstrumentListChanged');
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
   }
 
@@ -877,6 +884,24 @@ class Player {
     this.instruments = [];
     // Initialise the instrument envelope objects
     for(i = 0; i < song.song.instruments.length; i += 1) {
+      const inst = song.song.instruments[i];
+
+      this.instruments.push(new Instrument(inst, this.audioctx));
+    }
+  }
+
+  onInstrumentChanged(instrumentIndex) {
+    try {
+      this.instruments[instrumentIndex] = new Instrument(song.song.instruments[instrumentIndex], this.audioctx);
+    } catch(e) {
+      console.log(e);
+    }
+  }
+
+  onInstrumentListChanged() {
+    this.instruments = [];
+    // Initialise the instrument envelope objects
+    for(let i = 0; i < song.song.instruments.length; i += 1) {
       const inst = song.song.instruments[i];
 
       this.instruments.push(new Instrument(inst, this.audioctx));

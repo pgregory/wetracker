@@ -6,11 +6,14 @@ import Signal from '../utils/signal';
 import Immutable from 'immutable';
 
 import { xmloader } from './xmloader';
+import { state } from '../state';
 
 export class SongManager {
   constructor() {
     this.eventChanged = Signal.signal(false);
     this.songChanged = Signal.signal(false);
+    this.instrumentChanged = Signal.signal(false);
+    this.instrumentListChanged = Signal.signal(false);
 
     this.eventEntries = [
       'note',
@@ -145,11 +148,19 @@ export class SongManager {
   }
 
   addInstrument() {
+    const samplemap = new Uint8Array(96);
     this.song.instruments.push({
       'name': `Instrument ${this.song.instruments.length}`,
       'number': this.song.instruments.length,
+      'samples': [],
+      samplemap,
     });
-    this.songChanged();
+    this.instrumentListChanged();
+    state.set({
+      cursor: {
+        instrument: this.song.instruments.length - 1,
+      }
+    });
   }
 
   addSampleToInstrument(instrumentIndex) {
@@ -166,7 +177,12 @@ export class SongManager {
         'fileoffset': 0, 
         'name': `Sample ${this.song.instruments[instrumentIndex].samples.length}`,
       });
-      this.songChanged();
+      this.instrumentChanged(instrumentIndex);
+      state.set({
+        cursor: {
+          sample: this.song.instruments[instrumentIndex].samples.length - 1,
+        }
+      });
     } catch(e) {
       console.log(e);
     }
