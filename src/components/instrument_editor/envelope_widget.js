@@ -123,14 +123,15 @@ export default class EnvelopeWidget {
         ctx.strokeRect((pos.px + this.left_margin + this.offset) - 2, pos.py - 2, 5, 5);
       }
 
+      this.intersectVal = undefined;
       if (this.curveX != null) {
         ctx.save();
         ctx.strokeStyle = '#888';
         ctx.lineWidth = 2;
         ctx.setLineDash([4, 4]);
         ctx.beginPath();
-        const val = this.interpolateCurve(this.curveX);
-        const pos = this.curveToCanvas(this.curveX, val);
+        this.intersectVal = this.interpolateCurve(this.curveX);
+        const pos = this.curveToCanvas(this.curveX, this.intersectVal);
         ctx.moveTo((pos.px + this.left_margin + this.offset), 0);
         ctx.lineTo((pos.px + this.left_margin + this.offset), this.canvas.height);
 
@@ -272,10 +273,21 @@ export default class EnvelopeWidget {
     const point = this.curvePointAtCanvas(xpos, ypos);
     if (point != null) {
       this.currentPoint = point;
-      this.setCurvePoint(this.currentPoint, pos.xcurve, pos.ycurve);
-      window.requestAnimationFrame(() => this.redrawCurve());
+      if (e.altKey) {
+        this.deletePointFromCurve(point);
+        this.currentPoint = undefined;
+        window.requestAnimationFrame(() => this.redrawCurve());
+      } else {
+        this.setCurvePoint(this.currentPoint, pos.xcurve, pos.ycurve);
+        window.requestAnimationFrame(() => this.redrawCurve());
+      }
     } else {
       this.currentPoint = undefined;
+
+      if (e.shiftKey && this.intersectVal) {
+        this.addPointToCurve(this.curveX, this.intersectVal);
+        window.requestAnimationFrame(() => this.redrawCurve());
+      }
     }
     this.dragging = true;
   }
@@ -287,6 +299,29 @@ export default class EnvelopeWidget {
   onMouseOut(e) {
     this.curveX = undefined;
     window.requestAnimationFrame(() => this.redrawCurve());
+  }
+
+  deletePointFromCurve(point) {
+    if (this.envelope) {
+      if ( (point*2) < this.envelope.points.length) {
+        this.envelope.points.splice((point * 2), 2);
+      }
+    }
+  }
+
+  addPointToCurve(x, y) {
+    if (this.envelope) {
+      let index = 0; 
+      while((index < this.envelope.points.length) && 
+            (this.envelope.points[index] < x)) {
+       index += 2;
+      }
+      if (index < this.envelope.points) {
+        this.envelope.points.push(x, y);
+      } else {
+        this.envelope.points.splice(index, 0, x, y);
+      }
+    }
   }
 
   setCurvePoint(index, x, y) {
