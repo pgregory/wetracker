@@ -19,6 +19,8 @@ export default class EnvelopeWidget {
     this.curveX = undefined;
     this.curveY = undefined;
     this.left_margin = 20;
+    this.top_margin = 10;
+    this.bottom_margin = 10;
     this.instrument = undefined;
     this.envelope = undefined;
 
@@ -29,15 +31,20 @@ export default class EnvelopeWidget {
   renderGridAndAxes() {
     const ctx = this.canvas.getContext('2d');
 
+    const height = this.canvas.height;
+    const width = this.canvas.width;
+
+    const internalHeight = height - this.bottom_margin - this.top_margin;
+
     let vcount = 64;
-    let vdelta = this.canvas.height/vcount;
+    let vdelta = internalHeight/vcount;
     while(vdelta <= 10 && vcount > 8) {
       vcount /= 2;
-      vdelta = this.canvas.height/vcount;
+      vdelta = internalHeight/vcount;
     }
     ctx.strokeStyle = '#AAA';
     ctx.beginPath();
-    let y = this.canvas.height;
+    let y = internalHeight;
     for(let i = 0; i < vcount; i += 1) {
       ctx.moveTo(this.left_margin, y);
       ctx.lineTo(this.left_margin + 4, y);
@@ -61,7 +68,7 @@ export default class EnvelopeWidget {
       x += hdelta;
     } 
 
-    y = this.canvas.height;
+    y = this.canvas.height - this.bottom_margin;
     for(let i = 0; i <= vcount/4; i += 1) {
       ctx.moveTo(this.left_margin, y);
       ctx.lineTo(this.canvas.width, y);
@@ -76,6 +83,8 @@ export default class EnvelopeWidget {
 
     const height = this.canvas.height;
     const width = this.canvas.width;
+
+    const internalHeight = height - this.bottom_margin - this.top_margin;
 
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, width, height);
@@ -93,7 +102,7 @@ export default class EnvelopeWidget {
       ctx.beginPath();
       for (let i = 0; i < len; i += 2) {
         const x = (points[i] * this.zoom) + this.offset + this.left_margin;
-        const y = (height - ((points[i+1] / 64) * height));
+        const y = (internalHeight - ((points[i+1] / 64) * internalHeight) + this.bottom_margin);
         if (i === 0) {
           ctx.moveTo(x, y);
         } else {
@@ -302,18 +311,20 @@ export default class EnvelopeWidget {
   curvePointToCanvas(pointIndex) {
     const points = this.envelope.points;
     const height = this.canvas.height;
+    const internalHeight = height - this.top_margin - this.bottom_margin;
 
     const px = (points[pointIndex] * this.zoom);
-    const py = (height - ((points[pointIndex+1] / 64) * height));
+    const py = (internalHeight - ((points[pointIndex+1] / 64) * internalHeight) + this.bottom_margin);
 
     return {px, py};
   }
 
   curveToCanvas(curvex, curvey) {
     const height = this.canvas.height;
+    const internalHeight = height - this.top_margin - this.bottom_margin;
 
     const px = (curvex * this.zoom);
-    const py = (height - ((curvey / 64) * height));
+    const py = (internalHeight - ((curvey / 64) * internalHeight) + this.bottom_margin);
 
     return {px, py};
   }
