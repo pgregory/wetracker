@@ -31,9 +31,9 @@ export default class SampleEditor {
   }
 
   redrawWaveform() {
-    var canvas = $(this.target).find('.sample .waveform canvas')[0];
-    canvas.height = $('.sample .waveform').height();
-    canvas.width = $('.sample .waveform').width();
+    var canvas = $(this.target).find('.sample-editor .waveform canvas')[0];
+    canvas.height = $('.sample-editor .waveform').height();
+    canvas.width = $('.sample-editor .waveform').width();
     var width = canvas.width;
     var height = canvas.height;
     var ctx = canvas.getContext('2d');
@@ -56,7 +56,7 @@ export default class SampleEditor {
   }
 
   render() {
-    $(this.target).addClass('sample-editor');
+    //$(this.target).addClass('sample-editor');
     $(this.target).append(sampleTemplate.renderToString({sample: this.sample}));
 
     this.redrawWaveform();
