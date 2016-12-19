@@ -13,6 +13,11 @@ export default class SampleEditor {
     this.target = target;
     this.lastCursor = state.cursor;
 
+    this._note_names = [
+      "C-", "C#", "D-", "D#", "E-", "F-",
+      "F#", "G-", "G#", "A-", "A#", "B-"
+    ];
+
     this.updateSample();
 
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
@@ -55,9 +60,37 @@ export default class SampleEditor {
     }
   }
 
+  updateControlPanel() {
+    if(this.sample) {
+      $(this.target).find("input#basenote").val(this.noteName(this.sample.note));
+    } else {
+      $(this.target).find("input#basenote").val("---");
+    }
+  }
+
+  noteName(note) {
+    return this._note_names[(note + 48) % 12] + ~~((note + 48) / 12);
+  }
+
   render() {
-    //$(this.target).addClass('sample-editor');
     $(this.target).append(sampleTemplate.renderToString({sample: this.sample}));
+
+    $(this.target).find("button#note-down").click((e) => {
+      this.sample.note = Math.max(-48, this.sample.note - 1);
+      this.updateControlPanel();
+    });
+    $(this.target).find("button#note-up").click((e) => {
+      this.sample.note = Math.min(71, this.sample.note + 1);
+      this.updateControlPanel();
+    });
+    $(this.target).find("button#octave-down").click((e) => {
+      this.sample.note = Math.max(-48, this.sample.note - 12);
+      this.updateControlPanel();
+    });
+    $(this.target).find("button#octave-up").click((e) => {
+      this.sample.note = Math.min(71, this.sample.note + 12);
+      this.updateControlPanel();
+    });
 
     this.redrawWaveform();
   }
@@ -74,6 +107,7 @@ export default class SampleEditor {
       this.updateSample();
 
       this.redrawWaveform();
+      this.updateControlPanel();
       
       this.lastCursor = state.cursor;
     }
@@ -82,5 +116,6 @@ export default class SampleEditor {
   onSongChanged() {
     this.updateSample();
     this.redrawWaveform();
+    this.updateControlPanel();
   }
 }
