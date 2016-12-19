@@ -190,6 +190,19 @@ export class SongManager {
 
   setSong(song) {
     this.song = song;
+    state.set({
+      cursor: {
+        pattern: 0,
+        sequence: 0,
+        instrument: 0,
+        sample: 0,
+        row: 0,
+        item: 0,
+        track: 0,
+        column: 0,
+        record: false,
+      }
+    });
 
     this.songChanged();
   }
