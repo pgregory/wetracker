@@ -6,15 +6,17 @@ import { song } from '../../utils/songmanager';
 
 import mapperTemplate from './templates/sample_mapper.marko';
 
+import styles from './styles.css';
+
 export default class SampleMapper {
   constructor(target) {
     this.target = target;
     this.lastCursor = state.cursor;
     this.zoom = 1;
     this.offset = 0;
-    this.left_margin = 20;
+    this.left_margin = 10;
     this.top_margin = 10;
-    this.bottom_margin = 10;
+    this.bottom_margin = 15;
     this.right_margin = 10;
     this.instrument = undefined;
 
@@ -29,6 +31,7 @@ export default class SampleMapper {
     const width = this.canvas.width;
 
     const internalHeight = height - this.bottom_margin - this.top_margin;
+    const internalWidth = width - this.left_margin - this.right_margin;
 
     let vcount = 64;
     let vdelta = internalHeight / vcount;
@@ -36,36 +39,54 @@ export default class SampleMapper {
       vcount /= 2;
       vdelta = internalHeight/vcount;
     }
-    ctx.strokeStyle = '#AAA';
-    ctx.beginPath();
-    let y = internalHeight;
-    for(let i = 0; i < vcount; i += 1) {
-      ctx.moveTo(this.left_margin, y);
-      ctx.lineTo(this.left_margin + 4, y);
-      y -= vdelta;
-    } 
-    ctx.stroke();
-
     // Grid
     let hcount = 96;
-    let hdelta = this.canvas.width / hcount;
-    ctx.strokeStyle = '#00D';
+    let hdelta = (internalWidth / hcount) * this.zoom;
     ctx.beginPath();
-    let x = (hdelta + (this.offset % hdelta)) + this.left_margin;
+    ctx.strokeStyle = '#009';
+    ctx.lineWidth = 1;
+    const xoff = Math.abs(Math.ceil(this.offset/hdelta));
+    let x = (this.offset % hdelta) + this.left_margin;
     for(let i = 0; i <= hcount; i += 1) {
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, this.canvas.height);
+      const offi = xoff + i;
+      if((offi % 12) !== 0) {
+        ctx.moveTo(x, this.top_margin);
+        ctx.lineTo(x, this.canvas.height - this.bottom_margin);
+      } 
       x += hdelta;
     } 
 
-    y = this.canvas.height - this.bottom_margin;
+    let y = this.canvas.height - this.bottom_margin;
     for(let i = 0; i <= vcount; i += 1) {
       ctx.moveTo(this.left_margin, y);
-      ctx.lineTo(this.canvas.width, y);
+      ctx.lineTo(this.canvas.width - this.right_margin, y);
       y -= vdelta;
     }
-
     ctx.stroke();
+
+    ctx.beginPath();
+    ctx.strokeStyle = '#00D';
+    ctx.lineWidth = 2;
+    x = ((this.offset % hdelta)) + this.left_margin;
+    for(let i = 0; i <= hcount; i += 1) {
+      const offi = xoff + i;
+      if((offi % 12) === 0) {
+        ctx.moveTo(x, this.top_margin);
+        ctx.lineTo(x, this.canvas.height - this.bottom_margin);
+      } 
+      x += hdelta;
+    } 
+    ctx.stroke();
+
+    ctx.fillStyle = '#FFF';
+    ctx.font = "12px monospace";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "top";
+    x = (this.offset + this.left_margin);
+    for(let i = 0; i < 8; i += 1) {
+      ctx.fillText(`C-${i}`, x + ((hdelta * 12) / 2), this.canvas.height - this.bottom_margin, (hdelta * 12));
+      x += (hdelta * 12);
+    }
   }
 
   redrawGraph() {
@@ -73,8 +94,6 @@ export default class SampleMapper {
 
     const height = this.canvas.height;
     const width = this.canvas.width;
-
-    const internalHeight = height - this.bottom_margin - this.top_margin;
 
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, width, height);
@@ -90,7 +109,7 @@ export default class SampleMapper {
 
     $(this.target).append(mapperTemplate.renderToString({instrument: this.instrument}));
 
-    const canvas = $(this.target).find('.sample-mapper .graph canvas')[0];
+    const canvas = $(this.target).find('.graph canvas')[0];
     this.canvas = canvas;
 
     $(canvas).on('mousewheel', this.onScroll.bind(this));
@@ -99,8 +118,8 @@ export default class SampleMapper {
     $(canvas).on('mouseup', this.onMouseUp.bind(this));
     $(canvas).on('mouseout', this.onMouseOut.bind(this));
 
-    canvas.height = $(this.target).find('.sample-mapper .graph').height();
-    canvas.width = $(this.target).find('.sample-mapper .graph').width();
+    canvas.height = $(this.target).find('.graph').height();
+    canvas.width = $(this.target).find('.graph').width();
 
     this.redrawGraph();
   }
@@ -109,20 +128,19 @@ export default class SampleMapper {
   }
 
   onScroll(e) {
-    if (this.envelope) {
-      const prevOffset = this.offset;
-      if (Math.abs(e.originalEvent.deltaY) > Math.abs(e.originalEvent.deltaX)) {
-        this.zoom += (e.originalEvent.deltaY/10);
-        this.zoom = Math.min(Math.max(this.zoom, 0.1), 100);
-      } else {
-        this.offset -= e.originalEvent.deltaX;
-      }
-      this.offset = Math.min(Math.max(this.offset, -(((this.maxtick * 1.2) * this.zoom) - this.canvas.width)), 0);
-
-      $(this.canvas).toggleClass('moveable', (((this.maxtick * 1.2) * this.zoom) > this.canvas.width));
-
-      //window.requestAnimationFrame(() => this.redrawCurve());
+    const prevOffset = this.offset;
+    if (Math.abs(e.originalEvent.deltaY) > Math.abs(e.originalEvent.deltaX)) {
+      this.zoom += (e.originalEvent.deltaY/10);
+      this.zoom = Math.min(Math.max(this.zoom, 1), 5);
+    } else {
+      this.offset -= e.originalEvent.deltaX;
     }
+    this.offset = Math.min(Math.max(this.offset, -(((this.canvas.width - this.left_margin - this.right_margin) * this.zoom) - this.canvas.width)), 0);
+
+    $(this.canvas).toggleClass('moveable', (((this.maxtick * 1.2) * this.zoom) > this.canvas.width));
+
+    window.requestAnimationFrame(() => this.redrawGraph());
+
     e.preventDefault();
   }
 
