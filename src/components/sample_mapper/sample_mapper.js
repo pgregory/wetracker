@@ -151,8 +151,6 @@ export default class SampleMapper {
   }
 
   render() {
-    $(this.target).addClass('sample-mapper');
-
     $(this.target).append(mapperTemplate.renderToString({instrument: this.instrument}));
 
     const canvas = $(this.target).find('.graph canvas')[0];
@@ -163,6 +161,10 @@ export default class SampleMapper {
     $(canvas).on('mousedown', this.onMouseDown.bind(this));
     $(canvas).on('mouseup', this.onMouseUp.bind(this));
     $(canvas).on('mouseout', this.onMouseOut.bind(this));
+
+    $(this.target).find('#set-sample').click((e) => {
+      this.setSegmentSample();
+    });
 
     canvas.height = $(this.target).find('.graph').height();
     canvas.width = $(this.target).find('.graph').width();
@@ -242,6 +244,10 @@ export default class SampleMapper {
     const x = (e.offsetX - this.left_margin) - this.offset;
     const y = e.offsetY;
 
+    if(!this.dragging) {
+      this.selectedSegment = this.findSegmentAtPosition(x, y);
+    }
+
     if(this.selectedSegment != null) {
       const segx1 = this.segments[this.selectedSegment].start * this.hdelta;
       const segx2 = this.segments[this.selectedSegment].end * this.hdelta;
@@ -254,23 +260,12 @@ export default class SampleMapper {
       } else {
         // Shift click adds a new segment
         if(e.shiftKey) {
-          const xnote = Math.round(x / this.hdelta);
-          const currSeg = this.segments[this.selectedSegment];
-          this.segments.splice(this.selectedSegment + 1, 0, {
-            instrument: 0, 
-            start: xnote,
-            end: currSeg.end,
-          });
-          currSeg.end = xnote;
-          this.saveSegments();
-          window.requestAnimationFrame(() => this.redrawGraph());
-        }
+          this.splitSegmentAt(x);
+        } else if(e.altKey) {
+          this.deleteSegment(this.selectedSegment);
+        } 
       }
     } 
-
-    if(!this.dragging) {
-      this.selectedSegment = this.findSegmentAtPosition(x, y);
-    }
 
     this.redrawGraph();
   }
@@ -290,6 +285,45 @@ export default class SampleMapper {
       if(x >= minx && x <= maxx) {
         return i;
       }
+    }
+  }
+
+  splitSegmentAt(x) {
+    if(this.selectedSegment != null) {
+      const xnote = Math.round(x / this.hdelta);
+      const currSeg = this.segments[this.selectedSegment];
+      this.segments.splice(this.selectedSegment + 1, 0, {
+        instrument: 0, 
+        start: xnote,
+        end: currSeg.end,
+      });
+      currSeg.end = xnote;
+      this.saveSegments();
+      window.requestAnimationFrame(() => this.redrawGraph());
+    } 
+  }
+
+  deleteSegment(s) {
+    if(this.segments.length > 1) {
+      if(s < (this.segments.length - 1)) {
+        this.segments[s + 1].start = this.segments[s].start;
+      } else {
+        this.segments[s - 1].end = this.segments[s].end;
+      }
+      this.segments.splice(s, 1);
+      this.saveSegments();
+      this.selectedSegment = undefined;
+      window.requestAnimationFrame(() => this.redrawGraph());
+    }
+  }
+
+  setSegmentSample() {
+    if(this.selectedSegment != null) {
+      const currSeg = this.segments[this.selectedSegment];
+      currSeg.instrument = state.cursor.get("sample");
+
+      this.saveSegments();
+      window.requestAnimationFrame(() => this.redrawGraph());
     }
   }
 
