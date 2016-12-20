@@ -188,6 +188,30 @@ export class SongManager {
     }
   }
 
+  addPattern(sequence) {
+    this.song.patterns.push({
+      patternid: this.song.patterns.length,
+      name: `Pattern ${this.song.patterns.length}`,
+      numrows: 32,
+      rows: [],
+    });
+    let pos = sequence + 1;
+    if(!sequence || sequence > this.song.sequence.length) {
+      pos = this.song.sequence.length;
+    }
+    this.song.sequence.splice(pos, 
+                              0, 
+                              {
+                                pattern: this.song.patterns.length - 1,
+                              });
+    this.songChanged();
+    state.set({
+      cursor: {
+        sequence: pos,
+      }
+    });
+  }
+
   setSong(song) {
     this.song = song;
     state.set({

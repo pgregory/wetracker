@@ -61,7 +61,7 @@
   "patterns": [
     {
       "patternid": "p1",
-      "name": "Pattern 1",
+      "name": "Pattern 0",
       "numrows": 64,
       "rows": [
         [
