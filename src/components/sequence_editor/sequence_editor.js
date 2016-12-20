@@ -59,18 +59,22 @@ export default class SequenceEditor {
 
   onScroll(e) {
     this.yoff += e.originalEvent.deltaY;
-    var row = Math.floor((this.yoff) / this.rowHeight);
-    var maxrow = song.song.sequence.length;
-    row = ((row % maxrow) + maxrow) % maxrow;
+    if(Math.abs(this.yoff) >= this.rowHeight) {
+      const rowIncr = Math.floor(this.yoff / this.rowHeight);
+      let row = state.cursor.get("sequence") + rowIncr;
+      const maxrow = song.song.sequence.length - 1;
+      row = Math.min(Math.max(row, 0), maxrow);
 
-    if(row !== this.lastCursor.sequence) {
-      var pattern = song.song.sequence[row].pattern;
-      state.set({
-        cursor: {
-          sequence: row,
-          pattern,
-        }
-      });
+      if(row !== this.lastCursor.sequence) {
+        var pattern = song.song.sequence[row].pattern;
+        state.set({
+          cursor: {
+            sequence: row,
+            pattern,
+          }
+        });
+      }
+      this.yoff -= (rowIncr * this.rowHeight);
     }
     e.preventDefault();
   }
