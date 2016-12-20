@@ -44,6 +44,9 @@ button.sm {
 
 button.fa {
   font-size: initial;
+  padding: 2px;
+  width: 22px;
+  height: 22px;
 }
 
 button:focus {
@@ -71,4 +74,3 @@ button:focus {
   outline: none;
   border: 1px dotted darkorange;
 }
-

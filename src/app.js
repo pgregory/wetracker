@@ -32,7 +32,7 @@ import './utils/virtualkeyboard';
 import './utils/hexinput';
 import './utils/fxinput';
 
-import styles from './styles.css';
+import './styles.css';
 
 /*$(document).keydown((event) => {
   if ($(event.target).is('input, textarea, select')) {
