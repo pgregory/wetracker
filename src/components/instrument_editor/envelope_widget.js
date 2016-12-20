@@ -149,7 +149,7 @@ export default class EnvelopeWidget {
 
     $(this.target).append(envelopeTemplate.renderToString({instrument: this.instrument, envelope: this.envelope}));
 
-    const canvas = $(this.target).find('.instrument .waveform canvas')[0];
+    const canvas = $(this.target).find('.envelope-editor .waveform canvas')[0];
     this.canvas = canvas;
 
     $(canvas).on('mousewheel', this.onScroll.bind(this));
@@ -169,8 +169,8 @@ export default class EnvelopeWidget {
       this.createEnvelope(); 
     });
 
-    canvas.height = $(this.target).find('.instrument .waveform').height();
-    canvas.width = $(this.target).find('.instrument .waveform').width();
+    canvas.height = $(this.target).find('.envelope-editor .waveform').height();
+    canvas.width = $(this.target).find('.envelope-editor .waveform').width();
 
     this.redrawCurve();
   }

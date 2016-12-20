@@ -1,62 +1,47 @@
-.widget.instrument-editor, .widget.instrument-controls {
-  display: flex;
-  background: black;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  flex: 1;
-}
-
-.instrument {
+.envelope-editor, .instrument-editor {
   display: flex;
   flex-direction: row;
   overflow: auto;
   flex-grow: 1;
 }
 
-.instrument .waveform {
-  flex: 1;
+.envelope-editor .waveform {
+  flex: 1 1 auto;
 }
 
-.instrument canvas {
+.envelope-editor .envelope-controls, .instrument-editor .instrument-controls {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  flex: 0 1 auto;
+  align-self: stretch;
+  background-color: #444;
+  border-radius: 3px;
 }
 
-.instrument .waveform canvas.dragging {
+.instrument-editor .instrument-controls {
+  flex: 1 1 auto;
+}
+
+.envelope-editor .waveform canvas.dragging {
   cursor: crosshair;
 }
 
-.instrument .waveform canvas.moveable {
+.envelope-editor .waveform canvas.moveable {
   cursor: move;
   cursor: grab;
   cursor: -webkit-grab;
   cursor: -moz-grab;
 }
 
-.instrument .waveform canvas.moveable:active {
+.envelope-editor .waveform canvas.moveable:active {
   cursor: move;
   cursor: grabbing;
   cursor: -webkit-grabbing;
   cursor: -moz-grabbing;
 }
 
-.control-group.pointbuttons, .control-group.relnote-buttons {
+.control-group.pointbuttons {
   flex-direction: row;
-}
-
-.instrument-controls {
-  display: flex;
-  flex-direction: column;
-  overflow: auto;
-  flex-grow: 1;
-  background-color: #444;
-  border-radius: 3px;
-}
-
-.envelope-controls {
-  display: flex;
-  flex-direction: column;
-  overflow: auto;
-  background-color: #444;
-  border-radius: 3px;
 }
 

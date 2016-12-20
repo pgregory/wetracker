@@ -67,10 +67,10 @@ export default class Tabs {
       }
     });
 
-    $('.grid-stack').gridstack(this.options).on('resizestop', function(event, ui) {
-      /*for(let i = 0; i < this.widgets.length; i += 1) {
+    $('.grid-stack').gridstack(this.options).on('resizestop', (event, ui) => {
+      for(let i = 0; i < this.widgets.length; i += 1) {
         this.widgets[i].refresh();
-      }*/
+      }
     });
 
     $('.widget').each((i, e) => {

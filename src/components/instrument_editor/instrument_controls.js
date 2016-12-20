@@ -18,7 +18,6 @@ export default class InstrumentControls {
   }
 
   render() {
-    $(this.target).addClass('instrument-controls');
     const cur_instr = state.cursor.get("instrument");
 
     try {
