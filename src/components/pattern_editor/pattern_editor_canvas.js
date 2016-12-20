@@ -349,7 +349,7 @@ export default class PatternEditorCanvas {
       var trackColumn = 0;
 
       for (var tracki = 0; tracki < song.song.tracks.length; tracki += 1) {
-        var track = row[tracki];
+        var track = row != null? row[tracki] : undefined;
         var trackinfo = song.song.tracks[tracki];
         if(track) {
           for (var coli = 0; coli < track.notedata.length; coli += 1) {
@@ -372,6 +372,7 @@ export default class PatternEditorCanvas {
       var trackColumn = 0;
 
       for (var tracki = 0; tracki < song.song.tracks.length; tracki += 1) {
+        let trackinfo = song.song.tracks[tracki];
         for (var coli = 0; coli < trackinfo.columns.length; coli += 1) {
           var dx = ((trackColumn + coli) * cellwidth) + this._event_left_margin;
           this.renderEvent(ctx, {}, dx, dy);
