@@ -326,9 +326,9 @@ class XMLoader {
             samp.looplen /= 2;
           }
           // unroll short loops and any pingpong loops
-          if ((samp.type & 3) && (samp.looplen < 2048 || (samp.type & 2))) {
+          /*if ((samp.type & 3) && (samp.looplen < 2048 || (samp.type & 2))) {
             this.UnrollSampleLoop(samp);
-          }
+          }*/
         }
         idx += totalsamples;
         inst.samplemap = samplemap;
