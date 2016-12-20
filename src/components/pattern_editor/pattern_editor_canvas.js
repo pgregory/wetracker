@@ -176,6 +176,7 @@ export default class PatternEditorCanvas {
     this.timeline_canvas.height = this._pattern_row_height * 99;
     this.timeline_canvas.width = 30;
 
+    this.track_border_colour = "#666";
 
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
     Signal.connect(song, "eventChanged", this, "onEventChanged");
@@ -484,7 +485,7 @@ export default class PatternEditorCanvas {
     }
 
     ctx.lineWidth = 2;
-    ctx.strokeStyle = '#FFF';
+    ctx.strokeStyle = this.track_border_colour;
     ctx.beginPath();
     ctx.moveTo(this.timeline_canvas.width + 1, 0);
     ctx.lineTo(this.canvas.width, 0);
