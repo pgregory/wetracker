@@ -90,6 +90,29 @@ ul.tab li a.active {
   flex-grow: 1;
 }
 
+.widget-with-controls {
+  display: flex;
+}
+
+.widget-with-controls .widget-controls-horiz {
+  flex-direction: row;
+}
+
+.widget-with-controls .widget-controls-vert {
+  flex-direction: column;
+}
+
+.widget-with-controls .widget-controls {
+  background: #444;
+  border-radius: 3px;
+}
+
+.widget-controls {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
 .widget-titlebar {
   height: 16px;
   background: #444;
@@ -99,6 +122,109 @@ ul.tab li a.active {
   color: dimgray;
   padding-left: 3px;
 }
+
+
+.grid-stack > .grid-stack-item[data-gs-width="50"] {width: 100%}
+.grid-stack > .grid-stack-item[data-gs-width="49"] {width: 98%}
+.grid-stack > .grid-stack-item[data-gs-width="48"] {width: 96%}
+.grid-stack > .grid-stack-item[data-gs-width="47"] {width: 94%}
+.grid-stack > .grid-stack-item[data-gs-width="46"] {width: 92%}
+.grid-stack > .grid-stack-item[data-gs-width="45"] {width: 90%}
+.grid-stack > .grid-stack-item[data-gs-width="44"] {width: 88%}
+.grid-stack > .grid-stack-item[data-gs-width="43"] {width: 86%}
+.grid-stack > .grid-stack-item[data-gs-width="42"] {width: 84%}
+.grid-stack > .grid-stack-item[data-gs-width="41"] {width: 82%}
+.grid-stack > .grid-stack-item[data-gs-width="40"] {width: 80%}
+.grid-stack > .grid-stack-item[data-gs-width="39"] {width: 78%}
+.grid-stack > .grid-stack-item[data-gs-width="38"] {width: 76%}
+.grid-stack > .grid-stack-item[data-gs-width="37"] {width: 74%}
+.grid-stack > .grid-stack-item[data-gs-width="36"] {width: 72%}
+.grid-stack > .grid-stack-item[data-gs-width="35"] {width: 70%}
+.grid-stack > .grid-stack-item[data-gs-width="34"] {width: 68%}
+.grid-stack > .grid-stack-item[data-gs-width="33"] {width: 66%}
+.grid-stack > .grid-stack-item[data-gs-width="32"] {width: 64%}
+.grid-stack > .grid-stack-item[data-gs-width="31"] {width: 62%}
+.grid-stack > .grid-stack-item[data-gs-width="30"] {width: 60%}
+.grid-stack > .grid-stack-item[data-gs-width="29"] {width: 58%}
+.grid-stack > .grid-stack-item[data-gs-width="28"] {width: 56%}
+.grid-stack > .grid-stack-item[data-gs-width="27"] {width: 54%}
+.grid-stack > .grid-stack-item[data-gs-width="26"] {width: 52%}
+.grid-stack > .grid-stack-item[data-gs-width="25"] {width: 50%}
+.grid-stack > .grid-stack-item[data-gs-width="24"] {width: 48%}
+.grid-stack > .grid-stack-item[data-gs-width="23"] {width: 46%}
+.grid-stack > .grid-stack-item[data-gs-width="22"] {width: 44%}
+.grid-stack > .grid-stack-item[data-gs-width="21"] {width: 42%}
+.grid-stack > .grid-stack-item[data-gs-width="20"] {width: 40%}
+.grid-stack > .grid-stack-item[data-gs-width="19"] {width: 38%}
+.grid-stack > .grid-stack-item[data-gs-width="18"] {width: 36%}
+.grid-stack > .grid-stack-item[data-gs-width="17"] {width: 34%}
+.grid-stack > .grid-stack-item[data-gs-width="16"] {width: 32%}
+.grid-stack > .grid-stack-item[data-gs-width="15"] {width: 30%}
+.grid-stack > .grid-stack-item[data-gs-width="14"] {width: 28%}
+.grid-stack > .grid-stack-item[data-gs-width="13"] {width: 26%}
+.grid-stack > .grid-stack-item[data-gs-width="12"] {width: 24%}
+.grid-stack > .grid-stack-item[data-gs-width="11"] {width: 22%}
+.grid-stack > .grid-stack-item[data-gs-width="10"] {width: 20%}
+.grid-stack > .grid-stack-item[data-gs-width="9"] {width: 18%}
+.grid-stack > .grid-stack-item[data-gs-width="8"] {width: 16%}
+.grid-stack > .grid-stack-item[data-gs-width="7"] {width: 14%}
+.grid-stack > .grid-stack-item[data-gs-width="6"] {width: 12%}
+.grid-stack > .grid-stack-item[data-gs-width="5"] {width: 10%}
+.grid-stack > .grid-stack-item[data-gs-width="4"] {width: 8%}
+.grid-stack > .grid-stack-item[data-gs-width="3"] {width: 6%}
+.grid-stack > .grid-stack-item[data-gs-width="2"] {width: 4%}
+.grid-stack > .grid-stack-item[data-gs-width="1"] {width: 2%}
+
+.grid-stack > .grid-stack-item[data-gs-x="50"] {left: 100%}
+.grid-stack > .grid-stack-item[data-gs-x="49"] {left: 98%}
+.grid-stack > .grid-stack-item[data-gs-x="48"] {left: 96%}
+.grid-stack > .grid-stack-item[data-gs-x="47"] {left: 94%}
+.grid-stack > .grid-stack-item[data-gs-x="46"] {left: 92%}
+.grid-stack > .grid-stack-item[data-gs-x="45"] {left: 90%}
+.grid-stack > .grid-stack-item[data-gs-x="44"] {left: 88%}
+.grid-stack > .grid-stack-item[data-gs-x="43"] {left: 86%}
+.grid-stack > .grid-stack-item[data-gs-x="42"] {left: 84%}
+.grid-stack > .grid-stack-item[data-gs-x="41"] {left: 82%}
+.grid-stack > .grid-stack-item[data-gs-x="40"] {left: 80%}
+.grid-stack > .grid-stack-item[data-gs-x="39"] {left: 78%}
+.grid-stack > .grid-stack-item[data-gs-x="38"] {left: 76%}
+.grid-stack > .grid-stack-item[data-gs-x="37"] {left: 74%}
+.grid-stack > .grid-stack-item[data-gs-x="36"] {left: 72%}
+.grid-stack > .grid-stack-item[data-gs-x="35"] {left: 70%}
+.grid-stack > .grid-stack-item[data-gs-x="34"] {left: 68%}
+.grid-stack > .grid-stack-item[data-gs-x="33"] {left: 66%}
+.grid-stack > .grid-stack-item[data-gs-x="32"] {left: 64%}
+.grid-stack > .grid-stack-item[data-gs-x="31"] {left: 62%}
+.grid-stack > .grid-stack-item[data-gs-x="30"] {left: 60%}
+.grid-stack > .grid-stack-item[data-gs-x="29"] {left: 58%}
+.grid-stack > .grid-stack-item[data-gs-x="28"] {left: 56%}
+.grid-stack > .grid-stack-item[data-gs-x="27"] {left: 54%}
+.grid-stack > .grid-stack-item[data-gs-x="26"] {left: 52%}
+.grid-stack > .grid-stack-item[data-gs-x="25"] {left: 50%}
+.grid-stack > .grid-stack-item[data-gs-x="24"] {left: 48%}
+.grid-stack > .grid-stack-item[data-gs-x="23"] {left: 46%}
+.grid-stack > .grid-stack-item[data-gs-x="22"] {left: 44%}
+.grid-stack > .grid-stack-item[data-gs-x="21"] {left: 42%}
+.grid-stack > .grid-stack-item[data-gs-x="20"] {left: 40%}
+.grid-stack > .grid-stack-item[data-gs-x="19"] {left: 38%}
+.grid-stack > .grid-stack-item[data-gs-x="18"] {left: 36%}
+.grid-stack > .grid-stack-item[data-gs-x="17"] {left: 34%}
+.grid-stack > .grid-stack-item[data-gs-x="16"] {left: 32%}
+.grid-stack > .grid-stack-item[data-gs-x="15"] {left: 30%}
+.grid-stack > .grid-stack-item[data-gs-x="14"] {left: 28%}
+.grid-stack > .grid-stack-item[data-gs-x="13"] {left: 26%}
+.grid-stack > .grid-stack-item[data-gs-x="12"] {left: 24%}
+.grid-stack > .grid-stack-item[data-gs-x="11"] {left: 22%}
+.grid-stack > .grid-stack-item[data-gs-x="10"] {left: 20%}
+.grid-stack > .grid-stack-item[data-gs-x="9"] {left: 18%}
+.grid-stack > .grid-stack-item[data-gs-x="8"] {left: 16%}
+.grid-stack > .grid-stack-item[data-gs-x="7"] {left: 14%}
+.grid-stack > .grid-stack-item[data-gs-x="6"] {left: 12%}
+.grid-stack > .grid-stack-item[data-gs-x="5"] {left: 10%}
+.grid-stack > .grid-stack-item[data-gs-x="4"] {left: 8%}
+.grid-stack > .grid-stack-item[data-gs-x="3"] {left: 6%}
+.grid-stack > .grid-stack-item[data-gs-x="2"] {left: 4%}
+.grid-stack > .grid-stack-item[data-gs-x="1"] {left: 2%}
 
 .grid-stack > .grid-stack-item > .grid-stack-item-content.chrome {
   left: 2.5px;

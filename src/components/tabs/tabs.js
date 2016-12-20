@@ -28,6 +28,7 @@ export default class Tabs {
         resizable: {
           handles: 'n, ne, e, se, s, sw, w, nw'
         },
+        width: 50,
         handleClass: 'widget-titlebar',
         alwaysShowResizeHandle: true,
     };
