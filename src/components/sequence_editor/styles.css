@@ -1,24 +1,19 @@
-.widget.sequence-editor {
-  overflow-y: hidden;
-  flex: 1;
-}
-
-.sequence {
+.list-container {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  width: 100%;
   color: white;
   font-family: monospace;
-  margin-right: 0;
+  margin-right: 3px;
+  overflow: hidden;
+  flex: 1 1 auto;
 }
 
 .sequence .sequence-row {
   display: flex;
   border-left: 2px solid rgba(0,0,0,0);
   padding: 2px;
-  flex-shrink: 0;
   overflow-x: hidden;
+  justify-content: center;
 }
 
 .sequence .sequence-row.current-pattern {
@@ -26,13 +21,17 @@
   border-radius: 3px;
 }
 
-.sequence .sequence-index {
-  display: table-cell;
+.sequence .sequence-index, .sequence .sequence-pattern {
   text-align: center;
   min-width: 24px;
 }
 
-.sequence .sequence-index div {
+.sequence .sequence-index {
+  min-width: 24px;
+  margin-right: 5px;
+}
+
+.sequence .sequence-index div, .sequence .sequence-pattern div {
   padding: 0 3px;
   border: 1px solid gray;
   border-radius: 2px;
@@ -48,14 +47,10 @@
   overflow: hidden;
 }
 
-.sequence .sequence-pattern div {
-  padding-left: 3px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 .sequence .sequence-top-padding, .sequence .sequence-bottom-padding {
   flex-shrink: 0;
 }
 
+.sequence-controls .control-panel {
+  justify-content: center;
+}

@@ -19,20 +19,22 @@ export default class SequenceEditor {
   }
 
   render() {
-    $(this.target).addClass('sequence-editor');
-
-    $(this.target).append(sequencesTemplate.renderToString({song: song.song, cursor: state.cursor.toJS()}));
+    const target = $(this.target);
+    target.append(sequencesTemplate.renderToString({song: song.song, cursor: state.cursor.toJS()}));
 
     this.rowHeight = $(this.target).find(".sequence-row")[0].clientHeight;
 
-    $(this.target).find(".sequence-top-padding div").height(
-      ($(this.target).height()-this.rowHeight)/2.0);
+    target.find(".sequence-top-padding div").height(
+      (target.height()-this.rowHeight)/2.0);
 
-    $(this.target).find(".sequence-bottom-padding div").height(
-      ($(this.target).height()-this.rowHeight)/2.0);
+    target.find(".sequence-bottom-padding div").height(
+      (target.height()-this.rowHeight)/2.0);
 
-    $(this.target).find('.sequence').on('mousewheel', this.onScroll.bind(this));
+    target.find('.sequence').on('mousewheel', this.onScroll.bind(this));
 
+    target.find('button#add-pattern').click((e) => {
+      song.addPattern(state.cursor.get("sequence"));
+    });
 
     this.lastCursor = state.cursor.toJS();
   }
@@ -50,7 +52,7 @@ export default class SequenceEditor {
     if (state.cursor.get("sequence") != this.lastCursor.sequence) {
       $(this.target).find(".current-pattern").removeClass('current-pattern');
       $(this.target).find(".sequence-row").eq(state.cursor.get("sequence")).addClass('current-pattern');
-      $(this.target).scrollTop(state.cursor.get("sequence")*this.rowHeight);
+      $(this.target).find(".list-container").scrollTop(state.cursor.get("sequence")*this.rowHeight);
     }
     this.lastCursor = state.cursor.toJS();
   }
@@ -70,7 +72,6 @@ export default class SequenceEditor {
         }
       });
     }
-
     e.preventDefault();
   }
 }
