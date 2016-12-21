@@ -213,19 +213,37 @@ class Instrument {
       for(var i = 0; i < inst.samples.length; i += 1) {
         let sample = {};
         if(inst.samples[i].len > 0 ) {
-          const buf = ctx.createBuffer(1, inst.samples[i].len, ctx.sampleRate);
+          let buflen = inst.samples[i].len;
+          if(inst.samples[i].type & 2) {
+            buflen = inst.samples[i].loop + inst.samples[i].looplen;
+          }
+          const buf = ctx.createBuffer(1, buflen, ctx.sampleRate);
           let chan = buf.getChannelData(0);
           let loop = false;
           let loopStart = -1;
           let loopEnd = -1;
           try {
-            for(var s = 0; s < inst.samples[0].len; s += 1) {
-              chan[s] = inst.samples[i].sampledata[s];
-            }
-            if ((inst.samples[i].type & 3) == 1 && inst.samples[i].looplen !== 0) {
+            // If pingpong loop, duplicate the loop section in reverse
+            if (inst.samples[i].type & 2) {
+              for(var s = 0; s < inst.samples[i].loop; s += 1) {
+                chan[s] = inst.samples[i].sampledata[s];
+              }
+              // Duplicate loop section in reverse
+              for (s = inst.samples[i].looplen - 1; s >= 0; s--) {
+                chan[s + inst.samples[i].loop] = inst.samples[i].sampledata[inst.samples[i].loop + s];
+              }
               loop = true;
               loopStart = (buf.duration / buf.length) * inst.samples[i].loop;
-              loopEnd = loopStart + ((buf.duration / buf.length) * inst.samples[i].looplen);
+              loopEnd = loopStart + ((buf.duration / buf.length) * ( inst.samples[i].looplen * 2));
+            } else {
+              for(var s = 0; s < inst.samples[0].len; s += 1) {
+                chan[s] = inst.samples[i].sampledata[s];
+              }
+              if ((inst.samples[i].type & 3) == 1 && inst.samples[i].looplen !== 0) {
+                loop = true;
+                loopStart = (buf.duration / buf.length) * inst.samples[i].loop;
+                loopEnd = loopStart + ((buf.duration / buf.length) * inst.samples[i].looplen);
+              }
             }
           } catch(e) {
             console.log(e);
@@ -257,6 +275,40 @@ class Instrument {
         inst.env_pan.loop_end);
     }
   }
+
+  // optimization: unroll short sample loops so we can run our inner mixing loop
+  // uninterrupted for as long as possible; this also handles pingpong loops.
+  UnrollSampleLoop(samp) {
+    var nloops = ((2048 + samp.looplen - 1) / samp.looplen) | 0;
+    var pingpong = samp.type & 2;
+    if (pingpong) {
+      // make sure we have an even number of loops if we are pingponging
+      nloops = (nloops + 1) & (~1);
+    }
+    var samplesiz = samp.loop + nloops * samp.looplen;
+    var data = new Float32Array(samplesiz);
+    for (var i = 0; i < samp.loop; i++) {
+      data[i] = samp.sampledata[i];
+    }
+    for (var j = 0; j < nloops; j++) {
+      var k;
+      if ((j&1) && pingpong) {
+        for (k = samp.looplen - 1; k >= 0; k--) {
+          data[i++] = samp.sampledata[samp.loop + k];
+        }
+      } else {
+        for (k = 0; k < samp.looplen; k++) {
+          data[i++] = samp.sampledata[samp.loop + k];
+        }
+      }
+    }
+    console.log("unrolled sample loop; looplen", samp.looplen, "x", nloops, " = ", samplesiz);
+    samp.len = samplesiz;
+    samp.sampledata = data;
+    samp.looplen = nloops * samp.looplen;
+    samp.type = 1;
+  }
+
 
   playNoteOnChannel(channel, time, note) {
     if (this.samples[this.inst.samplemap[note]].buffer) {
