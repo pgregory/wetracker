@@ -172,8 +172,12 @@ export default class PatternEditorCanvas {
     this.empty_event_canvas.height = this._pattern_row_height;
     this.empty_event_canvas.width = this._pattern_cellwidth;
 
+    this.empty_pattern_canvas = document.createElement('canvas');
+    this.empty_pattern_canvas.height = this._pattern_row_height * 256;
+    this.empty_pattern_canvas.width = this._pattern_cellwidth * 32;
+
     this.timeline_canvas = document.createElement('canvas');
-    this.timeline_canvas.height = this._pattern_row_height * 99;
+    this.timeline_canvas.height = this._pattern_row_height * 256;
     this.timeline_canvas.width = 30;
 
     this.track_border_colour = "#666";
@@ -238,11 +242,20 @@ export default class PatternEditorCanvas {
     ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx+cw+2, 0, cw, 8);
     ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx+cw+2+cw, 0, cw, 8);
 
+    ctx = this.empty_pattern_canvas.getContext('2d');
+    for(var r = 0; r < 256; r += 1) {
+      const dy = r * this._pattern_row_height + ((this._pattern_row_height - 8)/2);
+      for(var t = 0; t < 32; t += 1) {
+        const dx = (t * this._pattern_cellwidth) + this._event_left_margin;
+        ctx.drawImage(this.empty_event_canvas, dx, dy);
+      }
+    }
+
     ctx = this.timeline_canvas.getContext('2d');
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, this.timeline_canvas.width, this.timeline_canvas.height);
     dx = 0;
-    for (var j = 0; j < 99; j++) {
+    for (var j = 0; j < 256; j++) {
       var dy = j * rh + ((rh - 8)/2);
       // render row number
       ctx.drawImage(this.fontimg, 8*(j>>4), 0, 8, 8, 2, dy, 8, 8);
@@ -266,7 +279,7 @@ export default class PatternEditorCanvas {
         (col.instrument == null || col.instrument === -1) &&
         (col.volume == null || col.volume === -1 || col.volume < 0x10) &&
         (col.fxtype == null || col.fxtype === -1 || col.fxparam == null || (col.fxtype === 0 && col.fxparam === 0)) ) {
-      ctx.drawImage(this.empty_event_canvas, dx, dy);
+      //ctx.drawImage(this.empty_event_canvas, dx, dy);
     } else {
       // render note
       var note = col.note;
@@ -337,11 +350,11 @@ export default class PatternEditorCanvas {
     var cellwidth = this._pattern_cellwidth;
     var ctx = this.pat_canvas.getContext('2d');
     ctx.imageSmoothingEnabled = false;
-    ctx.fillStyle='#000';
-    ctx.fillRect(0, 0, this.pat_canvas.width, this.pat_canvas.height);
 
     this.pat_canvas.width = song.song.tracks.length * cellwidth;
     this.pat_canvas.height = pattern.numrows * rh;
+
+    ctx.drawImage(this.empty_pattern_canvas, 0, 0);
 
     for (var j = 0; j < pattern.rows.length; j++) {
       var row = pattern.rows[j];
@@ -367,7 +380,7 @@ export default class PatternEditorCanvas {
       }
     }
     // Fill in empty rows
-    for (; j < pattern.numrows; j++) {
+    /*for (; j < pattern.numrows; j++) {
       var dy = j * rh + ((rh - 8)/2);
       var trackColumn = 0;
 
@@ -379,7 +392,7 @@ export default class PatternEditorCanvas {
         }
         trackColumn += trackinfo.columns.length;
       }
-    }
+    }*/
     // Render beat rows in a separate loop to avoid thrashing state changes
     ctx.globalCompositeOperation = 'lighten';
     for (var j = 0; j < pattern.numrows; j++) {
