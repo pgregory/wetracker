@@ -264,9 +264,8 @@ export default class PatternEditorCanvas {
     var rh = this._pattern_row_height;
     if ((col.note == null || col.note === -1) &&
         (col.instrument == null || col.instrument === -1) &&
-        (col.volume == null || col.volume < 0x10) &&
-        (col.fxtype == null || col.fxtype === -1) &&
-        ((col.fxparam == null) || (col.fxtype === 0 && col.fxparam === 0)) ) {
+        (col.volume == null || col.volume === -1 || col.volume < 0x10) &&
+        (col.fxtype == null || col.fxtype === -1 || col.fxparam == null || (col.fxtype === 0 && col.fxparam === 0)) ) {
       ctx.drawImage(this.empty_event_canvas, dx, dy);
     } else {
       // render note
