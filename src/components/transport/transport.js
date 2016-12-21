@@ -4,6 +4,7 @@ import KeyboardJS from 'keyboardjs';
 import Signal from '../../utils/signal';
 import { state } from '../../state';
 import { song } from '../../utils/songmanager';
+import { player } from '../../audio/player';
 
 import transportTemplate from './templates/transport.marko';
 
@@ -40,20 +41,64 @@ export default class Transport {
   render() {
     $(this.target).append(transportTemplate.renderToString({transport: state.transport.toJS()}));
  
-    $('input').bind("enterKey",function(e){
+    $(this.target).find('input').bind("enterKey",function(e){
       state.set({
         transport: {
-          step: parseInt($("#step").val()),
-          octave: parseInt($("#octave").val()),
+          step: parseInt($(this.target).find("#step").val()),
+          octave: parseInt($(this.target).find("#octave").val()),
         },
       });
       $(this).blur();
     });
-    $('input').keyup(function(e){
+    $(this.target).find('input').keyup(function(e){
       if(e.keyCode == 13)
       {
         $(this).trigger("enterKey");
       }
+    });
+    $(this.target).find('#play').click((e) => {
+      player.play();
+    });
+    $(this.target).find('#play-pattern').click((e) => {
+      player.playPattern(state.cursor.get("pattern"));
+    });
+    $(this.target).find('#stop').click((e) => {
+      player.pause();
+    });
+    $(this.target).find('#reset').click((e) => {
+      player.reset();
+    });
+    $(this.target).find('#new').click((e) => {
+      song.newSong();
+    });
+    $(this.target).find('#load').click((e) => {
+      $( "#dialog" ).empty();
+      $( "#dialog" ).append($("<input type=\"file\" id=\"file-input\" />"));
+      $( "#dialog" ).dialog({
+        width: 500,
+        modal: true,
+        buttons: {
+          Ok: function() {
+            var files = $("#file-input")[0].files;
+            if (files.length > 0) {
+              song.loadSongFromFile(files[0], (result) => {
+                song.setSong(result);
+              });
+            }
+            $( this ).dialog( "close" );
+          },
+          Cancel: function() {
+            $( this ).dialog( "close" );
+          },
+          Demo: function() {
+            song.downloadSong(modfile);
+            $( this ).dialog( "close" );
+          }
+        }
+      });
+    });
+    $(this.target).find('#save').click((e) => {
+      song.saveSongToLocal();
     });
   }
 

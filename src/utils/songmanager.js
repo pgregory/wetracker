@@ -232,22 +232,27 @@ export class SongManager {
   }
 
   downloadSong(uri) {
-    let xmReq = new XMLHttpRequest();
-    xmReq.open("GET", uri, true);
-    xmReq.responseType = "arraybuffer";
-    const _this = this;
-    xmReq.onload = (xmEvent) => {
-      const arrayBuffer = xmReq.response;
-      if (arrayBuffer) {
-        var newSong = xmloader.load(arrayBuffer);
-        if (newSong) {
-          song.setSong(newSong);
+    var promise = new Promise(function(resolve, reject) {
+      let xmReq = new XMLHttpRequest();
+      xmReq.open("GET", uri, true);
+      xmReq.responseType = "arraybuffer";
+      const _this = this;
+      xmReq.onload = (xmEvent) => {
+        const arrayBuffer = xmReq.response;
+        if (arrayBuffer) {
+          var newSong = xmloader.load(arrayBuffer);
+          if (newSong) {
+            song.setSong(newSong);
+            resolve();
+          }
+        } else {
+          console.log("Unable to load", uri);
+          reject();
         }
-      } else {
-        console.log("Unable to load", uri);
-      }
-    };
-    xmReq.send(null);
+      };
+      xmReq.send(null);
+    });
+    return promise;
   }
 
   saveSongToLocal() {
