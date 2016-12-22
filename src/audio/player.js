@@ -351,7 +351,7 @@ class Track {
 
     this.gainNode.connect(this.analyser);
     this.analyser.connect(destination);
-    this.gainNode.gain.value = 1.0;
+    this.gainNode.gain.value = 0.5;
   }
 
   updateAnalyserScopeData() {
@@ -458,10 +458,6 @@ class Player {
     this.audioctx = new audioContext();
     this.gainNode = this.audioctx.createGain();
     this.gainNode.gain.value = 0.5;  // master volume
-
-    this.oscillatorNode = this.audioctx.createOscillator();
-    this.oscillatorNode.frequency.value = 220;
-    this.oscillatorNode.connect(this.gainNode);
 
     this.gainNode.connect(this.audioctx.destination);
 
@@ -865,8 +861,6 @@ class Player {
       // put paused events back into action, if any
       if (this.XMView.resume) this.XMView.resume();
       // start playing
-      this.oscillatorNode.connect(this.gainNode);
-
       this.nextTickTime = this.audioctx.currentTime;
     
       this.timerWorker.port.postMessage("start");
@@ -876,7 +870,6 @@ class Player {
 
   pause() {
     if (this.playing) {
-      this.oscillatorNode.disconnect(this.gainNode);
       if (this.XMView.pause) this.XMView.pause();
     }
     this.playing = false;
@@ -929,7 +922,7 @@ class Player {
 
     // Initialise the channelinfo for each track.
     for(var i = 0; i < song.song.tracks.length; i += 1) {
-      var trackinfo = new Track(this.audioctx, this.audioctx.destination);
+      var trackinfo = new Track(this.audioctx, this.gainNode);
       this.tracks.push(trackinfo);
     }
 

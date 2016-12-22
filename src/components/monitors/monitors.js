@@ -51,7 +51,7 @@ export default class Monitors {
         ctx.fillText("MUTE", canvas.width/2, canvas.height/2);
       } else {
         ctx.fillStyle = '#0f0';
-        ctx.strokeStyle = '#55acff';
+        ctx.strokeStyle = '#04AEF7';
         ctx.lineWidth = 2;
 
         //var x = 0; //this._pattern_border; // + j * this._pattern_cellwidth;

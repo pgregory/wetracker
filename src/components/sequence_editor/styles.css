@@ -22,6 +22,7 @@
 }
 
 .sequence .sequence-index, .sequence .sequence-pattern {
+  display: table-cell;
   text-align: center;
   min-width: 24px;
 }
@@ -31,20 +32,22 @@
   margin-right: 5px;
 }
 
+.sequence .sequence-pattern {
+  background-color: #014D6E;
+}
+
 .sequence .sequence-index div, .sequence .sequence-pattern div {
   padding: 0 3px;
   border: 1px solid gray;
-  border-radius: 2px;
+  border-radius: 3px;
+}
+
+.sequence .sequence-pattern div {
+  border-color: white;
 }
 
 .sequence .sequence-row.current-pattern .sequence-index div {
   background: #090;
-}
-
-.sequence .sequence-pattern {
-  display: table-cell;
-  text-align: left;
-  overflow: hidden;
 }
 
 .sequence .sequence-top-padding, .sequence .sequence-bottom-padding {

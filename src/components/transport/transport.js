@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import KeyboardJS from 'keyboardjs';
+import 'jquery-ui/widgets/slider';
 
 import Signal from '../../utils/signal';
 import { state } from '../../state';
@@ -42,6 +43,18 @@ export default class Transport {
 
   render() {
     $(this.target).append(transportTemplate.renderToString({transport: state.transport.toJS()}));
+
+    $(this.target).find("#master-volume").slider({
+      max: 1.0,
+      min: 0.0,
+      range: "min",
+      step: 0.01,
+      value: player.gainNode.gain.value,
+      slide: (e, ui) => {
+        player.gainNode.gain.value = ui.value;
+        console.log(player.gainNode.gain.value);
+      },
+    });
  
     $(this.target).find('input').bind("enterKey",function(e){
       state.set({
