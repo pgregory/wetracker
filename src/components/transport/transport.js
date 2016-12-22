@@ -8,6 +8,8 @@ import { player } from '../../audio/player';
 
 import transportTemplate from './templates/transport.marko';
 
+import modfile from '../../../data/test-song.xm';
+
 import styles from './styles.css';
 
 export default class Transport {

@@ -21,8 +21,6 @@ import instrumentsViewTemplate from './templates/instrumentsview.marko';
 
 import './controls.css';
 
-import modfile from '../data/test-song.xm';
-
 import { song } from './utils/songmanager';
 import { state } from './state';
 import { cursor } from './utils/cursor';
