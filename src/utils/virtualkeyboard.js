@@ -11,6 +11,7 @@ export class VirtualKeyboard {
     this.validKeys = [
       "z", "s", "x", "d", "c", "v", "g", "b", "h", "n", "j", "m", ",", "l", ".", ";", "/", 
       "q", "2", "w", "3", "e", "r", "5", "t", "6", "y", "7", "u", "i", "9", "o", "0", "p", "[", "=", "]",
+      "`",
     ];
     this.mappingTable = {
       "z": 0,   // C-0
@@ -71,6 +72,10 @@ export class VirtualKeyboard {
       if (event.key in this.mappingTable) {
         song.addNoteToSong(state.cursor.toJS(), this.mappingTable[event.key] + (12 * current_octave), state.cursor.get("instrument") + 1); 
         cursor.rowDown(state.transport.get("step"));
+      } else {
+        if (event.key == '`') {
+          song.addNoteToSong(state.cursor.toJS(), 96);
+        }
       }
     } else {
       // Trigger note immediately if a VK note

@@ -286,7 +286,12 @@ export default class PatternEditorCanvas {
       if (note == null || note === -1) {
         // no note = ...
         ctx.drawImage(this.mixedFont, 8*39, 0, 8, 8, dx, dy, this._pattern_note_width, 8);
-      } else {
+      } else if (note === 96) {
+        ctx.fillStyle = "#000";
+        ctx.fillRect(dx, dy, this._pattern_note_width, 8);
+        ctx.strokeStyle = "#FFF";
+        ctx.strokeRect(dx + 1.5, dy + 1.5, this._pattern_note_width - 3, 3);
+      } else{
         var notechars = this._note_names[note%12];
         var octavechar = ~~(note/12) * 8;
         ctx.drawImage(this.mixedFont, notechars[0], this.noteFontOffset, 8, 8, dx, dy, 8, 8);
