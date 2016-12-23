@@ -55,8 +55,8 @@ $(document).ready(() => {
     song.newSong();
 
     window.requestAnimationFrame(() => {
-      transport.render();
-      tabs.render();
+      transport.refresh();
+      tabs.refresh();
     });
   };
 
