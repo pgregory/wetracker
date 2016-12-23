@@ -44,38 +44,6 @@ class XMLoader {
     }
   }
 
-  // optimization: unroll short sample loops so we can run our inner mixing loop
-  // uninterrupted for as long as possible; this also handles pingpong loops.
-  UnrollSampleLoop(samp) {
-    var nloops = ((2048 + samp.looplen - 1) / samp.looplen) | 0;
-    var pingpong = samp.type & 2;
-    if (pingpong) {
-      // make sure we have an even number of loops if we are pingponging
-      nloops = (nloops + 1) & (~1);
-    }
-    var samplesiz = samp.loop + nloops * samp.looplen;
-    var data = new Float32Array(samplesiz);
-    for (var i = 0; i < samp.loop; i++) {
-      data[i] = samp.sampledata[i];
-    }
-    for (var j = 0; j < nloops; j++) {
-      var k;
-      if ((j&1) && pingpong) {
-        for (k = samp.looplen - 1; k >= 0; k--) {
-          data[i++] = samp.sampledata[samp.loop + k];
-        }
-      } else {
-        for (k = 0; k < samp.looplen; k++) {
-          data[i++] = samp.sampledata[samp.loop + k];
-        }
-      }
-    }
-    console.log("unrolled sample loop; looplen", samp.looplen, "x", nloops, " = ", samplesiz);
-    samp.sampledata = data;
-    samp.looplen = nloops * samp.looplen;
-    samp.type = 1;
-  }
-
   prettify_note(note) {
     if (note < 0) return "---";
     if (note == 96) return "^^^";
@@ -325,10 +293,6 @@ class XMLoader {
             samp.loop /= 2;
             samp.looplen /= 2;
           }
-          // unroll short loops and any pingpong loops
-          /*if ((samp.type & 3) && (samp.looplen < 2048 || (samp.type & 2))) {
-            this.UnrollSampleLoop(samp);
-          }*/
         }
         idx += totalsamples;
         inst.samplemap = samplemap;
