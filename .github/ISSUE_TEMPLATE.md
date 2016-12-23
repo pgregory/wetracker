@@ -7,8 +7,7 @@ https://github.com/pgregory/wetracker/issues?q=is%3Aissue+is%3Aclosed
 
 ## Issue Type
 
-- [ ] Bug (https://github.com/pgregory/wetracker/blob/master/.github/CONTRIBUTING.md#bug-reports)
-- [ ] Feature (https://github.com/pgregory/wetracker/blob/master/.github/CONTRIBUTING.md#feature-requests)
+Please apply the appropriate label, "bug", or "enhancement" to identify the issue type.
 
 ## Description
 
