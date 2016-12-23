@@ -64,8 +64,15 @@ $(document).ready(() => {
     const qs = QueryString.parse(location.hash.split('?')[1]);
     if(qs.url) {
       try {
+        $( "#dialog" ).empty();
+        $( "#dialog" ).append($("<p>Loading Song</p>"));
+        const dialog = $( "#dialog" ).dialog({
+          width: 500,
+          modal: true,
+        });
         const url = decodeURIComponent(qs.url);
         song.downloadSong(url).then(function() {
+          dialog.dialog( "close" );
           if(qs.play) {
             player.play();
           }
