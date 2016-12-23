@@ -9,7 +9,7 @@ import { player } from '../../audio/player';
 
 import transportTemplate from './templates/transport.marko';
 
-import modfile from '../../../data/test-song.xm';
+import modfile from '../../../data/onward.xm';
 
 import styles from './styles.css';
 
