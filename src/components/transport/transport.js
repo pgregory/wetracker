@@ -39,10 +39,11 @@ export default class Transport {
     });
 
     Signal.connect(state, "transportChanged", this, "onTransportChanged");
+    Signal.connect(song, "songChanged", this, "onSongChanged");
   }
 
   render() {
-    $(this.target).append(transportTemplate.renderToString({transport: state.transport.toJS()}));
+    $(this.target).append(transportTemplate.renderToString({transport: state.transport.toJS(), song: song.song}));
 
     $(this.target).find("#master-volume").slider({
       max: 1.0,

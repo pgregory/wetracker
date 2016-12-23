@@ -240,7 +240,13 @@ export class SongManager {
       xmReq.onload = (xmEvent) => {
         const arrayBuffer = xmReq.response;
         if (arrayBuffer) {
-          var newSong = xmloader.load(arrayBuffer);
+          // Remove anchor
+          let filename = uri.substring(0, (uri.indexOf("#") == -1) ? uri.length : uri.indexOf("#"));
+          // Remove query
+          filename = filename.substring(0, (filename.indexOf("?") == -1) ? filename.length : filename.indexOf("?"));
+          // Remove everything prior to final name
+          filename = filename.substring(filename.lastIndexOf("/") + 1, filename.length);
+          var newSong = xmloader.load(arrayBuffer, filename);
           if (newSong) {
             song.setSong(newSong);
             resolve();
@@ -281,7 +287,7 @@ export class SongManager {
       } catch(e) {
         reader.onload = function(e) {
           var contents = e.target.result;
-          var song = xmloader.load(contents);
+          var song = xmloader.load(contents, file.name);
           if (callback) {
             callback(song);
           }

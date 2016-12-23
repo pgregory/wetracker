@@ -75,7 +75,7 @@ class XMLoader {
   }
 
 
-  load(arrayBuf) {
+  load(arrayBuf, filename = "") {
     var dv = new DataView(arrayBuf);
 
     var newSong = {};
@@ -85,6 +85,12 @@ class XMLoader {
     newSong.sequence = [];
 
     var songname = this.getstring(dv, 17, 20);
+    if(songname && songname.length > 0) {
+      newSong.name = songname;
+    } else {
+      newSong.name = filename || "No Name";
+    }
+
     var hlen = dv.getUint32(0x3c, true) + 0x3c;
     var songlen = dv.getUint16(0x40, true);
     var looppos = dv.getUint16(0x42, true);

@@ -51,3 +51,9 @@
   font-size: 16px;
   padding: 0 2px;
 }
+
+input#songname {
+  color: #888;
+  font-size: 16px;
+  padding: 0 2px;
+}
