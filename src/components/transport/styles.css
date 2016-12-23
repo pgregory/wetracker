@@ -23,7 +23,7 @@
   min-width: 250px;
   background-color: #222;
   border-color: black;
-  box-shadow: inset -1px 1px 1px #666;
+  box-shadow: inset 1px -1px 1px #666;
 }
 
 #master-volume .ui-slider-range {
