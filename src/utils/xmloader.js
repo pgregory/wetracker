@@ -35,10 +35,10 @@ class XMLoader {
       len /= 2;
       samp = new Float32Array(len);
       for (k = 0; k < len; k++) {
-        b = array[k*2] + (array[k*2 + 1] << 8);
+        acc += (array[k*2] + (array[k*2 + 1] << 8));
+        b = acc&65535;
         if (b & 32768) b = b-65536;
-        acc = Math.max(-1, Math.min(1, acc + b / 32768.0));
-        samp[k] = acc;
+        samp[k] = b / 32768.0;
       }
       return samp;
     }
