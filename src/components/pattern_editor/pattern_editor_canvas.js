@@ -344,6 +344,7 @@ export default class PatternEditorCanvas {
     ctx.globalCompositeOperation = 'source-over';
     ctx.fillStyle = "#000";
     ctx.clearRect(dx, dy, this._pattern_cellwidth, this._pattern_row_height);
+    ctx.drawImage(this.empty_event_canvas, dx + this._event_left_margin, dy + (this._pattern_row_height - 8)/2);
   }
 
   renderPattern(pattern) {
