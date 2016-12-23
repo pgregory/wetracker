@@ -52,7 +52,6 @@ export default class Transport {
       value: player.gainNode.gain.value,
       slide: (e, ui) => {
         player.gainNode.gain.value = ui.value;
-        console.log(player.gainNode.gain.value);
       },
     });
  
