@@ -311,6 +311,8 @@ export class SongManager {
         sample.sampledata[i] = data[i];
       }
       sample.len = data.length;
+      sample.note = 29; // F-6
+      sample.fine = -28; // Note: this presumes the sample is 44.1KHz
 
       this.instrumentChanged(instrumentIndex);
     } catch(e) {
