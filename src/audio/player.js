@@ -463,9 +463,7 @@ class Player {
   onTimerMessage(e) {
     if( e.data === "tick") {
       this.scheduler();
-    } else {
-      console.log("Timer message: " + e.data);
-    }
+    } 
   }
 
   onInteractiveTimerMessage(e) {
@@ -477,9 +475,7 @@ class Player {
         }
         this.nextInteractiveTickTime += msPerTick; 
       }
-    } else {
-      console.log("Timer message: " + e.data);
-    }
+    } 
   }
 
   playNoteOnCurrentChannel(note) {
