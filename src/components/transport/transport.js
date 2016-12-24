@@ -77,8 +77,11 @@ export default class Transport {
     $(this.target).find('#play-pattern').click((e) => {
       player.playPattern(state.cursor.get("pattern"));
     });
-    $(this.target).find('#stop').click((e) => {
+    $(this.target).find('#pause').click((e) => {
       player.pause();
+    });
+    $(this.target).find('#stop').click((e) => {
+      player.stop();
     });
     $(this.target).find('#reset').click((e) => {
       player.reset();

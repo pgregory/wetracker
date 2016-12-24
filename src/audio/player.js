@@ -661,7 +661,7 @@ class Player {
               ch.triggernote = true;
               if (ch.note && inst.inst.samplemap) {
                 const samp = inst.inst.samples[inst.inst.samplemap[ch.note]];
-                cvolE, this.channel.vol, volE, this.channel.vol, h.vol = samp.vol;
+                ch.vol = samp.vol;
                 ch.pan = samp.pan;
                 ch.fine = samp.fine;
               }
@@ -906,21 +906,35 @@ class Player {
     this.timerWorker.port.postMessage("stop");
   }
 
-  reset() {
+  stop() {
     if (this.playing) {
-      this.playing = false;
+      if (this.XMView.stop) this.XMView.stop();
     }
+    this.playing = false;
+
+    this.timerWorker.port.postMessage("stop");
+
+    for(let i = 0; i < this.tracks.length; i += 1) {
+      if(this.tracks[i].currentlyPlaying) {
+        this.tracks[i].currentlyPlaying.stop(this.audioctx.currentTime);
+        this.tracks[i].currentlyPlaying = undefined;
+      }
+    }
+
+    for(let i = this.playingInstruments.length - 1; i >= 0; i -= 1) {
+      this.playingInstruments[i].stop(this.audioctx.currentTime);
+      this.playingInstruments.splice(i, 1);
+    }
+
+    this.reset();
+  }
+
+  reset() {
     this.cur_pat = song.song.sequence[0].pattern;
     this.cur_row = 0;
     this.cur_songpos = 0;
     this.cur_ticksamp = 0;
     this.cur_tick = 0;
-
-    for(let i = 0; i < this.tracks.length; i += 1) {
-      if(this.tracks[i].currentlyPlaying) {
-        this.tracks[i].currentlyPlaying.stop(this.audioctx.currentTime);
-      }
-    }
 
     state.set({
       cursor: {
@@ -931,7 +945,6 @@ class Player {
     });
 
     song.song.globalVolume = this.max_global_volume;
-    if (this.XMView.stop) this.XMView.stop();
   }
 
   onSongChanged() {
