@@ -23,11 +23,6 @@
   font-size: 0.75em;
 }
 
-.control label {
-  margin-right: 5px;
-}
-
-
 button { /* stylelint-disable */
   border: 1px solid black;
   background: #444;
@@ -62,7 +57,7 @@ button:focus {
   color: #888;
 }
 
-.range input {
+.control input {
   width: 40px;
   border: 1px solid black;
   background: #222;
