@@ -258,22 +258,7 @@ class Instrument {
         this.samples.push(sample);
       }
     }
-    if (inst.env_vol) {
-      this.envelopes.volume = new Envelope(
-        inst.env_vol.points,
-        inst.env_vol.type,
-        inst.env_vol.sustain,
-        inst.env_vol.loopstart,
-        inst.env_vol.loop_end);
-    }
-    if (inst.env_pan) {
-      this.envelopes.panning = new Envelope(
-        inst.env_pan.points,
-        inst.env_pan.type,
-        inst.env_pan.sustain,
-        inst.env_pan.loopstart,
-        inst.env_pan.loop_end);
-    }
+    this.refreshEnvelopeData();
   }
 
   playNoteOnChannel(channel, time, note) {
@@ -286,6 +271,28 @@ class Instrument {
   periodForNote(ch, note, fine) {
     const sampNote = this.inst.samples[this.inst.samplemap[note]].note;
     return 1920 - (note + sampNote)*16 - fine / 8.0;
+  }
+
+  refreshEnvelopeData() {
+    this.envelopes.volume = undefined;
+    this.envelopes.panning = undefined;
+    if (this.inst.env_vol) {
+      this.envelopes.volume = new Envelope(
+        this.inst.env_vol.points,
+        this.inst.env_vol.type,
+        this.inst.env_vol.sustain,
+        this.inst.env_vol.loopstart,
+        this.inst.env_vol.loop_end);
+    }
+    if (this.inst.env_pan) {
+      this.envelopes.panning = new Envelope(
+        this.inst.env_pan.points,
+        this.inst.env_pan.type,
+        this.inst.env_pan.sustain,
+        this.inst.env_pan.loopstart,
+        this.inst.env_pan.loop_end);
+    }
+    console.log(this.envelopes.volume);
   }
 }
 
@@ -481,6 +488,14 @@ class Player {
     if(this.playingInstruments.length === 0) {
       this.nextInteractiveTickTime = this.audioctx.currentTime;
       this.interactiveTimerWorker.port.postMessage("start");
+    }
+
+    // If any other instruments are still playing but have been released, stop them.
+    for (let i = this.playingInstruments.length - 1; i >= 0; i -= 1) {
+      if(this.playingInstruments[i].release) {
+        this.playingInstruments[i].stop(time);
+        this.playingInstruments.splice(i, 1);
+      }
     }
     
     const samp = instrument.inst.samples[instrument.inst.samplemap[note]];
@@ -950,6 +965,8 @@ class Player {
   }
 
   onInstrumentChanged(instrumentIndex) {
+    // TODO: This is a bit heavy handed, should check what has changed.
+    // Requires we switch to immutable for song first.
     try {
       this.instruments[instrumentIndex] = new Instrument(song.song.instruments[instrumentIndex], this.audioctx);
     } catch(e) {

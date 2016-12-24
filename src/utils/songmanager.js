@@ -312,10 +312,14 @@ export class SongManager {
       }
       sample.len = data.length;
 
-      this.songChanged();
+      this.instrumentChanged(instrumentIndex);
     } catch(e) {
       console.log(e);
     }
+  }
+
+  updateInstrument(instrumentIndex) {
+    this.instrumentChanged(instrumentIndex);
   }
 }
 

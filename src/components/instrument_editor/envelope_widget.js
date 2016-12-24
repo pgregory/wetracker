@@ -3,6 +3,7 @@ import $ from 'jquery';
 import Signal from '../../utils/signal';
 import { state } from '../../state';
 import { song } from '../../utils/songmanager';
+import { player } from '../../audio/player';
 
 import envelopeTemplate from './templates/envelope.marko';
 
@@ -205,6 +206,8 @@ export default class EnvelopeWidget {
       this.envelope.loopstart = loopStart;
       const loopEnd = parseInt($(this.target).find("input#loop-end-point")[0].value);
       this.envelope.loopend = loopEnd;
+
+      song.updateInstrument(this.instrumentIndex);
     }
   }
 
@@ -420,7 +423,8 @@ export default class EnvelopeWidget {
 
   onCursorChanged() {
     if (state.cursor.get("instrument") !== this.lastCursor.get("instrument")) {
-      this.setInstrument(song.song.instruments[state.cursor.get("instrument")]);
+      this.instrumentIndex = state.cursor.get("instrument");
+      this.setInstrument(song.song.instruments[this.instrumentIndex]);
       this.target.empty();
       this.render();
       this.lastCursor = state.cursor;
