@@ -438,6 +438,13 @@ class Player {
     this.timerWorker.port.onmessage = this.onTimerMessage.bind(this);
     this.timerWorker.port.start();
 
+    this.interactiveTimerWorker = new TimerWorker();
+    this.interactiveTimerWorker.port.postMessage({"interval": this.lookahead});
+    this.interactiveTimerWorker.port.onmessage = this.onInteractiveTimerMessage.bind(this);
+    this.interactiveTimerWorker.port.start();
+
+    this.playingInstruments = [];
+
     Signal.connect(song, 'songChanged', this, 'onSongChanged');
     Signal.connect(song, 'instrumentChanged', this, 'onInstrumentChanged');
     Signal.connect(song, 'instrumentListChanged', this, 'onInstrumentListChanged');
@@ -450,6 +457,66 @@ class Player {
     } else {
       console.log("Timer message: " + e.data);
     }
+  }
+
+  onInteractiveTimerMessage(e) {
+    if( e.data === "tick") {
+      var msPerTick = 2.5 / song.song.bpm;
+      while(this.nextInteractiveTickTime < (this.audioctx.currentTime + this.scheduleAheadTime)) {
+        for (let i = 0; i < this.playingInstruments.length; i += 1) {
+          this.playingInstruments[i].updateVolumeEnvelope(this.nextInteractiveTickTime, this.playingInstruments[i].release);
+        }
+        this.nextInteractiveTickTime += msPerTick; 
+      }
+    } else {
+      console.log("Timer message: " + e.data);
+    }
+  }
+
+  playNoteOnCurrentChannel(note) {
+    const channel = this.tracks[state.cursor.get("track")];
+    const instrument = this.instruments[state.cursor.get("instrument")];
+    const time = this.audioctx.currentTime;
+
+    if(this.playingInstruments.length === 0) {
+      this.nextInteractiveTickTime = this.audioctx.currentTime;
+      this.interactiveTimerWorker.port.postMessage("start");
+    }
+    
+    const samp = instrument.inst.samples[instrument.inst.samplemap[note]];
+    channel.pan = samp.pan;
+    channel.vol = samp.vol;
+    channel.fine = samp.fine;
+    const instr = instrument.playNoteOnChannel(channel, time, note);
+    instr.release = false;
+    this.playingInstruments.push(instr);
+    return instr;
+  }
+
+  releaseInteractiveInstrument(playerInstrument) {
+    const index = this.playingInstruments.indexOf(playerInstrument);
+    if (index !== -1) {
+      const time = this.audioctx.currentTime;
+      playerInstrument.release = true;
+    }
+  }
+
+  stopInteractiveInstrument(playerInstrument) {
+    const index = this.playingInstruments.indexOf(playerInstrument);
+    if (index !== -1) {
+      const time = this.audioctx.currentTime;
+      playerInstrument.stop(time);
+      console.log(this.playingInstruments.length);
+      this.playingInstruments.splice(index, 1);
+      console.log(this.playingInstruments.length);
+      if(this.playingInstruments.length === 0) {
+        this.interactiveTimerWorker.port.postMessage("stop");
+      }
+    }
+  }
+
+  currentTime() {
+    return this.audioctx.currentTime;
   }
 
   prettify_note(note) {
@@ -505,25 +572,6 @@ class Player {
     ch.filter = this.filterCoeffs(ch.doff / 2);
   }
 
-  playNoteOnCurrentChannel(note) {
-    const channel = this.tracks[state.cursor.get("track")];
-    const instrument = this.instruments[state.cursor.get("instrument")];
-    const time = this.audioctx.currentTime;
-    
-    if(channel.currentlyPlaying) {
-      channel.currentlyPlaying.stop(time);
-    }
-    channel.currentlyPlaying = instrument.playNoteOnChannel(channel, time, note);
-  }
-
-  stopNoteOnCurrentChannel() {
-    const channel = this.tracks[state.cursor.get("track")];
-    const time = this.audioctx.currentTime;
-    
-    if(channel.currentlyPlaying) {
-      channel.currentlyPlaying.stop(time);
-    }
-  }
 
   setCurrentPattern() {
     var nextPat = song.song.sequence[this.cur_songpos].pattern;
@@ -598,7 +646,7 @@ class Player {
               ch.triggernote = true;
               if (ch.note && inst.inst.samplemap) {
                 const samp = inst.inst.samples[inst.inst.samplemap[ch.note]];
-                ch.vol = samp.vol;
+                cvolE, this.channel.vol, volE, this.channel.vol, h.vol = samp.vol;
                 ch.pan = samp.pan;
                 ch.fine = samp.fine;
               }

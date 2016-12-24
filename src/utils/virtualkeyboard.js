@@ -53,6 +53,8 @@ export class VirtualKeyboard {
       "]": 31,  // G-2
     };
 
+    this.playing = {};
+
     KeyboardJS.bind(this.validKeys, (e) => {
       this.handleKeyDown(e);
     }, (e) => {
@@ -81,7 +83,11 @@ export class VirtualKeyboard {
       // Trigger note immediately if a VK note
       if (event.key in this.mappingTable) {
         const current_octave = state.transport.get("octave"); 
-        player.playNoteOnCurrentChannel(this.mappingTable[event.key] + (12 * current_octave));
+        if (event.key in this.playing && this.playing[event.key] != null) {
+          player.stopInteractiveInstrument(this.playing[event.key]);
+          this.playing[event.key] = undefined;
+        }
+        this.playing[event.key] = player.playNoteOnCurrentChannel(this.mappingTable[event.key] + (12 * current_octave));
         event.preventRepeat();
       }
     }
@@ -94,7 +100,9 @@ export class VirtualKeyboard {
     if (!state.cursor.get("record")) {
       // Trigger note immediately if a VK note
       if (event.key in this.mappingTable) {
-        player.stopNoteOnCurrentChannel();
+        if (event.key in this.playing && this.playing[event.key] != null) {
+          player.releaseInteractiveInstrument(this.playing[event.key]);
+        }
       }
     }
     return false;
