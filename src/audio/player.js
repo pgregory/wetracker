@@ -295,7 +295,6 @@ class Instrument {
         this.inst.env_pan.loopstart,
         this.inst.env_pan.loop_end);
     }
-    console.log(this.envelopes.volume);
   }
 }
 
@@ -524,9 +523,7 @@ class Player {
     if (index !== -1) {
       const time = this.audioctx.currentTime;
       playerInstrument.stop(time);
-      console.log(this.playingInstruments.length);
       this.playingInstruments.splice(index, 1);
-      console.log(this.playingInstruments.length);
       if(this.playingInstruments.length === 0) {
         this.interactiveTimerWorker.port.postMessage("stop");
       }
