@@ -22,7 +22,7 @@ export default class SampleMapper {
     this.instrument = undefined;
     this.selectedSegment = undefined;
 
-    this.playingNote = undefined;
+    this.playingNotes = [];
 
     this.segments = [];
 
@@ -155,8 +155,8 @@ export default class SampleMapper {
       ctx.restore();
     }
 
-    if(this.playingNote != null) {
-      let x = ((this.offset % this.hdelta) + this.left_margin) + (this.playingNote * this.hdelta);
+    for (let i = 0; i < this.playingNotes.length; i += 1) {
+      let x = ((this.offset % this.hdelta) + this.left_margin) + (this.playingNotes[i] * this.hdelta);
       ctx.fillStyle = "#55ACFF";
       ctx.fillRect(x, 0, this.hdelta, this.top_margin);
     }
@@ -366,12 +366,15 @@ export default class SampleMapper {
   }
 
   onNoteDown(note) { 
-    this.playingNote = note;
+    this.playingNotes.push(note);
     window.requestAnimationFrame(() => this.redrawGraph());
   }
 
   onNoteUp(note) { 
-    this.playingNote = undefined;
-    window.requestAnimationFrame(() => this.redrawGraph());
+    const index = this.playingNotes.indexOf(note);
+    if (index !== -1) {
+      this.playingNotes.splice(index, 1);
+      window.requestAnimationFrame(() => this.redrawGraph());
+    }
   }
 }
