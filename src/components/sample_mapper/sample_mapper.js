@@ -3,6 +3,7 @@ import $ from 'jquery';
 import Signal from '../../utils/signal';
 import { state } from '../../state';
 import { song } from '../../utils/songmanager';
+import { virtualKeyboard } from '../../utils/virtualkeyboard';
 
 import mapperTemplate from './templates/sample_mapper.marko';
 
@@ -21,10 +22,14 @@ export default class SampleMapper {
     this.instrument = undefined;
     this.selectedSegment = undefined;
 
+    this.playingNote = undefined;
+
     this.segments = [];
 
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
     Signal.connect(song, "songChanged", this, "onSongChanged");
+    Signal.connect(virtualKeyboard, "noteDown", this, "onNoteDown");
+    Signal.connect(virtualKeyboard, "noteUp", this, "onNoteUp");
   }
 
   renderGridAndAxes() {
@@ -146,7 +151,14 @@ export default class SampleMapper {
         ctx.strokeRect(x, this.top_margin, w, this.internalHeight);
         ctx.restore();
       }
+
       ctx.restore();
+    }
+
+    if(this.playingNote != null) {
+      let x = ((this.offset % this.hdelta) + this.left_margin) + (this.playingNote * this.hdelta);
+      ctx.fillStyle = "#55ACFF";
+      ctx.fillRect(x, 0, this.hdelta, this.top_margin);
     }
   }
 
@@ -351,5 +363,15 @@ export default class SampleMapper {
   onSongChanged() {
     this.setInstrument(song.song.instruments[state.cursor.get("instrument")]);
     this.refresh();
+  }
+
+  onNoteDown(note) { 
+    this.playingNote = note;
+    window.requestAnimationFrame(() => this.redrawGraph());
+  }
+
+  onNoteUp(note) { 
+    this.playingNote = undefined;
+    window.requestAnimationFrame(() => this.redrawGraph());
   }
 }

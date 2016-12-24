@@ -60,6 +60,9 @@ export class VirtualKeyboard {
     }, (e) => {
       this.handleKeyUp(e);
     });
+
+    this.noteDown = Signal.signal(false);
+    this.noteUp = Signal.signal(false);
   }
 
   handleKeyDown(event) {
@@ -87,7 +90,10 @@ export class VirtualKeyboard {
           player.stopInteractiveInstrument(this.playing[event.key]);
           this.playing[event.key] = undefined;
         }
-        this.playing[event.key] = player.playNoteOnCurrentChannel(this.mappingTable[event.key] + (12 * current_octave));
+        const note = this.mappingTable[event.key] + (12 * current_octave);
+        this.playing[event.key] = player.playNoteOnCurrentChannel(note);
+        this.noteDown(note);
+
         event.preventRepeat();
       }
     }
@@ -103,6 +109,9 @@ export class VirtualKeyboard {
         if (event.key in this.playing && this.playing[event.key] != null) {
           player.releaseInteractiveInstrument(this.playing[event.key]);
         }
+        const current_octave = state.transport.get("octave"); 
+        const note = this.mappingTable[event.key] + (12 * current_octave);
+        this.noteUp(note);
       }
     }
     return false;
