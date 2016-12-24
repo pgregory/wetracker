@@ -82,7 +82,7 @@ export default class SampleEditor {
       this.updateControlPanel();
     });
     $(this.target).find("button#note-up").click((e) => {
-      this.sample.note = Math.min(71, this.sample.note + 1);
+      this.sample.note = Math.min(96, this.sample.note + 1);
       this.updateControlPanel();
     });
     $(this.target).find("button#octave-down").click((e) => {
@@ -90,7 +90,10 @@ export default class SampleEditor {
       this.updateControlPanel();
     });
     $(this.target).find("button#octave-up").click((e) => {
-      this.sample.note = Math.min(71, this.sample.note + 12);
+      this.sample.note = Math.min(96, this.sample.note + 12);
+      this.updateControlPanel();
+    });
+
     $(this.target).find("button#fine-down").click((e) => {
       this.sample.fine = Math.max(-128, this.sample.fine - 1);
       this.updateControlPanel();
