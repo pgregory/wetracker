@@ -63,8 +63,10 @@ export default class SampleEditor {
   updateControlPanel() {
     if(this.sample) {
       $(this.target).find("input#basenote").val(this.noteName(this.sample.note));
+      $(this.target).find("input#finetune").val(this.sample.fine);
     } else {
       $(this.target).find("input#basenote").val("---");
+      $(this.target).find("input#basenote").val("0");
     }
   }
 
@@ -89,6 +91,12 @@ export default class SampleEditor {
     });
     $(this.target).find("button#octave-up").click((e) => {
       this.sample.note = Math.min(71, this.sample.note + 12);
+    $(this.target).find("button#fine-down").click((e) => {
+      this.sample.fine = Math.max(-128, this.sample.fine - 1);
+      this.updateControlPanel();
+    });
+    $(this.target).find("button#fine-up").click((e) => {
+      this.sample.fine = Math.min(128, this.sample.fine + 1);
       this.updateControlPanel();
     });
 

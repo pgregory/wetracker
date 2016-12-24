@@ -19,11 +19,11 @@
   align-self: stretch;
 }
 
-.control-group.basenote {
+.control-group.basenote, .control-group.finetune {
   flex-direction: row;
 }
 
-.control-group.basenote input#basenote {
+.control-group.basenote input#basenote, .control-group.finetune input#finetune {
   width: 40px;
   text-align: center;
 }
