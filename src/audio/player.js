@@ -142,7 +142,7 @@ class PlayerInstrument {
     this.panningNode = instrument.ctx.createStereoPanner();
     this.gainNode.connect(this.panningNode);
     this.panningNode.connect(channel.gainNode);
-    const period = instrument.periodForNote(channel, note, 0);
+    const period = instrument.periodForNote(channel, note, channel.fine);
     const rate = this.rateForPeriod(period);
     this.sourceNode.playbackRate.value = rate;
     this.sourceNode.connect(this.gainNode);
