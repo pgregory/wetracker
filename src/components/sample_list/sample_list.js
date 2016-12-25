@@ -1,5 +1,7 @@
 import $ from 'jquery';
 
+import '../../utils/inlineedit';
+
 import Signal from '../../utils/signal';
 import { state } from '../../state';
 import { song } from '../../utils/songmanager';
@@ -23,25 +25,37 @@ export default class SampleList {
   }
 
   render() {
-    $(this.target).addClass('sample-list');
+    const target = $(this.target);
 
-    $(this.target).append(samplesTemplate.renderToString({samples: this.instrument.samples, cursor: state.cursor.toJS()}));
+    target.addClass('sample-list');
+
+    target.append(samplesTemplate.renderToString({samples: this.instrument.samples, cursor: state.cursor.toJS()}));
 
     if (this.instrument && this.instrument.samples && this.instrument.samples.length > 0) {
-      this.rowHeight = $(this.target).find(".samples-row")[0].clientHeight;
+      this.rowHeight = target.find(".samples-row")[0].clientHeight;
 
-      const containerHeight = $(this.target).find(".samples-list").height();
-      $(this.target).find(".samples-top-padding div").height(
+      const containerHeight = target.find(".samples-list").height();
+      target.find(".samples-top-padding div").height(
         (containerHeight-this.rowHeight)/2.0);
 
-      $(this.target).find(".samples-bottom-padding div").height(
+      target.find(".samples-bottom-padding div").height(
         (containerHeight-this.rowHeight)/2.0);
     }
-    $(this.target).find('.samples').on('mousewheel', this.onScroll.bind(this));
-    $(this.target).find('#add-sample').click((e) => song.addSampleToInstrument(this.cur_instr));
+    target.find('.samples').on('mousewheel', this.onScroll.bind(this));
+
+    target.find('.samples-row').click((e) => {
+      const sample = $(e.currentTarget).data('sampleindex');
+      state.set({
+        cursor: {
+          sample,
+        },
+      });
+    });
+
+    target.find('#add-sample').click((e) => song.addSampleToInstrument(this.cur_instr));
 
 
-    $(this.target).find('#load-sample').click((e) => {
+    target.find('#load-sample').click((e) => {
       $( "#dialog" ).empty();
       $( "#dialog" ).append($("<input type=\"file\" id=\"file-input\" />"));
       $( "#dialog" ).dialog({
@@ -70,6 +84,17 @@ export default class SampleList {
     const cur_sample = state.cursor.get("sample");
     this.scrollToSample(cur_sample);
 
+    var that = this;
+    target.find('.samples-name div').inlineEdit({
+      accept: function(val) {
+        const row = $(this).parents('.samples-row');
+        if (row) {
+          const sampleindex = row.data('sampleindex');
+          song.setInstrumentSampleName(that.cur_instr, sampleindex, val);
+        }
+      },
+    });
+
     this.lastCursor = state.cursor.toJS();
   }
 
@@ -85,9 +110,10 @@ export default class SampleList {
   }
 
   scrollToSample(sample) {
-    $(this.target).find(".current-sample").removeClass('current-sample');
-    $(this.target).find(".samples-row").eq(sample).addClass('current-sample');
-    $(this.target).find(".samples-list").scrollTop(sample*this.rowHeight);
+    const target = $(this.target);
+    target.find(".current-sample").removeClass('current-sample');
+    target.find(".samples-row").eq(sample).addClass('current-sample');
+    target.find(".samples-list").scrollTop(sample*this.rowHeight);
   }
 
   onSongChanged() {

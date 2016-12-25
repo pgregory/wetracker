@@ -15,7 +15,7 @@
     <div class="samples-top-padding">
       <div></div>
     </div>
-    <div class={"samples-row": true, "current-sample": data.cursor.sample === loop.getIndex()} for(i in data.samples | status-var=loop)>
+    <div class={"samples-row": true, "current-sample": data.cursor.sample === loop.getIndex()} data-sampleindex="${loop.getIndex()}" for(i in data.samples | status-var=loop)>
       <div class="samples-index"><div>${loop.getIndex()}</div></div>
       <div class="samples-name"><div>${i.name}</div></div>
     </div>

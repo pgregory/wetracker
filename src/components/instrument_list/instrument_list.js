@@ -50,7 +50,6 @@ export default class InstrumentList {
 
     target.find('.instrument-name div').inlineEdit({
       accept: function(val) {
-        var test = $(this);
         const row = $(this).parents('.instrument-row');
         if (row) {
           const instrindex = row.data('instrumentindex');

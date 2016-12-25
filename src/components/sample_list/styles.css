@@ -59,7 +59,9 @@
 }
 
 .samples .samples-name {
-  display: table-cell;
+  display: flex;
+  flex-direction: row;
+  flex: 1 0 auto;
   text-align: left;
   overflow: hidden;
 }
@@ -69,8 +71,20 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  flex: 1 0 auto;
 }
 
 .samples .samples-top-padding, .sampless .samples-bottom-padding {
   flex-shrink: 0;
+}
+
+.samples input.inline-editor {
+  font-size: 1em;
+  font-family: monospace;
+  padding-top: 0;
+  padding-left: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1 0 auto;
 }

@@ -330,6 +330,17 @@ export class SongManager {
     }
   }
 
+  setInstrumentSampleName(instrumentIndex, sampleIndex, name) {
+    try {
+      const instrument = this.song.instruments[instrumentIndex];
+      const sample = instrument.samples[sampleIndex];
+      sample.name = name;
+      this.instrumentChanged(instrumentIndex);
+    } catch(e) {
+      console.error(e);
+    }
+  }
+
   updateInstrument(instrumentIndex) {
     this.instrumentChanged(instrumentIndex);
   }
