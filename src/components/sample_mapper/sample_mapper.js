@@ -21,6 +21,7 @@ export default class SampleMapper {
     this.right_margin = 10;
     this.instrument = undefined;
     this.selectedSegment = undefined;
+    this.yoff = 0;
 
     this.playingNotes = [];
 
@@ -30,6 +31,9 @@ export default class SampleMapper {
     Signal.connect(song, "songChanged", this, "onSongChanged");
     Signal.connect(virtualKeyboard, "noteDown", this, "onNoteDown");
     Signal.connect(virtualKeyboard, "noteUp", this, "onNoteUp");
+
+    this.setInstrument(song.song.instruments[state.cursor.get("instrument")]);
+    this.updateSegments();
   }
 
   renderGridAndAxes() {
@@ -43,17 +47,25 @@ export default class SampleMapper {
     }
     // Grid
     ctx.beginPath();
-    ctx.strokeStyle = '#009';
+    ctx.strokeStyle = '#559';
     ctx.lineWidth = 1;
-    const xoff = Math.abs(Math.ceil(this.offset/this.hdelta));
-    let x = this.offset;
+
+    let xstart = this.offset % this.notesize;
+    if (xstart < 0) {
+      xstart += this.notesize;
+    }
+    const notestart = Math.ceil(Math.abs(this.offset / this.notesize));
     const hcount = 96;
-    for(let i = 0; i <= hcount; i += 1) {
-      if((i % 12) !== 0) {
+
+    let x = xstart + this.left_margin;
+
+    for(let i = notestart; i <= hcount; i += 1) {
+      if(((i % 12) !== 0) &&
+         (x < (this.canvas.width - this.right_margin))) {
         ctx.moveTo(x, this.top_margin);
         ctx.lineTo(x, this.canvas.height - this.bottom_margin);
       } 
-      x += this.hdelta;
+      x += this.notesize;
     } 
 
     let y = this.canvas.height - this.bottom_margin;
@@ -65,16 +77,19 @@ export default class SampleMapper {
     ctx.stroke();
 
     ctx.beginPath();
-    ctx.strokeStyle = '#00D';
+    ctx.strokeStyle = '#77F';
     ctx.lineWidth = 2;
-    x = this.offset + this.left_margin;
-    for(let i = 0; i <= hcount; i += 1) {
-      if((i % 12) === 0) {
+
+    x = xstart + this.left_margin;
+    for(let i = notestart; i <= hcount; i += 1) {
+      if(((i % 12) === 0) &&
+         (x < (this.canvas.width - this.right_margin))) {
         ctx.moveTo(x, 0);
         ctx.lineTo(x, this.canvas.height);
       } 
-      x += this.hdelta;
+      x += this.notesize;
     } 
+
     ctx.stroke();
 
     ctx.fillStyle = '#FFF';
@@ -83,8 +98,50 @@ export default class SampleMapper {
     ctx.textBaseline = "top";
     x = this.offset;
     for(let i = 0; i < 8; i += 1) {
-      ctx.fillText(`${i}`, x + ((this.hdelta * 12) / 2), this.canvas.height - this.bottom_margin, (this.hdelta * 12));
-      x += (this.hdelta * 12);
+      ctx.fillText(`${i}`, x + ((this.notesize * 12) / 2), this.canvas.height - this.bottom_margin, (this.notesize * 12));
+      x += (this.notesize * 12);
+    }
+  }
+
+
+  drawSegment(ctx, x, w, sample, drawselected) {
+    let visx = x;
+    let visw = w;
+
+    if(x < this.left_margin) {
+      visw -= (this.left_margin - x);
+      visx = this.left_margin;
+    }
+
+    if((visx + visw) > (this.canvas.width - this.right_margin)) {
+      visw = (this.canvas.width - this.right_margin) - visx;
+    }
+
+    if((visx < (this.canvas.width - this.right_margin)) &&
+       ((visx + visw) > this.left_margin)) {
+
+      ctx.save();
+      ctx.globalAlpha = 0.2;
+      if(drawselected) {
+        ctx.fillRect(x, this.top_margin, w, this.internalHeight);
+        ctx.globalAlpha = 1.0;
+        ctx.strokeStyle = "#000";
+        ctx.setLineDash([4, 4]);
+        ctx.strokeRect(x, this.top_margin, w, this.internalHeight);
+      } else {
+        ctx.fillRect(visx, this.top_margin, visw, this.internalHeight);
+        ctx.globalAlpha = 1.0;
+        ctx.strokeRect(visx, this.top_margin, visw, this.internalHeight);
+        ctx.fillStyle = "#0F0";
+      }
+      if(sample != null && visw > 16) {
+        ctx.globalAlpha = 1.0;
+        ctx.textBaseline = "middle";
+        ctx.textAlign = "center";
+        ctx.font = "16px monospace";
+        ctx.fillText(`${sample}`, (visx + (visw / 2)), this.top_margin + (this.internalHeight / 2));
+      }
+      ctx.restore();
     }
   }
 
@@ -101,7 +158,7 @@ export default class SampleMapper {
     ctx.fillRect(0, 0, width, height);
 
     let hcount = 96;
-    this.hdelta = (this.internalWidth / hcount) * this.zoom;
+    this.notesize = (this.internalWidth / hcount) * this.zoom;
 
     // Draw in axes
     this.renderGridAndAxes();
@@ -120,45 +177,27 @@ export default class SampleMapper {
       let i = 0;
 
       for(let i = 0; i < this.segments.length; i += 1) {
-        const x = (this.segments[i].start * this.hdelta) + this.offset + this.left_margin;
-        const w = (this.segments[i].end * this.hdelta + this.offset + this.left_margin) - x;
+        const x = (this.segments[i].start * this.notesize) + this.offset + this.left_margin;
+        const w = (this.segments[i].end * this.notesize + this.offset + this.left_margin) - x;
 
-        ctx.save();
-        ctx.globalAlpha = 0.2;
-        ctx.fillRect(x, this.top_margin, w, this.internalHeight);
-        ctx.globalAlpha = 1.0;
-        ctx.strokeRect(x, this.top_margin, w, this.internalHeight);
-        ctx.fillStyle = "#0F0";
-        ctx.globalAlpha = 1.0;
-        ctx.textBaseline = "middle";
-        ctx.textAlign = "center";
-        ctx.font = "16px monospace";
-        ctx.fillText(`${this.segments[i].instrument}`, (x + (w / 2)), this.top_margin + (this.internalHeight / 2));
-        ctx.restore();
+        this.drawSegment(ctx, x, w, this.segments[i].instrument);
       }
 
       if(this.selectedSegment != null) {
-        const x = this.segments[this.selectedSegment].start * this.hdelta + this.offset + this.left_margin;
-        const w = this.segments[this.selectedSegment].end * this.hdelta + this.offset + this.left_margin - x;
-        ctx.save();
-        ctx.globalAlpha = 0.2;
-        ctx.fillRect(x, this.top_margin, w, this.internalHeight);
-        ctx.globalAlpha = 1.0;
-        ctx.strokeStyle = "#000";
-        ctx.setLineDash([4, 4]);
-        ctx.strokeRect(x, this.top_margin, w, this.internalHeight);
-        ctx.restore();
-      }
+        let x = this.segments[this.selectedSegment].start * this.notesize + this.offset + this.left_margin;
+        let w = this.segments[this.selectedSegment].end * this.notesize + this.offset + this.left_margin - x;
 
+        this.drawSegment(ctx, x, w, null, true);
+      }
       ctx.restore();
     }
 
     for (let i = 0; i < this.playingNotes.length; i += 1) {
-      const shiftedNotes = Math.floor(Math.abs(this.offset) / this.hdelta);
-      const offset = this.offset % this.hdelta;
-      let x = this.left_margin + offset + ((this.playingNotes[i] - shiftedNotes) * this.hdelta);
+      const shiftedNotes = Math.floor(Math.abs(this.offset) / this.notesize);
+      const offset = this.offset % this.notesize;
+      let x = this.left_margin + offset + ((this.playingNotes[i] - shiftedNotes) * this.notesize);
       ctx.fillStyle = "#55ACFF";
-      ctx.fillRect(x, 0, this.hdelta, this.top_margin);
+      ctx.fillRect(x, 0, this.notesize, this.top_margin);
     }
   }
 
@@ -221,14 +260,19 @@ export default class SampleMapper {
   onScroll(e) {
     const prevOffset = this.offset;
     if (Math.abs(e.originalEvent.deltaY) > Math.abs(e.originalEvent.deltaX)) {
-      this.zoom += (e.originalEvent.deltaY/10);
-      this.zoom = Math.min(Math.max(this.zoom, 1), 5);
+      this.yoff += e.originalEvent.deltaY;
+      if (Math.abs(this.yoff) > 10) {
+        this.zoom += (this.yoff/100.0);
+        this.yoff = (this.yoff % 10);
+        this.zoom = Math.min(Math.max(this.zoom, 1), 5);
+      }
     } else {
       this.offset -= e.originalEvent.deltaX;
     }
-    this.offset = Math.min(Math.max(this.offset, -(((this.canvas.width - this.left_margin - this.right_margin) * this.zoom) - this.canvas.width)), 0);
+    const maxoffset = (this.notesize * 96) - (this.canvas.width - this.left_margin - this.right_margin);
+    this.offset = Math.min(Math.max(this.offset, -maxoffset), 0);
 
-    $(this.canvas).toggleClass('moveable', (((this.maxtick * 1.2) * this.zoom) > this.canvas.width));
+    //$(this.canvas).toggleClass('moveable', (((this.maxtick * 1.2) * this.zoom) > this.canvas.width));
 
     window.requestAnimationFrame(() => this.redrawGraph());
 
@@ -238,7 +282,7 @@ export default class SampleMapper {
   onMouseMove(e) {
     if(this.dragging) {
       const x = (e.offsetX - this.left_margin) - this.offset;
-      const xnote = Math.round(x / this.hdelta);
+      const xnote = Math.round(x / this.notesize);
       const currSeg = this.segments[this.selectedSegment];
       if(this.selectedEdge == 0 && this.selectedSegment > 0 && xnote > 0) {
         currSeg.start = xnote;
@@ -261,8 +305,8 @@ export default class SampleMapper {
     }
 
     if(this.selectedSegment != null) {
-      const segx1 = this.segments[this.selectedSegment].start * this.hdelta;
-      const segx2 = this.segments[this.selectedSegment].end * this.hdelta;
+      const segx1 = this.segments[this.selectedSegment].start * this.notesize;
+      const segx2 = this.segments[this.selectedSegment].end * this.notesize;
       if((x > (segx1 - 2)) && (x < (segx1 + 2))) {
         this.dragging = true;
         this.selectedEdge = 0;
@@ -291,8 +335,8 @@ export default class SampleMapper {
 
   findSegmentAtPosition(x, y) {
     for(let i = 0; i < this.segments.length; i += 1) {
-      const minx = this.segments[i].start * this.hdelta;
-      const maxx = this.segments[i].end * this.hdelta;
+      const minx = this.segments[i].start * this.notesize;
+      const maxx = this.segments[i].end * this.notesize;
 
       if(x >= minx && x <= maxx) {
         return i;
@@ -302,7 +346,7 @@ export default class SampleMapper {
 
   splitSegmentAt(x) {
     if(this.selectedSegment != null) {
-      const xnote = Math.round(x / this.hdelta);
+      const xnote = Math.round(x / this.notesize);
       const currSeg = this.segments[this.selectedSegment];
       this.segments.splice(this.selectedSegment + 1, 0, {
         instrument: 0, 
