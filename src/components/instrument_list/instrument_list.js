@@ -36,6 +36,16 @@ export default class InstrumentList {
       (containerHeight-this.rowHeight)/2.0);
 
     target.find('.instruments').on('mousewheel', this.onScroll.bind(this));
+
+    target.find('.instrument-row').click((e) => {
+      const instrument = $(e.currentTarget).data('instrumentindex');
+      state.set({
+        cursor: {
+          instrument,
+        },
+      });
+    });
+
     target.find('#add-instrument').click((e) => song.addInstrument());
 
     target.find('.instrument-name div').inlineEdit({
