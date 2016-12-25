@@ -69,3 +69,8 @@
 .instruments .instrument-top-padding, .instruments .instrument-bottom-padding {
   flex-shrink: 0;
 }
+
+.instruments input.inline-editor {
+  font-size: 1em;
+  font-family: monospace;
+}

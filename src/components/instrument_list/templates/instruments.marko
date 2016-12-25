@@ -12,7 +12,7 @@
     <div class="instruments-top-padding">
       <div></div>
     </div>
-    <div class={"instrument-row": true, "current-instrument": data.cursor.instrument === loop.getIndex()} for(i in data.song.instruments | status-var=loop)>
+    <div class={"instrument-row": true, "current-instrument": data.cursor.instrument === loop.getIndex()} data-instrumentindex="${loop.getIndex()}" for(i in data.song.instruments | status-var=loop)>
       <div class="instrument-index"><div>${loop.getIndex()}</div></div>
       <div class="instrument-name"><div>${i.name}</div></div>
     </div>

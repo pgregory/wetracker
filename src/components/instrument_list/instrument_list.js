@@ -1,5 +1,7 @@
 import $ from 'jquery';
 
+import '../../utils/inlineedit';
+
 import Signal from '../../utils/signal';
 import { state } from '../../state';
 import { song } from '../../utils/songmanager';
@@ -20,20 +22,32 @@ export default class InstrumentList {
   }
 
   render() {
-    $(this.target).addClass('instrument-list');
+    const target = $(this.target);
+    target.addClass('instrument-list');
 
-    $(this.target).append(instrumentsTemplate.renderToString({song: song.song, cursor: state.cursor.toJS()}));
+    target.append(instrumentsTemplate.renderToString({song: song.song, cursor: state.cursor.toJS()}));
 
-    this.rowHeight = $(this.target).find(".instrument-row")[0].clientHeight;
+    this.rowHeight = target.find(".instrument-row")[0].clientHeight;
 
-    const containerHeight = $(this.target).find(".instruments-list").height();
-    $(this.target).find(".instruments-top-padding div").height((containerHeight - this.rowHeight)/2.0);
+    const containerHeight = target.find(".instruments-list").height();
+    target.find(".instruments-top-padding div").height((containerHeight - this.rowHeight)/2.0);
 
-    $(this.target).find(".instruments-bottom-padding div").height(
+    target.find(".instruments-bottom-padding div").height(
       (containerHeight-this.rowHeight)/2.0);
 
-    $(this.target).find('.instruments').on('mousewheel', this.onScroll.bind(this));
-    $(this.target).find('#add-instrument').click((e) => song.addInstrument());
+    target.find('.instruments').on('mousewheel', this.onScroll.bind(this));
+    target.find('#add-instrument').click((e) => song.addInstrument());
+
+    target.find('.instrument-name').inlineEdit({
+      accept: function(val) {
+        var test = $(this);
+        const row = $(this).parent('.instrument-row');
+        if (row) {
+          const instrindex = row.data('instrumentindex');
+          song.setInstrumentName(instrindex, val);
+        }
+      },
+    });
 
     this.lastCursor = state.cursor.toJS();
   }

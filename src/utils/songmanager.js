@@ -298,6 +298,16 @@ export class SongManager {
     reader.readAsText(file);
   }
 
+  setInstrumentName(instrumentIndex, name) {
+    try {
+      const instrument = this.song.instruments[instrumentIndex];
+      instrument.name = name;
+      this.instrumentChanged(instrumentIndex);
+    } catch(e) {
+      console.error(e);
+    }
+  }
+
   setInstrumentSampleData(instrumentIndex, sampleIndex, data) {
     try {
       const instrument = this.song.instruments[instrumentIndex];

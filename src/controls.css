@@ -69,3 +69,7 @@ button:focus {
   outline: none;
   border: 1px dotted darkorange;
 }
+
+input.inline-editor {
+  font-size: 0.75em;
+}
