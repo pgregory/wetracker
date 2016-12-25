@@ -66,6 +66,10 @@ export default class SampleList {
         }
       });
     });
+
+    const cur_sample = state.cursor.get("sample");
+    this.scrollToSample(cur_sample);
+
     this.lastCursor = state.cursor.toJS();
   }
 
@@ -78,6 +82,12 @@ export default class SampleList {
   updateSample() {
     this.cur_instr = state.cursor.get("instrument");
     this.instrument = song.song.instruments[this.cur_instr];
+  }
+
+  scrollToSample(sample) {
+    $(this.target).find(".current-sample").removeClass('current-sample');
+    $(this.target).find(".samples-row").eq(sample).addClass('current-sample');
+    $(this.target).find(".samples-list").scrollTop(sample*this.rowHeight);
   }
 
   onSongChanged() {
@@ -99,10 +109,7 @@ export default class SampleList {
       this.updateSample();
 
       const cur_sample = state.cursor.get("sample");
-
-      $(this.target).find(".current-sample").removeClass('current-sample');
-      $(this.target).find(".samples-row").eq(cur_sample).addClass('current-sample');
-      $(this.target).find(".samples-list").scrollTop(cur_sample*this.rowHeight);
+      this.scrollToSample(cur_sample);
     }
     this.lastCursor = state.cursor.toJS();
   }
