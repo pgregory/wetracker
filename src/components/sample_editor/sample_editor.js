@@ -12,6 +12,7 @@ export default class SampleEditor {
   constructor(target) {
     this.target = target;
     this.lastCursor = state.cursor;
+    this.instrument = undefined;
 
     this._note_names = [
       "C-", "C#", "D-", "D#", "E-", "F-",
@@ -22,15 +23,18 @@ export default class SampleEditor {
 
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
     Signal.connect(song, "songChanged", this, "onSongChanged");
+    Signal.connect(song, "instrumentChanged", this, "onInstrumentChanged");
   }
 
   updateSample() {
-    const cur_instr = state.cursor.get("instrument");
-    const cur_sample = state.cursor.get("sample");
+    this.instrumentIndex = state.cursor.get("instrument");
+    this.sampleIndex = state.cursor.get("sample");
 
     try {
-      this.sample = song.song.instruments[cur_instr].samples[cur_sample];
+      this.instrument = song.song.instruments[this.instrumentIndex];
+      this.sample = song.song.instruments[this.instrumentIndex].samples[this.sampleIndex];
     } catch(e) {
+      this.instrument = undefined;
       this.sample = undefined;
     }
   }
@@ -128,5 +132,13 @@ export default class SampleEditor {
     this.updateSample();
     this.redrawWaveform();
     this.updateControlPanel();
+  }
+
+  onInstrumentChanged(index) {
+    if((this.instrumentIndex != null) && (index == this.instrumentIndex)) {
+      this.updateSample();
+      this.redrawWaveform();
+      this.updateControlPanel();
+    }
   }
 }
