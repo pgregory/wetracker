@@ -73,3 +73,9 @@ button:focus {
 input.inline-editor {
   font-size: 0.75em;
 }
+
+input.inline-editor:focus {
+  outline: none;
+  border: none;
+  background-color: rgba(0,128,0,0.5);
+}

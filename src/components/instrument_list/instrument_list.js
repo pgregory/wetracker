@@ -38,10 +38,10 @@ export default class InstrumentList {
     target.find('.instruments').on('mousewheel', this.onScroll.bind(this));
     target.find('#add-instrument').click((e) => song.addInstrument());
 
-    target.find('.instrument-name').inlineEdit({
+    target.find('.instrument-name div').inlineEdit({
       accept: function(val) {
         var test = $(this);
-        const row = $(this).parent('.instrument-row');
+        const row = $(this).parents('.instrument-row');
         if (row) {
           const instrindex = row.data('instrumentindex');
           song.setInstrumentName(instrindex, val);
