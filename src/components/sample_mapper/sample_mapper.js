@@ -46,11 +46,10 @@ export default class SampleMapper {
     ctx.strokeStyle = '#009';
     ctx.lineWidth = 1;
     const xoff = Math.abs(Math.ceil(this.offset/this.hdelta));
-    let x = (this.offset % this.hdelta) + this.left_margin;
+    let x = this.offset;
     const hcount = 96;
     for(let i = 0; i <= hcount; i += 1) {
-      const offi = xoff + i;
-      if((offi % 12) !== 0) {
+      if((i % 12) !== 0) {
         ctx.moveTo(x, this.top_margin);
         ctx.lineTo(x, this.canvas.height - this.bottom_margin);
       } 
@@ -68,10 +67,9 @@ export default class SampleMapper {
     ctx.beginPath();
     ctx.strokeStyle = '#00D';
     ctx.lineWidth = 2;
-    x = ((this.offset % this.hdelta)) + this.left_margin;
+    x = this.offset + this.left_margin;
     for(let i = 0; i <= hcount; i += 1) {
-      const offi = xoff + i;
-      if((offi % 12) === 0) {
+      if((i % 12) === 0) {
         ctx.moveTo(x, 0);
         ctx.lineTo(x, this.canvas.height);
       } 
@@ -83,7 +81,7 @@ export default class SampleMapper {
     ctx.font = "12px monospace";
     ctx.textAlign = "left";
     ctx.textBaseline = "top";
-    x = (this.offset + this.left_margin);
+    x = this.offset;
     for(let i = 0; i < 8; i += 1) {
       ctx.fillText(`${i}`, x + ((this.hdelta * 12) / 2), this.canvas.height - this.bottom_margin, (this.hdelta * 12));
       x += (this.hdelta * 12);
@@ -122,8 +120,8 @@ export default class SampleMapper {
       let i = 0;
 
       for(let i = 0; i < this.segments.length; i += 1) {
-        const x = this.segments[i].start * this.hdelta + this.offset + this.left_margin;
-        const w = this.segments[i].end * this.hdelta + this.offset + this.left_margin - x;
+        const x = (this.segments[i].start * this.hdelta) + this.offset + this.left_margin;
+        const w = (this.segments[i].end * this.hdelta + this.offset + this.left_margin) - x;
 
         ctx.save();
         ctx.globalAlpha = 0.2;
@@ -156,7 +154,9 @@ export default class SampleMapper {
     }
 
     for (let i = 0; i < this.playingNotes.length; i += 1) {
-      let x = ((this.offset % this.hdelta) + this.left_margin) + (this.playingNotes[i] * this.hdelta);
+      const shiftedNotes = Math.floor(Math.abs(this.offset) / this.hdelta);
+      const offset = this.offset % this.hdelta;
+      let x = this.left_margin + offset + ((this.playingNotes[i] - shiftedNotes) * this.hdelta);
       ctx.fillStyle = "#55ACFF";
       ctx.fillRect(x, 0, this.hdelta, this.top_margin);
     }
