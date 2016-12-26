@@ -13,6 +13,8 @@ export default class SampleEditor {
     this.target = target;
     this.lastCursor = state.cursor;
     this.instrument = undefined;
+    this.loopStartMarker = undefined;
+    this.loopEndMarker = undefined;
 
     this._note_names = [
       "C-", "C#", "D-", "D#", "E-", "F-",
@@ -61,6 +63,37 @@ export default class SampleEditor {
         ctx.lineTo(x, y);
       }
       ctx.stroke();
+
+      const pscale = len/canvas.width;
+      if ((this.sample.type & 0x3) !== 0) {
+        this.loopStartMarker = this.sample.loop / pscale;
+        this.loopEndMarker = ((this.sample.loop + this.sample.looplen) / pscale);
+
+        ctx.strokeStyle = "#30fc05";
+        ctx.fillStyle = "#30fc05";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(this.loopStartMarker, 0);
+        ctx.lineTo(this.loopStartMarker, canvas.height);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(this.loopStartMarker, 0);
+        ctx.lineTo(this.loopStartMarker + 10, 10);
+        ctx.lineTo(this.loopStartMarker, 20);
+        ctx.lineTo(this.loopStartMarker, 0);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(this.loopEndMarker, 0);
+        ctx.lineTo(this.loopEndMarker, canvas.height);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(this.loopEndMarker, 0);
+        ctx.lineTo(this.loopEndMarker - 10, 10);
+        ctx.lineTo(this.loopEndMarker, 20);
+        ctx.lineTo(this.loopEndMarker, 0);
+        ctx.fill();
+      }
     }
   }
 
@@ -79,32 +112,70 @@ export default class SampleEditor {
   }
 
   render() {
-    $(this.target).append(sampleTemplate.renderToString({sample: this.sample}));
+    const target = $(this.target);
+    target.append(sampleTemplate.renderToString({sample: this.sample}));
 
-    $(this.target).find("button#note-down").click((e) => {
+    var canvas = $(this.target).find('.sample-editor .waveform canvas')[0];
+
+    target.find("button#note-down").click((e) => {
       this.sample.note = Math.max(-48, this.sample.note - 1);
       this.updateControlPanel();
     });
-    $(this.target).find("button#note-up").click((e) => {
+    target.find("button#note-up").click((e) => {
       this.sample.note = Math.min(96, this.sample.note + 1);
       this.updateControlPanel();
     });
-    $(this.target).find("button#octave-down").click((e) => {
+    target.find("button#octave-down").click((e) => {
       this.sample.note = Math.max(-48, this.sample.note - 12);
       this.updateControlPanel();
     });
-    $(this.target).find("button#octave-up").click((e) => {
+    target.find("button#octave-up").click((e) => {
       this.sample.note = Math.min(96, this.sample.note + 12);
       this.updateControlPanel();
     });
 
-    $(this.target).find("button#fine-down").click((e) => {
+    target.find("button#fine-down").click((e) => {
       this.sample.fine = Math.max(-128, this.sample.fine - 1);
       this.updateControlPanel();
     });
-    $(this.target).find("button#fine-up").click((e) => {
+    target.find("button#fine-up").click((e) => {
       this.sample.fine = Math.min(128, this.sample.fine + 1);
       this.updateControlPanel();
+    });
+
+    $(canvas).on("mousedown", (e) => {
+      const clickX = e.offsetX;
+      if ((clickX > (this.loopStartMarker - 5)) &&
+          (clickX < (this.loopStartMarker + 5))) {
+        this.dragging = true;
+        this.dragMarker = 0;
+      }
+      if ((clickX > (this.loopEndMarker - 5)) &&
+          (clickX < (this.loopEndMarker + 5))) {
+        this.dragging = true;
+        this.dragMarker = 1;
+      }
+    });
+
+    $(canvas).on("mouseup", (e) => {
+      this.dragging = false;
+    });
+
+    $(canvas).on("mousemove", (e) => {
+      if (this.sample) {
+        const len = this.sample.len;
+        const pscale = len/canvas.width;
+        if (this.dragging) {
+          const newX = e.offsetX * pscale;
+          if (this.dragMarker === 0) {
+            this.sample.looplen -= (newX - this.sample.loop);
+            this.sample.loop = newX;
+          } else {
+            this.sample.looplen = newX - this.sample.loop;
+          }
+          window.requestAnimationFrame(() => this.redrawWaveform());
+        }
+      }
     });
 
     this.redrawWaveform();
