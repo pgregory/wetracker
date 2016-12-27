@@ -42,29 +42,28 @@ export default class SampleEditor {
   }
 
   redrawWaveform() {
-    var canvas = $(this.target).find('.sample-editor .waveform canvas')[0];
-    canvas.height = $('.sample-editor .waveform').height();
-    canvas.width = $('.sample-editor .waveform').width();
-    var width = canvas.width;
-    var height = canvas.height;
-    var ctx = canvas.getContext('2d');
+    this.canvas.height = $('.sample-editor .waveform').height();
+    this.canvas.width = $('.sample-editor .waveform').width();
+    var width = this.canvas.width;
+    var height = this.canvas.height;
+    var ctx = this.canvas.getContext('2d');
     ctx.fillStyle = '#000';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     if (this.sample) {
       var len = this.sample.len;
       var samples = this.sample.sampledata;
-      var scale = Math.floor(len/canvas.width);
+      var scale = Math.floor(len/this.canvas.width);
       ctx.strokeStyle = '#55acff';
       ctx.beginPath();
       ctx.moveTo(0, height/2);
-      for (var i = 0; i < Math.min(len/scale, canvas.width); i++) {
+      for (var i = 0; i < Math.min(len/scale, this.canvas.width); i++) {
         var x = i;
         var y = ((samples[i*scale]*height/2) + height/2);
         ctx.lineTo(x, y);
       }
       ctx.stroke();
 
-      const pscale = len/canvas.width;
+      const pscale = len/this.canvas.width;
       if ((this.sample.type & 0x3) !== 0) {
         this.loopStartMarker = this.sample.loop / pscale;
         this.loopEndMarker = ((this.sample.loop + this.sample.looplen) / pscale);
@@ -74,7 +73,7 @@ export default class SampleEditor {
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(this.loopStartMarker, 0);
-        ctx.lineTo(this.loopStartMarker, canvas.height);
+        ctx.lineTo(this.loopStartMarker, this.canvas.height);
         ctx.stroke();
         ctx.beginPath();
         ctx.moveTo(this.loopStartMarker, 0);
@@ -85,7 +84,7 @@ export default class SampleEditor {
 
         ctx.beginPath();
         ctx.moveTo(this.loopEndMarker, 0);
-        ctx.lineTo(this.loopEndMarker, canvas.height);
+        ctx.lineTo(this.loopEndMarker, this.canvas.height);
         ctx.stroke();
         ctx.beginPath();
         ctx.moveTo(this.loopEndMarker, 0);
@@ -115,7 +114,7 @@ export default class SampleEditor {
     const target = $(this.target);
     target.append(sampleTemplate.renderToString({sample: this.sample}));
 
-    var canvas = $(this.target).find('.sample-editor .waveform canvas')[0];
+    this.canvas = $(this.target).find('.sample-editor .waveform canvas')[0];
 
     target.find("button#note-down").click((e) => {
       this.sample.note = Math.max(-48, this.sample.note - 1);
@@ -143,42 +142,47 @@ export default class SampleEditor {
       this.updateControlPanel();
     });
 
-    $(canvas).on("mousedown", (e) => {
-      const clickX = e.offsetX;
-      if ((clickX > (this.loopStartMarker - 5)) &&
-          (clickX < (this.loopStartMarker + 5))) {
-        this.dragging = true;
-        this.dragMarker = 0;
-      }
-      if ((clickX > (this.loopEndMarker - 5)) &&
-          (clickX < (this.loopEndMarker + 5))) {
-        this.dragging = true;
-        this.dragMarker = 1;
-      }
-    });
-
-    $(canvas).on("mouseup", (e) => {
+    $(this.canvas).on("mousedown", this.onMouseDown.bind(this));
+    $(this.canvas).on("mouseup", (e) => {
       this.dragging = false;
     });
-
-    $(canvas).on("mousemove", (e) => {
-      if (this.sample) {
-        const len = this.sample.len;
-        const pscale = len/canvas.width;
-        if (this.dragging) {
-          const newX = e.offsetX * pscale;
-          if (this.dragMarker === 0) {
-            this.sample.looplen -= (newX - this.sample.loop);
-            this.sample.loop = newX;
-          } else {
-            this.sample.looplen = newX - this.sample.loop;
-          }
-          window.requestAnimationFrame(() => this.redrawWaveform());
-        }
-      }
-    });
+    $(this.canvas).on("mousemove", this.onMouseMove.bind(this));
 
     this.redrawWaveform();
+  }
+
+  onMouseDown(e) {
+    const clickX = e.offsetX;
+    if ((clickX > (this.loopStartMarker - 5)) &&
+        (clickX < (this.loopStartMarker + 5))) {
+      this.dragging = true;
+      this.dragMarker = 0;
+    }
+    if ((clickX > (this.loopEndMarker - 5)) &&
+        (clickX < (this.loopEndMarker + 5))) {
+      this.dragging = true;
+      this.dragMarker = 1;
+    }
+  }
+
+  onMouseMove(e) {
+    if (this.sample) {
+      const len = this.sample.len;
+      const pscale = len/this.canvas.width;
+      if (this.dragging) {
+        const newX = e.offsetX * pscale;
+        if (this.dragMarker === 0) {
+          this.sample.looplen -= (newX - this.sample.loop);
+          this.sample.loop = newX;
+        } else {
+          this.sample.looplen = newX - this.sample.loop;
+        }
+
+        song.updateInstrument(this.instrumentIndex);
+
+        window.requestAnimationFrame(() => this.redrawWaveform());
+      }
+    }
   }
 
   refresh() {
