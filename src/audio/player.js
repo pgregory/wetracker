@@ -87,7 +87,7 @@ class XMViewObject {
       e = this.audio_events.shift();
     }
     if (!e) {
-      if (this.player.playing) {
+      if (this.player.playing || this.player.playingInstruments.length > 0) {
         window.requestAnimationFrame(this.redrawScreen);
       }
       return;
@@ -127,14 +127,19 @@ class XMViewObject {
         states,
       }
     });
-    if(this.player.playing) {
+
+    for(let i = 0; i < this.player.playingInstruments.length; i += 1) {
+      //console.log(this.player.playingInstruments[i].getCurrentPosition());
+    }
+
+    if(this.player.playing || this.player.playingInstruments.length > 0) {
       window.requestAnimationFrame(this.redrawScreen);
     }
   }
 }
 
 class PlayerInstrument {
-  constructor(instrument, channel, note, time) {
+  constructor(instrument, channel, note, time, finished) {
     this.channel = channel;
     this.instrument = instrument;
     this.sourceNode = instrument.ctx.createBufferSource();
@@ -154,12 +159,14 @@ class PlayerInstrument {
     this.volumeEnvelope = new EnvelopeFollower(instrument.envelopes.volume);
     this.panningEnvelope = new EnvelopeFollower(instrument.envelopes.panning);
     this.sourceNode.onended = () => this.onEnded();
+    this.startTime = time;
+    this.finished = finished;
 
-    let offset = 0;
+    this.offset = 0;
     if (channel.off != null && channel.off > 0) {
-      offset = (sample.buffer.duration / sample.buffer.length) * channel.off;
+      this.offset = (sample.buffer.duration / sample.buffer.length) * channel.off;
     }
-    this.sourceNode.start(time, offset);
+    this.sourceNode.start(this.startTime, this.offset);
   }
 
   updateVolumeEnvelope(time, release) {
@@ -180,6 +187,9 @@ class PlayerInstrument {
   onEnded() {
     this.gainNode.disconnect();
     this.sourceNode.disconnect();
+    if (this.finished && typeof this.finished === 'function') {
+      this.finished.call(this);
+    }
   }
 
   updateChannelPeriod(time, period) {
@@ -199,6 +209,13 @@ class PlayerInstrument {
     return rate;
   }
 
+  getCurrentPosition() {
+    const rate = this.sourceNode.playbackRate.value;
+    const time = this.instrument.ctx.currentTime;
+    const position = this.offset + (rate * (time - this.startTime));
+
+    return position;
+  }
 }
 
 class Instrument {
@@ -264,9 +281,9 @@ class Instrument {
     this.refreshEnvelopeData();
   }
 
-  playNoteOnChannel(channel, time, note) {
+  playNoteOnChannel(channel, time, note, finished) {
     if (this.samples[this.inst.samplemap[note]].buffer) {
-      return new PlayerInstrument(this, channel, note, time);
+      return new PlayerInstrument(this, channel, note, time, finished);
     }
     return null;
   }
@@ -440,6 +457,9 @@ class Player {
     this.lookahead = 25;
     this.scheduleAheadTime = 0.3;
 
+    this.interactiveLookahead = 10;
+    this.interactiveScheduleAheadTime = 0.01;
+
     this.XMView = new XMViewObject(this);
 
     this.timerWorker = new TimerWorker();
@@ -448,7 +468,7 @@ class Player {
     this.timerWorker.port.start();
 
     this.interactiveTimerWorker = new TimerWorker();
-    this.interactiveTimerWorker.port.postMessage({"interval": this.lookahead});
+    this.interactiveTimerWorker.port.postMessage({"interval": this.interactiveLookahead});
     this.interactiveTimerWorker.port.onmessage = this.onInteractiveTimerMessage.bind(this);
     this.interactiveTimerWorker.port.start();
 
@@ -469,16 +489,21 @@ class Player {
   onInteractiveTimerMessage(e) {
     if( e.data === "tick") {
       var msPerTick = 2.5 / song.song.bpm;
-      while(this.nextInteractiveTickTime < (this.audioctx.currentTime + this.scheduleAheadTime)) {
+      while(this.nextInteractiveTickTime < (this.audioctx.currentTime + this.interactiveScheduleAheadTime)) {
         for (let i = 0; i < this.playingInstruments.length; i += 1) {
           this.playingInstruments[i].updateVolumeEnvelope(this.nextInteractiveTickTime, this.playingInstruments[i].release);
         }
         this.nextInteractiveTickTime += msPerTick; 
       }
+      if (this.XMView.pushEvent) {
+        this.XMView.pushEvent({
+          t: this.nextInteractiveTickTime,
+        });
+      }
     } 
   }
 
-  playNoteOnCurrentChannel(note) {
+  playNoteOnCurrentChannel(note, finished) {
     const channel = this.tracks[state.cursor.get("track")];
     const instrument = this.instruments[state.cursor.get("instrument")];
     const time = this.audioctx.currentTime;
@@ -500,7 +525,13 @@ class Player {
     channel.pan = samp.pan;
     channel.vol = samp.vol;
     channel.fine = samp.fine;
-    const instr = instrument.playNoteOnChannel(channel, time, note);
+    const instr = instrument.playNoteOnChannel(channel, time, note, (instrument) => {
+      console.log("Finished");
+      this.stopInteractiveInstrument(instrument);
+      if (finished && typeof finished === 'function') {
+        finished.call(instrument);
+      }
+    });
     instr.release = false;
     this.playingInstruments.push(instr);
     return instr;
@@ -508,6 +539,7 @@ class Player {
 
   releaseInteractiveInstrument(playerInstrument) {
     const index = this.playingInstruments.indexOf(playerInstrument);
+    console.log("Released", index);
     if (index !== -1) {
       const time = this.audioctx.currentTime;
       playerInstrument.release = true;
@@ -516,10 +548,12 @@ class Player {
 
   stopInteractiveInstrument(playerInstrument) {
     const index = this.playingInstruments.indexOf(playerInstrument);
+    console.log("Stopping", index);
     if (index !== -1) {
       const time = this.audioctx.currentTime;
       playerInstrument.stop(time);
       this.playingInstruments.splice(index, 1);
+      console.log("Stopped", this.playingInstruments.length);
       if(this.playingInstruments.length === 0) {
         this.interactiveTimerWorker.port.postMessage("stop");
       }

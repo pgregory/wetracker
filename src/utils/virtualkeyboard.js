@@ -91,7 +91,9 @@ export class VirtualKeyboard {
           this.playing[event.key] = undefined;
         }
         const note = this.mappingTable[event.key] + (12 * current_octave);
-        this.playing[event.key] = player.playNoteOnCurrentChannel(note);
+        this.playing[event.key] = player.playNoteOnCurrentChannel(note, (instrument) => {
+          player.stopInteractiveInstrument(instrument);
+        });
         this.noteDown(note);
 
         event.preventRepeat();
