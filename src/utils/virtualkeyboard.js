@@ -88,11 +88,14 @@ export class VirtualKeyboard {
         const current_octave = state.transport.get("octave"); 
         if (event.key in this.playing && this.playing[event.key] != null) {
           player.stopInteractiveInstrument(this.playing[event.key]);
-          this.playing[event.key] = undefined;
+          delete this.playing[event.key];
         }
         const note = this.mappingTable[event.key] + (12 * current_octave);
         this.playing[event.key] = player.playNoteOnCurrentChannel(note, (instrument) => {
           player.stopInteractiveInstrument(instrument);
+          if (this.playing[event.key] === instrument) {
+            delete this.playing[event.key];
+          }
         });
         this.noteDown(note);
 

@@ -73,6 +73,10 @@ class XMViewObject {
     this.paused_events = [];
   }
 
+  start() {
+    window.requestAnimationFrame(this.redrawScreen);
+  }
+
   pushEvent(e) {
     this.audio_events.push(e);
     if(this.audio_events.length == 1) {
@@ -87,7 +91,7 @@ class XMViewObject {
       e = this.audio_events.shift();
     }
     if (!e) {
-      if (this.player.playing || this.player.playingInstruments.length > 0) {
+      if (this.player.playing || this.player.playingInteractive) {
         window.requestAnimationFrame(this.redrawScreen);
       }
       return;
@@ -132,7 +136,7 @@ class XMViewObject {
       //console.log(this.player.playingInstruments[i].getCurrentPosition());
     }
 
-    if(this.player.playing || this.player.playingInstruments.length > 0) {
+    if(this.player.playing || this.player.playingInteractive) {
       window.requestAnimationFrame(this.redrawScreen);
     }
   }
@@ -188,7 +192,7 @@ class PlayerInstrument {
     this.gainNode.disconnect();
     this.sourceNode.disconnect();
     if (this.finished && typeof this.finished === 'function') {
-      this.finished.call(this);
+      this.finished(this);
     }
   }
 
@@ -457,6 +461,7 @@ class Player {
     this.lookahead = 25;
     this.scheduleAheadTime = 0.3;
 
+    this.playingInteractive = false;
     this.interactiveLookahead = 10;
     this.interactiveScheduleAheadTime = 0.01;
 
@@ -495,11 +500,9 @@ class Player {
         }
         this.nextInteractiveTickTime += msPerTick; 
       }
-      if (this.XMView.pushEvent) {
-        this.XMView.pushEvent({
-          t: this.nextInteractiveTickTime,
-        });
-      }
+      this.XMView.pushEvent({
+        t: this.nextInteractiveTickTime,
+      });
     } 
   }
 
@@ -511,6 +514,8 @@ class Player {
     if(this.playingInstruments.length === 0) {
       this.nextInteractiveTickTime = this.audioctx.currentTime;
       this.interactiveTimerWorker.port.postMessage("start");
+      this.XMView.start();
+      this.playingInteractive = true;
     }
 
     // If any other instruments are still playing but have been released, stop them.
@@ -526,10 +531,17 @@ class Player {
     channel.vol = samp.vol;
     channel.fine = samp.fine;
     const instr = instrument.playNoteOnChannel(channel, time, note, (instrument) => {
-      console.log("Finished");
-      this.stopInteractiveInstrument(instrument);
+      const index = this.playingInstruments.indexOf(instrument);
+      if (index !== -1) {
+        this.playingInstruments.splice(index, 1);
+        if(this.playingInstruments.length === 0) {
+          this.interactiveTimerWorker.port.postMessage("stop");
+          this.XMView.stop();
+          this.playingInteractive = false;
+        }
+      }
       if (finished && typeof finished === 'function') {
-        finished.call(instrument);
+        finished(instrument);
       }
     });
     instr.release = false;
@@ -539,7 +551,6 @@ class Player {
 
   releaseInteractiveInstrument(playerInstrument) {
     const index = this.playingInstruments.indexOf(playerInstrument);
-    console.log("Released", index);
     if (index !== -1) {
       const time = this.audioctx.currentTime;
       playerInstrument.release = true;
@@ -547,17 +558,8 @@ class Player {
   }
 
   stopInteractiveInstrument(playerInstrument) {
-    const index = this.playingInstruments.indexOf(playerInstrument);
-    console.log("Stopping", index);
-    if (index !== -1) {
-      const time = this.audioctx.currentTime;
-      playerInstrument.stop(time);
-      this.playingInstruments.splice(index, 1);
-      console.log("Stopped", this.playingInstruments.length);
-      if(this.playingInstruments.length === 0) {
-        this.interactiveTimerWorker.port.postMessage("stop");
-      }
-    }
+    const time = this.audioctx.currentTime;
+    playerInstrument.stop(time);
   }
 
   currentTime() {
@@ -864,14 +866,12 @@ class Player {
         ch.currentlyPlaying.updateChannelPeriod(this.nextTickTime, ch.period + ch.periodoffset);
       }
     }
-    if (this.XMView.pushEvent) {
-      this.XMView.pushEvent({
-        t: this.nextTickTime,
-        songpos: this.cur_songpos,
-        pat: this.cur_pat,
-        row: this.cur_row
-      });
-    }
+    this.XMView.pushEvent({
+      t: this.nextTickTime,
+      songpos: this.cur_songpos,
+      pat: this.cur_pat,
+      row: this.cur_row
+    });
     this.cur_tick++;
   }
 
