@@ -16,6 +16,8 @@ export default class SampleEditor {
     this.loopStartMarker = undefined;
     this.loopEndMarker = undefined;
 
+    this.wave_canvas = document.createElement('canvas');
+
     this._note_names = [
       "C-", "C#", "D-", "D#", "E-", "F-",
       "F#", "G-", "G#", "A-", "A#", "B-"
@@ -24,6 +26,7 @@ export default class SampleEditor {
     this.updateSample();
 
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
+    Signal.connect(state, "playingInstrumentsChanged", this, "onPlayingInstrumentsChanged");
     Signal.connect(song, "songChanged", this, "onSongChanged");
     Signal.connect(song, "instrumentChanged", this, "onInstrumentChanged");
   }
@@ -42,13 +45,15 @@ export default class SampleEditor {
   }
 
   redrawWaveform() {
-    this.canvas.height = $('.sample-editor .waveform').height();
-    this.canvas.width = $('.sample-editor .waveform').width();
-    var width = this.canvas.width;
-    var height = this.canvas.height;
-    var ctx = this.canvas.getContext('2d');
+    this.wave_canvas.height = $('.sample-editor .waveform').height();
+    this.wave_canvas.width = $('.sample-editor .waveform').width();
+
+    var width = this.wave_canvas.width;
+    var height = this.wave_canvas.height;
+    var ctx = this.wave_canvas.getContext('2d');
     ctx.fillStyle = '#000';
-    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    ctx.fillRect(0, 0, width, height);
+
     if (this.sample) {
       var len = this.sample.len;
       var samples = this.sample.sampledata;
@@ -94,6 +99,29 @@ export default class SampleEditor {
         ctx.fill();
       }
     }
+  }
+
+  drawPositions() {
+    if(this.positions) {
+      const ctx = this.canvas.getContext('2d');
+      const len = this.sample.len;
+      const pscale = len/this.canvas.width;
+      ctx.strokeStyle = "#F00";
+      ctx.lineWidth = 2; 
+      for(let i = 0; i < this.positions.length; i += 1) {
+        const displayPosition = this.positions[i] / pscale;
+        ctx.beginPath();
+        ctx.moveTo(displayPosition, 0);
+        ctx.lineTo(displayPosition, this.canvas.height);
+        ctx.stroke();
+      }
+    }
+  }
+
+  updateDisplay() {
+    const ctx = this.canvas.getContext('2d');
+    ctx.drawImage(this.wave_canvas, 0, 0);
+    this.drawPositions();
   }
 
   updateControlPanel() {
@@ -148,7 +176,11 @@ export default class SampleEditor {
     });
     $(this.canvas).on("mousemove", this.onMouseMove.bind(this));
 
+    this.canvas.height = $('.sample-editor .waveform').height();
+    this.canvas.width = $('.sample-editor .waveform').width();
+
     this.redrawWaveform();
+    this.updateDisplay();
   }
 
   onMouseDown(e) {
@@ -215,5 +247,17 @@ export default class SampleEditor {
       this.redrawWaveform();
       this.updateControlPanel();
     }
+  }
+
+  onPlayingInstrumentsChanged() {
+    const playing = state.playingInstruments.get("positions");
+    this.positions = [];
+    if(playing.has(this.instrumentIndex)) {
+      const positions = playing.get(this.instrumentIndex);
+      positions.forEach((p, i) => {
+        this.positions.push(p.get("position"));
+      });
+    }
+    this.updateDisplay();
   }
 }

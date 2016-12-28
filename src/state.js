@@ -26,9 +26,15 @@ export class State {
       octave: 4,
     });
 
+    this.playingInstruments = new Immutable.Map({
+      t: 0,
+      positions: [],
+    });
+
     this.cursorChanged = Signal.signal(true);
     this.tracksChanged = Signal.signal(true);
     this.transportChanged = Signal.signal(true);
+    this.playingInstrumentsChanged = Signal.signal(true);
   }
 
 
@@ -46,6 +52,11 @@ export class State {
     if ('transport' in state ) {
       this.transport = this.transport.merge(state.transport);
       this.transportChanged();
+    }
+
+    if ('playingInstruments' in state ) {
+      this.playingInstruments = this.playingInstruments.merge(state.playingInstruments);
+      this.playingInstrumentsChanged();
     }
   }
 }

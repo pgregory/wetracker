@@ -132,9 +132,24 @@ class XMViewObject {
       }
     });
 
+    const positions = [];
     for(let i = 0; i < this.player.playingInstruments.length; i += 1) {
-      //console.log(this.player.playingInstruments[i].getCurrentPosition());
+      const pInstr = this.player.playingInstruments[i];
+      if(!pInstr.release) {
+        if(pInstr.instrument.instrumentIndex > positions.length || positions[pInstr.instrument.instrumentIndex] == null) {
+          positions[pInstr.instrument.instrumentIndex] = [];
+        }
+        positions[pInstr.instrument.instrumentIndex].push({
+          instrument: pInstr,
+          position: pInstr.getCurrentPosition()
+        });
+      }
     }
+    state.set({
+      playingInstruments: {
+        positions,
+      }
+    });
 
     if(this.player.playing || this.player.playingInteractive) {
       window.requestAnimationFrame(this.redrawScreen);
@@ -146,20 +161,21 @@ class PlayerInstrument {
   constructor(instrument, channel, note, time, finished) {
     this.channel = channel;
     this.instrument = instrument;
+    this.note = note;
     this.sourceNode = instrument.ctx.createBufferSource();
     this.gainNode = instrument.ctx.createGain();
     this.panningNode = instrument.ctx.createStereoPanner();
     this.gainNode.connect(this.panningNode);
     this.panningNode.connect(channel.gainNode);
-    const period = instrument.periodForNote(channel, note, channel.fine);
-    const rate = this.rateForPeriod(period);
-    this.sourceNode.playbackRate.value = rate;
+    this.period = instrument.periodForNote(channel, note, channel.fine);
+    this.rate = this.rateForPeriod(this.period);
+    this.sourceNode.playbackRate.value = this.rate;
     this.sourceNode.connect(this.gainNode);
-    const sample = instrument.samples[instrument.inst.samplemap[note]];
-    this.sourceNode.buffer = sample.buffer;
-    this.sourceNode.loop = sample.loop;
-    this.sourceNode.loopStart = sample.loopStart;
-    this.sourceNode.loopEnd = sample.loopEnd;
+    this.sample = instrument.samples[instrument.inst.samplemap[note]];
+    this.sourceNode.buffer = this.sample.buffer;
+    this.sourceNode.loop = this.sample.loop;
+    this.sourceNode.loopStart = this.sample.loopStart;
+    this.sourceNode.loopEnd = this.sample.loopEnd;
     this.volumeEnvelope = new EnvelopeFollower(instrument.envelopes.volume);
     this.panningEnvelope = new EnvelopeFollower(instrument.envelopes.panning);
     this.sourceNode.onended = () => this.onEnded();
@@ -168,7 +184,7 @@ class PlayerInstrument {
 
     this.offset = 0;
     if (channel.off != null && channel.off > 0) {
-      this.offset = (sample.buffer.duration / sample.buffer.length) * channel.off;
+      this.offset = (this.sample.buffer.duration / this.sample.buffer.length) * channel.off;
     }
     this.sourceNode.start(this.startTime, this.offset);
   }
@@ -214,17 +230,43 @@ class PlayerInstrument {
   }
 
   getCurrentPosition() {
-    const rate = this.sourceNode.playbackRate.value;
     const time = this.instrument.ctx.currentTime;
-    const position = this.offset + (rate * (time - this.startTime));
+    const currentTime = this.offset + (time - this.startTime);
+    let offset = this.rate * currentTime;
+
+    // Check if the position is outside the normal loop (taking into account doubling up for
+    // ping-pong looping).
+    let loopLen = this.sample.loopEnd - this.sample.loopStart;
+    let loopPoint = this.sample.loopEnd;
+    if (this.sample.loopType === 2) {
+      loopPoint = this.sample.loopStart + (loopLen/2.0);
+      loopLen /= 2.0;
+    }
+    if(this.sample.loop && (offset > loopPoint)) {
+      let loopCount = 0;
+      let loopOffset = offset;
+      while (loopOffset > loopPoint) {
+        loopOffset -= loopLen;
+        loopCount += 1;
+      }
+
+      if (this.sample.loopType === 2 && (loopCount & 1) == 1) {
+        offset = loopPoint - (loopOffset - this.sample.loopStart);
+      } else {
+        offset = loopOffset;
+      }
+    }
+
+    const position = (offset / this.sample.buffer.duration) * this.sample.buffer.length;
 
     return position;
   }
 }
 
 class Instrument {
-  constructor(inst, ctx) {
-    this.inst = inst; // A reference to the instrument in the song
+  constructor(instrumentIndex, ctx) {
+    this.inst = song.song.instruments[instrumentIndex]; // A reference to the instrument in the song
+    this.instrumentIndex = instrumentIndex;
     this.ctx = ctx;
     this.samples = [];
     this.envelopes = {
@@ -233,48 +275,53 @@ class Instrument {
     };
 
     // Build AudioBuffers from the sample data stored in the song
-    if (inst.samples && inst.samples.length > 0) {
-      for(var i = 0; i < inst.samples.length; i += 1) {
+    if (this.inst.samples && this.inst.samples.length > 0) {
+      for(var i = 0; i < this.inst.samples.length; i += 1) {
         let sample = {};
-        if(inst.samples[i].len > 0 ) {
-          let buflen = inst.samples[i].len;
-          if(inst.samples[i].type & 2) {
-            buflen = inst.samples[i].loop + inst.samples[i].looplen;
+        if(this.inst.samples[i].len > 0 ) {
+          let buflen = this.inst.samples[i].len;
+          if(this.inst.samples[i].type & 2) {
+            buflen = this.inst.samples[i].loop + this.inst.samples[i].looplen;
           }
           const buf = ctx.createBuffer(1, buflen, ctx.sampleRate);
           let chan = buf.getChannelData(0);
           let loop = false;
+          let loopType = 0;
           let loopStart = -1;
           let loopEnd = -1;
           try {
             // If pingpong loop, duplicate the loop section in reverse
-            if (inst.samples[i].type & 2) {
-              for(var s = 0; s < inst.samples[i].loop; s += 1) {
-                chan[s] = inst.samples[i].sampledata[s];
+            if (this.inst.samples[i].type & 2) {
+              for(var s = 0; s < this.inst.samples[i].loop; s += 1) {
+                chan[s] = this.inst.samples[i].sampledata[s];
               }
               // Duplicate loop section in reverse
-              for (s = inst.samples[i].looplen - 1; s >= 0; s--) {
-                chan[s + inst.samples[i].loop] = inst.samples[i].sampledata[inst.samples[i].loop + s];
+              for (s = this.inst.samples[i].looplen - 1; s >= 0; s--) {
+                chan[s + this.inst.samples[i].loop] = this.inst.samples[i].sampledata[this.inst.samples[i].loop + s];
               }
               loop = true;
-              loopStart = (buf.duration / buf.length) * inst.samples[i].loop;
-              loopEnd = loopStart + ((buf.duration / buf.length) * ( inst.samples[i].looplen * 2));
+              loopType = 2;
+              loopStart = (buf.duration / buf.length) * this.inst.samples[i].loop;
+              loopEnd = loopStart + ((buf.duration / buf.length) * ( this.inst.samples[i].looplen * 2));
             } else {
-              for(var s = 0; s < inst.samples[0].len; s += 1) {
-                chan[s] = inst.samples[i].sampledata[s];
+              for(var s = 0; s < this.inst.samples[0].len; s += 1) {
+                chan[s] = this.inst.samples[i].sampledata[s];
               }
-              if ((inst.samples[i].type & 3) == 1 && inst.samples[i].looplen !== 0) {
+              if ((this.inst.samples[i].type & 3) == 1 && this.inst.samples[i].looplen !== 0) {
                 loop = true;
-                loopStart = (buf.duration / buf.length) * inst.samples[i].loop;
-                loopEnd = loopStart + ((buf.duration / buf.length) * inst.samples[i].looplen);
+                loopType = 1;
+                loopStart = (buf.duration / buf.length) * this.inst.samples[i].loop;
+                loopEnd = loopStart + ((buf.duration / buf.length) * this.inst.samples[i].looplen);
               }
             }
           } catch(e) {
             console.log(e);
           }
+          console.log(loopType, this.inst.samples[i].type);
           sample = {
             buffer: buf,
             loop,
+            loopType,
             loopStart,
             loopEnd,
           };
@@ -1001,9 +1048,7 @@ class Player {
     this.instruments = [];
     // Initialise the instrument envelope objects
     for(i = 0; i < song.song.instruments.length; i += 1) {
-      const inst = song.song.instruments[i];
-
-      this.instruments.push(new Instrument(inst, this.audioctx));
+      this.instruments.push(new Instrument(i, this.audioctx));
     }
   }
 
@@ -1011,7 +1056,7 @@ class Player {
     // TODO: This is a bit heavy handed, should check what has changed.
     // Requires we switch to immutable for song first.
     try {
-      this.instruments[instrumentIndex] = new Instrument(song.song.instruments[instrumentIndex], this.audioctx);
+      this.instruments[instrumentIndex] = new Instrument(instrumentIndex, this.audioctx);
     } catch(e) {
       console.log(e);
     }
@@ -1021,9 +1066,7 @@ class Player {
     this.instruments = [];
     // Initialise the instrument envelope objects
     for(let i = 0; i < song.song.instruments.length; i += 1) {
-      const inst = song.song.instruments[i];
-
-      this.instruments.push(new Instrument(inst, this.audioctx));
+      this.instruments.push(new Instrument(i, this.audioctx));
     }
   }
 
