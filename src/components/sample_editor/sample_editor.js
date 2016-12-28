@@ -229,6 +229,7 @@ export default class SampleEditor {
       this.updateSample();
 
       this.redrawWaveform();
+      this.updateDisplay();
       this.updateControlPanel();
       
       this.lastCursor = state.cursor;
