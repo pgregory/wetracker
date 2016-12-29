@@ -15,7 +15,8 @@ export default class SampleEditor {
     this.instrument = undefined;
     this.loopStartMarker = undefined;
     this.loopEndMarker = undefined;
-    this.zoom = 1;
+    this.zoom = undefined;
+    this.minzoom = undefined;
     this.offset = 0;
     this.yoff = 0;
 
@@ -41,6 +42,7 @@ export default class SampleEditor {
     try {
       this.instrument = song.song.instruments[this.instrumentIndex];
       this.sample = song.song.instruments[this.instrumentIndex].samples[this.sampleIndex];
+      this.zoom = undefined;
     } catch(e) {
       this.instrument = undefined;
       this.sample = undefined;
@@ -61,11 +63,18 @@ export default class SampleEditor {
       var len = this.sample.len;
       var samples = this.sample.sampledata;
 
+      if(this.zoom == null) {
+        // Set default zoom to fill the window.
+        this.zoom = this.canvas.width / len;
+        this.minzoom = this.zoom;
+        this.yoff = Math.pow((this.zoom * 100.0), 1/3)*100.0;
+        this.minyoff = this.yoff;
+      }
+
       const sampleWindowMin = 0;
-      const sampleWindowMax = sampleWindowMin + (this.canvas.width / this.zoom);
+      const sampleWindowMax = Math.min(len, sampleWindowMin + (this.canvas.width / this.zoom));
       const pixelsPerSample = this.zoom;
       const sampleStep = Math.max(1, Math.floor((sampleWindowMax - sampleWindowMin) / this.canvas.width));
-      //console.log(this.yoff, this.zoom, sampleWindowMin, sampleWindowMax, pixelsPerSample, sampleStep);
 
       ctx.strokeStyle = '#55acff';
       ctx.beginPath();
@@ -79,8 +88,6 @@ export default class SampleEditor {
       if ((this.sample.type & 0x3) !== 0) {
         this.loopStartMarker = this.sample.loop * pixelsPerSample;
         this.loopEndMarker = ((this.sample.loop + this.sample.looplen) * pixelsPerSample);
-
-        console.log(this.sample.loop, this.sample.looplen, len);
 
         ctx.strokeStyle = "#30fc05";
         ctx.fillStyle = "#30fc05";
@@ -236,10 +243,9 @@ export default class SampleEditor {
     const prevOffset = this.offset;
     if (Math.abs(e.originalEvent.deltaY) > Math.abs(e.originalEvent.deltaX)) {
       this.yoff += e.originalEvent.deltaY;
-      this.yoff = Math.min(Math.max(this.yoff, 10), 1000);
+      this.yoff = Math.min(Math.max(this.yoff, this.minyoff), 1000);
       const k = 4;
-      //this.zoom = Math.exp(((1.0/1000)*this.yoff)*k)-1.0;
-      this.zoom = Math.pow((this.yoff/100.0), 3) / 100.0;
+      this.zoom = Math.max(this.minzoom, Math.pow((this.yoff/100.0), 3) / 100.0);
     } else {
       this.offset -= e.originalEvent.deltaX;
     }
