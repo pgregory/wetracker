@@ -15,6 +15,9 @@ export default class SampleEditor {
     this.instrument = undefined;
     this.loopStartMarker = undefined;
     this.loopEndMarker = undefined;
+    this.zoom = 1;
+    this.offset = 0;
+    this.yoff = 0;
 
     this.wave_canvas = document.createElement('canvas');
 
@@ -57,21 +60,27 @@ export default class SampleEditor {
     if (this.sample) {
       var len = this.sample.len;
       var samples = this.sample.sampledata;
-      var scale = Math.floor(len/this.canvas.width);
+
+      const sampleWindowMin = 0;
+      const sampleWindowMax = sampleWindowMin + (this.canvas.width / this.zoom);
+      const pixelsPerSample = this.zoom;
+      const sampleStep = Math.max(1, Math.floor((sampleWindowMax - sampleWindowMin) / this.canvas.width));
+      //console.log(this.yoff, this.zoom, sampleWindowMin, sampleWindowMax, pixelsPerSample, sampleStep);
+
       ctx.strokeStyle = '#55acff';
       ctx.beginPath();
       ctx.moveTo(0, height/2);
-      for (var i = 0; i < Math.min(len/scale, this.canvas.width); i++) {
-        var x = i;
-        var y = ((samples[i*scale]*height/2) + height/2);
+      for (var i = sampleWindowMin; i < sampleWindowMax; i += sampleStep) {
+        var x = (i - sampleWindowMin) * pixelsPerSample;
+        var y = ((samples[i]*height/2) + height/2);
         ctx.lineTo(x, y);
       }
       ctx.stroke();
-
-      const pscale = len/this.canvas.width;
       if ((this.sample.type & 0x3) !== 0) {
-        this.loopStartMarker = this.sample.loop / pscale;
-        this.loopEndMarker = ((this.sample.loop + this.sample.looplen) / pscale);
+        this.loopStartMarker = this.sample.loop * pixelsPerSample;
+        this.loopEndMarker = ((this.sample.loop + this.sample.looplen) * pixelsPerSample);
+
+        console.log(this.sample.loop, this.sample.looplen, len);
 
         ctx.strokeStyle = "#30fc05";
         ctx.fillStyle = "#30fc05";
@@ -105,11 +114,10 @@ export default class SampleEditor {
     if(this.positions) {
       const ctx = this.canvas.getContext('2d');
       const len = this.sample.len;
-      const pscale = len/this.canvas.width;
       ctx.strokeStyle = "#F00";
-      ctx.lineWidth = 2; 
+      ctx.lineWidth = 2;
       for(let i = 0; i < this.positions.length; i += 1) {
-        const displayPosition = this.positions[i] / pscale;
+        const displayPosition = this.positions[i] * this.zoom;
         ctx.beginPath();
         ctx.moveTo(displayPosition, 0);
         ctx.lineTo(displayPosition, this.canvas.height);
@@ -119,6 +127,11 @@ export default class SampleEditor {
   }
 
   updateDisplay() {
+    this.redrawWaveform();
+    this.updateDisplayPositions();
+  }
+
+  updateDisplayPositions() {
     const ctx = this.canvas.getContext('2d');
     ctx.drawImage(this.wave_canvas, 0, 0);
     this.drawPositions();
@@ -176,6 +189,8 @@ export default class SampleEditor {
     });
     $(this.canvas).on("mousemove", this.onMouseMove.bind(this));
 
+    $(this.canvas).on("mousewheel", this.onScroll.bind(this));
+
     this.canvas.height = $('.sample-editor .waveform').height();
     this.canvas.width = $('.sample-editor .waveform').width();
 
@@ -217,6 +232,25 @@ export default class SampleEditor {
     }
   }
 
+  onScroll(e) {
+    const prevOffset = this.offset;
+    if (Math.abs(e.originalEvent.deltaY) > Math.abs(e.originalEvent.deltaX)) {
+      this.yoff += e.originalEvent.deltaY;
+      this.yoff = Math.min(Math.max(this.yoff, 10), 1000);
+      const k = 4;
+      //this.zoom = Math.exp(((1.0/1000)*this.yoff)*k)-1.0;
+      this.zoom = Math.pow((this.yoff/100.0), 3) / 100.0;
+    } else {
+      this.offset -= e.originalEvent.deltaX;
+    }
+    const maxoffset = (this.notesize * 96) - (this.canvas.width - this.left_margin - this.right_margin);
+    this.offset = Math.min(Math.max(this.offset, -maxoffset), 0);
+
+    window.requestAnimationFrame(() => this.updateDisplay());
+
+    e.preventDefault();
+  }
+
   refresh() {
     $(this.target).empty();
     this.updateSample();
@@ -224,28 +258,27 @@ export default class SampleEditor {
   }
 
   onCursorChanged() {
-    if ((state.cursor.get("instrument") !== this.lastCursor.get("instrument")) || 
+    if ((state.cursor.get("instrument") !== this.lastCursor.get("instrument")) ||
         (state.cursor.get("sample") !== this.lastCursor.get("sample"))) {
       this.updateSample();
 
-      this.redrawWaveform();
       this.updateDisplay();
       this.updateControlPanel();
-      
+
       this.lastCursor = state.cursor;
     }
   }
 
   onSongChanged() {
     this.updateSample();
-    this.redrawWaveform();
+    this.updateDisplay();
     this.updateControlPanel();
   }
 
   onInstrumentChanged(index) {
     if((this.instrumentIndex != null) && (index == this.instrumentIndex)) {
       this.updateSample();
-      this.redrawWaveform();
+      this.updateDisplay();
       this.updateControlPanel();
     }
   }
@@ -259,6 +292,6 @@ export default class SampleEditor {
         this.positions.push(p.get("position"));
       });
     }
-    this.updateDisplay();
+    this.updateDisplayPositions();
   }
 }
