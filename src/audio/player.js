@@ -373,7 +373,7 @@ class Track {
     this.vol = 0;
     this.pan = 128;
     this.period = 1920 - 48*16;
-    this.vL = 0; 
+    this.vL = 0;
     this.vR = 0;   // left right volume envelope followers (changes per sample)
     this.vLprev = 0;
     this.vRprev = 0;
@@ -387,7 +387,7 @@ class Track {
     this.vibratotype = 0;
     this.gainNode = this.ctx.createGain();
     this.analyser = this.ctx.createAnalyser();
-    
+
     this.analyser.fftSize = 256;
     this.analyserBufferLength = this.analyser.frequencyBinCount;
     this.analyserScopeData = new Uint8Array(this.analyserBufferLength);
@@ -535,7 +535,7 @@ class Player {
   onTimerMessage(e) {
     if( e.data === "tick") {
       this.scheduler();
-    } 
+    }
   }
 
   onInteractiveTimerMessage(e) {
@@ -545,12 +545,12 @@ class Player {
         for (let i = 0; i < this.playingInstruments.length; i += 1) {
           this.playingInstruments[i].updateVolumeEnvelope(this.nextInteractiveTickTime, this.playingInstruments[i].release);
         }
-        this.nextInteractiveTickTime += msPerTick; 
+        this.nextInteractiveTickTime += msPerTick;
       }
       this.XMView.pushEvent({
         t: this.nextInteractiveTickTime,
       });
-    } 
+    }
   }
 
   playNoteOnCurrentChannel(note, finished) {
@@ -572,7 +572,7 @@ class Player {
         this.playingInstruments.splice(i, 1);
       }
     }
-    
+
     const samp = instrument.inst.samples[instrument.inst.samplemap[note]];
     channel.pan = samp.pan;
     channel.vol = samp.vol;
@@ -744,7 +744,7 @@ class Player {
                 ch.pan = samp.pan;
                 ch.fine = samp.fine;
               }
-            } 
+            }
             ch.triggernote = true;
           }
 
@@ -898,7 +898,7 @@ class Player {
               song.song.patterns[this.cur_pat].rows[this.cur_row][j]),
             "set channel", j, "period to NaN");
       }
-      if (inst === undefined) 
+      if (inst === undefined)
         continue;
 
       if (ch.triggernote) {
@@ -926,7 +926,7 @@ class Player {
     var msPerTick = 2.5 / song.song.bpm;
     while(this.nextTickTime < (this.audioctx.currentTime + this.scheduleAheadTime)) {
       this.processTick();
-      this.nextTickTime += msPerTick; 
+      this.nextTickTime += msPerTick;
     }
   }
 
@@ -934,7 +934,7 @@ class Player {
     this.cyclePattern = pattern;
     this.cur_pat = pattern;
     this.cur_row = -1;
-    
+
     state.set({
       cursor: {
         pattern: pattern,
@@ -968,7 +968,7 @@ class Player {
       if (this.XMView.resume) this.XMView.resume();
       // start playing
       this.nextTickTime = this.audioctx.currentTime;
-    
+
       this.timerWorker.port.postMessage("start");
     }
     this.playing = true;
@@ -1056,7 +1056,11 @@ class Player {
     // TODO: This is a bit heavy handed, should check what has changed.
     // Requires we switch to immutable for song first.
     try {
+      console.log(this.instruments[instrumentIndex].samples[0].loopStart,
+                  this.instruments[instrumentIndex].samples[0].loopEnd);
       this.instruments[instrumentIndex] = new Instrument(instrumentIndex, this.audioctx);
+      console.log(this.instruments[instrumentIndex].samples[0].loopStart,
+                  this.instruments[instrumentIndex].samples[0].loopEnd);
     } catch(e) {
       console.log(e);
     }
@@ -1364,4 +1368,4 @@ class Player {
   }
 }
 
-export let player = new Player(); 
+export let player = new Player();
