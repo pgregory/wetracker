@@ -221,10 +221,8 @@ export default class SampleEditor {
 
   onMouseMove(e) {
     if (this.sample) {
-      const len = this.sample.len;
-      const pscale = len/this.canvas.width;
       if (this.dragging) {
-        const newX = e.offsetX * pscale;
+        const newX = Math.floor(e.offsetX / this.zoom);
         if (this.dragMarker === 0) {
           this.sample.looplen -= (newX - this.sample.loop);
           this.sample.loop = newX;
