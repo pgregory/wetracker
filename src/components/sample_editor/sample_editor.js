@@ -241,6 +241,9 @@ export default class SampleEditor {
         (clickX < (this.loopEndMarker + 5))) {
       this.dragging = true;
       this.dragMarker = 1;
+    } else {
+      this.dragging = true;
+      this.dragMarker = undefined;
     }
   }
 
@@ -255,6 +258,11 @@ export default class SampleEditor {
         } else if(this.dragMarker === 1) {
           // Dragging the loop end marker
           this.sample.looplen = newX - this.sample.loop;
+        } else {
+          // Dragging the waveform
+          this.offset -= (e.offsetX - this.mouseX);
+          const maxoffset = (this.sample.len * this.zoom) - this.canvas.width;
+          this.offset = Math.max(Math.min(this.offset, maxoffset), 0);
         }
 
         song.updateInstrument(this.instrumentIndex);
