@@ -71,7 +71,7 @@ export default class SampleEditor {
         this.minyoff = this.yoff;
       }
 
-      const sampleWindowMin = 0;
+      const sampleWindowMin = Math.floor(this.offset / this.zoom);
       const sampleWindowMax = Math.min(len, sampleWindowMin + (this.canvas.width / this.zoom));
       const pixelsPerSample = this.zoom;
       const sampleStep = Math.max(1, Math.floor((sampleWindowMax - sampleWindowMin) / this.canvas.width));
@@ -245,10 +245,10 @@ export default class SampleEditor {
       const k = 4;
       this.zoom = Math.max(this.minzoom, Math.pow((this.yoff/100.0), 3) / 100.0);
     } else {
-      this.offset -= e.originalEvent.deltaX;
+      this.offset += e.originalEvent.deltaX;
     }
-    const maxoffset = (this.notesize * 96) - (this.canvas.width - this.left_margin - this.right_margin);
-    this.offset = Math.min(Math.max(this.offset, -maxoffset), 0);
+    const maxoffset = (this.sample.len * this.zoom) - this.canvas.width;
+    this.offset = Math.max(Math.min(this.offset, maxoffset), 0);
 
     window.requestAnimationFrame(() => this.updateDisplay());
 
