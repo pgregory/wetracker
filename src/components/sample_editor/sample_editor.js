@@ -19,6 +19,8 @@ export default class SampleEditor {
     this.minzoom = undefined;
     this.offset = 0;
     this.yoff = 0;
+    this.mouseX = undefined;
+    this.mouseY = undefined;
 
     this.wave_canvas = document.createElement('canvas');
 
@@ -26,8 +28,6 @@ export default class SampleEditor {
       "C-", "C#", "D-", "D#", "E-", "F-",
       "F#", "G-", "G#", "A-", "A#", "B-"
     ];
-
-    this.updateSample();
 
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
     Signal.connect(state, "playingInstrumentsChanged", this, "onPlayingInstrumentsChanged");
@@ -42,7 +42,14 @@ export default class SampleEditor {
     try {
       this.instrument = song.song.instruments[this.instrumentIndex];
       this.sample = song.song.instruments[this.instrumentIndex].samples[this.sampleIndex];
-      this.zoom = undefined;
+      // Set default zoom to fill the window.
+      const len = this.sample.len;
+      this.zoom = this.canvas.width / len;
+      this.minzoom = this.zoom;
+      this.yoff = Math.pow((this.zoom * 100.0), 1/3)*100.0;
+      this.minyoff = this.yoff;
+      const maxoffset = (this.sample.len * this.zoom) - this.canvas.width;
+      this.offset = Math.max(Math.min(this.offset, maxoffset), 0);
     } catch(e) {
       this.instrument = undefined;
       this.sample = undefined;
@@ -71,9 +78,16 @@ export default class SampleEditor {
         this.minyoff = this.yoff;
       }
 
-      const sampleWindowMin = Math.floor(this.offset / this.zoom);
-      const sampleWindowMax = Math.min(len, sampleWindowMin + (this.canvas.width / this.zoom));
       const pixelsPerSample = this.zoom;
+      const samplesPerPixel = Math.max(1.0, Math.floor(1.0 / this.zoom));
+      // Calculate the sample window in the waveform so we only draw what is visible. 
+      // Take into account zoom and offset.
+      let sampleWindowMin = Math.floor(this.offset / this.zoom);
+      // Now adjust the window to the start of the nearest sample "bin" so that at the same zoom level a pixel 
+      // shows the same sample as it shifts with the offset, this avoids jittering in the draw as the sample used
+      // for each pixel shifts with the horizontal offset.
+      sampleWindowMin = Math.floor(sampleWindowMin / samplesPerPixel) * samplesPerPixel;
+      const sampleWindowMax = Math.min(len, sampleWindowMin + (this.canvas.width / this.zoom));
       const sampleStep = Math.max(1, Math.floor((sampleWindowMax - sampleWindowMin) / this.canvas.width));
 
       ctx.strokeStyle = '#55acff';
@@ -86,8 +100,8 @@ export default class SampleEditor {
       }
       ctx.stroke();
       if ((this.sample.type & 0x3) !== 0) {
-        this.loopStartMarker = this.sample.loop * pixelsPerSample;
-        this.loopEndMarker = ((this.sample.loop + this.sample.looplen) * pixelsPerSample);
+        this.loopStartMarker = (this.sample.loop - sampleWindowMin) * pixelsPerSample;
+        this.loopEndMarker = (((this.sample.loop - sampleWindowMin) + this.sample.looplen) * pixelsPerSample);
 
         ctx.strokeStyle = "#30fc05";
         ctx.fillStyle = "#30fc05";
@@ -124,7 +138,7 @@ export default class SampleEditor {
       ctx.strokeStyle = "#F00";
       ctx.lineWidth = 2;
       for(let i = 0; i < this.positions.length; i += 1) {
-        const displayPosition = this.positions[i] * this.zoom;
+        const displayPosition = (this.positions[i] * this.zoom) - this.offset;
         ctx.beginPath();
         ctx.moveTo(displayPosition, 0);
         ctx.lineTo(displayPosition, this.canvas.height);
@@ -211,8 +225,7 @@ export default class SampleEditor {
         (clickX < (this.loopStartMarker + 5))) {
       this.dragging = true;
       this.dragMarker = 0;
-    }
-    if ((clickX > (this.loopEndMarker - 5)) &&
+    } else if ((clickX > (this.loopEndMarker - 5)) &&
         (clickX < (this.loopEndMarker + 5))) {
       this.dragging = true;
       this.dragMarker = 1;
@@ -222,11 +235,13 @@ export default class SampleEditor {
   onMouseMove(e) {
     if (this.sample) {
       if (this.dragging) {
-        const newX = Math.floor(e.offsetX / this.zoom);
+        const newX = Math.floor((e.offsetX + this.offset) / this.zoom);
         if (this.dragMarker === 0) {
+          // Dragging the loop start marker
           this.sample.looplen -= (newX - this.sample.loop);
           this.sample.loop = newX;
-        } else {
+        } else if(this.dragMarker === 1) {
+          // Dragging the loop end marker
           this.sample.looplen = newX - this.sample.loop;
         }
 
@@ -235,6 +250,8 @@ export default class SampleEditor {
         window.requestAnimationFrame(() => this.redrawWaveform());
       }
     }
+    this.mouseX = e.offsetX;
+    this.mouseY = e.offsetY;
   }
 
   onScroll(e) {
@@ -257,8 +274,11 @@ export default class SampleEditor {
 
   refresh() {
     $(this.target).empty();
-    this.updateSample();
     this.render();
+
+    this.updateSample();
+    this.updateDisplay();
+    this.updateControlPanel();
   }
 
   onCursorChanged() {
@@ -281,7 +301,6 @@ export default class SampleEditor {
 
   onInstrumentChanged(index) {
     if((this.instrumentIndex != null) && (index == this.instrumentIndex)) {
-      this.updateSample();
       this.updateDisplay();
       this.updateControlPanel();
     }
