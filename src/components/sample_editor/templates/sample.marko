@@ -29,10 +29,22 @@
           <button id="fine-down" class="fa fa-minus"></button>
         </div> 
         <div class="control">
-          <input id="finetune" name="finetune" value="${data.sample.fine}"/> 
+          <input id="finetune" name="finetune" value="${data.sample ? data.sample.fine : 0}"/> 
         </div>
         <div class="control">
           <button id="fine-up" class="fa fa-plus"></button>
+        </div> 
+      </div>
+      <div class="control-group loop">
+        <div class="control">
+          <label for="loop">Loop</label>
+        </div>
+        <div class="control">
+          <select name="loop" id="loop" selected="${data.sample ? data.sample.loop : 0}">
+            <option value="0">None</option>
+            <option value="1">Forward</option>
+            <option value="2">Ping-pong</option>
+          </select>
         </div> 
       </div>
     </div>

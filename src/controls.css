@@ -79,3 +79,8 @@ input.inline-editor:focus {
   border: none;
   background-color: rgba(0,128,0,0.5);
 }
+
+.control select {
+  border: 1px solid black;
+  color: #888;
+}

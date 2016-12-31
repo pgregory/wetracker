@@ -162,9 +162,11 @@ export default class SampleEditor {
     if(this.sample) {
       $(this.target).find("input#basenote").val(this.noteName(this.sample.note));
       $(this.target).find("input#finetune").val(this.sample.fine);
+      $(this.target).find("select#loop").val(this.sample.type);
     } else {
       $(this.target).find("input#basenote").val("---");
       $(this.target).find("input#basenote").val("0");
+      $(this.target).find("select#loop").val("0");
     }
   }
 
@@ -202,6 +204,16 @@ export default class SampleEditor {
     target.find("button#fine-up").click((e) => {
       this.sample.fine = Math.min(128, this.sample.fine + 1);
       this.updateControlPanel();
+    });
+
+    target.find("select#loop").change((e) => {
+      const type = $(e.target).val();
+      this.sample.type = type;
+      if (type !== 0 && this.sample.loop === 0 && this.sample.looplen === 0) {
+        this.sample.looplen = this.sample.len;
+      }
+      this.updateControlPanel();
+      song.updateInstrument(this.instrumentIndex);
     });
 
     $(this.canvas).on("mousedown", this.onMouseDown.bind(this));
