@@ -255,19 +255,18 @@ export default class SampleEditor {
           // Dragging the loop start marker
           this.sample.looplen -= (newX - this.sample.loop);
           this.sample.loop = newX;
+          song.updateInstrument(this.instrumentIndex);
         } else if(this.dragMarker === 1) {
           // Dragging the loop end marker
           this.sample.looplen = newX - this.sample.loop;
+          song.updateInstrument(this.instrumentIndex);
         } else {
           // Dragging the waveform
           this.offset -= (e.offsetX - this.mouseX);
           const maxoffset = (this.sample.len * this.zoom) - this.canvas.width;
           this.offset = Math.max(Math.min(this.offset, maxoffset), 0);
         }
-
-        song.updateInstrument(this.instrumentIndex);
-
-        window.requestAnimationFrame(() => this.redrawWaveform());
+        window.requestAnimationFrame(() => this.updateDisplay());
       }
     }
     this.mouseX = e.offsetX;

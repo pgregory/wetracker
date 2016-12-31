@@ -317,7 +317,6 @@ class Instrument {
           } catch(e) {
             console.log(e);
           }
-          console.log(loopType, this.inst.samples[i].type);
           sample = {
             buffer: buf,
             loop,
@@ -1056,11 +1055,7 @@ class Player {
     // TODO: This is a bit heavy handed, should check what has changed.
     // Requires we switch to immutable for song first.
     try {
-      console.log(this.instruments[instrumentIndex].samples[0].loopStart,
-                  this.instruments[instrumentIndex].samples[0].loopEnd);
       this.instruments[instrumentIndex] = new Instrument(instrumentIndex, this.audioctx);
-      console.log(this.instruments[instrumentIndex].samples[0].loopStart,
-                  this.instruments[instrumentIndex].samples[0].loopEnd);
     } catch(e) {
       console.log(e);
     }
