@@ -1,5 +1,5 @@
 import Signal from '../utils/signal';
-import KeyboardJS from 'keyboardjs';
+import MouseTrap from 'mousetrap';
 
 import { song } from './songmanager';
 import { state } from '../state';
@@ -18,7 +18,7 @@ export class FXInput {
       "t", "w", "x",
     ];
 
-    KeyboardJS.bind(this.validEffects, (e) => {
+    MouseTrap.bind(this.validEffects, (e) => {
       this.handleKeyAtCursor(e);
     });
   }

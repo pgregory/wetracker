@@ -9,7 +9,7 @@ import 'jquery-ui/../themes/base/core.css';
 import 'jquery-ui/../themes/base/theme.css';
 import 'jquery-ui/../themes/base/dialog.css';
 import 'jquery-ui/../themes/base/resizable.css';
-import KeyboardJS from 'keyboardjs';
+import MouseTrap from 'mousetrap';
 import Director from 'director';
 import QueryString from 'query-string';
 
@@ -43,7 +43,7 @@ $(document).ready(() => {
     $('#song-view').append($(gridTemplate.renderToString()));
     $('#instruments-view').append($(instrumentsViewTemplate.renderToString()));
 
-    KeyboardJS.bind("space", (e) => {
+    MouseTrap.bind("space", (e) => {
       state.set({
         cursor: {
           record: !state.cursor.get("record"),

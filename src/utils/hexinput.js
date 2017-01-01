@@ -1,5 +1,5 @@
 import Signal from '../utils/signal';
-import KeyboardJS from 'keyboardjs';
+import MouseTrap from 'mousetrap';
 
 import { song } from './songmanager';
 import { state } from '../state';
@@ -17,7 +17,7 @@ export class HexInput {
       "8", "9", "a", "b", "c", "d", "e", "f",
     ];
 
-    KeyboardJS.bind(this.validKeys, (e) => {
+    MouseTrap.bind(this.validKeys, (e) => {
       this.handleKeyAtCursor(e);
     });
   }

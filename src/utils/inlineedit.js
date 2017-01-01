@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import KeyboardJS from 'keyboardjs';
+import { virtualKeyboard } from './virtualkeyboard';
 
 $.fn.inlineEdit = function(options = {}) {
   let settings = $.extend({
@@ -15,7 +15,7 @@ $.fn.inlineEdit = function(options = {}) {
   });
 
   $(this).dblclick(function() {
-    KeyboardJS.pause();
+    virtualKeyboard.pause();
     const elem = $(this);
     cancel = false;
 
@@ -38,7 +38,7 @@ $.fn.inlineEdit = function(options = {}) {
 
       $(this).remove();
       elem.show();
-      KeyboardJS.resume();
+      virtualKeyboard.resume();
     });
 
     replaceWith.keyup(function(e) {

@@ -1,12 +1,11 @@
 import Signal from '../utils/signal';
-import KeyboardJS from 'keyboardjs';
 
 import { song } from './songmanager';
 import { state } from '../state';
 import { player } from '../audio/player';
 import { cursor } from '../utils/cursor';
 
-export class VirtualKeyboard {
+class VirtualKeyboard {
   constructor() {
     this.validKeys = [
       "z", "s", "x", "d", "c", "v", "g", "b", "h", "n", "j", "m", ",", "l", ".", ";", "/", 
@@ -53,22 +52,39 @@ export class VirtualKeyboard {
       "]": 31,  // G-2
     };
 
+    this.paused = false;
+
+    this.keys = {};
     this.playing = {};
 
-    KeyboardJS.bind(this.validKeys, (e) => {
-      this.handleKeyDown(e);
-    }, (e) => {
-      this.handleKeyUp(e);
-    });
+    window.addEventListener("keydown", this.handleKeyDown.bind(this));
+    window.addEventListener("keyup", this.handleKeyUp.bind(this));
 
     this.noteDown = Signal.signal(false);
     this.noteUp = Signal.signal(false);
   }
 
+  pause() {
+    this.paused = true;
+  }
+
+  resume() {
+    this.paused = false;
+  }
+
   handleKeyDown(event) {
+    if (this.paused) {
+      return;
+    }
     if (event.ctrlKey || event.shiftKey || event.metaKey ) {
       return;
     }
+
+    if (this.keys[event.keyCode] > 0) {
+      return; 
+    }
+    this.keys[event.keyCode] = event.timeStamp || (new Date()).getTime();
+
     if (state.cursor.get("record")) {
       if (state.cursor.get("item") !== 0) {
         return;
@@ -99,15 +115,22 @@ export class VirtualKeyboard {
         });
         this.noteDown(note);
 
-        event.preventRepeat();
+        //event.preventRepeat();
       }
     }
   }
 
   handleKeyUp(event) {
+    if (this.paused) {
+      return;
+    }
+
     if (event.ctrlKey || event.shiftKey || event.metaKey ) {
       return false;
     }
+
+    this.keys[event.keyCode] = 0;
+
     if (!state.cursor.get("record")) {
       // Trigger note immediately if a VK note
       if (event.key in this.mappingTable) {

@@ -1,5 +1,5 @@
 import Signal from './signal';
-import KeyboardJS from 'keyboardjs';
+import MouseTrap from 'mousetrap';
 
 import { state } from '../state';
 import { song } from './songmanager';
@@ -18,23 +18,23 @@ const items = [
 
 export class CursorManager {
   constructor() {
-    KeyboardJS.bind("down", (e) => {
+    MouseTrap.bind("down", (e) => {
       this.rowDown();
       e.preventDefault();
     });
-    KeyboardJS.bind("up", (e) => {
+    MouseTrap.bind("up", (e) => {
       this.rowUp();
       e.preventDefault();
     });
-    KeyboardJS.bind("right", (e) => {
+    MouseTrap.bind("right", (e) => {
       this.itemRight();
       e.preventDefault();
     });
-    KeyboardJS.bind("left", (e) => {
+    MouseTrap.bind("left", (e) => {
       this.itemLeft();
       e.preventDefault();
     });
-    KeyboardJS.bind("backspace", (e) => {
+    MouseTrap.bind("backspace", (e) => {
       if (e.ctrlKey || e.shiftKey || e.metaKey ) {
         return;
       }

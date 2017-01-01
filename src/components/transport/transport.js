@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import KeyboardJS from 'keyboardjs';
+import MouseTrap from 'mousetrap';
 import 'jquery-ui/widgets/slider';
 
 import Signal from '../../utils/signal';
@@ -18,7 +18,7 @@ export default class Transport {
     this.target = target;
     this.lastTransport = undefined;
 
-    KeyboardJS.bind(["{", "}"], (e) => {
+    MouseTrap.bind(["{", "}"], (e) => {
       state.set({
         transport: {
           step: e.key == "{" ? Math.max(0, state.transport.get("step") - 1) :
@@ -28,7 +28,7 @@ export default class Transport {
       e.preventDefault();
     });
 
-    KeyboardJS.bind(["quotationmark", "|"], (e) => {
+    MouseTrap.bind(["\"", "|"], (e) => {
       state.set({
         transport: {
           octave: e.key == "\"" ? Math.max(0, state.transport.get("octave") - 1) :
