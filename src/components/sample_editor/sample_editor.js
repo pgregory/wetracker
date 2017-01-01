@@ -33,6 +33,7 @@ export default class SampleEditor {
     Signal.connect(state, "playingInstrumentsChanged", this, "onPlayingInstrumentsChanged");
     Signal.connect(song, "songChanged", this, "onSongChanged");
     Signal.connect(song, "instrumentChanged", this, "onInstrumentChanged");
+    Signal.connect(song, "sampleChanged", this, "onSampleChanged");
   }
 
   updateSample() {
@@ -320,6 +321,15 @@ export default class SampleEditor {
 
   onInstrumentChanged(index) {
     if((this.instrumentIndex != null) && (index == this.instrumentIndex)) {
+      this.updateDisplay();
+      this.updateControlPanel();
+    }
+  }
+
+  onSampleChanged(instrumentIndex, sampleIndex) {
+    if(((this.instrumentIndex != null) && (instrumentIndex == this.instrumentIndex)) &&
+       ((this.sampleIndex != null) && (sampleIndex === this.sampleIndex))) {
+      this.updateSample();
       this.updateDisplay();
       this.updateControlPanel();
     }

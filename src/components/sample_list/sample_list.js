@@ -69,7 +69,6 @@ export default class SampleList {
                 const instrumentIndex = state.cursor.get("instrument");
                 const sampleIndex = state.cursor.get("sample");
                 song.setInstrumentSampleData(instrumentIndex, sampleIndex, floatData);
-                player.instruments[instrumentIndex].samples[sampleIndex].buffer = audioData;
               });
             }
             $( this ).dialog( "close" );

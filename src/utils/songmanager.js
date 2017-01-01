@@ -13,6 +13,7 @@ export class SongManager {
     this.eventChanged = Signal.signal(false);
     this.songChanged = Signal.signal(false);
     this.instrumentChanged = Signal.signal(false);
+    this.sampleChanged = Signal.signal(false);
     this.instrumentListChanged = Signal.signal(false);
 
     this.eventEntries = [
@@ -325,6 +326,7 @@ export class SongManager {
       sample.fine = -28; // Note: this presumes the sample is 44.1KHz
 
       this.instrumentChanged(instrumentIndex);
+      this.sampleChanged(instrumentIndex, sampleIndex);
     } catch(e) {
       console.log(e);
     }
