@@ -281,7 +281,7 @@ class Instrument {
         if(this.inst.samples[i].len > 0 ) {
           let buflen = this.inst.samples[i].len;
           if(this.inst.samples[i].type & 2) {
-            buflen = this.inst.samples[i].loop + this.inst.samples[i].looplen;
+            buflen += this.inst.samples[i].looplen;
           }
           const buf = ctx.createBuffer(1, buflen, ctx.sampleRate);
           let chan = buf.getChannelData(0);
@@ -292,12 +292,12 @@ class Instrument {
           try {
             // If pingpong loop, duplicate the loop section in reverse
             if (this.inst.samples[i].type & 2) {
-              for(var s = 0; s < this.inst.samples[i].loop; s += 1) {
+              for(var s = 0; s < this.inst.samples[i].loop + this.inst.samples[i].looplen; s += 1) {
                 chan[s] = this.inst.samples[i].sampledata[s];
               }
               // Duplicate loop section in reverse
-              for (s = this.inst.samples[i].looplen - 1; s >= 0; s--) {
-                chan[s + this.inst.samples[i].loop] = this.inst.samples[i].sampledata[this.inst.samples[i].loop + s];
+              for (var t = s - 1; t >= this.inst.samples[i].loop; t--, s++) {
+                chan[s] = this.inst.samples[i].sampledata[t];
               }
               loop = true;
               loopType = 2;
