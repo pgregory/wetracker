@@ -96,17 +96,19 @@ class XMViewObject {
       }
       return;
     }
-    if(e.row !== this.shown_row ||
-       e.pat !== this.shown_pat) {
-      state.set({
-        cursor: {
-          row: e.row,
-          pattern: e.pat,
-          sequence: e.songpos,
-        },
-      });
-      this.shown_row = e.row;
-      this.shown_pat = e.pat;
+    if('row' in e && 'pat' in e) {
+      if(e.row !== this.shown_row ||
+         e.pat !== this.shown_pat) {
+        state.set({
+          cursor: {
+            row: e.row,
+            pattern: e.pat,
+            sequence: e.songpos,
+          },
+        });
+        this.shown_row = e.row;
+        this.shown_pat = e.pat;
+      }
     }
     const scopes = [];
     const states = [];
@@ -546,9 +548,9 @@ class Player {
         }
         this.nextInteractiveTickTime += msPerTick;
       }
-      /*this.XMView.pushEvent({
+      this.XMView.pushEvent({
         t: this.nextInteractiveTickTime,
-      });*/
+      });
     }
   }
 
@@ -572,27 +574,31 @@ class Player {
       }
     }
 
-    const samp = instrument.inst.samples[instrument.inst.samplemap[note]];
-    channel.pan = samp.pan;
-    channel.vol = samp.vol;
-    channel.fine = samp.fine;
-    const instr = instrument.playNoteOnChannel(channel, time, note, (instrument) => {
-      const index = this.playingInstruments.indexOf(instrument);
-      if (index !== -1) {
-        this.playingInstruments.splice(index, 1);
-        if(this.playingInstruments.length === 0) {
-          this.interactiveTimerWorker.port.postMessage("stop");
-          this.XMView.stop();
-          this.playingInteractive = false;
+    try {
+      const samp = instrument.inst.samples[instrument.inst.samplemap[note]];
+      channel.pan = samp.pan;
+      channel.vol = samp.vol;
+      channel.fine = samp.fine;
+      const instr = instrument.playNoteOnChannel(channel, time, note, (instrument) => {
+        const index = this.playingInstruments.indexOf(instrument);
+        if (index !== -1) {
+          this.playingInstruments.splice(index, 1);
+          if(this.playingInstruments.length === 0) {
+            this.interactiveTimerWorker.port.postMessage("stop");
+            this.XMView.stop();
+            this.playingInteractive = false;
+          }
         }
-      }
-      if (finished && typeof finished === 'function') {
-        finished(instrument);
-      }
-    });
-    instr.release = false;
-    this.playingInstruments.push(instr);
-    return instr;
+        if (finished && typeof finished === 'function') {
+          finished(instrument);
+        }
+      });
+      instr.release = false;
+      this.playingInstruments.push(instr);
+      return instr;
+    } catch(e) {
+      return undefined;
+    }
   }
 
   releaseInteractiveInstrument(playerInstrument) {
