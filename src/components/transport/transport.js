@@ -65,7 +65,7 @@ export default class Transport {
       });
       song.setBPM(parseInt($(this.target).find("#bpm").val()));
       song.setSpeed(parseInt($(this.target).find("#speed").val()));
-      $(this).blur();
+      $(e.target).blur();
     });
     $(this.target).find('input').keyup(function(e){
       if(e.keyCode == 13)
