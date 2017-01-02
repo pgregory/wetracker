@@ -546,9 +546,9 @@ class Player {
         }
         this.nextInteractiveTickTime += msPerTick;
       }
-      this.XMView.pushEvent({
+      /*this.XMView.pushEvent({
         t: this.nextInteractiveTickTime,
-      });
+      });*/
     }
   }
 
@@ -877,7 +877,7 @@ class Player {
       ch = this.tracks[j];
       ch.periodoffset = 0;
     }
-    if (this.cur_tick >= song.song.lpb) {
+    if (this.cur_tick >= song.song.speed) {
       this.cur_tick = 0;
     }
 
@@ -1297,10 +1297,16 @@ class Player {
       console.log("tempo 0?");
       return;
     } else if (data < 0x20) {
-      song.song.lpb = data;
+      song.song.speed = data;
     } else {
       song.song.bpm = data;
     }
+    state.set({
+      transport: {
+        bpm: song.song.bpm,
+        speed: song.song.speed,
+      },
+    });
   }
 
   eff_t0_g(ch, data) {  // set global volume

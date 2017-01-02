@@ -24,6 +24,8 @@ export class State {
     this.transport = new Immutable.Map({
       step: 4,
       octave: 4,
+      bpm: 125,
+      speed: 6,
     });
 
     this.playingInstruments = new Immutable.Map({
@@ -41,6 +43,9 @@ export class State {
   set(state) {
     if ('cursor' in state ) {
       this.cursor = this.cursor.merge(state.cursor);
+      if(this.cursor.get('sequence') == undefined) {
+        console.log("Set sequence to undefined");
+      }
       this.cursorChanged();
     }
 

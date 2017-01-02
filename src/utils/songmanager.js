@@ -15,6 +15,8 @@ export class SongManager {
     this.instrumentChanged = Signal.signal(false);
     this.sampleChanged = Signal.signal(false);
     this.instrumentListChanged = Signal.signal(false);
+    this.bpmChanged = Signal.signal(false);
+    this.speedChanged = Signal.signal(false);
 
     this.eventEntries = [
       'note',
@@ -145,6 +147,13 @@ export class SongManager {
     this.song.instruments.push(Immutable.fromJS(cymbal).toJS());
     this.song.instruments.push(Immutable.fromJS(pad).toJS());
 
+    state.set({
+      transport: {
+        bpm: this.song.bpm,
+        speed: this.song.speed,
+      },
+    });
+
     this.songChanged();
   }
 
@@ -227,6 +236,13 @@ export class SongManager {
         column: 0,
         record: false,
       }
+    });
+
+    state.set({
+      transport: {
+        bpm: this.song.bpm,
+        speed: this.song.speed,
+      },
     });
 
     this.songChanged();
@@ -345,6 +361,16 @@ export class SongManager {
 
   updateInstrument(instrumentIndex) {
     this.instrumentChanged(instrumentIndex);
+  }
+
+  setBPM(bpm) {
+    this.song.bpm = bpm;
+    this.bpmChanged(this.song.bpm);
+  }
+
+  setSpeed(speed) {
+    this.song.speed = speed;
+    this.speedChanged(this.song.speed);
   }
 }
 

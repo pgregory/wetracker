@@ -99,12 +99,12 @@ class XMLoader {
     var ninst = dv.getUint16(0x48, true);
     var flags = dv.getUint16(0x4a, true);
     newSong.flags = flags;
-    var tempo = dv.getUint16(0x4c, true);
+    var speed = dv.getUint16(0x4c, true);
     var bpm = dv.getUint16(0x4e, true);
 
     newSong.globalVolume = this.max_global_volume;
 
-    newSong.lpb = tempo;
+    newSong.speed = speed;
     newSong.bpm = bpm;
     newSong.loopPosition = looppos;
 
@@ -129,7 +129,7 @@ class XMLoader {
 
     console.log("songlen %d, %d channels, %d patterns, %d instruments", songlen, numTracks, npat, ninst);
     console.log("loop @%d", newSong.loopPosition);
-    console.log("flags=%d lpb %d bpm %d", this.flags, newSong.lpb, newSong.bpm);
+    console.log("flags=%d speed %d bpm %d", this.flags, newSong.speed, newSong.bpm);
 
     let maxPat = 0;
     for (i = 0; i < songlen; i++) {

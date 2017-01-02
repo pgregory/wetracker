@@ -403,7 +403,7 @@ export default class PatternEditorCanvas {
     ctx.globalCompositeOperation = 'lighten';
     for (var j = 0; j < pattern.numrows; j++) {
       var dy = j * rh;
-      if (j % song.song.lpb == 0) {
+      if (j % song.song.speed == 0) {
         // Render a beat marker
         ctx.fillStyle = '#333';
         ctx.fillRect(0, dy, this.pat_canvas.width, this._pattern_row_height);
@@ -414,7 +414,7 @@ export default class PatternEditorCanvas {
 
   renderEventBeat(ctx, cursor, cx, cy) {
     ctx.globalCompositeOperation = 'lighten';
-    if (cursor.row % song.song.lpb == 0) {
+    if (cursor.row % song.song.speed == 0) {
       // Render a beat marker
       ctx.fillStyle = '#333';
       ctx.fillRect(cx, cy, this._pattern_cellwidth, this._pattern_row_height);

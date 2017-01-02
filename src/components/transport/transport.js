@@ -56,13 +56,15 @@ export default class Transport {
       },
     });
  
-    $(this.target).find('input').bind("enterKey",function(e){
+    $(this.target).find('input').bind("enterKey", (e) => {
       state.set({
         transport: {
           step: parseInt($(this.target).find("#step").val()),
           octave: parseInt($(this.target).find("#octave").val()),
         },
       });
+      song.setBPM(parseInt($(this.target).find("#bpm").val()));
+      song.setSpeed(parseInt($(this.target).find("#speed").val()));
       $(this).blur();
     });
     $(this.target).find('input').keyup(function(e){
@@ -124,6 +126,8 @@ export default class Transport {
     if (this.lastTransport !== state.transport) {
       $(this.target).find("#step").val(state.transport.get("step"));
       $(this.target).find("#octave").val(state.transport.get("octave"));
+      $(this.target).find("#bpm").val(state.transport.get("bpm"));
+      $(this.target).find("#speed").val(state.transport.get("speed"));
 
       this.lastTransport = state.transport;
     }
