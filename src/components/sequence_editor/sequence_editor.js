@@ -16,6 +16,7 @@ export default class SequenceEditor {
 
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
     Signal.connect(song, "songChanged", this, "onSongChanged");
+    Signal.connect(song, "sequenceChanged", this, "onSequenceChanged");
   }
 
   render() {
@@ -36,6 +37,18 @@ export default class SequenceEditor {
       song.addPattern(state.cursor.get("sequence"));
     });
 
+    target.find('button#clone-pattern').click((e) => {
+      song.clonePattern(state.cursor.get("sequence"));
+    });
+
+    target.find('button#pattern-up').click((e) => {
+      song.updateSequencePattern(state.cursor.get("sequence"), 1);
+    });
+
+    target.find('button#pattern-down').click((e) => {
+      song.updateSequencePattern(state.cursor.get("sequence"), -1);
+    });
+
     this.lastCursor = state.cursor.toJS();
   }
 
@@ -44,15 +57,24 @@ export default class SequenceEditor {
     this.render();
   }
 
+  showCurrentSequence() {
+    $(this.target).find(".current-pattern").removeClass('current-pattern');
+    $(this.target).find(".sequence-row").eq(state.cursor.get("sequence")).addClass('current-pattern');
+    $(this.target).find(".list-container").scrollTop(state.cursor.get("sequence")*this.rowHeight);
+  }
+
   onSongChanged() {
     this.refresh();
   }
 
+  onSequenceChanged(sequence) {
+    const s = $(this.target).find(`.sequence-row[data-sequenceindex="${sequence}"] .sequence-pattern div`);
+    s.text(song.song.sequence[sequence].pattern);
+  }
+
   onCursorChanged() {
     if (state.cursor.get("sequence") != this.lastCursor.sequence) {
-      $(this.target).find(".current-pattern").removeClass('current-pattern');
-      $(this.target).find(".sequence-row").eq(state.cursor.get("sequence")).addClass('current-pattern');
-      $(this.target).find(".list-container").scrollTop(state.cursor.get("sequence")*this.rowHeight);
+      this.showCurrentSequence();
     }
     this.lastCursor = state.cursor.toJS();
   }

@@ -1,3 +1,5 @@
+import $ from 'jquery';
+
 import songdata from '../../data/song.json';
 import cymbal from '../../data/cymbal.json';
 import pad from '../../data/instrument_3.json';
@@ -17,6 +19,7 @@ export class SongManager {
     this.instrumentListChanged = Signal.signal(false);
     this.bpmChanged = Signal.signal(false);
     this.speedChanged = Signal.signal(false);
+    this.sequenceChanged = Signal.signal(false);
 
     this.eventEntries = [
       'note',
@@ -220,6 +223,38 @@ export class SongManager {
         sequence: pos,
       }
     });
+  }
+
+  clonePattern(sequence) {
+    const donor = this.song.patterns[this.song.sequence[sequence].pattern];
+    const newPattern = $.extend(true, {}, donor);
+    newPattern.patternid = this.song.patterns.length;
+    newPattern.name = `Pattern ${this.song.patterns.length}`;
+    console.log(newPattern);
+    this.song.patterns.push(newPattern);
+    let pos = sequence + 1;
+    if(!sequence || sequence > this.song.sequence.length) {
+      pos = this.song.sequence.length;
+    }
+    this.song.sequence.splice(pos, 
+                              0, 
+                              {
+                                pattern: this.song.patterns.length - 1,
+                              });
+    this.songChanged();
+    state.set({
+      cursor: {
+        sequence: pos,
+      }
+    });
+  }
+
+  updateSequencePattern(sequence, increment) {
+    const val = this.song.sequence[sequence].pattern + increment;
+    if (val >= 0 && val < this.song.patterns.length) {
+      this.song.sequence[sequence].pattern = val;
+      this.sequenceChanged(sequence);
+    }
   }
 
   setSong(song) {
