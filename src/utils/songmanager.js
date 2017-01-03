@@ -221,6 +221,7 @@ export class SongManager {
     state.set({
       cursor: {
         sequence: pos,
+        pattern: this.song.sequence[pos].pattern,
       }
     });
   }
@@ -235,6 +236,7 @@ export class SongManager {
     state.set({
       cursor: {
         sequence: pos,
+        pattern: this.song.sequence[pos].pattern,
       }
     });
   }
@@ -259,6 +261,7 @@ export class SongManager {
     state.set({
       cursor: {
         sequence: pos,
+        pattern: this.song.sequence[pos].pattern,
       }
     });
   }
@@ -277,6 +280,7 @@ export class SongManager {
     state.set({
       cursor: {
         sequence: pos,
+        pattern: this.song.sequence[pos].pattern,
       }
     });
   }
@@ -453,6 +457,17 @@ export class SongManager {
   setSpeed(speed) {
     this.song.speed = speed;
     this.speedChanged(this.song.speed);
+  }
+
+  setPatternLength(pattern, length) {
+    if (pattern < this.song.patterns.length) {
+      const oldlength = this.song.patterns[pattern].numrows;
+      this.song.patterns[pattern].numrows = length;
+      if (oldlength > length) {
+        this.song.patterns[pattern].rows = this.song.patterns[pattern].rows.slice(1, length);
+      }
+      this.songChanged();
+    }
   }
 }
 

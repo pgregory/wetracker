@@ -433,7 +433,9 @@ export default class PatternEditorCanvas {
   render() {
     $(this.target).addClass('pattern-editor');
 
-    $(this.target).append(patternEditorTemplate.renderToString({transport: state.transport.toJS(), song: song.song}));
+    const pindex = state.cursor.get("pattern");
+    const p = song.song.patterns[pindex];
+    $(this.target).append(patternEditorTemplate.renderToString({transport: state.transport.toJS(), song: song.song, pattern: p}));
     this.canvas = $(this.target).find('canvas')[0];
 
     this.initWidth();
@@ -447,6 +449,7 @@ export default class PatternEditorCanvas {
           step: parseInt($(this.target).find("#step").val()),
         },
       });
+      song.setPatternLength(pindex, parseInt($(this.target).find("#length").val()));
       $(e.target).blur();
     });
     $(this.target).find('input').keyup(function(e){
@@ -673,6 +676,8 @@ export default class PatternEditorCanvas {
         this.scrollHorizTo(this.hscroll, pos.cx - 6, 100);
       }
     }
+
+    $(this.target).find("#length").val(song.song.patterns[state.cursor.get("pattern")].numrows);
 
     var widget = $(this.target).parent(".chrome");
     if (widget.length > 0) {

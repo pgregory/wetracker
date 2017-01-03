@@ -97,8 +97,14 @@ export default class SequenceEditor {
 
       if(row !== this.lastCursor.sequence) {
         var pattern = song.song.sequence[row].pattern;
+
+        let patrow = state.cursor.get("row");
+        var maxpatrow = song.song.patterns[pattern].numrows;
+        patrow = ((patrow % maxpatrow) + maxpatrow) % maxpatrow;
+
         state.set({
           cursor: {
+            row: patrow,
             sequence: row,
             pattern,
           }
