@@ -1,3 +1,4 @@
+import $ from 'jquery';
 import Signal from '../utils/signal';
 
 import { song } from './songmanager';
@@ -76,6 +77,11 @@ class VirtualKeyboard {
     if (this.paused) {
       return;
     }
+
+    if ($(event.target).is(":input")) {
+      return;
+    }
+
     if (event.ctrlKey || event.shiftKey || event.metaKey ) {
       return;
     }
