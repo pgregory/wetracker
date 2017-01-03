@@ -6,6 +6,16 @@
   flex: 1;
 }
 
+.pattern-editor .control-panel {
+  flex-direction: row;
+}
+
+.pattern-editor .controls {
+  flex-grow: 0;
+  background: #444;
+  border-radius: 3px;
+}
+
 .chrome.grid-stack-item-content.record {
   border-color: red;
 }
@@ -13,18 +23,28 @@
 .hscroll {
   overflow: auto;
   background: black;
+  flex: 1 1 auto;
+  display: flex;
 }
+
+.hscroll .pattern {
+    flex: 1 1 auto;
+}
+
 .hscroll::-webkit-scrollbar {
     -webkit-appearance: none;
 }
+
 .hscroll::-webkit-scrollbar:horizontal {
     height: 11px;
 }
+
 .hscroll::-webkit-scrollbar-thumb {
     border-radius: 2px;
     border: 1px solid #93C3E9; /* should match background, can't be transparent */
     background-color: #A0D4FD;
 }
+
 .hscroll::-webkit-scrollbar-track {
     background-color: #333;
     border-radius: 8px;

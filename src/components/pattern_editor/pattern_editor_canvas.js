@@ -183,6 +183,7 @@ export default class PatternEditorCanvas {
     this.track_border_colour = "#666";
 
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
+    Signal.connect(state, "transportChanged", this, "onTransportChanged");
     Signal.connect(song, "eventChanged", this, "onEventChanged");
     Signal.connect(song, "songChanged", this, "onSongChanged");
   }
@@ -432,13 +433,28 @@ export default class PatternEditorCanvas {
   render() {
     $(this.target).addClass('pattern-editor');
 
-    $(this.target).append(patternEditorTemplate.renderToString());
+    $(this.target).append(patternEditorTemplate.renderToString({transport: state.transport.toJS(), song: song.song}));
     this.canvas = $(this.target).find('canvas')[0];
 
     this.initWidth();
     this.hscroll = $(this.canvas).closest('.hscroll');
     $(this.canvas).on('mousewheel', this.onScroll.bind(this));
     $(this.canvas).on('click', this.onClick.bind(this));
+
+    $(this.target).find('input').bind("enterKey", (e) => {
+      state.set({
+        transport: {
+          step: parseInt($(this.target).find("#step").val()),
+        },
+      });
+      $(e.target).blur();
+    });
+    $(this.target).find('input').keyup(function(e){
+      if(e.keyCode == 13)
+      {
+        $(this).trigger("enterKey");
+      }
+    });
 
     this.updateCanvas();
   }
@@ -476,8 +492,8 @@ export default class PatternEditorCanvas {
     }
     var ctx = this.canvas.getContext('2d');
 
-    var h = $(this.target).height();
-    h = Math.floor((h-11)/this._pattern_row_height);
+    var h = $(this.target).find(".hscroll").height();
+    h = Math.floor(h/this._pattern_row_height);
     if(h%2 === 0) h -= 1;
     h *= this._pattern_row_height;
     this.canvas.height = h;
@@ -663,6 +679,14 @@ export default class PatternEditorCanvas {
       widget.toggleClass("record", state.cursor.get("record"));
     }
     window.requestAnimationFrame(this.updateCanvas.bind(this));
+  }
+
+  onTransportChanged() {
+    if (this.lastTransport !== state.transport) {
+      $(this.target).find("#step").val(state.transport.get("step"));
+
+      this.lastTransport = state.transport;
+    }
   }
 
   onEventChanged(cursor, event) {

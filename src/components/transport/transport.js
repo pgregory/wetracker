@@ -59,7 +59,6 @@ export default class Transport {
     $(this.target).find('input').bind("enterKey", (e) => {
       state.set({
         transport: {
-          step: parseInt($(this.target).find("#step").val()),
           octave: parseInt($(this.target).find("#octave").val()),
         },
       });
@@ -124,7 +123,6 @@ export default class Transport {
 
   onTransportChanged() {
     if (this.lastTransport !== state.transport) {
-      $(this.target).find("#step").val(state.transport.get("step"));
       $(this.target).find("#octave").val(state.transport.get("octave"));
       $(this.target).find("#bpm").val(state.transport.get("bpm"));
       $(this.target).find("#speed").val(state.transport.get("speed"));

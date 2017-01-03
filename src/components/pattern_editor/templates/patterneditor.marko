@@ -1,3 +1,20 @@
 <div class="hscroll">
-  <div><canvas class="centered" id='gfxpattern'></canvas></div>
+  <div class="pattern"><canvas class="centered" id='gfxpattern'></canvas></div>
+</div>
+<div class="controls">
+  <div class="control-panel">
+    <div class="control-group">
+      <div class="control range">
+        <label for="step">
+          Step
+        </label>
+        <input
+          id="step"
+          class="range-input"
+          value="${data.transport.step}"
+          type="text"
+        />
+      </div>
+    </div>
+  </div>
 </div>
