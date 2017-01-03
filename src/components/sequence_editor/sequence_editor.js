@@ -37,8 +37,16 @@ export default class SequenceEditor {
       song.addPattern(state.cursor.get("sequence"));
     });
 
+    target.find('button#delete-pattern').click((e) => {
+      song.deletePattern(state.cursor.get("sequence"));
+    });
+
     target.find('button#clone-pattern').click((e) => {
       song.clonePattern(state.cursor.get("sequence"));
+    });
+
+    target.find('button#duplicate-pattern').click((e) => {
+      song.duplicatePattern(state.cursor.get("sequence"));
     });
 
     target.find('button#pattern-up').click((e) => {

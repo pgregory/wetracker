@@ -225,6 +225,20 @@ export class SongManager {
     });
   }
 
+  deletePattern(sequence) {
+    let pos = sequence - 1;
+    if (pos < 0) {
+      pos = 0;
+    }
+    this.song.sequence.splice(sequence, 1, );
+    this.songChanged();
+    state.set({
+      cursor: {
+        sequence: pos,
+      }
+    });
+  }
+
   clonePattern(sequence) {
     const donor = this.song.patterns[this.song.sequence[sequence].pattern];
     const newPattern = $.extend(true, {}, donor);
@@ -249,11 +263,44 @@ export class SongManager {
     });
   }
 
+  duplicatePattern(sequence) {
+    let pos = sequence + 1;
+    if(!sequence || sequence > this.song.sequence.length) {
+      pos = this.song.sequence.length;
+    }
+    this.song.sequence.splice(pos, 
+                              0, 
+                              {
+                                pattern: this.song.sequence[sequence].pattern,
+                              });
+    this.songChanged();
+    state.set({
+      cursor: {
+        sequence: pos,
+      }
+    });
+  }
+
   updateSequencePattern(sequence, increment) {
     const val = this.song.sequence[sequence].pattern + increment;
-    if (val >= 0 && val < this.song.patterns.length) {
+    if (val >= 0 && val >= this.song.patterns.length) {
+      this.song.patterns.push({
+        patternid: this.song.patterns.length,
+        name: `Pattern ${this.song.patterns.length}`,
+        numrows: 32,
+        rows: [],
+      });
+    }
+    if (val >= 0) {
       this.song.sequence[sequence].pattern = val;
       this.sequenceChanged(sequence);
+
+      const pattern = this.song.sequence[sequence].pattern;
+      state.set({
+        cursor: {
+          pattern,
+        },
+      });
     }
   }
 
