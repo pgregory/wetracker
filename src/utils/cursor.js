@@ -11,7 +11,6 @@ const items = [
   'volume_h',
   'volume_l',
   'fxtype_h',
-  'fxtype_l',
   'fxparam_h',
   'fxparam_l',
 ];
