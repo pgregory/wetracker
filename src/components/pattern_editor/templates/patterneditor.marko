@@ -1,5 +1,20 @@
 <div class="hscroll">
-  <div class="pattern"><canvas class="centered" id='gfxpattern'></canvas></div>
+  <div class="pattern">
+    <div class="timeline">
+      <canvas class="timelinecanvas"></canvas>
+    </div>
+    <div class="patterndata">
+      <div class="track-names">
+        <div class="track-name" data-trackindex="${loop.getIndex()}" for(track in data.song.tracks | status-var=loop)>
+          <div>${track.name}</div>
+        </div>
+      </div> 
+      <canvas id="gfxpattern"></canvas>
+    </div>
+    <div class="timeline">
+      <canvas class="timelinecanvas"></canvas>
+    </div>
+  </div>
 </div>
 <div class="controls">
   <div class="control-panel">

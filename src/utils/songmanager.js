@@ -20,6 +20,7 @@ export class SongManager {
     this.bpmChanged = Signal.signal(false);
     this.speedChanged = Signal.signal(false);
     this.sequenceChanged = Signal.signal(false);
+    this.trackChanged = Signal.signal(false);
 
     this.eventEntries = [
       'note',
@@ -467,6 +468,16 @@ export class SongManager {
         this.song.patterns[pattern].rows = this.song.patterns[pattern].rows.slice(1, length);
       }
       this.songChanged();
+    }
+  }
+
+  setTrackName(trackIndex, name) {
+    try {
+      const track = this.song.tracks[trackIndex];
+      track.name = name;
+      this.trackChanged(trackIndex);
+    } catch(e) {
+      console.error(e);
     }
   }
 }

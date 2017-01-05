@@ -1,5 +1,7 @@
 import $ from 'jquery';
 
+import '../../utils/inlineedit';
+
 import styles from './styles.css';
 
 import Signal from '../../utils/signal';
@@ -113,7 +115,7 @@ export default class PatternEditorCanvas {
     this._pattern_character_width = 8;
     this._pattern_spacing = 4;
     this._pattern_header_height = 50;
-    this._timeline_right_margin = 5;
+    this._timeline_right_margin = 0;
     this._scope_width = 100;
     this._event_left_margin = 4;
     this._event_right_margin = 4;
@@ -189,7 +191,14 @@ export default class PatternEditorCanvas {
   }
 
   initWidth() {
-    this.canvas.width = this.timeline_canvas.width + this._timeline_right_margin + (this._pattern_cellwidth * song.song.tracks.length);
+    this.canvas.width = this._pattern_cellwidth * song.song.tracks.length;
+    this.timelines.each((i, t) => {
+      t.width = this.timeline_canvas.width + this._timeline_right_margin;
+    });
+
+    $(this.target).find(".track-names").
+      width(this.canvas.width);
+    $(this.target).find(".track-name").width(this._pattern_cellwidth);
   }
 
   imageLoaded() {
@@ -255,12 +264,13 @@ export default class PatternEditorCanvas {
     ctx = this.timeline_canvas.getContext('2d');
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, this.timeline_canvas.width, this.timeline_canvas.height);
+    const offset = (this.timeline_canvas.width - 16) / 2.0;
     dx = 0;
     for (var j = 0; j < 256; j++) {
       var dy = j * rh + ((rh - 8)/2);
       // render row number
-      ctx.drawImage(this.fontimg, 8*(j>>4), 0, 8, 8, 2, dy, 8, 8);
-      ctx.drawImage(this.fontimg, 8*(j&15), 0, 8, 8, 10, dy, 8, 8);
+      ctx.drawImage(this.fontimg, 8*(j>>4), 0, 8, 8, offset, dy, 8, 8);
+      ctx.drawImage(this.fontimg, 8*(j&15), 0, 8, 8, offset + 8, dy, 8, 8);
     }
   };
 
@@ -386,20 +396,6 @@ export default class PatternEditorCanvas {
         trackColumn += trackinfo.columns.length;
       }
     }
-    // Fill in empty rows
-    /*for (; j < pattern.numrows; j++) {
-      var dy = j * rh + ((rh - 8)/2);
-      var trackColumn = 0;
-
-      for (var tracki = 0; tracki < song.song.tracks.length; tracki += 1) {
-        let trackinfo = song.song.tracks[tracki];
-        for (var coli = 0; coli < trackinfo.columns.length; coli += 1) {
-          var dx = ((trackColumn + coli) * cellwidth) + this._event_left_margin;
-          this.renderEvent(ctx, {}, dx, dy);
-        }
-        trackColumn += trackinfo.columns.length;
-      }
-    }*/
     // Render beat rows in a separate loop to avoid thrashing state changes
     ctx.globalCompositeOperation = 'lighten';
     for (var j = 0; j < pattern.numrows; j++) {
@@ -436,11 +432,13 @@ export default class PatternEditorCanvas {
     const pindex = state.cursor.get("pattern");
     const p = song.song.patterns[pindex];
     $(this.target).append(patternEditorTemplate.renderToString({transport: state.transport.toJS(), song: song.song, pattern: p}));
-    this.canvas = $(this.target).find('canvas')[0];
+    this.canvas = $(this.target).find("canvas#gfxpattern")[0];
+    this.timelines = $(this.target).find("canvas.timelinecanvas");
 
-    this.initWidth();
     this.hscroll = $(this.canvas).closest('.hscroll');
-    $(this.canvas).on('mousewheel', this.onScroll.bind(this));
+    this.patterndata = $(this.canvas).closest('.patterndata');
+    this.initWidth();
+    $(this.patterndata).on('mousewheel', this.onScroll.bind(this));
     $(this.canvas).on('click', this.onClick.bind(this));
 
     $(this.target).find('input').bind("enterKey", (e) => {
@@ -459,6 +457,13 @@ export default class PatternEditorCanvas {
       }
     });
 
+    $(this.target).find('.track-name div').inlineEdit({
+      accept: function(val) {
+        const trackindex = $(this).parents('.track-name').data('trackindex');
+        song.setTrackName(trackindex, val);
+      },
+    });
+
     this.updateCanvas();
   }
 
@@ -473,7 +478,7 @@ export default class PatternEditorCanvas {
         state.cursor.get("column") !== this.lastCursor.column ||
         state.cursor.get("item") !== this.lastCursor.item ||
         state.cursor.get("pattern") !== this.lastCursor.pattern ||
-        this.hscroll.scrollLeft() !== this.xoffset) {
+        this.patterndata.scrollLeft() !== this.xoffset) {
       if (state.cursor.get("pattern") !== this.lastCursor.pattern) {
         var p = song.song.patterns[state.cursor.get("pattern")];
         if (p) {
@@ -484,7 +489,7 @@ export default class PatternEditorCanvas {
       this.redrawCanvas();
 
       this.lastCursor = state.cursor.toJS();
-      this.xoffset = this.hscroll.scrollLeft();
+      this.xoffset = this.patterndata.scrollLeft();
     }
   }
 
@@ -495,11 +500,14 @@ export default class PatternEditorCanvas {
     }
     var ctx = this.canvas.getContext('2d');
 
-    var h = $(this.target).find(".hscroll").height();
+    var h = $(this.target).find(".patterndata").height();
+    this.canvas.height = h;
+    this.timelines.each((i, t) => {
+      t.height = h;
+    });
     h = Math.floor(h/this._pattern_row_height);
     if(h%2 === 0) h -= 1;
     h *= this._pattern_row_height;
-    this.canvas.height = h;
 
     var patternheight = this.canvas.height - this._pattern_header_height;
 
@@ -507,44 +515,40 @@ export default class PatternEditorCanvas {
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     ctx.globalCompositeOperation = 'source-over';
-    ctx.drawImage(this.pat_canvas, this.timeline_canvas.width + this._timeline_right_margin, this.canvas.height / 2 - (this._pattern_row_height/2) - this._pattern_row_height*(state.cursor.get("row")));
+    ctx.drawImage(this.pat_canvas, 0, this.canvas.height / 2 - (this._pattern_row_height/2) - this._pattern_row_height*(state.cursor.get("row")));
     ctx.fillStyle = '#000';
     ctx.clearRect(0, 0, this.canvas.width, this._pattern_header_height);
     ctx.font = "16px monospace";
     ctx.textAlign = "center";
     for(var i = 0; i < song.song.tracks.length; i += 1) {
-      var dx = this.timeline_canvas.width + this._timeline_right_margin + (i * this._pattern_cellwidth);
+      var dx = i * this._pattern_cellwidth;
       ctx.fillStyle = '#000';
       ctx.fillRect(dx, 0, this._pattern_cellwidth, this._pattern_header_height);
       ctx.fillStyle = '#FFF';
       var trackname = song.song.tracks[i].name;
-      ctx.fillText(trackname, dx + (this._pattern_cellwidth/2), 15, this._pattern_cellwidth);
+      //ctx.fillText(trackname, dx + (this._pattern_cellwidth/2), 15, this._pattern_cellwidth);
     }
 
     ctx.lineWidth = 2;
     ctx.strokeStyle = this.track_border_colour;
     ctx.beginPath();
-    ctx.moveTo(this.timeline_canvas.width + 1, 0);
-    ctx.lineTo(this.canvas.width, 0);
-    ctx.lineTo(this.canvas.width, this.canvas.height);
-    ctx.lineTo(this.timeline_canvas.width + 1, this.canvas.height);
-    //ctx.lineTo(this.timeline_canvas.width + this._timeline_right_margin, 0);
-    for(var i = 1; i < song.song.tracks.length; i += 1) {
-      var dx = this.timeline_canvas.width + this._timeline_right_margin + (i * this._pattern_cellwidth);
+    for(var i = 1; i <= song.song.tracks.length; i += 1) {
+      var dx = i * this._pattern_cellwidth;
       ctx.moveTo(dx, 0);
       ctx.lineTo(dx, this.canvas.height);
     }
-    ctx.moveTo(this.hscroll.scrollLeft() + this.timeline_canvas.width + 1, 0);
-    ctx.lineTo(this.hscroll.scrollLeft() + this.timeline_canvas.width + 1, this.canvas.height);
     ctx.stroke();
 
-    // Draw the timline fixed to the left of the view.
-    var tlw = this.timeline_canvas.width;
-    var tlh = this._pattern_row_height * song.song.patterns[state.cursor.get("pattern")].numrows;
-    ctx.fillStyle = '#000';
-    ctx.fillRect(this.hscroll.scrollLeft(),0, this.timeline_canvas.width, this.canvas.height);
-    ctx.drawImage(this.timeline_canvas, 0, 0, tlw, tlh, this.hscroll.scrollLeft(), this.canvas.height / 2 - (this._pattern_row_height/2) - this._pattern_row_height*(state.cursor.get("row")), tlw, tlh);
-    ctx.fillRect(this.hscroll.scrollLeft(),0, this.timeline_canvas.width, this._pattern_header_height);
+    // Draw the timeline fixed to the left of the view.
+    this.timelines.each((i, t) => {
+      var tctx = t.getContext('2d');
+      var tlw = this.timeline_canvas.width;
+      var tlh = this._pattern_row_height * song.song.patterns[state.cursor.get("pattern")].numrows;
+      tctx.fillStyle = '#000';
+      tctx.fillRect(0, 0, this.timeline_canvas.width, this.canvas.height);
+      tctx.drawImage(this.timeline_canvas, 0, 0, tlw, tlh, 0, this.canvas.height / 2 - (this._pattern_row_height/2) - this._pattern_row_height*(state.cursor.get("row")), tlw, tlh);
+      tctx.fillRect(0, 0, this.timeline_canvas.width, this._pattern_header_height);
+    });
 
     // Draw the cursor row.
     var cy = this.canvas.height/2 - (this._pattern_row_height/2);
@@ -555,7 +559,7 @@ export default class PatternEditorCanvas {
     // Draw the individual cursor
     ctx.fillStyle = '#0F0';
     ctx.globalCompositeOperation = 'darken';
-    var cx = this.timeline_canvas.width + this._timeline_right_margin + this._event_left_margin;
+    var cx = this._event_left_margin;
     cx += state.cursor.get("track") * this._pattern_cellwidth;
     for(var i = 1; i <= state.cursor.get("item"); i += 1) {
       cx += this._cursor_offsets[i];
@@ -589,7 +593,7 @@ export default class PatternEditorCanvas {
         this.yoff -= (rowIncr * this._pattern_row_height);
       }
     } else {
-      this.hscroll.scrollLeft(this.hscroll.scrollLeft() + e.originalEvent.deltaX);
+      this.patterndata.scrollLeft(this.patterndata.scrollLeft() + e.originalEvent.deltaX);
       this.updateCanvas();
     }
     e.preventDefault();
@@ -605,7 +609,7 @@ export default class PatternEditorCanvas {
   }
 
   cursorPositionFromMouse(e) {
-    const xpos = e.offsetX - (this.timeline_canvas.width + this._timeline_right_margin);
+    const xpos = e.offsetX;
     const ypos = e.offsetY;
 
     const track = Math.floor(xpos / this._pattern_cellwidth);
@@ -668,12 +672,12 @@ export default class PatternEditorCanvas {
         (this.lastCursor.track !== state.cursor.get("track")) ||
         (this.lastCursor.column !== state.cursor.get("column"))) {
       var pos = this.eventPositionInPatternCanvas(state.cursor.toJS());
-      var maxpos = this.hscroll.width() - this.timeline_canvas.width + this._timeline_right_margin;
-      var minpos = this.timeline_canvas.width + this._timeline_right_margin;
-      if(((pos.cx + this._pattern_cellwidth) - this.hscroll.scrollLeft()) > maxpos) {
-       this.scrollHorizTo(this.hscroll, ((pos.cx + this._pattern_cellwidth) - maxpos) + 8, 100); 
-      } else if((pos.cx - this.hscroll.scrollLeft()) < minpos) {
-        this.scrollHorizTo(this.hscroll, pos.cx - 6, 100);
+      var maxpos = this.patterndata.width();
+      var minpos = 0;
+      if(((pos.cx + this._pattern_cellwidth) - this.patterndata.scrollLeft()) > maxpos) {
+       this.scrollHorizTo(this.patterndata, ((pos.cx + this._pattern_cellwidth) - maxpos) + 8, 100); 
+      } else if((pos.cx - this.patterndata.scrollLeft()) < minpos) {
+        this.scrollHorizTo(this.patterndata, pos.cx - 6, 100);
       }
     }
 
@@ -713,7 +717,7 @@ export default class PatternEditorCanvas {
       // It's ok, just leave it undefined for now.
       pattern = undefined;
     }
-    this.initWidth();
+    this.refresh();
     state.set({
       cursor: {
         pattern,
