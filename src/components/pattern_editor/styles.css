@@ -35,7 +35,7 @@
 }
 
 .hscroll .pattern .patterndata {
-    border: 1px solid white;
+    border: 1.5px solid white;
     flex: 1 1 auto;
     overflow-x: auto;
     overflow-y: hidden;
