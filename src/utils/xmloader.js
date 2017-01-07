@@ -21,24 +21,29 @@ class XMLoader {
   ConvertSample(array, bits) {
     var len = array.length;
     var acc = 0;
-    var samp, b, k;
+    var samp = {};
+    let b, k;
     if (bits === 0) {  // 8 bit sample
-      samp = new Float32Array(len);
+      samp.data = new Float32Array(len);
       for (k = 0; k < len; k++) {
         acc += array[k];
         b = acc&255;
         if (b & 128) b = b-256;
-        samp[k] = b / 128.0;
+        samp.data[k] = b / 128.0;
       }
+      samp.originalBits = 8;
+      samp.format = 'raw';
       return samp;
     } else {
       len /= 2;
-      samp = new Float32Array(len);
+      samp.data = new Float32Array(len);
       for (k = 0; k < len; k++) {
         acc += (array[k*2] + (array[k*2 + 1] << 8));
         b = acc&65535;
         if (b & 32768) b = b-65536;
-        samp[k] = b / 32768.0;
+        samp.data[k] = b / 32768.0;
+        samp.originalBits = 16;
+        samp.format = 'raw';
       }
       return samp;
     }

@@ -376,12 +376,17 @@ export class SongManager {
       a.click();
     }
     download(JSON.stringify(this.song, (k, v) => {
+      // Deal with sampledata differently, as we encode the binary data for
+      // efficient serialisation.
       if (k === 'sampledata') {
-        return encode(v.buffer);
+        return Object.assign(v, {
+            data: encode(v.data.buffer),
+            serialiseEncoding: 'base64',
+          });
       } else {
         return v
       }
-    }), this.song.name ? `${this.song.name}.json` : 'wetracker-song.json', 'text/plain');
+    }, ' '), this.song.name ? `${this.song.name}.json` : 'wetracker-song.json', 'text/plain');
   }
 
   loadSongFromFile(file, callback) {
@@ -393,8 +398,27 @@ export class SongManager {
       var contents = e.target.result;
       try {
         var song = JSON.parse(contents, (k, v) => {
+          // Deal with sample data differently, as we encode for efficient
+          // serialisation of large binary data.
           if (k === 'sampledata') {
-            return new Uint8Array(decode(v));
+            // If the file version has serialisation encoding information, use it.
+            if ('serialiseEncoding' in v) {
+              // Base64 encoding.
+              if ( v.serialiseEncoding === 'base64') {
+                const sampledata = new Float32Array(decode(v.data));
+                return Object.assign(v, {
+                  data: sampledata,
+                });
+              } else {
+                // Unknown encoding, return raw.
+                return v;
+              }
+            } else {
+              // Presume raw Float32Array old format
+              return {
+                data: v,
+              }; 
+            }
           } else {
             return v
           }
@@ -434,9 +458,9 @@ export class SongManager {
       }
       const sample = instrument.samples[sampleIndex];
 
-      sample.sampledata = new Array(data.length);
+      sample.sampledata.data = new Array(data.length);
       for(let i = 0; i < data.length; i += 1) {
-        sample.sampledata[i] = data[i];
+        sample.sampledata.data[i] = data[i];
       }
       sample.len = data.length;
       sample.note = 29; // F-6

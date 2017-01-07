@@ -295,11 +295,11 @@ class Instrument {
             // If pingpong loop, duplicate the loop section in reverse
             if (this.inst.samples[i].type & 2) {
               for(var s = 0; s < this.inst.samples[i].loop + this.inst.samples[i].looplen; s += 1) {
-                chan[s] = this.inst.samples[i].sampledata[s];
+                chan[s] = this.inst.samples[i].sampledata.data[s];
               }
               // Duplicate loop section in reverse
               for (var t = s - 1; t >= this.inst.samples[i].loop; t--, s++) {
-                chan[s] = this.inst.samples[i].sampledata[t];
+                chan[s] = this.inst.samples[i].sampledata.data[t];
               }
               loop = true;
               loopType = 2;
@@ -307,7 +307,7 @@ class Instrument {
               loopEnd = loopStart + ((buf.duration / buf.length) * ( this.inst.samples[i].looplen * 2));
             } else {
               for(var s = 0; s < this.inst.samples[0].len; s += 1) {
-                chan[s] = this.inst.samples[i].sampledata[s];
+                chan[s] = this.inst.samples[i].sampledata.data[s];
               }
               if ((this.inst.samples[i].type & 3) == 1 && this.inst.samples[i].looplen !== 0) {
                 loop = true;
