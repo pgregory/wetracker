@@ -1,0 +1,1279 @@
+<head>
+  <title>WeTracker</title>
+  <style type="text/css">/*! sanitize.css v4.1.0 | CC0 License | github.com/jonathantneal/sanitize.css */
+
+  /* Display definitions
+     ========================================================================== */
+
+  /**
+   * Add the correct display in IE 9-.
+   * 1. Add the correct display in Edge, IE, and Firefox.
+   * 2. Add the correct display in IE.
+   */
+
+  article,
+  aside,
+  details, /* 1 */
+  figcaption,
+  figure,
+  footer,
+  header,
+  main, /* 2 */
+  menu,
+  nav,
+  section,
+  summary { /* 1 */
+    display: block;
+  }
+
+  /**
+   * Add the correct display in IE 9-.
+   */
+
+  audio,
+  canvas,
+  progress,
+  video {
+    display: inline-block;
+  }
+
+  /**
+   * Add the correct display in iOS 4-7.
+   */
+
+  audio:not([controls]) {
+    display: none;
+    height: 0;
+  }
+
+  /**
+   * Add the correct display in IE 10-.
+   * 1. Add the correct display in IE.
+   */
+
+  template, /* 1 */
+  [hidden] {
+    display: none;
+  }
+
+  /* Elements of HTML (https://www.w3.org/TR/html5/semantics.html)
+     ========================================================================== */
+
+  /**
+   * 1. Remove repeating backgrounds in all browsers (opinionated).
+   * 2. Add box sizing inheritence in all browsers (opinionated).
+   */
+
+  *,
+  ::before,
+  ::after {
+    background-repeat: no-repeat; /* 1 */
+    box-sizing: inherit; /* 2 */
+  }
+
+  /**
+   * 1. Add text decoration inheritance in all browsers (opinionated).
+   * 2. Add vertical alignment inheritence in all browsers (opinionated).
+   */
+
+  ::before,
+  ::after {
+    text-decoration: inherit; /* 1 */
+    vertical-align: inherit; /* 2 */
+  }
+
+  /**
+   * 1. Add border box sizing in all browsers (opinionated).
+   * 2. Add the default cursor in all browsers (opinionated).
+   * 3. Add a flattened line height in all browsers (opinionated).
+   * 4. Prevent font size adjustments after orientation changes in IE and iOS.
+   */
+
+  html {
+    box-sizing: border-box; /* 1 */
+    cursor: default; /* 2 */
+    font-family: sans-serif; /* 3 */
+    line-height: 1.5; /* 3 */
+    -ms-text-size-adjust: 100%; /* 4 */
+    -webkit-text-size-adjust: 100%; /* 5 */
+  }
+
+  /* Sections (https://www.w3.org/TR/html5/sections.html)
+     ========================================================================== */
+
+  /**
+   * Remove the margin in all browsers (opinionated).
+   */
+
+  body {
+    margin: 0;
+  }
+
+  /**
+   * Correct the font sizes and margins on `h1` elements within
+   * `section` and `article` contexts in Chrome, Firefox, and Safari.
+   */
+
+  h1 {
+    font-size: 2em;
+    margin: .67em 0;
+  }
+
+  /* Grouping content (https://www.w3.org/TR/html5/grouping-content.html)
+     ========================================================================== */
+
+  /**
+   * 1. Correct font sizing inheritance and scaling in all browsers.
+   * 2. Correct the odd `em` font sizing in all browsers.
+   */
+
+  code,
+  kbd,
+  pre,
+  samp {
+    font-family: monospace, monospace; /* 1 */
+    font-size: 1em; /* 2 */
+  }
+
+  /**
+   * 1. Correct the height in Firefox.
+   * 2. Add visible overflow in Edge and IE.
+   */
+
+  hr {
+    height: 0; /* 1 */
+    overflow: visible; /* 2 */
+  }
+
+  /**
+   * Remove the list style on navigation lists in all browsers (opinionated).
+   */
+
+  nav ol,
+  nav ul {
+    list-style: none;
+  }
+
+  /* Text-level semantics
+     ========================================================================== */
+
+  /**
+   * 1. Add a bordered underline effect in all browsers.
+   * 2. Remove text decoration in Firefox 40+.
+   */
+
+  abbr[title] {
+    border-bottom: 1px dotted; /* 1 */
+    text-decoration: none; /* 2 */
+  }
+
+  /**
+   * Prevent the duplicate application of `bolder` by the next rule in Safari 6.
+   */
+
+  b,
+  strong {
+    font-weight: inherit;
+  }
+
+  /**
+   * Add the correct font weight in Chrome, Edge, and Safari.
+   */
+
+  b,
+  strong {
+    font-weight: bolder;
+  }
+
+  /**
+   * Add the correct font style in Android 4.3-.
+   */
+
+  dfn {
+    font-style: italic;
+  }
+
+  /**
+   * Add the correct colors in IE 9-.
+   */
+
+  mark {
+    background-color: #ffff00;
+    color: #000000;
+  }
+
+  /**
+   * Add the correct vertical alignment in Chrome, Firefox, and Opera.
+   */
+
+  progress {
+    vertical-align: baseline;
+  }
+
+  /**
+   * Correct the font size in all browsers.
+   */
+
+  small {
+    font-size: 83.3333%;
+  }
+
+  /**
+   * Change the positioning on superscript and subscript elements
+   * in all browsers (opinionated).
+   * 1. Correct the font size in all browsers.
+   */
+
+  sub,
+  sup {
+    font-size: 83.3333%; /* 1 */
+    line-height: 0;
+    position: relative;
+    vertical-align: baseline;
+  }
+
+  sub {
+    bottom: -.25em;
+  }
+
+  sup {
+    top: -.5em;
+  }
+
+  /*
+   * Remove the text shadow on text selections (opinionated).
+   * 1. Restore the coloring undone by defining the text shadow (opinionated).
+   */
+
+  ::-moz-selection {
+    background-color: #b3d4fc; /* 1 */
+    color: #000000; /* 1 */
+    text-shadow: none;
+  }
+
+  ::selection {
+    background-color: #b3d4fc; /* 1 */
+    color: #000000; /* 1 */
+    text-shadow: none;
+  }
+
+  /* Embedded content (https://www.w3.org/TR/html5/embedded-content-0.html)
+     ========================================================================== */
+
+  /*
+   * Change the alignment on media elements in all browers (opinionated).
+   */
+
+  audio,
+  canvas,
+  iframe,
+  img,
+  svg,
+  video {
+    vertical-align: middle;
+  }
+
+  /**
+   * Remove the border on images inside links in IE 10-.
+   */
+
+  img {
+    border-style: none;
+  }
+
+  /**
+   * Change the fill color to match the text color in all browsers (opinionated).
+   */
+
+  svg {
+    fill: currentColor;
+  }
+
+  /**
+   * Hide the overflow in IE.
+   */
+
+  svg:not(:root) {
+    overflow: hidden;
+  }
+
+  /* Links (https://www.w3.org/TR/html5/links.html#links)
+     ========================================================================== */
+
+  /**
+   * 1. Remove the gray background on active links in IE 10.
+   * 2. Remove the gaps in underlines in iOS 8+ and Safari 8+.
+   */
+
+  a {
+    background-color: transparent; /* 1 */
+    -webkit-text-decoration-skip: objects; /* 2 */
+  }
+
+  /**
+   * Remove the outline when hovering in all browsers (opinionated).
+   */
+
+  a:hover {
+    outline-width: 0;
+  }
+
+  /* Tabular data (https://www.w3.org/TR/html5/tabular-data.html)
+     ========================================================================== */
+
+  /*
+   * Remove border spacing in all browsers (opinionated).
+   */
+
+  table {
+    border-collapse: collapse;
+    border-spacing: 0;
+  }
+
+  /* transform-style:  (https://www.w3.org/TR/html5/forms.html)
+     ========================================================================== */
+
+  /**
+   * 1. Remove the default styling in all browsers (opinionated).
+   * 3. Remove the margin in Firefox and Safari.
+   */
+
+  button,
+  input,
+  select,
+  textarea {
+    background-color: transparent; /* 1 */
+    border-style: none; /* 1 */
+    color: inherit; /* 1 */
+    font-size: 1em; /* 1 */
+    margin: 0; /* 3 */
+  }
+
+  /**
+   * Correct the overflow in IE.
+   * 1. Correct the overflow in Edge.
+   */
+
+  button,
+  input { /* 1 */
+    overflow: visible;
+  }
+
+  /**
+   * Remove the inheritance in Edge, Firefox, and IE.
+   * 1. Remove the inheritance in Firefox.
+   */
+
+  button,
+  select { /* 1 */
+    text-transform: none;
+  }
+
+  /**
+   * 1. Prevent the WebKit bug where (2) destroys native `audio` and `video`
+   *    controls in Android 4.
+   * 2. Correct the inability to style clickable types in iOS and Safari.
+   */
+
+  button,
+  html [type="button"], /* 1 */
+  [type="reset"],
+  [type="submit"] {
+    -webkit-appearance: button; /* 2 */
+  }
+
+  /**
+   * Remove the inner border and padding in Firefox.
+   */
+
+  ::-moz-focus-inner {
+    border-style: none;
+    padding: 0;
+  }
+
+  /**
+   * Correct the focus styles unset by the previous rule.
+   */
+
+  :-moz-focusring {
+    outline: 1px dotted ButtonText;
+  }
+
+  /**
+   * Correct the border, margin, and padding in all browsers.
+   */
+
+  fieldset {
+    border: 1px solid #c0c0c0;
+    margin: 0 2px;
+    padding: .35em .625em .75em;
+  }
+
+  /**
+   * 1. Correct the text wrapping in Edge and IE.
+   * 2. Remove the padding so developers are not caught out when they zero out
+   *    `fieldset` elements in all browsers.
+   */
+
+  legend {
+    display: table; /* 1 */
+    max-width: 100%; /* 1 */
+    padding: 0; /* 2 */
+    white-space: normal; /* 1 */
+  }
+
+  /**
+   * 1. Remove the vertical scrollbar in IE.
+   * 2. Change the resize direction on textareas in all browsers (opinionated).
+   */
+
+  textarea {
+    overflow: auto; /* 1 */
+    resize: vertical; /* 2 */
+  }
+
+  /**
+   * Remove the padding in IE 10-.
+   */
+
+  [type="checkbox"],
+  [type="radio"] {
+    padding: 0;
+  }
+
+  /**
+   * Correct the cursor style on increment and decrement buttons in Chrome.
+   */
+
+  ::-webkit-inner-spin-button,
+  ::-webkit-outer-spin-button {
+    height: auto;
+  }
+
+  /**
+   * 1. Correct the odd appearance in Chrome and Safari.
+   * 2. Correct the outline style in Safari.
+   */
+
+  [type="search"] {
+    -webkit-appearance: textfield; /* 1 */
+    outline-offset: -2px; /* 2 */
+  }
+
+  /**
+   * Remove the inner padding and cancel buttons in Chrome and Safari for OS X.
+   */
+
+  ::-webkit-search-cancel-button,
+  ::-webkit-search-decoration {
+    -webkit-appearance: none;
+  }
+
+  /**
+   * Correct the text style on placeholders in Chrome, Edge, and Safari.
+   */
+
+  ::-webkit-input-placeholder {
+    color: inherit;
+    opacity: .54;
+  }
+
+  /**
+   * 1. Correct the inability to style clickable types in iOS and Safari.
+   * 2. Change font properties to `inherit` in Safari.
+   */
+
+  ::-webkit-file-upload-button {
+    -webkit-appearance: button; /* 1 */
+    font: inherit; /* 2 */
+  }
+
+  /* WAI-ARIA (https://www.w3.org/TR/html5/dom.html#wai-aria)
+     ========================================================================== */
+
+  /**
+   * Change the cursor on busy elements (opinionated).
+   */
+
+  [aria-busy="true"] {
+    cursor: progress;
+  }
+
+  /*
+   * Change the cursor on control elements (opinionated).
+   */
+
+  [aria-controls] {
+    cursor: pointer;
+  }
+
+  /*
+   * Change the cursor on disabled, not-editable, or otherwise
+   * inoperable elements (opinionated).
+   */
+
+  [aria-disabled] {
+    cursor: default;
+  }
+
+  /* User interaction (https://www.w3.org/TR/html5/editing.html)
+     ========================================================================== */
+
+  /*
+   * Remove the tapping delay on clickable elements (opinionated).
+   * 1. Remove the tapping delay in IE 10.
+   */
+
+  a,
+  area,
+  button,
+  input,
+  label,
+  select,
+  textarea,
+  [tabindex] {
+    -ms-touch-action: manipulation; /* 1 */
+    touch-action: manipulation;
+  }
+
+  /*
+   * Change the display on visually hidden accessible elements (opinionated).
+   */
+
+  [hidden][aria-hidden="false"] {
+    clip: rect(0, 0, 0, 0);
+    display: inherit;
+    position: absolute;
+  }
+
+  [hidden][aria-hidden="false"]:focus {
+    clip: auto;
+  }
+  </style>
+  <style>
+    body {
+      display: flex;
+    }
+    div#container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      width: 100%;
+    }
+    .pattern-editor {
+      display: flex;
+      background: #444;
+      width: 50%;
+      height: 272px;
+      overflow: hidden;
+    }
+    .pattern-editor table {
+      background: black;
+    }
+
+    .pattern-editor th,
+    .pattern-editor td {
+      white-space: nowrap;
+      border-right: 1px solid white;
+      color: white;
+    }
+
+    .pattern-editor td {
+      font-family: monospace;
+    }
+
+    .trackview {
+      background: #000;
+    }
+
+    .track-header {
+      box-sizing: border-box;
+      background: #222;
+    }
+
+    .time-header {
+      box-sizing: border-box;
+    }
+
+    .track-header span {
+      width: 100%;
+      text-align: center;
+    }
+
+    .track-controls {
+      display: flex;
+      flex-direction: row;
+      padding: 3px;
+    }
+
+    .row .tick {
+      color: #999;
+      font-family: monospace;
+      width: 40px;
+      line-height: 1;
+    }
+
+    .pattern-cursor-row .tick {
+      color: #FFF;
+    }
+
+    .beat-row {
+      background: #333;
+    }
+
+    .pattern-cursor-row {
+      background: rgb(10, 50, 10);
+    }
+
+    .pattern-play-cursor-row {
+      background: rgb(10, 80, 80);
+    }
+
+    .note-column {
+      display: inline-block;
+    }
+
+    .line {
+      font-family: monospace;
+      line-height: 1;
+    }
+
+    .line .note,
+    .line .instrument,
+    .line .volume,
+    .line .panning,
+    .line .delay,
+    .line .fx {
+      margin-right: 2px;
+      display: inline-block;
+    }
+
+    .line .note {
+      color: #669;
+      width: 25px;
+      margin-left: 5px;
+    }
+
+    .pattern-cursor-row .line .note {
+      color: #CCF;
+    }
+
+    .pattern-cursor-row .line .note.event-cursor {
+      color: #113;
+    }
+
+    .line .instrument {
+      color: #966;
+      width: 18px;
+    }
+
+    .pattern-cursor-row .line .instrument {
+      color: #FCC;
+    }
+
+    .pattern-cursor-row .line .instrument.event-cursor {
+      color: #311;
+    }
+
+    .line .volume {
+      color: #666;
+      width: 18px;
+    }
+
+    .pattern-cursor-row .line .volume {
+      color: #CCC;
+    }
+
+    .pattern-cursor-row .line .volume.event-cursor {
+      color: #111;
+    }
+
+    .line .panning {
+      color: #969;
+      width: 18px;
+    }
+
+    .pattern-cursor-row .line .panning {
+      color: #FCF;
+    }
+
+    .pattern-cursor-row .line .panning.event-cursor {
+      color: #313;
+    }
+
+    .line .delay {
+      color: #996;
+      width: 18px;
+    }
+
+    .pattern-cursor-row .line .delay {
+      color: #FFC;
+    }
+
+    .pattern-cursor-row .line .delay.event-cursor {
+      color: #331;
+    }
+
+    .line .fx {
+      color: #888;
+      width: 36px;
+    }
+
+    .pattern-cursor-row .line .fx {
+      color: #FFF;
+      box-sizing: border-box;
+    }
+
+    .pattern-cursor-row .line .fx.event-cursor {
+      color: #333;
+    }
+
+    .xscroll .leftSideTable,
+    .xscroll .sideTable {
+      width: 930px;
+      overflow: auto;
+    }
+
+    .xscroll {
+      overflow: auto;
+    }
+
+    .timeline {
+      overflow: hidden;
+    }
+
+    .track-color {
+      width: 90%;
+      margin-left: 5%;
+      height: 8px;
+      border-radius: 2px;
+    }
+
+    .event-cursor {
+      background: rgb(0, 150, 0);
+    }
+  </style>
+</head>
+
+<body>
+  <div id="container">
+    <div class="pattern-editor">
+      <div style="float: left;">
+        <div>
+          <div>
+            <table id="timeline-header">
+              <thead>
+                <tr class="row">
+                  <th class="tick">
+                    <div class="time-header" style="height: 55px;"><br /></div>
+                  </th>
+                </tr>
+              </thead>
+            </table>
+          </div>
+
+          <div class="timeline" style="height: 210px;">
+            <table>
+              <tbody>
+                <tr class="row">
+                  <th class="tick">
+                    <div style="height: calc(7 * 15px)"></div>
+                  </th>
+                </tr>
+                <tr class="row pattern-cursor-row"><th class="tick">00</th></tr>
+                <tr class="row"><th class="tick">01</th></tr>
+                <tr class="row"><th class="tick">02</th></tr>
+                <tr class="row"><th class="tick">03</th></tr>
+                <tr class="row"><th class="tick">04</th></tr>
+                <tr class="row"><th class="tick">05</th></tr>
+                <tr class="row"><th class="tick">06</th></tr>
+                <tr class="row"><th class="tick">07</th></tr>
+                <tr class="row"><th class="tick">08</th></tr>
+                <tr class="row"><th class="tick">09</th></tr>
+                <tr class="row"><th class="tick">10</th></tr>
+                <tr class="row"><th class="tick">12</th></tr>
+                <tr class="row"><th class="tick">13</th></tr>
+                <tr class="row"><th class="tick">14</th></tr>
+                <tr class="row"><th class="tick">15</th></tr>
+                <tr class="row"><th class="tick">16</th></tr>
+                <tr class="row"><th class="tick">17</th></tr>
+                <tr class="row"><th class="tick">18</th></tr>
+                <tr class="row"><th class="tick">19</th></tr>
+                <tr class="row"><th class="tick">20</th></tr>
+                <tr class="row"><th class="tick">21</th></tr>
+                <tr class="row"><th class="tick">22</th></tr>
+                <tr class="row"><th class="tick">23</th></tr>
+                <tr class="row"><th class="tick">24</th></tr>
+                <tr class="row"><th class="tick">25</th></tr>
+                <tr class="row"><th class="tick">26</th></tr>
+                <tr class="row"><th class="tick">27</th></tr>
+                <tr class="row"><th class="tick">28</th></tr>
+                <tr class="row"><th class="tick">29</th></tr>
+                <tr class="row"><th class="tick">30</th></tr>
+                <tr class="row"><th class="tick">31</th></tr>
+                <tr class="row"><th class="tick">32</th></tr>
+                <tr class="row">
+                  <th class="tick">
+                    <div style="height: calc(7 * 15px);"></div>
+                  </th>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div style="float: left; width: calc(150 * 7);" class="xscroll">
+        <div class="leftSideTable" style="width: 1070px;">
+          <table id="header-table">
+            <thead>
+              <tr>
+                <th>
+                  <div class="track-header" style="width: 150px;">
+                    <span>Lead</span>
+                    <div class="track-color" style="background: #F00;"></div>
+                    <div class="track-controls">
+                      <button>-</button>
+                      <button>+</button>
+                    </div>
+                  </div>
+                </th>
+                <th>
+                  <div class="track-header" style="width: 150px;">
+                    <span>Bass</span>
+                    <div class="track-color" style="background: #F00;"></div>
+                    <div class="track-controls">
+                      <button>-</button>
+                      <button>+</button>
+                    </div>
+                  </div>
+                </th>
+                <th>
+                  <div class="track-header" style="width: 150px;">
+                    <span>Bass</span>
+                    <div class="track-color" style="background: #F00;"></div>
+                    <div class="track-controls">
+                      <button>-</button>
+                      <button>+</button>
+                    </div>
+                  </div>
+                </th>
+                <th>
+                  <div class="track-header" style="width: 150px;">
+                    <span>Bass</span>
+                    <div class="track-color" style="background: #F00;"></div>
+                    <div class="track-controls">
+                      <button>-</button>
+                      <button>+</button>
+                    </div>
+                  </div>
+                </th>
+                <th>
+                  <div class="track-header" style="width: 150px;">
+                    <span>Bass</span>
+                    <div class="track-color" style="background: #F00;"></div>
+                    <div class="track-controls">
+                      <button>-</button>
+                      <button>+</button>
+                    </div>
+                  </div>
+                </th>
+                <th>
+                  <div class="track-header" style="width: 150px;">
+                    <span>Bass</span>
+                    <div class="track-color" style="background: #F00;"></div>
+                    <div class="track-controls">
+                      <button>-</button>
+                      <button>+</button>
+                    </div>
+                  </div>
+                </th>
+                <th>
+                  <div class="track-header" style="width: 150px;">
+                    <span>Bass</span>
+                    <div class="track-color" style="background: #F00;"></div>
+                    <div class="track-controls">
+                      <button>-</button>
+                      <button>+</button>
+                    </div>
+                  </div>
+                </th>
+              </tr>
+            </thead>
+          </table>
+        </div>
+        <div style="height: 210px; width: 1070px;" class="sideTable" onWheel="onScroll(event)">
+          <table class="trackview">
+            <tbody>
+              <tr>
+                <td><div style="height: calc(7 * 15px)"></div></td>
+                <td><div style="height: calc(7 * 15px)"></div></td>
+                <td><div style="height: calc(7 * 15px)"></div></td>
+                <td><div style="height: calc(7 * 15px)"></div></td>
+                <td><div style="height: calc(7 * 15px)"></div></td>
+                <td><div style="height: calc(7 * 15px)"></div></td>
+                <td><div style="height: calc(7 * 15px)"></div></td>
+              </tr>
+              <tr class="row pattern-cursor-row">
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+              </tr>
+              <tr class="row">
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+              </tr>
+              <tr class="row">
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+              </tr>
+              <tr class="row">
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+              </tr>
+              <tr class="row">
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+              </tr>
+              <tr class="row">
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+              </tr>
+              <tr class="row">
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+              </tr>
+              <tr class="row">
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+              </tr>
+              <tr class="row">
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+              </tr>
+              <tr class="row">
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+              </tr>
+              <tr class="row">
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+              </tr>
+              <tr class="row">
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+              </tr>
+              <tr class="row">
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+              </tr>
+              <tr class="row">
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+              </tr>
+              <tr class="row">
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+              </tr>
+              <tr class="row">
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+              </tr>
+              <tr class="row">
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+              </tr>
+              <tr class="row">
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+              </tr>
+              <tr class="row">
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+              </tr>
+              <tr class="row">
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+              </tr>
+              <tr class="row">
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+              </tr>
+              <tr class="row">
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+              </tr>
+              <tr class="row">
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+              </tr>
+              <tr class="row">
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+              </tr>
+              <tr class="row">
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+              </tr>
+              <tr class="row">
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+              </tr>
+              <tr class="row">
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+              </tr>
+              <tr class="row">
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+              </tr>
+              <tr class="row">
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+              </tr>
+              <tr class="row">
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+              </tr>
+              <tr class="row">
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+              </tr>
+              <tr class="row">
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+                <td><div class="line"><div class="note-column"><div class="note">C-4</div><div class="instrument">01</div><div class="volume">40</div><div class="panning">80</div><div class="delay">--</div><div class="fx">----</div></div></div></td>
+              </tr>
+              <tr>
+                <td><div style="height: calc(7 * 15px)"></div></td>
+                <td><div style="height: calc(7 * 15px)"></div></td>
+                <td><div style="height: calc(7 * 15px)"></div></td>
+                <td><div style="height: calc(7 * 15px)"></div></td>
+                <td><div style="height: calc(7 * 15px)"></div></td>
+                <td><div style="height: calc(7 * 15px)"></div></td>
+                <td><div style="height: calc(7 * 15px)"></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <script>
+  var yoff = 0;
+  var theCursor = 0;
+  var lastCursor = null;
+  var events = document.getElementsByClassName("sideTable")[0];
+  var timeline = document.getElementsByClassName("timeline")[0];
+  var xscroll = document.getElementsByClassName("xscroll")[0];
+
+  function onScroll(e) {
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+      yoff += e.deltaY;
+      if (yoff < 0) {
+        yoff = events.scrollHeight - events.clientHeight;
+      } else if (yoff >= events.scrollHeight - events.clientHeight) {
+        yoff = 0;
+      }
+      theCursor = Math.round((yoff) / 15.0);
+    } else {
+      xscroll.scrollLeft += e.deltaX;
+    }
+    e.preventDefault();
+  }
+
+  function updateCursor(timestamp) {
+    if((!lastCursor) || (lastCursor !== theCursor)) {
+      lastCursor = theCursor;
+      var offset = theCursor * 15.0;
+
+      timeline.scrollTop = offset;
+      events.scrollTop = offset;
+
+      var oldCursorRows = document.querySelectorAll('tr.pattern-cursor-row');
+      oldCursorRows.forEach(function(element) {
+        element.classList.remove('pattern-cursor-row');
+      });
+
+      var timelineRow = document.querySelector('.timeline tr:nth-of-type(' + (theCursor+1) + ')');
+      var eventsRow = document.querySelector('.trackview tr:nth-of-type(' + (theCursor+1) + ')');
+      timelineRow.classList.add('pattern-cursor-row');
+      eventsRow.classList.add('pattern-cursor-row');
+    }
+    window.requestAnimationFrame(updateCursor);
+  }
+
+  window.requestAnimationFrame(updateCursor);
+
+  function play() {
+    theCursor += 1;
+    if ((theCursor * 15) >= events.scrollHeight - events.clientHeight) {
+      theCursor = 0;
+    }
+  }
+
+  //window.setInterval(play, 6); // 300 bpm at 32 lpb
+  
+  </script>
+</body>
+
