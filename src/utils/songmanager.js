@@ -4,6 +4,8 @@ import songdata from '../../data/song.json';
 import cymbal from '../../data/cymbal.json';
 import pad from '../../data/instrument_3.json';
 
+import {encode, decode} from 'base64-arraybuffer';
+
 import Signal from '../utils/signal';
 import Immutable from 'immutable';
 
@@ -373,7 +375,13 @@ export class SongManager {
       a.download = name;
       a.click();
     }
-    download(JSON.stringify(this.song), this.song.name ? `${this.song.name}.json` : 'wetracker-song.json', 'text/plain');
+    download(JSON.stringify(this.song, (k, v) => {
+      if (k === 'sampledata') {
+        return encode(v.buffer);
+      } else {
+        return v
+      }
+    }), this.song.name ? `${this.song.name}.json` : 'wetracker-song.json', 'text/plain');
   }
 
   loadSongFromFile(file, callback) {
@@ -384,7 +392,13 @@ export class SongManager {
     reader.onload = function(e) {
       var contents = e.target.result;
       try {
-        var song = JSON.parse(contents);
+        var song = JSON.parse(contents, (k, v) => {
+          if (k === 'sampledata') {
+            return new Uint8Array(decode(v));
+          } else {
+            return v
+          }
+        });
         if (callback) {
           callback(song);
         }
