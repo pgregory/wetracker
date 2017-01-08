@@ -21,7 +21,7 @@ of music trackers, such as [SoundTracker](http://www.soundtracker.org),
       </a>
     </div>
     <div style="margin: 3px;">
-      <a href="{{site.baseurl}}/images/screenshot.png">
+      <a href="{{site.baseurl}}/images/screenshot2.png">
         <img src="{{site.baseurl}}/images/screenshot2.png" width="100%"/>
       </a>
     </div>
