@@ -875,6 +875,9 @@ class Player {
 
 
   processTick() {
+    if(!this.playing) {
+      return;
+    }
     if(this.audioctx.currentTime > this.nextTickTime) {
       console.log("Lag!!!");
     }
