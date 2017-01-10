@@ -85,9 +85,11 @@ export default class Transport {
       player.stop();
     });
     $(this.target).find('#reset').click((e) => {
+      player.stop();
       player.reset();
     });
     $(this.target).find('#new').click((e) => {
+      player.stop();
       song.newSong();
     });
     $(this.target).find('#load').click((e) => {
@@ -110,6 +112,7 @@ export default class Transport {
             $( this ).dialog( "close" );
           },
           Demo: function() {
+            player.stop();
             song.downloadSong(modfile);
             $( this ).dialog( "close" );
           }
