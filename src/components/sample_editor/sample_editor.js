@@ -69,7 +69,7 @@ export default class SampleEditor {
 
     if (this.sample) {
       var len = this.sample.len;
-      var samples = this.sample.sampledata;
+      var samples = this.sample.sampledata.data;
 
       if(this.zoom == null) {
         // Set default zoom to fill the window.
