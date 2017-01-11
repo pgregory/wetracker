@@ -343,7 +343,7 @@ class Instrument {
   }
 
   periodForNote(ch, note, fine) {
-    const sampNote = this.inst.samples[this.inst.samplemap[note]].note;
+    const sampNote = this.inst.samples[this.inst.samplemap[Math.min(Math.max(note, 0), 95)]].note;
     return 1920 - (note + sampNote)*16 - fine / 8.0;
   }
 
