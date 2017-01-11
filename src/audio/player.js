@@ -815,7 +815,7 @@ class Player {
               }
               ch.voleffectfn = this.effects_t1[3].bind(this);  // just run 3x0
             } else {
-              console.log("track", track, "volume effect", v.toString(16));
+              console.log("Track", trackindex, "volume effect", v.toString(16));
             }
           }
 
@@ -834,7 +834,7 @@ class Player {
                 break;
               }
             } else {
-              console.log("channel", i, "effect > 36", ch.effect);
+              console.log("Track", trackindex, "effect > 36", ch.effect);
             }
 
             // special handling for portamentos: don't trigger the note
