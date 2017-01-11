@@ -16,20 +16,22 @@ class EnvelopeFollower {
     if(this.env != null) {
       var value = this.env.Get(this.tick);
 
-      // if we're sustaining a note, stop advancing the tick counter
-      if (!release && this.tick >= this.env.points[this.env.sustain*2]) {
-        return this.env.points[this.env.sustain*2 + 1];
-      }
-
-      // TODO: Need to take into account vol_fadeout when releasing.
-      this.tick++;
-      if (this.env.type & 4) {  // envelope loop?
-        if (!release &&
-            this.tick >= this.env.loopend) {
-          this.tick -= this.env.loopend - this.env.loopstart;
+      if (value != null) {
+        // if we're sustaining a note, stop advancing the tick counter
+        if (!release && this.tick >= this.env.points[this.env.sustain*2]) {
+          return this.env.points[this.env.sustain*2 + 1];
         }
+
+        // TODO: Need to take into account vol_fadeout when releasing.
+        this.tick++;
+        if (this.env.type & 4) {  // envelope loop?
+          if (!release &&
+              this.tick >= this.env.loopend) {
+            this.tick -= this.env.loopend - this.env.loopstart;
+          }
+        }
+        return value;
       }
-      return value;
     }
     return 64.0;
   }
