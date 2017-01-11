@@ -783,7 +783,9 @@ class Player {
             var v = event.volume;
             ch.voleffectdata = v & 0x0f;
             if (v < 0x10) {
-              console.log("channel", i, "invalid volume", v.toString(16));
+              if (v !== 0) {
+                console.log("Track", trackindex, "invalid volume", event.volume.toString(16));
+              }
             } else if (v <= 0x50) {
               ch.vol = v - 0x10;
             } else if (v >= 0x60 && v < 0x70) {  // volume slide down
