@@ -1,0 +1,36 @@
+<div class="effects-editor">
+  <div class="effects-list">
+    <div class="effect-name" for(effect in data.effects)>${effect.name}</div>
+  </div>
+  <div class="effects-chain">
+    <div class="effect-control-panel">
+      <div class="effect-header">
+        <div class="name">Chorus</div>
+        <div class="bypass">
+          <input type="checkbox" id="bypass" class="bypass" checked="true"/>
+        </div>
+      </div>
+      <div class="control-group">
+        <div class="control">
+          <div class="label">Rate</div>
+          <div id="rate-slider" class="slider"></div>
+          <input type="text" id="rate-value" value="1.5"/>
+        </div>
+        <div class="control">
+          <label for="feedback">
+            Feedback
+          </label>
+          <div id="feedback-slider" class="slider"></div>
+          <input type="text" id="feedback-value" value="0.2"/>
+        </div>
+        <div class="control">
+          <label for="delay">
+            Delay
+          </label>
+          <div id="delay-slider" class="slider"></div>
+          <input type="text" id="delay-value" value="0.0045"/>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

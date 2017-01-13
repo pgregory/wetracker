@@ -1,0 +1,67 @@
+.effects-editor {
+  display: flex;
+  flex-direction: row;
+  overflow: auto;
+  flex-grow: 1;
+  background: dimgrey;
+  border-radius: 3px;
+}
+
+.effects-editor .effects-list {
+  overflow-y: scroll;
+  flex: 0 1 auto;
+  border-radius: 3px;
+  margin: 3px;
+  padding: 3px;
+  background: black;
+}
+
+.effects-editor .effects-chain {
+  border-radius: 3px;
+  margin: 3px;
+  padding: 3px;
+  background: black;
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: row;
+}
+
+.effects-editor .effects-chain .effect-control-panel {
+  background-color: dimgrey;
+  border-radius: 3px;
+  flex: 0 0 auto;
+  min-width: 200px;
+}
+
+.effect-control-panel .effect-header {
+  margin: 2px;
+  font-size: 0.75em;
+  color: white;
+  background-color: #444;
+  border-radius: 3px;
+  padding: 0 3px;
+  display: flex;
+  flex-direction: row;
+}
+
+.effect-control-panel .control-group .label {
+  margin-right: 5px;
+}
+
+.effect-control-panel .control-group .slider {
+  flex: 1 0 auto;
+  margin-right: 5px;
+}
+
+.effect-header .name {
+  flex: 1 0 auto;
+}
+
+.effect-header .bypass {
+  flex: 0 0 auto;
+}
+
+.effects-editor .effects-list .effect-name {
+  color: white;
+  font-size: 0.75em;
+}

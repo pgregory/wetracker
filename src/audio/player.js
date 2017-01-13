@@ -6,6 +6,8 @@ import Envelope from './envelope';
 
 import TimerWorker from 'shared-worker!./timerworker';
 
+import Tuna from 'tunajs';
+
 class EnvelopeFollower {
   constructor(env) {
     this.env = env;
@@ -502,10 +504,20 @@ class Player {
 
     var audioContext = window.AudioContext || window.webkitAudioContext;
     this.audioctx = new audioContext();
+    this.tuna = new Tuna(this.audioctx);
+
     this.gainNode = this.audioctx.createGain();
     this.gainNode.gain.value = 0.5;  // master volume
 
-    this.gainNode.connect(this.audioctx.destination);
+    this.chorus = new this.tuna.Chorus({
+      rate: 1.5,
+      feedback: 0.2,
+      delay: 0.0045,
+      bypass: 0
+    });
+
+    this.gainNode.connect(this.chorus);
+    this.chorus.connect(this.audioctx.destination);
 
     this.playing = false;
     this.lookahead = 25;
