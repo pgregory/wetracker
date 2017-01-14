@@ -34,6 +34,7 @@
     "json-loader": "^0.5.4",
     "less": "^2.7.1",
     "less-loader": "^2.2.3",
+    "lz4": "^0.5.3",
     "marko": "^3.13.0",
     "marko-loader": "^1.0.0",
     "mousetrap": "^1.6.0",

@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import LZ4 from 'lz4';
 
 import songdata from '../../data/song.json';
 import cymbal from '../../data/cymbal.json';
@@ -368,14 +369,15 @@ export class SongManager {
   }
 
   saveSongToLocal() {
-    function download(text, name, type) {
+    function download(buffer, name, type) {
       var a = document.createElement("a");
-      var file = new Blob([text], {type: type});
+      var file = new Blob([buffer], {type: type});
       a.href = URL.createObjectURL(file);
       a.download = name;
       a.click();
     }
-    download(JSON.stringify(this.song, (k, v) => {
+
+    let input = new Buffer(JSON.stringify(this.song, (k, v) => {
       // Deal with sampledata differently, as we encode the binary data for
       // efficient serialisation.
       if (k === 'sampledata') {
@@ -386,7 +388,11 @@ export class SongManager {
       } else {
         return v
       }
-    }, ' '), this.song.name ? `${this.song.name}.json` : 'wetracker-song.json', 'text/plain');
+    }));
+
+    let output = LZ4.encode(input);
+
+    download(output, this.song.name ? `${this.song.name}.json` : 'wetracker-song.json', 'application/octet-stream');
   }
 
   loadSongFromFile(file, callback) {
