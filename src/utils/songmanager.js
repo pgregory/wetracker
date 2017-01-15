@@ -1,5 +1,6 @@
 import $ from 'jquery';
-import LZ4 from 'lz4';
+import LZ4 from 'lz4-asm';
+import textEncoding from 'text-encoding';
 
 import songdata from '../../data/song.json';
 import cymbal from '../../data/cymbal.json';
@@ -390,9 +391,9 @@ export class SongManager {
       }
     }));
 
-    let output = LZ4.encode(input);
+    let output = LZ4.compress(input);
 
-    download(output, this.song.name ? `${this.song.name}.json` : 'wetracker-song.json', 'application/octet-stream');
+    download(output, this.song.name ? `${this.song.name.trim()}.lz4` : 'wetracker-song.lz4', 'application/octet-stream');
   }
 
   loadSongFromFile(file, callback) {
@@ -401,9 +402,17 @@ export class SongManager {
     }
     var reader = new FileReader();
     reader.onload = function(e) {
-      var contents = e.target.result;
+      let contents = e.target.result;
       try {
-        var song = JSON.parse(contents, (k, v) => {
+        let json = undefined;
+        try {
+          let decomped = LZ4.decompress(new Uint8Array(contents));
+          json = new textEncoding.TextDecoder("utf-8").decode(decomped);
+        } catch(e) {
+          console.log(e);
+          json = new textEncoding.TextDecoder("utf-8").decode(contents);
+        }
+        var song = JSON.parse(json, (k, v) => {
           // Deal with sample data differently, as we encode for efficient
           // serialisation of large binary data.
           if (k === 'sampledata') {
@@ -433,17 +442,14 @@ export class SongManager {
           callback(song);
         }
       } catch(e) {
-        reader.onload = function(e) {
-          var contents = e.target.result;
-          var song = xmloader.load(contents, file.name);
-          if (callback) {
-            callback(song);
-          }
-        };
-        reader.readAsArrayBuffer(file);
+        console.log(e);
+        var song = xmloader.load(contents, file.name);
+        if (callback) {
+          callback(song);
+        }
       }
     };
-    reader.readAsText(file);
+    reader.readAsArrayBuffer(file);
   }
 
   setInstrumentName(instrumentIndex, name) {
