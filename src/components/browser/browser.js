@@ -18,10 +18,7 @@ export default class Browser {
   }
 
   render() {
-    const songs = [
-      { name: "Onward", },
-    ];
-    $(this.target).append(browserTemplate.renderToString({songs}));
+    $(this.target).append(browserTemplate.renderToString());
 
     $(this.target).find('.item-list').jstree({
       "core": {
@@ -30,7 +27,7 @@ export default class Browser {
           "variant": "small",
         },
         "data": {
-          "url": "http://localhost:8080/songs",
+          "url": __API__ + "songs",
           "type": "GET",
           "dataFilter": function(data) {
             let songs = JSON.parse(data);
@@ -45,7 +42,7 @@ export default class Browser {
     }).on('dblclick','.jstree-anchor', function (e) {
       let instance = $.jstree.reference(this);
       let node = instance.get_node(this);
-      let songfileURL = `http://localhost:8080/songs/${node.original._id}/file`;
+      let songfileURL = `${__API__}songs/${node.original._id}/file`;
       song.downloadSong(songfileURL);
     });
   }

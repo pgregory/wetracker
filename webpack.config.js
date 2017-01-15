@@ -2,6 +2,22 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const webpack = require('webpack');
 const path = require('path');
 
+var apiHost;
+
+var setupAPI=function() {
+  switch(process.env.NODE_ENV) {
+    case 'production':
+      apiHost = "'http://wetracker-be.herokuapp.com/'";
+      break;
+    case 'dev':
+    default:
+      apiHost = "'http://localhost:8080/'";
+      break;
+  }
+};
+
+setupAPI();
+
 module.exports = {
   entry: [
     'babel-polyfill',
@@ -59,6 +75,9 @@ module.exports = {
       {from: 'index.html'},
     ]),
     new webpack.HotModuleReplacementPlugin(),
+    new webpack.DefinePlugin({
+      __API__: apiHost,
+    }),
   ],
   // Emit a source map for easier debugging
   devtool: 'source-map',
