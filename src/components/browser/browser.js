@@ -43,7 +43,20 @@ export default class Browser {
       let instance = $.jstree.reference(this);
       let node = instance.get_node(this);
       let songfileURL = `${__API__}songs/${node.original._id}/file`;
-      song.downloadSong(songfileURL);
+
+      try {
+        $( "#dialog" ).empty();
+        $( "#dialog" ).append($("<p>Loading Song</p>"));
+        const dialog = $( "#dialog" ).dialog({
+          width: 500,
+          modal: true,
+        });
+        song.downloadSong(songfileURL).then(function() {
+          dialog.dialog( "close" );
+        });
+      } catch(e) {
+        console.log(e);
+      }
     });
   }
 
