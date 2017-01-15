@@ -1,0 +1,23 @@
+.widget .browser {
+  overflow-y: hidden;
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.browser .controls {
+  flex-grow: 0;
+  background: #444;
+  border-radius: 3px;
+}
+
+.browser .item-list {
+  overflow-y: hidden;
+  flex-grow: 1;
+  color: white;
+}
+
+.browser .item-row .item-name {
+  color: white;
+}
+

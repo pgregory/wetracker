@@ -14,6 +14,7 @@ import VolumeEnvelope from '../instrument_editor/volume_envelope';
 import PanningEnvelope from '../instrument_editor/panning_envelope';
 import InstrumentControls from '../instrument_editor/instrument_controls';
 import SampleMapper from '../sample_mapper/sample_mapper';
+import Browser from '../browser/browser';
 
 import tabsTemplate from './templates/tabs.marko';
 
@@ -26,7 +27,7 @@ export default class Tabs {
         cellHeight: 40,
         verticalMargin: 5,
         resizable: {
-          handles: 'n, ne, e, se, s, sw, w, nw'
+          handles: 'ne, se, sw, nw'
         },
         width: 50,
         handleClass: 'widget-titlebar',
@@ -44,6 +45,7 @@ export default class Tabs {
       'panning-envelope': (t) => { return new PanningEnvelope(t) },
       'instrument-controls': (t) => { return new InstrumentControls(t) },
       'sample-mapper': (t) => { return new SampleMapper(t) },
+      'browser': (t) => { return new Browser(t) },
     };
   }
 
