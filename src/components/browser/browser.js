@@ -36,12 +36,17 @@ export default class Browser {
             let songs = JSON.parse(data);
             let result = [];
             for (let s in songs) {
-              result.push({ "text": songs[s].name});
+              result.push({ "text": songs[s].name, "_id": songs[s]._id });
             }
             return JSON.stringify({ "text": "Demo Songs", "children": result });
           },
         },
       },
+    }).on('dblclick','.jstree-anchor', function (e) {
+      let instance = $.jstree.reference(this);
+      let node = instance.get_node(this);
+      let songfileURL = `http://localhost:8080/songs/${node.original._id}/file`;
+      song.downloadSong(songfileURL);
     });
   }
 
