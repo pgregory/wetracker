@@ -7,7 +7,7 @@ var apiHost;
 var setupAPI=function() {
   switch(process.env.NODE_ENV) {
     case 'production':
-      apiHost = "'http://wetracker-be.herokuapp.com/'";
+      apiHost = "'https://wetracker-be.herokuapp.com/'";
       break;
     case 'dev':
     default:
