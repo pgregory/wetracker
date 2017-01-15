@@ -340,7 +340,7 @@ export class SongManager {
   }
 
   downloadSong(uri) {
-    var promise = new Promise(function(resolve, reject) {
+    var promise = new Promise((resolve, reject) => {
       let xmReq = new XMLHttpRequest();
       xmReq.open("GET", uri, true);
       xmReq.responseType = "arraybuffer";
@@ -354,7 +354,7 @@ export class SongManager {
           filename = filename.substring(0, (filename.indexOf("?") == -1) ? filename.length : filename.indexOf("?"));
           // Remove everything prior to final name
           filename = filename.substring(filename.lastIndexOf("/") + 1, filename.length);
-          var newSong = xmloader.load(arrayBuffer, filename);
+          var newSong = this.loadSongFromArrayBuffer(arrayBuffer, filename);
           if (newSong) {
             song.setSong(newSong);
             resolve();
@@ -401,55 +401,60 @@ export class SongManager {
       return;
     }
     var reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = (e) => {
       let contents = e.target.result;
-      try {
-        let json = undefined;
-        try {
-          let decomped = LZ4.decompress(new Uint8Array(contents));
-          json = new textEncoding.TextDecoder("utf-8").decode(decomped);
-        } catch(e) {
-          console.log(e);
-          json = new textEncoding.TextDecoder("utf-8").decode(contents);
-        }
-        var song = JSON.parse(json, (k, v) => {
-          // Deal with sample data differently, as we encode for efficient
-          // serialisation of large binary data.
-          if (k === 'sampledata') {
-            // If the file version has serialisation encoding information, use it.
-            if ('serialiseEncoding' in v) {
-              // Base64 encoding.
-              if ( v.serialiseEncoding === 'base64') {
-                const sampledata = new Float32Array(decode(v.data));
-                return Object.assign(v, {
-                  data: sampledata,
-                });
-              } else {
-                // Unknown encoding, return raw.
-                return v;
-              }
-            } else {
-              // Presume raw Float32Array old format
-              return {
-                data: v,
-              }; 
-            }
-          } else {
-            return v
-          }
-        });
-        if (callback) {
-          callback(song);
-        }
-      } catch(e) {
-        console.log(e);
-        var song = xmloader.load(contents, file.name);
+      let song = this.loadSongFromArrayBuffer(contents, file.name);
+      if(song) {
         if (callback) {
           callback(song);
         }
       }
     };
     reader.readAsArrayBuffer(file);
+  }
+
+  loadSongFromArrayBuffer(buffer, filename) {
+    try {
+      let json = undefined;
+      try {
+        let decomped = LZ4.decompress(new Uint8Array(buffer));
+        json = new textEncoding.TextDecoder("utf-8").decode(decomped);
+      } catch(e) {
+        console.log(e);
+        json = new textEncoding.TextDecoder("utf-8").decode(buffer);
+      }
+      var song = JSON.parse(json, (k, v) => {
+        // Deal with sample data differently, as we encode for efficient
+        // serialisation of large binary data.
+        if (k === 'sampledata') {
+          // If the file version has serialisation encoding information, use it.
+          if ('serialiseEncoding' in v) {
+            // Base64 encoding.
+            if ( v.serialiseEncoding === 'base64') {
+              const sampledata = new Float32Array(decode(v.data));
+              return Object.assign(v, {
+                data: sampledata,
+              });
+            } else {
+              // Unknown encoding, return raw.
+              return v;
+            }
+          } else {
+            // Presume raw Float32Array old format
+            return {
+              data: v,
+            }; 
+          }
+        } else {
+          return v
+        }
+      });
+      return song;
+    } catch(e) {
+      console.log(e);
+      var song = xmloader.load(buffer, filename);
+      return song;
+    }
   }
 
   setInstrumentName(instrumentIndex, name) {
