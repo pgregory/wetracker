@@ -421,6 +421,7 @@ class Player {
     this.cur_ticksamp = 0;
     this.cur_tick = 0;
     song.song.globalVolume = this.max_global_volume = 128;
+    this.masterVolume = undefined;
 
     this.effects_t0 = [  // effect functions on tick 0
       this.eff_t1_0,  // 1, arpeggio is processed on all ticks
@@ -503,7 +504,6 @@ class Player {
     var audioContext = window.AudioContext || window.webkitAudioContext;
     this.audioctx = new audioContext();
     this.gainNode = this.audioctx.createGain();
-    this.gainNode.gain.value = 0.5;  // master volume
 
     this.gainNode.connect(this.audioctx.destination);
 
@@ -533,6 +533,7 @@ class Player {
     Signal.connect(song, 'instrumentChanged', this, 'onInstrumentChanged');
     Signal.connect(song, 'instrumentListChanged', this, 'onInstrumentListChanged');
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
+    Signal.connect(state, "transportChanged", this, "onTransportChanged");
   }
 
   onTimerMessage(e) {
@@ -1086,6 +1087,14 @@ class Player {
     /*if (!this.playing && state.cursor.get("sequence") != this.cur_songpos) {
       this.cur_songpos = state.cursor.get("sequence");
     }*/
+  }
+
+  onTransportChanged() {
+    if (this.masterVolume !== state.transport.get("masterVolume")) {
+      this.masterVolume = state.transport.get("masterVolume");
+      // Volume change is exponential (https://www.dr-lex.be/info-stuff/volumecontrols.html)
+      this.gainNode.gain.value = Math.exp(6.908*this.masterVolume)/1000.0;
+    }
   }
 
   /* Load a local sound file using the player specific knowledge of formats

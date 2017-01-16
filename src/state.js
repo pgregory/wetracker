@@ -26,6 +26,7 @@ export class State {
       octave: 4,
       bpm: 125,
       speed: 6,
+      masterVolume: 0.5,
     });
 
     this.playingInstruments = new Immutable.Map({
