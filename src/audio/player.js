@@ -1019,6 +1019,11 @@ class Player {
     this.reset();
   }
 
+  setMasterVolume(dB) {
+    let gain = Math.pow(10, dB/20);
+    this.gainNode.gain.value = gain;
+  }
+
   reset() {
     this.cur_pat = song.song.sequence[0].pattern;
     this.cur_row = 0;
@@ -1092,8 +1097,7 @@ class Player {
   onTransportChanged() {
     if (this.masterVolume !== state.transport.get("masterVolume")) {
       this.masterVolume = state.transport.get("masterVolume");
-      // Volume change is exponential (https://www.dr-lex.be/info-stuff/volumecontrols.html)
-      this.gainNode.gain.value = Math.exp(6.908*this.masterVolume)/1000.0;
+      this.setMasterVolume(state.transport.get("masterVolume"));
     }
   }
 

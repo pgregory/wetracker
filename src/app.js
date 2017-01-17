@@ -59,7 +59,7 @@ $(document).ready(() => {
       tabs.refresh();
       state.set({
         transport: {
-          masterVolume: 0.5,
+          masterVolume: -10.0,
         }
       });
     });
