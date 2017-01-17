@@ -200,11 +200,12 @@ class PlayerInstrument {
     let pan = (panE + (this.channel.pan - 128)) / 256.0;  // final pan
     let vol = song.song.globalVolume * volE * this.channel.vol / (128 * 64);
 
-    this.gainNode.gain.setValueAtTime(vol, time);
-    this.panningNode.pan.setValueAtTime(pan, time);
+    this.gainNode.gain.linearRampToValueAtTime(vol, time);
+    this.panningNode.pan.linearRampToValueAtTime(pan, time);
   }
 
   stop(time) {
+    this.gainNode.gain.linearRampToValueAtTime(0, time);
     this.sourceNode.stop(time);
   }
 
