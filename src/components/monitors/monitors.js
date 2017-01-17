@@ -15,6 +15,7 @@ export default class Monitors {
     this.target = target;
 
     Signal.connect(state, "tracksChanged", this, "onTracksChanged");
+    Signal.connect(song, "trackChanged", this, "onTrackChanged");
     Signal.connect(song, "songChanged", this, "onSongChanged");
   }
 
@@ -22,6 +23,14 @@ export default class Monitors {
     $(this.target).addClass('monitors');
     var columns = Math.ceil(song.song.tracks.length / 2.0);
     $(this.target).append(monitorsTemplate.renderToString({song: song.song, columns}));
+
+    for (var j = 0; j < song.song.tracks.length; j++) {
+      var canvas = document.getElementById(`vu${j}`);
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    }
+
+    this.renderMonitors();
 
     $(this.target).find(".monitor-canvas").click((e) => {
       this.clickTrack($(e.target).data('trackindex'));
@@ -33,18 +42,46 @@ export default class Monitors {
   }
 
   onTracksChanged() {
+    this.renderMonitors();
+  }
+
+  onTrackChanged() {
+    this.renderMonitors();
+  }
+
+  renderTrackName(track, ctx) {
+    ctx.font = "10px monospace";
+    ctx.fillStyle = '#888';
+    ctx.textAlign = 'start';
+    ctx.textBaseline = 'top';
+    ctx.fillText(track.name, 2, 2);
+  }
+
+  renderMonitors() {
     var e = state.tracks;
     // update VU meters & oscilliscopes
     for (var j = 0; j < song.song.tracks.length; j++) {
       var canvas = document.getElementById(`vu${j}`);
       var ctx = canvas.getContext("2d");
       var ch = player.tracks[j];
+      let track = song.song.tracks[j];
 
       ctx.fillStyle = '#000';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+      this.renderTrackName(track, ctx);
+
       if(e.getIn(['states', j, 'mute'])) {
-        ctx.font = "48px monospace";
+        let pixelSize = 48;
+        while(1) {
+          ctx.font = `${pixelSize}px monospace`;
+          let text = ctx.measureText("MUTE");
+          if((text.width < (canvas.width * 0.75)) || 
+             (pixelSize < 8)) {
+            break;
+          }
+          pixelSize -= 1;
+        }
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillStyle = "#900";
@@ -52,11 +89,7 @@ export default class Monitors {
       } else {
         ctx.fillStyle = '#0f0';
         ctx.strokeStyle = '#04AEF7';
-        ctx.lineWidth = 2;
-
-        //var x = 0; //this._pattern_border; // + j * this._pattern_cellwidth;
-        // render channel number
-        //this.drawText(''+j, x, 1, ctx);
+        ctx.lineWidth = 1;
 
         // volume in dB as a green bar
         //var vu_y = -Math.log(e.vu[j])*10;

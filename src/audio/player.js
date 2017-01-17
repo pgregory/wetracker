@@ -94,7 +94,7 @@ class XMViewObject {
   redrawScreen() {
     var e;
     var t = this.player.audioctx.currentTime;
-    while (this.audio_events.length > 0 && this.audio_events[0].t < t) {
+    while (this.audio_events.length > 0 && this.audio_events[0].t <= t) {
       e = this.audio_events.shift();
     }
     if (!e) {
@@ -987,12 +987,14 @@ class Player {
   toggleMuteTrack(index) {
     if (index < this.tracks.length) {
       this.tracks[index].mute = !this.tracks[index].mute;
-      console.log(this.tracks[index].mute);
       if(this.tracks[index].mute) {
         this.tracks[index].gainNode.gain.value = 0;
       } else {
         this.tracks[index].gainNode.gain.value = 1;
       }
+      this.XMView.pushEvent({
+        t: this.audioctx.currentTime,
+      });
     }
   }
 
@@ -1089,6 +1091,10 @@ class Player {
     for(i = 0; i < song.song.instruments.length; i += 1) {
       this.instruments.push(new Instrument(i, this.audioctx));
     }
+
+    this.XMView.pushEvent({
+      t: this.audioctx.currentTime,
+    });
   }
 
   onInstrumentChanged(instrumentIndex) {
