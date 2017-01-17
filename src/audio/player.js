@@ -12,28 +12,33 @@ class EnvelopeFollower {
     this.tick = 0;
   }
 
-  Tick(release) {
-    if(this.env != null) {
+  Tick(release, def = 64.0) {
+    if(this.env != null && (this.env.type & 0x1) !== 0) {
       var value = this.env.Get(this.tick);
 
       if (value != null) {
         // if we're sustaining a note, stop advancing the tick counter
-        if (!release && this.tick >= this.env.points[this.env.sustain*2]) {
-          return this.env.points[this.env.sustain*2 + 1];
+        if (this.env.type & 2) {
+          if (!release && this.tick >= this.env.points[this.env.sustain*2]) {
+            return this.env.points[this.env.sustain*2 + 1];
+          }
         }
 
         // TODO: Need to take into account vol_fadeout when releasing.
         this.tick++;
         if (this.env.type & 4) {  // envelope loop?
-          if (!release &&
-              this.tick >= this.env.loopend) {
-            this.tick -= this.env.loopend - this.env.loopstart;
+          if (this.tick >= this.env.loopend) {
+            this.tick = this.env.loopstart;
           }
         }
         return value;
       }
     }
-    return 64.0;
+    return def;
+  }
+
+  reset() {
+    this.tick = 0;
   }
 }
 
@@ -195,10 +200,15 @@ class PlayerInstrument {
 
   updateVolumeEnvelope(time, release) {
     let volE = this.volumeEnvelope.Tick(release) / 64.0;
-    let panE = 4*(this.panningEnvelope.Tick(release) - 32);
+    let panE = (this.panningEnvelope.Tick(release, 32.0) - 32) / 32.0;
 
-    let pan = (panE + (this.channel.pan - 128)) / 256.0;  // final pan
-    let vol = song.song.globalVolume * volE * this.channel.vol / (128 * 64);
+    // panE is -1 to 1
+    // channel.pan is 0 to 255 
+    let pan = panE + ((this.channel.pan - 128) / 128.0);  // final pan
+    // globalVolume is 0-128
+    // volE is 0-1
+    // channel.vol is 0-64
+    let vol = (song.song.globalVolume / 128) * volE * (this.channel.vol / 64);
 
     this.gainNode.gain.linearRampToValueAtTime(vol, time);
     this.panningNode.pan.linearRampToValueAtTime(pan, time);
@@ -265,6 +275,11 @@ class PlayerInstrument {
     const position = (offset / this.sample.buffer.duration) * this.sample.buffer.length;
 
     return position;
+  }
+
+  resetEnvelopes() {
+    this.volumeEnvelope.reset();
+    this.panningEnvelope.reset();
   }
 }
 
@@ -357,7 +372,7 @@ class Instrument {
         this.inst.env_vol.type,
         this.inst.env_vol.sustain,
         this.inst.env_vol.loopstart,
-        this.inst.env_vol.loop_end);
+        this.inst.env_vol.loopend);
     }
     if (this.inst.env_pan) {
       this.envelopes.panning = new Envelope(
@@ -365,7 +380,7 @@ class Instrument {
         this.inst.env_pan.type,
         this.inst.env_pan.sustain,
         this.inst.env_pan.loopstart,
-        this.inst.env_pan.loop_end);
+        this.inst.env_pan.loopend);
     }
   }
 }
@@ -720,9 +735,9 @@ class Player {
         var track = {
           notedata: [
             {
-              notes: -1,
+              note: -1,
               instrument: -1,
-              volumne: -1,
+              volume: -1,
               fxtype: -1,
               fxparam: -1,
             }
@@ -740,21 +755,26 @@ class Player {
           if ("notedata" in track && track.notedata.length > 0) {
             event = track.notedata[0];
           }
+
           // instrument trigger
-          if ("note" in event && event.note !== -1 && event.instrument && event.instrument !== -1) {
+          if (event.instrument && event.instrument !== -1) {
             inst = this.instruments[event.instrument - 1];
             if (inst && inst.inst && inst.inst.samplemap) {
               ch.inst = inst;
-              // retrigger unless overridden below
-              ch.triggernote = true;
+              // reset properties, but let the same instrument and note keep playing.
+              // note: it doesn't matter what the instrument number is, it just retriggers the
+              // properties of the currently playing instrument. Only if you specify a note AND
+              // instrument does it change the playing instrument.
               if (ch.note && inst.inst.samplemap) {
                 const samp = inst.inst.samples[inst.inst.samplemap[ch.note]];
                 ch.vol = samp.vol;
                 ch.pan = samp.pan;
                 ch.fine = samp.fine;
+                if(ch.currentlyPlaying) {
+                  ch.currentlyPlaying.resetEnvelopes();
+                }
               }
             }
-            ch.triggernote = true;
           }
 
           // note trigger
@@ -766,14 +786,14 @@ class Player {
               if (inst && inst.inst && inst.inst.samplemap) {
                 var note = event.note;
                 ch.note = note;
-                if (ch.triggernote) {
+                //if (ch.triggernote) {
                   // if we were already triggering the note, reset vol/pan using
                   // (potentially) new sample
                   const samp = inst.inst.samples[inst.inst.samplemap[note]];
                   ch.pan = samp.pan;
                   ch.vol = samp.vol;
                   ch.fine = samp.fine;
-                }
+                //}
                 ch.triggernote = true;
               }
               ch.triggernote = true;
