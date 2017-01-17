@@ -204,7 +204,7 @@ class PlayerInstrument {
 
     // panE is -1 to 1
     // channel.pan is 0 to 255 
-    let pan = panE + ((this.channel.pan - 128) / 128.0);  // final pan
+    let pan = Math.max(-1, Math.min(1, panE + ((this.channel.pan - 128) / 128.0)));  // final pan
     // globalVolume is 0-128
     // volE is 0-1
     // channel.vol is 0-64
