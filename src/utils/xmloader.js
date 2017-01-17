@@ -341,7 +341,7 @@ class XMLoader {
         }
         if (env_pan_type) {
           if (!(env_pan_type & 2)) {  // if there's no sustain point, create one
-            env_pan_sustain = env_pan.length / 2;
+            env_pan_sustain = (env_pan.length / 2) - 1;
           }
           inst.env_pan = { 
               points: env_pan,
