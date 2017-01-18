@@ -1054,7 +1054,7 @@ class Player {
             this.tracks[t].pushState({
               state: SOLO,
               properties: {
-                gain: this.gainNode.gain.value,
+                gain: this.tracks[t].gainNode.gain.value,
               }
             });
           } else {
