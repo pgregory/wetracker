@@ -7,6 +7,7 @@ import styles from './styles.css';
 import Signal from '../../utils/signal';
 import { state } from '../../state';
 import { song } from '../../utils/songmanager';
+import { player, MUTE, SILENT } from '../../audio/player';
 
 import fontimage from '../../../static/ft2font-single.png';
 
@@ -188,6 +189,7 @@ export default class PatternEditorCanvas {
     Signal.connect(state, "transportChanged", this, "onTransportChanged");
     Signal.connect(song, "eventChanged", this, "onEventChanged");
     Signal.connect(song, "songChanged", this, "onSongChanged");
+    Signal.connect(state, "tracksChanged", this, "onTracksChanged");
   }
 
   initWidth() {
@@ -556,6 +558,17 @@ export default class PatternEditorCanvas {
     ctx.fillStyle = '#2a5684';
     ctx.fillRect(0, cy, this.canvas.width, this._pattern_row_height);
 
+    // Fade any muted tracks.
+    for (let tracki = 0; tracki < player.tracks.length; tracki += 1) {
+      if ([SILENT, MUTE].indexOf(player.tracks[tracki].getState().state) !== -1) {
+        // Draw a semi-transparent box over silent/muted tracks.
+        ctx.globalCompositeOperation = 'darken';
+        ctx.fillStyle = '#444';
+        let dx = tracki * this._pattern_cellwidth;
+        ctx.fillRect(dx, 0, this._pattern_cellwidth, this.canvas.height);
+      }
+    }
+    
     // Draw the individual cursor
     ctx.fillStyle = '#0F0';
     ctx.globalCompositeOperation = 'darken';
@@ -569,6 +582,7 @@ export default class PatternEditorCanvas {
     ctx.strokeStyle = '#0F0';
     ctx.lineWidth = 1;
     ctx.strokeRect(cx-1, cy-1, this._cursor_sizes[state.cursor.get("item")]+2, this._pattern_row_height+2);
+
   }
 
   refresh() {
@@ -696,6 +710,10 @@ export default class PatternEditorCanvas {
 
       this.lastTransport = state.transport;
     }
+  }
+
+  onTracksChanged() {
+    this.redrawCanvas();
   }
 
   onEventChanged(cursor, event) {
