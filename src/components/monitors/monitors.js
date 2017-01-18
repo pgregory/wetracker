@@ -3,7 +3,7 @@ import $ from 'jquery';
 import Signal from '../../utils/signal';
 import { state } from '../../state';
 import { song } from '../../utils/songmanager';
-import { player } from '../../audio/player';
+import { player, SILENT, MUTE } from '../../audio/player';
 
 import monitorsTemplate from './templates/monitors.marko';
 
@@ -33,12 +33,24 @@ export default class Monitors {
     this.renderMonitors();
 
     $(this.target).find(".monitor-canvas").click((e) => {
-      this.clickTrack($(e.target).data('trackindex'));
+      this.clickTrack(e, $(e.target).data('trackindex'));
     }); 
   }
 
-  clickTrack(index) {
+  clickTrack(e, index) {
+    if(e.shiftKey) {
+      this.soloTrack(index);
+    } else {
+      this.muteTrack(index);
+    }
+  }
+
+  muteTrack(index) {
     player.toggleMuteTrack(index);
+  }
+
+  soloTrack(index) {
+    player.toggleSoloTrack(index);
   }
 
   onTracksChanged() {
@@ -71,12 +83,18 @@ export default class Monitors {
 
       this.renderTrackName(track, ctx);
 
-      if(e.getIn(['states', j, 'mute'])) {
+      if([MUTE, SILENT].indexOf(e.getIn(['states', j, 'state'])) !== -1) {
+        let text = "MUTE";
+        let color = "#900";
+        if (e.getIn(['states', j, 'state']) === SILENT) {
+          text = "SILENT";
+          color = "#099";
+        }
         let pixelSize = 48;
         while(1) {
           ctx.font = `${pixelSize}px monospace`;
-          let text = ctx.measureText("MUTE");
-          if((text.width < (canvas.width * 0.75)) || 
+          let size = ctx.measureText(text);
+          if((size.width < (canvas.width * 0.75)) || 
              (pixelSize < 8)) {
             break;
           }
@@ -84,8 +102,8 @@ export default class Monitors {
         }
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillStyle = "#900";
-        ctx.fillText("MUTE", canvas.width/2, canvas.height/2);
+        ctx.fillStyle = color;
+        ctx.fillText(text, canvas.width/2, canvas.height/2);
       } else {
         ctx.fillStyle = '#0f0';
         ctx.strokeStyle = '#04AEF7';

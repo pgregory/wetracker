@@ -6,6 +6,12 @@ import Envelope from './envelope';
 
 import TimerWorker from 'shared-worker!./timerworker';
 
+export const SILENT = 'silent';
+export const SOLO = 'solo';
+export const MUTE = 'mute';
+export const NORMAL = 'normal';
+export const OFF = 'off';
+
 class EnvelopeFollower {
   constructor(env) {
     this.env = env;
@@ -128,9 +134,7 @@ class XMViewObject {
         bufferLength: ch.analyserBufferLength,
       });
 
-      states.push({
-        mute: ch.mute,
-      });
+      states.push(ch.getState());
     }
     state.set({
       tracks: {
@@ -208,7 +212,7 @@ class PlayerInstrument {
     // globalVolume is 0-128
     // volE is 0-1
     // channel.vol is 0-64
-    let vol = (song.song.globalVolume / 128) * volE * (this.channel.vol / 64);
+    let vol = Math.max(0, Math.min(1, (song.song.globalVolume / 128) * volE * (this.channel.vol / 64)));
 
     this.gainNode.gain.linearRampToValueAtTime(vol, time);
     this.panningNode.pan.linearRampToValueAtTime(pan, time);
@@ -396,7 +400,12 @@ class Track {
     this.vR = 0;   // left right volume envelope followers (changes per sample)
     this.vLprev = 0;
     this.vRprev = 0;
-    this.mute = 0;
+    this.stateStack = [{
+      state: NORMAL,
+      properties: {
+        gain: 1,
+      },
+    }];
     this.volE = 0;
     this.panE = 0;
     this.retrig = 0;
@@ -418,6 +427,34 @@ class Track {
 
   updateAnalyserScopeData() {
     this.analyser.getByteTimeDomainData(this.analyserScopeData);
+  }
+
+  pushState(state) {
+    if ('gain' in state.properties) {
+      this.gainNode.gain.value = state.properties.gain; 
+    } else {
+      state.properties.gain = this.gainNode.gain.value;
+    }
+    this.stateStack.push(state);
+  }
+
+  popState() {
+    const state = this.stateStack.pop();
+    this.gainNode.gain.value = this.getState().properties.gain;
+    return state;
+  }
+
+  getState() {
+    if (this.stateStack.length > 0) {
+      return this.stateStack[this.stateStack.length - 1];
+    } else {
+      return {
+        state: NORMAL,
+        properties: {
+          gain: 1,
+        },
+      };
+    }
   }
 }
 
@@ -986,11 +1023,50 @@ class Player {
 
   toggleMuteTrack(index) {
     if (index < this.tracks.length) {
-      this.tracks[index].mute = !this.tracks[index].mute;
-      if(this.tracks[index].mute) {
+      const currentState = this.tracks[index].getState();
+      if (currentState.state === MUTE) {
+        this.tracks[index].popState();
+      } else if ([SILENT, SOLO].indexOf(currentState.state) === -1) {
+        this.tracks[index].pushState({
+          state: MUTE,
+          properties: {
+            gain: 0,
+          }
+        });
         this.tracks[index].gainNode.gain.value = 0;
+      }
+      this.XMView.pushEvent({
+        t: this.audioctx.currentTime,
+      });
+    }
+  }
+
+  toggleSoloTrack(index) {
+    if (index < this.tracks.length) {
+      const currentState = this.tracks[index].getState();
+      if (currentState.state === SOLO) {
+        for (let t = 0; t < this.tracks.length; t += 1) {
+          this.tracks[t].popState();
+        }
       } else {
-        this.tracks[index].gainNode.gain.value = 1;
+        for (let t = 0; t < this.tracks.length; t += 1) {
+          if (t === index) {
+            this.tracks[t].pushState({
+              state: SOLO,
+              properties: {
+                gain: this.gainNode.gain.value,
+              }
+            });
+          } else {
+            this.tracks[t].pushState({
+              state: SILENT,
+              properties: {
+                gain: 0,
+              }
+            });
+            this.tracks[t].gainNode.gain.value = 0;
+          }
+        }
       }
       this.XMView.pushEvent({
         t: this.audioctx.currentTime,
