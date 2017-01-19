@@ -1,4 +1,6 @@
 import $ from 'jquery';
+import LZ4 from 'lz4-asm';
+import textEncoding from 'text-encoding';
 
 import songdata from '../../data/song.json';
 import cymbal from '../../data/cymbal.json';
@@ -338,7 +340,7 @@ export class SongManager {
   }
 
   downloadSong(uri) {
-    var promise = new Promise(function(resolve, reject) {
+    var promise = new Promise((resolve, reject) => {
       let xmReq = new XMLHttpRequest();
       xmReq.open("GET", uri, true);
       xmReq.responseType = "arraybuffer";
@@ -352,7 +354,7 @@ export class SongManager {
           filename = filename.substring(0, (filename.indexOf("?") == -1) ? filename.length : filename.indexOf("?"));
           // Remove everything prior to final name
           filename = filename.substring(filename.lastIndexOf("/") + 1, filename.length);
-          var newSong = xmloader.load(arrayBuffer, filename);
+          var newSong = this.loadSongFromArrayBuffer(arrayBuffer, filename);
           if (newSong) {
             song.setSong(newSong);
             resolve();
@@ -368,14 +370,15 @@ export class SongManager {
   }
 
   saveSongToLocal() {
-    function download(text, name, type) {
+    function download(buffer, name, type) {
       var a = document.createElement("a");
-      var file = new Blob([text], {type: type});
+      var file = new Blob([buffer], {type: type});
       a.href = URL.createObjectURL(file);
       a.download = name;
       a.click();
     }
-    download(JSON.stringify(this.song, (k, v) => {
+
+    let input = new Buffer(JSON.stringify(this.song, (k, v) => {
       // Deal with sampledata differently, as we encode the binary data for
       // efficient serialisation.
       if (k === 'sampledata') {
@@ -386,7 +389,11 @@ export class SongManager {
       } else {
         return v
       }
-    }, ' '), this.song.name ? `${this.song.name}.json` : 'wetracker-song.json', 'text/plain');
+    }));
+
+    let output = LZ4.compress(input);
+
+    download(output, this.song.name ? `${this.song.name.trim()}.lz4` : 'wetracker-song.lz4', 'application/octet-stream');
   }
 
   loadSongFromFile(file, callback) {
@@ -394,50 +401,60 @@ export class SongManager {
       return;
     }
     var reader = new FileReader();
-    reader.onload = function(e) {
-      var contents = e.target.result;
-      try {
-        var song = JSON.parse(contents, (k, v) => {
-          // Deal with sample data differently, as we encode for efficient
-          // serialisation of large binary data.
-          if (k === 'sampledata') {
-            // If the file version has serialisation encoding information, use it.
-            if ('serialiseEncoding' in v) {
-              // Base64 encoding.
-              if ( v.serialiseEncoding === 'base64') {
-                const sampledata = new Float32Array(decode(v.data));
-                return Object.assign(v, {
-                  data: sampledata,
-                });
-              } else {
-                // Unknown encoding, return raw.
-                return v;
-              }
-            } else {
-              // Presume raw Float32Array old format
-              return {
-                data: v,
-              }; 
-            }
-          } else {
-            return v
-          }
-        });
+    reader.onload = (e) => {
+      let contents = e.target.result;
+      let song = this.loadSongFromArrayBuffer(contents, file.name);
+      if(song) {
         if (callback) {
           callback(song);
         }
-      } catch(e) {
-        reader.onload = function(e) {
-          var contents = e.target.result;
-          var song = xmloader.load(contents, file.name);
-          if (callback) {
-            callback(song);
-          }
-        };
-        reader.readAsArrayBuffer(file);
       }
     };
-    reader.readAsText(file);
+    reader.readAsArrayBuffer(file);
+  }
+
+  loadSongFromArrayBuffer(buffer, filename) {
+    try {
+      let json = undefined;
+      try {
+        let decomped = LZ4.decompress(new Uint8Array(buffer));
+        json = new textEncoding.TextDecoder("utf-8").decode(decomped);
+      } catch(e) {
+        console.log(e);
+        json = new textEncoding.TextDecoder("utf-8").decode(buffer);
+      }
+      var song = JSON.parse(json, (k, v) => {
+        // Deal with sample data differently, as we encode for efficient
+        // serialisation of large binary data.
+        if (k === 'sampledata') {
+          // If the file version has serialisation encoding information, use it.
+          if ('serialiseEncoding' in v) {
+            // Base64 encoding.
+            if ( v.serialiseEncoding === 'base64') {
+              const sampledata = new Float32Array(decode(v.data));
+              return Object.assign(v, {
+                data: sampledata,
+              });
+            } else {
+              // Unknown encoding, return raw.
+              return v;
+            }
+          } else {
+            // Presume raw Float32Array old format
+            return {
+              data: v,
+            }; 
+          }
+        } else {
+          return v
+        }
+      });
+      return song;
+    } catch(e) {
+      console.log(e);
+      var song = xmloader.load(buffer, filename);
+      return song;
+    }
   }
 
   setInstrumentName(instrumentIndex, name) {

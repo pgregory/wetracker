@@ -3,7 +3,7 @@ import $ from 'jquery';
 import Signal from '../../utils/signal';
 import { state } from '../../state';
 import { song } from '../../utils/songmanager';
-import { player } from '../../audio/player';
+import { player, SILENT, MUTE } from '../../audio/player';
 
 import monitorsTemplate from './templates/monitors.marko';
 
@@ -15,6 +15,7 @@ export default class Monitors {
     this.target = target;
 
     Signal.connect(state, "tracksChanged", this, "onTracksChanged");
+    Signal.connect(song, "trackChanged", this, "onTrackChanged");
     Signal.connect(song, "songChanged", this, "onSongChanged");
   }
 
@@ -23,40 +24,90 @@ export default class Monitors {
     var columns = Math.ceil(song.song.tracks.length / 2.0);
     $(this.target).append(monitorsTemplate.renderToString({song: song.song, columns}));
 
+    for (var j = 0; j < song.song.tracks.length; j++) {
+      var canvas = document.getElementById(`vu${j}`);
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    }
+
+    this.renderMonitors();
+
     $(this.target).find(".monitor-canvas").click((e) => {
-      this.clickTrack($(e.target).data('trackindex'));
+      this.clickTrack(e, $(e.target).data('trackindex'));
     }); 
   }
 
-  clickTrack(index) {
+  clickTrack(e, index) {
+    if(e.shiftKey) {
+      this.soloTrack(index);
+    } else {
+      this.muteTrack(index);
+    }
+  }
+
+  muteTrack(index) {
     player.toggleMuteTrack(index);
   }
 
+  soloTrack(index) {
+    player.toggleSoloTrack(index);
+  }
+
   onTracksChanged() {
+    this.renderMonitors();
+  }
+
+  onTrackChanged() {
+    this.renderMonitors();
+  }
+
+  renderTrackName(track, ctx) {
+    ctx.font = "10px monospace";
+    ctx.fillStyle = '#888';
+    ctx.textAlign = 'start';
+    ctx.textBaseline = 'top';
+    ctx.fillText(track.name, 2, 2);
+  }
+
+  renderMonitors() {
     var e = state.tracks;
     // update VU meters & oscilliscopes
     for (var j = 0; j < song.song.tracks.length; j++) {
       var canvas = document.getElementById(`vu${j}`);
       var ctx = canvas.getContext("2d");
       var ch = player.tracks[j];
+      let track = song.song.tracks[j];
 
       ctx.fillStyle = '#000';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      if(e.getIn(['states', j, 'mute'])) {
-        ctx.font = "48px monospace";
+      this.renderTrackName(track, ctx);
+
+      if([MUTE, SILENT].indexOf(e.getIn(['states', j, 'state'])) !== -1) {
+        let text = "MUTE";
+        let color = "#900";
+        if (e.getIn(['states', j, 'state']) === SILENT) {
+          text = "SILENT";
+          color = "#099";
+        }
+        let pixelSize = 48;
+        while(1) {
+          ctx.font = `${pixelSize}px monospace`;
+          let size = ctx.measureText(text);
+          if((size.width < (canvas.width * 0.75)) || 
+             (pixelSize < 8)) {
+            break;
+          }
+          pixelSize -= 1;
+        }
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillStyle = "#900";
-        ctx.fillText("MUTE", canvas.width/2, canvas.height/2);
+        ctx.fillStyle = color;
+        ctx.fillText(text, canvas.width/2, canvas.height/2);
       } else {
         ctx.fillStyle = '#0f0';
         ctx.strokeStyle = '#04AEF7';
-        ctx.lineWidth = 2;
-
-        //var x = 0; //this._pattern_border; // + j * this._pattern_cellwidth;
-        // render channel number
-        //this.drawText(''+j, x, 1, ctx);
+        ctx.lineWidth = 1;
 
         // volume in dB as a green bar
         //var vu_y = -Math.log(e.vu[j])*10;

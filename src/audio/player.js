@@ -8,34 +8,45 @@ import TimerWorker from 'shared-worker!./timerworker';
 
 import Tuna from 'tunajs';
 
+export const SILENT = 'silent';
+export const SOLO = 'solo';
+export const MUTE = 'mute';
+export const NORMAL = 'normal';
+export const OFF = 'off';
+
 class EnvelopeFollower {
   constructor(env) {
     this.env = env;
     this.tick = 0;
   }
 
-  Tick(release) {
-    if(this.env != null) {
+  Tick(release, def = 64.0) {
+    if(this.env != null && (this.env.type & 0x1) !== 0) {
       var value = this.env.Get(this.tick);
 
       if (value != null) {
         // if we're sustaining a note, stop advancing the tick counter
-        if (!release && this.tick >= this.env.points[this.env.sustain*2]) {
-          return this.env.points[this.env.sustain*2 + 1];
+        if (this.env.type & 2) {
+          if (!release && this.tick >= this.env.points[this.env.sustain*2]) {
+            return this.env.points[this.env.sustain*2 + 1];
+          }
         }
 
         // TODO: Need to take into account vol_fadeout when releasing.
         this.tick++;
         if (this.env.type & 4) {  // envelope loop?
-          if (!release &&
-              this.tick >= this.env.loopend) {
-            this.tick -= this.env.loopend - this.env.loopstart;
+          if (this.tick >= this.env.loopend) {
+            this.tick = this.env.loopstart;
           }
         }
         return value;
       }
     }
-    return 64.0;
+    return def;
+  }
+
+  reset() {
+    this.tick = 0;
   }
 }
 
@@ -91,7 +102,7 @@ class XMViewObject {
   redrawScreen() {
     var e;
     var t = this.player.audioctx.currentTime;
-    while (this.audio_events.length > 0 && this.audio_events[0].t < t) {
+    while (this.audio_events.length > 0 && this.audio_events[0].t <= t) {
       e = this.audio_events.shift();
     }
     if (!e) {
@@ -125,9 +136,7 @@ class XMViewObject {
         bufferLength: ch.analyserBufferLength,
       });
 
-      states.push({
-        mute: ch.mute,
-      });
+      states.push(ch.getState());
     }
     state.set({
       tracks: {
@@ -197,16 +206,22 @@ class PlayerInstrument {
 
   updateVolumeEnvelope(time, release) {
     let volE = this.volumeEnvelope.Tick(release) / 64.0;
-    let panE = 4*(this.panningEnvelope.Tick(release) - 32);
+    let panE = (this.panningEnvelope.Tick(release, 32.0) - 32) / 32.0;
 
-    let pan = (panE + (this.channel.pan - 128)) / 256.0;  // final pan
-    let vol = song.song.globalVolume * volE * this.channel.vol / (128 * 64);
+    // panE is -1 to 1
+    // channel.pan is 0 to 255 
+    let pan = Math.max(-1, Math.min(1, panE + ((this.channel.pan - 128) / 128.0)));  // final pan
+    // globalVolume is 0-128
+    // volE is 0-1
+    // channel.vol is 0-64
+    let vol = Math.max(0, Math.min(1, (song.song.globalVolume / 128) * volE * (this.channel.vol / 64)));
 
-    this.gainNode.gain.setValueAtTime(vol, time);
-    this.panningNode.pan.setValueAtTime(pan, time);
+    this.gainNode.gain.linearRampToValueAtTime(vol, time);
+    this.panningNode.pan.linearRampToValueAtTime(pan, time);
   }
 
   stop(time) {
+    this.gainNode.gain.linearRampToValueAtTime(0, time);
     this.sourceNode.stop(time);
   }
 
@@ -266,6 +281,11 @@ class PlayerInstrument {
     const position = (offset / this.sample.buffer.duration) * this.sample.buffer.length;
 
     return position;
+  }
+
+  resetEnvelopes() {
+    this.volumeEnvelope.reset();
+    this.panningEnvelope.reset();
   }
 }
 
@@ -358,7 +378,7 @@ class Instrument {
         this.inst.env_vol.type,
         this.inst.env_vol.sustain,
         this.inst.env_vol.loopstart,
-        this.inst.env_vol.loop_end);
+        this.inst.env_vol.loopend);
     }
     if (this.inst.env_pan) {
       this.envelopes.panning = new Envelope(
@@ -366,7 +386,7 @@ class Instrument {
         this.inst.env_pan.type,
         this.inst.env_pan.sustain,
         this.inst.env_pan.loopstart,
-        this.inst.env_pan.loop_end);
+        this.inst.env_pan.loopend);
     }
   }
 }
@@ -382,7 +402,12 @@ class Track {
     this.vR = 0;   // left right volume envelope followers (changes per sample)
     this.vLprev = 0;
     this.vRprev = 0;
-    this.mute = 0;
+    this.stateStack = [{
+      state: NORMAL,
+      properties: {
+        gain: 1,
+      },
+    }];
     this.volE = 0;
     this.panE = 0;
     this.retrig = 0;
@@ -405,6 +430,34 @@ class Track {
   updateAnalyserScopeData() {
     this.analyser.getByteTimeDomainData(this.analyserScopeData);
   }
+
+  pushState(state) {
+    if ('gain' in state.properties) {
+      this.gainNode.gain.value = state.properties.gain; 
+    } else {
+      state.properties.gain = this.gainNode.gain.value;
+    }
+    this.stateStack.push(state);
+  }
+
+  popState() {
+    const state = this.stateStack.pop();
+    this.gainNode.gain.value = this.getState().properties.gain;
+    return state;
+  }
+
+  getState() {
+    if (this.stateStack.length > 0) {
+      return this.stateStack[this.stateStack.length - 1];
+    } else {
+      return {
+        state: NORMAL,
+        properties: {
+          gain: 1,
+        },
+      };
+    }
+  }
 }
 
 class Player {
@@ -423,6 +476,7 @@ class Player {
     this.cur_ticksamp = 0;
     this.cur_tick = 0;
     song.song.globalVolume = this.max_global_volume = 128;
+    this.masterVolume = undefined;
 
     this.effects_t0 = [  // effect functions on tick 0
       this.eff_t1_0,  // 1, arpeggio is processed on all ticks
@@ -516,7 +570,9 @@ class Player {
       bypass: 0
     });
 
-    this.gainNode.connect(this.chorus);
+    this.masterGain = this.audioctx.createGain();
+
+    this.masterGain.connect(this.chorus);
     this.chorus.connect(this.audioctx.destination);
 
     this.playing = false;
@@ -545,6 +601,7 @@ class Player {
     Signal.connect(song, 'instrumentChanged', this, 'onInstrumentChanged');
     Signal.connect(song, 'instrumentListChanged', this, 'onInstrumentListChanged');
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
+    Signal.connect(state, "transportChanged", this, "onTransportChanged");
   }
 
   onTimerMessage(e) {
@@ -730,9 +787,9 @@ class Player {
         var track = {
           notedata: [
             {
-              notes: -1,
+              note: -1,
               instrument: -1,
-              volumne: -1,
+              volume: -1,
               fxtype: -1,
               fxparam: -1,
             }
@@ -750,21 +807,26 @@ class Player {
           if ("notedata" in track && track.notedata.length > 0) {
             event = track.notedata[0];
           }
+
           // instrument trigger
-          if ("note" in event && event.note !== -1 && event.instrument && event.instrument !== -1) {
+          if (event.instrument && event.instrument !== -1) {
             inst = this.instruments[event.instrument - 1];
             if (inst && inst.inst && inst.inst.samplemap) {
               ch.inst = inst;
-              // retrigger unless overridden below
-              ch.triggernote = true;
+              // reset properties, but let the same instrument and note keep playing.
+              // note: it doesn't matter what the instrument number is, it just retriggers the
+              // properties of the currently playing instrument. Only if you specify a note AND
+              // instrument does it change the playing instrument.
               if (ch.note && inst.inst.samplemap) {
                 const samp = inst.inst.samples[inst.inst.samplemap[ch.note]];
                 ch.vol = samp.vol;
                 ch.pan = samp.pan;
                 ch.fine = samp.fine;
+                if(ch.currentlyPlaying) {
+                  ch.currentlyPlaying.resetEnvelopes();
+                }
               }
             }
-            ch.triggernote = true;
           }
 
           // note trigger
@@ -776,14 +838,14 @@ class Player {
               if (inst && inst.inst && inst.inst.samplemap) {
                 var note = event.note;
                 ch.note = note;
-                if (ch.triggernote) {
+                //if (ch.triggernote) {
                   // if we were already triggering the note, reset vol/pan using
                   // (potentially) new sample
                   const samp = inst.inst.samples[inst.inst.samplemap[note]];
                   ch.pan = samp.pan;
                   ch.vol = samp.vol;
                   ch.fine = samp.fine;
-                }
+                //}
                 ch.triggernote = true;
               }
               ch.triggernote = true;
@@ -976,13 +1038,54 @@ class Player {
 
   toggleMuteTrack(index) {
     if (index < this.tracks.length) {
-      this.tracks[index].mute = !this.tracks[index].mute;
-      console.log(this.tracks[index].mute);
-      if(this.tracks[index].mute) {
+      const currentState = this.tracks[index].getState();
+      if (currentState.state === MUTE) {
+        this.tracks[index].popState();
+      } else if ([SILENT, SOLO].indexOf(currentState.state) === -1) {
+        this.tracks[index].pushState({
+          state: MUTE,
+          properties: {
+            gain: 0,
+          }
+        });
         this.tracks[index].gainNode.gain.value = 0;
-      } else {
-        this.tracks[index].gainNode.gain.value = 1;
       }
+      this.XMView.pushEvent({
+        t: this.audioctx.currentTime,
+      });
+    }
+  }
+
+  toggleSoloTrack(index) {
+    if (index < this.tracks.length) {
+      const currentState = this.tracks[index].getState();
+      if (currentState.state === SOLO) {
+        for (let t = 0; t < this.tracks.length; t += 1) {
+          this.tracks[t].popState();
+        }
+      } else {
+        for (let t = 0; t < this.tracks.length; t += 1) {
+          if (t === index) {
+            this.tracks[t].pushState({
+              state: SOLO,
+              properties: {
+                gain: this.tracks[t].gainNode.gain.value,
+              }
+            });
+          } else {
+            this.tracks[t].pushState({
+              state: SILENT,
+              properties: {
+                gain: 0,
+              }
+            });
+            this.tracks[t].gainNode.gain.value = 0;
+          }
+        }
+      }
+      this.XMView.pushEvent({
+        t: this.audioctx.currentTime,
+      });
     }
   }
 
@@ -1030,6 +1133,11 @@ class Player {
     this.reset();
   }
 
+  setMasterVolume(dB) {
+    let gain = Math.pow(10, dB/20);
+    this.masterGain.gain.value = gain;
+  }
+
   reset() {
     this.cur_pat = song.song.sequence[0].pattern;
     this.cur_row = 0;
@@ -1065,7 +1173,7 @@ class Player {
 
     // Initialise the channelinfo for each track.
     for(var i = 0; i < song.song.tracks.length; i += 1) {
-      var trackinfo = new Track(this.audioctx, this.gainNode);
+      var trackinfo = new Track(this.audioctx, this.masterGain);
       this.tracks.push(trackinfo);
     }
 
@@ -1074,6 +1182,10 @@ class Player {
     for(i = 0; i < song.song.instruments.length; i += 1) {
       this.instruments.push(new Instrument(i, this.audioctx));
     }
+
+    this.XMView.pushEvent({
+      t: this.audioctx.currentTime,
+    });
   }
 
   onInstrumentChanged(instrumentIndex) {
@@ -1098,6 +1210,13 @@ class Player {
     /*if (!this.playing && state.cursor.get("sequence") != this.cur_songpos) {
       this.cur_songpos = state.cursor.get("sequence");
     }*/
+  }
+
+  onTransportChanged() {
+    if (this.masterVolume !== state.transport.get("masterVolume")) {
+      this.masterVolume = state.transport.get("masterVolume");
+      this.setMasterVolume(state.transport.get("masterVolume"));
+    }
   }
 
   /* Load a local sound file using the player specific knowledge of formats

@@ -1,0 +1,11 @@
+{
+  "libs": [
+    "jquery"
+  ],
+  "loadEagerly": [
+    "./src/state.js"
+  ],
+  "plugins": [
+    "webpack"
+  ]
+}

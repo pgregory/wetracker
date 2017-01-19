@@ -57,6 +57,11 @@ $(document).ready(() => {
     window.requestAnimationFrame(() => {
       transport.refresh();
       tabs.refresh();
+      state.set({
+        transport: {
+          masterVolume: -10.0,
+        }
+      });
     });
   };
 

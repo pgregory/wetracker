@@ -46,13 +46,17 @@ export default class Transport {
     $(this.target).append(transportTemplate.renderToString({transport: state.transport.toJS(), song: song.song}));
 
     $(this.target).find("#master-volume").slider({
-      max: 1.0,
-      min: 0.0,
+      max: 3.0,
+      min: -36.0,
       range: "min",
-      step: 0.01,
-      value: player.gainNode.gain.value,
+      step: 0.1,
+      value: state.transport.get("masterVolume"),
       slide: (e, ui) => {
-        player.gainNode.gain.value = ui.value;
+        state.set({
+          transport: {
+            masterVolume: ui.value,
+          }
+        });
       },
     });
  
@@ -129,6 +133,8 @@ export default class Transport {
       $(this.target).find("#octave").val(state.transport.get("octave"));
       $(this.target).find("#bpm").val(state.transport.get("bpm"));
       $(this.target).find("#speed").val(state.transport.get("speed"));
+
+      $(this.target).find("#master-volume").slider('value', state.transport.get("masterVolume"));
 
       this.lastTransport = state.transport;
     }

@@ -45,12 +45,14 @@ export default class SampleEditor {
       this.sample = song.song.instruments[this.instrumentIndex].samples[this.sampleIndex];
       // Set default zoom to fill the window.
       const len = this.sample.len;
-      this.zoom = this.canvas.width / len;
-      this.minzoom = this.zoom;
-      this.yoff = Math.pow((this.zoom * 100.0), 1/3)*100.0;
-      this.minyoff = this.yoff;
-      const maxoffset = (this.sample.len * this.zoom) - this.canvas.width;
-      this.offset = Math.max(Math.min(this.offset, maxoffset), 0);
+      if (len > 0) {
+        this.zoom = this.canvas.width / len;
+        this.minzoom = this.zoom;
+        this.yoff = Math.pow((this.zoom * 100.0), 1/3)*100.0;
+        this.minyoff = this.yoff;
+        const maxoffset = (this.sample.len * this.zoom) - this.canvas.width;
+        this.offset = Math.max(Math.min(this.offset, maxoffset), 0);
+      }
     } catch(e) {
       this.instrument = undefined;
       this.sample = undefined;

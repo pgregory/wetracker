@@ -174,7 +174,7 @@ class XMLoader {
         var row = [];
         for (k = 0; k < newSong.tracks.length; k++) {
           var byte0 = dv.getUint8(idx); idx++;
-          var note = -1, inst = -1, vol = -1, efftype = 0, effparam = 0;
+          var note = -1, inst = -1, vol = -1, efftype = -1, effparam = 0;
           if (byte0 & 0x80) {
             if (byte0 & 0x01) {
               note = dv.getUint8(idx) - 1; idx++;
@@ -341,7 +341,7 @@ class XMLoader {
         }
         if (env_pan_type) {
           if (!(env_pan_type & 2)) {  // if there's no sustain point, create one
-            env_pan_sustain = env_pan.length / 2;
+            env_pan_sustain = (env_pan.length / 2) - 1;
           }
           inst.env_pan = { 
               points: env_pan,
