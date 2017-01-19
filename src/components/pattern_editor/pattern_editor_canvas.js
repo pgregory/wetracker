@@ -193,7 +193,7 @@ export default class PatternEditorCanvas {
   }
 
   initWidth() {
-    this.canvas.width = this._pattern_cellwidth * song.song.tracks.length;
+    this.canvas.width = this._pattern_cellwidth * state.song.get("tracks").size;
     this.timelines.each((i, t) => {
       t.width = this.timeline_canvas.width + this._timeline_right_margin;
     });
@@ -288,67 +288,60 @@ export default class PatternEditorCanvas {
   renderEvent(ctx, col, dx, dy) {
     var cw = this._pattern_character_width;
     var rh = this._pattern_row_height;
-    if ((col.note == null || col.note === -1) &&
-        (col.instrument == null || col.instrument === -1) &&
-        (col.volume == null || col.volume === -1 || col.volume < 0x10) &&
-        (col.fxtype == null || col.fxtype === -1 || col.fxparam == null || (col.fxtype === 0 && col.fxparam === 0)) ) {
-      //ctx.drawImage(this.empty_event_canvas, dx, dy);
+    // render note
+    var note = col.get("note");
+    if (note == null || note === -1) {
+      // no note = ...
+      ctx.drawImage(this.mixedFont, 8*39, 0, 8, 8, dx, dy, this._pattern_note_width, 8);
+    } else if (note === 96) {
+      ctx.fillStyle = "#000";
+      ctx.fillRect(dx, dy, this._pattern_note_width, 8);
+      ctx.strokeStyle = "#FFF";
+      ctx.strokeRect(dx + 1.5, dy + 1.5, this._pattern_note_width - 3, 3);
+    } else{
+      var notechars = this._note_names[note%12];
+      var octavechar = ~~(note/12) * 8;
+      ctx.drawImage(this.mixedFont, notechars[0], this.noteFontOffset, 8, 8, dx, dy, 8, 8);
+      ctx.drawImage(this.mixedFont, notechars[1], this.noteFontOffset, 8, 8, dx + cw, dy, 8, 8);
+      ctx.drawImage(this.mixedFont, octavechar, this.noteFontOffset, 8, 8, dx + (cw*2), dy, 8, 8);
+    }
+    dx += this._pattern_note_width + this._element_spacing;
+
+    // render instrument
+    var inst = col.get("instrument");
+    if (inst && inst != -1) {  // no instrument = render nothing
+      ctx.drawImage(this.mixedFont, 8*(inst>>4), this.instrumentFontOffset, 8, 8, dx, dy, 8, 8);
+      ctx.drawImage(this.mixedFont, 8*(inst&15), this.instrumentFontOffset, 8, 8, dx+cw, dy, 8, 8);
+    }
+    dx += this._pattern_inst_width + this._element_spacing;
+
+    // render volume
+    var vol = col.get("volume");
+    if (vol == null || vol < 0x10) {
+      // no volume = ..
+      ctx.drawImage(this.mixedFont, 312, 0, 8, 8, dx, dy, cw, 8);
+      ctx.drawImage(this.mixedFont, 312, 0, 8, 8, dx+cw, dy, cw, 8);
     } else {
-      // render note
-      var note = col.note;
-      if (note == null || note === -1) {
-        // no note = ...
-        ctx.drawImage(this.mixedFont, 8*39, 0, 8, 8, dx, dy, this._pattern_note_width, 8);
-      } else if (note === 96) {
-        ctx.fillStyle = "#000";
-        ctx.fillRect(dx, dy, this._pattern_note_width, 8);
-        ctx.strokeStyle = "#FFF";
-        ctx.strokeRect(dx + 1.5, dy + 1.5, this._pattern_note_width - 3, 3);
-      } else{
-        var notechars = this._note_names[note%12];
-        var octavechar = ~~(note/12) * 8;
-        ctx.drawImage(this.mixedFont, notechars[0], this.noteFontOffset, 8, 8, dx, dy, 8, 8);
-        ctx.drawImage(this.mixedFont, notechars[1], this.noteFontOffset, 8, 8, dx + cw, dy, 8, 8);
-        ctx.drawImage(this.mixedFont, octavechar, this.noteFontOffset, 8, 8, dx + (cw*2), dy, 8, 8);
-      }
-      dx += this._pattern_note_width + this._element_spacing;
+      ctx.drawImage(this.mixedFont, 8*(vol>>4), this.volumeFontOffset, 8, 8, dx, dy, cw, 8);
+      ctx.drawImage(this.mixedFont, 8*(vol&15), this.volumeFontOffset, 8, 8, dx+cw, dy, cw, 8);
+    }
+    dx += this._pattern_volu_width + this._element_spacing;
 
-      // render instrument
-      var inst = col.instrument;
-      if (inst && inst != -1) {  // no instrument = render nothing
-        ctx.drawImage(this.mixedFont, 8*(inst>>4), this.instrumentFontOffset, 8, 8, dx, dy, 8, 8);
-        ctx.drawImage(this.mixedFont, 8*(inst&15), this.instrumentFontOffset, 8, 8, dx+cw, dy, 8, 8);
-      }
-      dx += this._pattern_inst_width + this._element_spacing;
-
-      // render volume
-      var vol = col.volume;
-      if (vol == null || vol < 0x10) {
-        // no volume = ..
-        ctx.drawImage(this.mixedFont, 312, 0, 8, 8, dx, dy, cw, 8);
-        ctx.drawImage(this.mixedFont, 312, 0, 8, 8, dx+cw, dy, cw, 8);
-      } else {
-        ctx.drawImage(this.mixedFont, 8*(vol>>4), this.volumeFontOffset, 8, 8, dx, dy, cw, 8);
-        ctx.drawImage(this.mixedFont, 8*(vol&15), this.volumeFontOffset, 8, 8, dx+cw, dy, cw, 8);
-      }
-      dx += this._pattern_volu_width + this._element_spacing;
-
-      // render effect
-      var eff = col.fxtype;
-      var effdata = col.fxparam;
-      if ((eff != null && eff !== -1) && (eff !== 0 || effdata !== 0)) {
-        // draw effect with tiny font (4px space + effect type 0..9a..z)
-        ctx.drawImage(this.mixedFont, 8*eff, this.fxFontOffset, 8, 8, dx, dy, cw, 8);
-        dx += cw+2;
-        // (hexadecimal 4-width font)
-        ctx.drawImage(this.mixedFont, 8*(effdata>>4), this.fxFontOffset, 8, 8, dx, dy, cw, 8);
-        ctx.drawImage(this.mixedFont, 8*(effdata&15), this.fxFontOffset, 8, 8, dx+cw, dy, cw, 8);
-      } else {
-        // no effect = ...
-        ctx.drawImage(this.mixedFont, 312, 0, 8, 8, dx, dy, cw, 8);
-        ctx.drawImage(this.mixedFont, 312, 0, 8, 8, dx+cw+2, dy, cw, 8);
-        ctx.drawImage(this.mixedFont, 312, 0, 8, 8, dx+cw+2+cw, dy, cw, 8);
-      }
+    // render effect
+    var eff = col.get("fxtype");
+    var effdata = col.get("fxparam");
+    if ((eff != null && eff !== -1) && (eff !== 0 || effdata !== 0)) {
+      // draw effect with tiny font (4px space + effect type 0..9a..z)
+      ctx.drawImage(this.mixedFont, 8*eff, this.fxFontOffset, 8, 8, dx, dy, cw, 8);
+      dx += cw+2;
+      // (hexadecimal 4-width font)
+      ctx.drawImage(this.mixedFont, 8*(effdata>>4), this.fxFontOffset, 8, 8, dx, dy, cw, 8);
+      ctx.drawImage(this.mixedFont, 8*(effdata&15), this.fxFontOffset, 8, 8, dx+cw, dy, cw, 8);
+    } else {
+      // no effect = ...
+      ctx.drawImage(this.mixedFont, 312, 0, 8, 8, dx, dy, cw, 8);
+      ctx.drawImage(this.mixedFont, 312, 0, 8, 8, dx+cw+2, dy, cw, 8);
+      ctx.drawImage(this.mixedFont, 312, 0, 8, 8, dx+cw+2+cw, dy, cw, 8);
     }
   }
 
@@ -360,7 +353,8 @@ export default class PatternEditorCanvas {
     ctx.drawImage(this.empty_event_canvas, dx + this._event_left_margin, dy + (this._pattern_row_height - 8)/2);
   }
 
-  renderPattern(pattern) {
+  renderPattern(index) {
+    const pattern = state.song.getIn(["patterns", index]);
     var cw = this._pattern_character_width;
     var rh = this._pattern_row_height;
 
@@ -370,39 +364,31 @@ export default class PatternEditorCanvas {
     var ctx = this.pat_canvas.getContext('2d');
     ctx.imageSmoothingEnabled = false;
 
-    this.pat_canvas.width = song.song.tracks.length * cellwidth;
-    this.pat_canvas.height = pattern.numrows * rh;
+    this.pat_canvas.width = state.song.get("tracks").size * cellwidth;
+    this.pat_canvas.height = pattern.get("numrows") * rh;
 
     ctx.drawImage(this.empty_pattern_canvas, 0, 0);
 
-    for (var j = 0; j < pattern.rows.length; j++) {
-      var row = pattern.rows[j];
+    pattern.get("rows").forEach((row, j) => {
       var dy = j * rh + ((rh - 8)/2);
       var trackColumn = 0;
 
-      for (var tracki = 0; tracki < song.song.tracks.length; tracki += 1) {
-        var track = row != null? row[tracki] : undefined;
-        var trackinfo = song.song.tracks[tracki];
-        if(track) {
-          for (var coli = 0; coli < track.notedata.length; coli += 1) {
-            var col = track.notedata[coli];
+      state.song.get("tracks").forEach((trackinfo, tracki) => {
+        const track = state.song.getIn(["patterns", index, "rows", j, tracki]);
+        if (track && track.has("notedata")) {
+          track.get("notedata").forEach((col, coli) => {
             var dx = ((trackColumn + coli) * cellwidth) + this._event_left_margin;
             this.renderEvent(ctx, col, dx, dy);
-          }
-        } else {
-          for (var coli = 0; coli < trackinfo.columns.length; coli += 1) {
-            var dx = ((trackColumn + coli) * cellwidth) + this._event_left_margin;
-            this.renderEvent(ctx, {}, dx, dy);
-          }
-        }
-        trackColumn += trackinfo.columns.length;
-      }
-    }
+          });
+        } 
+        trackColumn += trackinfo.get("columns").size;
+      });
+    });
     // Render beat rows in a separate loop to avoid thrashing state changes
     ctx.globalCompositeOperation = 'lighten';
     for (var j = 0; j < pattern.numrows; j++) {
       var dy = j * rh;
-      if (j % song.song.speed == 0) {
+      if (j % state.song.get("speed") == 0) {
         // Render a beat marker
         ctx.fillStyle = '#333';
         ctx.fillRect(0, dy, this.pat_canvas.width, this._pattern_row_height);
@@ -413,7 +399,7 @@ export default class PatternEditorCanvas {
 
   renderEventBeat(ctx, cursor, cx, cy) {
     ctx.globalCompositeOperation = 'lighten';
-    if (cursor.row % song.song.speed == 0) {
+    if (cursor.row % state.song.get("speed") == 0) {
       // Render a beat marker
       ctx.fillStyle = '#333';
       ctx.fillRect(cx, cy, this._pattern_cellwidth, this._pattern_row_height);
@@ -421,19 +407,16 @@ export default class PatternEditorCanvas {
     ctx.globalCompositeOperation = 'source-over';
   }
 
-  stressPatternRender(count) {
-    for(var i = 0; i < count; i +=1 ) {
-      this.renderPattern(song.song.patterns[song.song.sequence[state.cursor.get("sequence")].pattern]);
-      console.log(i);
-    }
-  }
-
   render() {
     $(this.target).addClass('pattern-editor');
 
     const pindex = state.cursor.get("pattern");
-    const p = song.song.patterns[pindex];
-    $(this.target).append(patternEditorTemplate.renderToString({transport: state.transport.toJS(), song: song.song, pattern: p}));
+    const p = state.song.getIn(["patterns", pindex]);
+    $(this.target).append(patternEditorTemplate.renderToString({
+      transport: state.transport.toJS(), 
+      tracks: state.song.get("tracks").toJS(), 
+      pattern: p.toJS()
+    }));
     this.canvas = $(this.target).find("canvas#gfxpattern")[0];
     this.timelines = $(this.target).find("canvas.timelinecanvas");
 
@@ -482,10 +465,7 @@ export default class PatternEditorCanvas {
         state.cursor.get("pattern") !== this.lastCursor.pattern ||
         this.patterndata.scrollLeft() !== this.xoffset) {
       if (state.cursor.get("pattern") !== this.lastCursor.pattern) {
-        var p = song.song.patterns[state.cursor.get("pattern")];
-        if (p) {
-          this.renderPattern(p);
-        }
+        this.renderPattern(state.cursor.get("pattern"));
       }
 
       this.redrawCanvas();
@@ -520,32 +500,22 @@ export default class PatternEditorCanvas {
     ctx.drawImage(this.pat_canvas, 0, this.canvas.height / 2 - (this._pattern_row_height/2) - this._pattern_row_height*(state.cursor.get("row")));
     ctx.fillStyle = '#000';
     ctx.clearRect(0, 0, this.canvas.width, this._pattern_header_height);
-    ctx.font = "16px monospace";
-    ctx.textAlign = "center";
-    for(var i = 0; i < song.song.tracks.length; i += 1) {
-      var dx = i * this._pattern_cellwidth;
-      ctx.fillStyle = '#000';
-      ctx.fillRect(dx, 0, this._pattern_cellwidth, this._pattern_header_height);
-      ctx.fillStyle = '#FFF';
-      var trackname = song.song.tracks[i].name;
-      //ctx.fillText(trackname, dx + (this._pattern_cellwidth/2), 15, this._pattern_cellwidth);
-    }
 
     ctx.lineWidth = 2;
     ctx.strokeStyle = this.track_border_colour;
     ctx.beginPath();
-    for(var i = 1; i <= song.song.tracks.length; i += 1) {
+    state.song.get("tracks").forEach((t, i) => {
       var dx = i * this._pattern_cellwidth;
       ctx.moveTo(dx, 0);
       ctx.lineTo(dx, this.canvas.height);
-    }
+    });
     ctx.stroke();
 
     // Draw the timeline fixed to the left of the view.
     this.timelines.each((i, t) => {
       var tctx = t.getContext('2d');
       var tlw = this.timeline_canvas.width;
-      var tlh = this._pattern_row_height * song.song.patterns[state.cursor.get("pattern")].numrows;
+      var tlh = this._pattern_row_height * state.song.getIn(["patterns", state.cursor.get("pattern"), "numrows"]);
       tctx.fillStyle = '#000';
       tctx.fillRect(0, 0, this.timeline_canvas.width, this.canvas.height);
       tctx.drawImage(this.timeline_canvas, 0, 0, tlw, tlh, 0, this.canvas.height / 2 - (this._pattern_row_height/2) - this._pattern_row_height*(state.cursor.get("row")), tlw, tlh);
@@ -597,7 +567,7 @@ export default class PatternEditorCanvas {
       if (Math.abs(this.yoff) >= this._pattern_row_height) {
         const rowIncr = Math.floor(this.yoff / this._pattern_row_height);
         let row = state.cursor.get("row") + rowIncr;
-        var maxrow = song.song.patterns[state.cursor.get('pattern')].numrows;
+        var maxrow = state.song.getIn(["patterns", state.cursor.get('pattern'), "numrows"]);
         row = ((row % maxrow) + maxrow) % maxrow;
         state.set({
           cursor: {
@@ -646,7 +616,7 @@ export default class PatternEditorCanvas {
     var clickRow = Math.floor((ypos - cy) / this._pattern_row_height);
     var row = state.cursor.get("row") + clickRow;
 
-    const maxrow = song.song.patterns[state.cursor.get("pattern")].numrows;
+    const maxrow = state.song.getIn(["patterns", state.cursor.get("pattern"), "numrows"]);
     if (row < 0) {
       row = 0;
     } else if (row >= maxrow) {
@@ -695,7 +665,7 @@ export default class PatternEditorCanvas {
       }
     }
 
-    $(this.target).find("#length").val(song.song.patterns[state.cursor.get("pattern")].numrows);
+    $(this.target).find("#length").val(state.song.getIn(["patterns", state.cursor.get("pattern"), "numrows"]));
 
     var widget = $(this.target).parent(".chrome");
     if (widget.length > 0) {
@@ -727,14 +697,6 @@ export default class PatternEditorCanvas {
 
   onSongChanged() {
     this.lastCursor = {};
-    // Reset the pattern editor for the new song.
-    var pattern = undefined;
-    try {
-      pattern = song.song.sequence[0].pattern;
-    } catch(e) {
-      // It's ok, just leave it undefined for now.
-      pattern = undefined;
-    }
     this.refresh();
     state.set({
       cursor: {

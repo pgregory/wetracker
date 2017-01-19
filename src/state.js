@@ -34,6 +34,8 @@ export class State {
       positions: [],
     });
 
+    this.song = new Immutable.Map();
+
     this.cursorChanged = Signal.signal(true);
     this.tracksChanged = Signal.signal(true);
     this.transportChanged = Signal.signal(true);
@@ -63,6 +65,11 @@ export class State {
     if ('playingInstruments' in state ) {
       this.playingInstruments = this.playingInstruments.merge(state.playingInstruments);
       this.playingInstrumentsChanged();
+    }
+
+    if ('song' in state) {
+      console.log("Song in state changed");
+      this.song = this.song.merge(state.song);
     }
   }
 }

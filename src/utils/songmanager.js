@@ -86,6 +86,60 @@ export class SongManager {
     return notecol;
   }
 
+  updateEventAtCursor(cursor, event) {
+    if (state.song.hasIn(["patterns", cursor.pattern, "rows", cursor.row, cursor.track, "notedata"])) {
+      state.set({
+        song: {
+          patterns: state.song.get("patterns").setIn(["rows", cursor.pattern, cursor.row, cursor.track, "notedata", cursor.column], Immutable.fromJS(event)),
+        }
+      });
+    } else if (state.song.hasIn(["patterns", cursor.pattern, "rows", cursor.row])) {
+      const newTrack = {
+        "notedata": [],
+        trackindex: cursor.track,
+      };
+      newTrack.notedata[cursor.column] = event;
+      state.set({
+        song: {
+          patterns: state.song.get("patterns").setIn([cursor.pattern, "rows", cursor.row, cursor.track], Immutable.fromJS(newTrack)),
+        }
+      });
+    } else if (state.song.hasIn(["patterns", cursor.pattern])) {
+      const newTrack = {
+        "notedata": [],
+        trackindex: cursor.track,
+      };
+      newTrack.notedata[cursor.column] = event;
+      const newRow = [];
+      newRow[cursor.track] = newTrack;
+      state.set({
+        song: {
+          patterns: state.song.get("patterns").setIn([cursor.pattern, cursor.row], Immutable.fromJS(newRow)),
+        }
+      });
+    } else {
+      const newTrack = {
+        "notedata": [],
+        trackindex: cursor.track,
+      };
+      newTrack.notedata[cursor.column] = event;
+      const newRow = [];
+      newRow[cursor.track] = newTrack;
+      const newPattern = {
+        patternid: `p${cursor.pattern}`,
+        name: `Pattern ${cursore.pattern}`,
+        numrows: 32,
+        rows: [] 
+      };
+      newPattern.rows[cursor.row] = newRow;
+      state.set({
+        song: {
+          patterns: state.song.get("patterns").set(cursor.pattern, Immutable.fromJS(newPattern)), 
+        }
+      });
+    }
+  }
+
   addNoteToSong(cursor, note, instrument = null) {
     const notecol = this.findEventAtCursor(cursor);
     notecol['note'] = note;
@@ -93,6 +147,9 @@ export class SongManager {
       notecol['instrument'] = instrument;
     }
     this.eventChanged(cursor, notecol);
+
+    this.updateEventAtCursor(cursor, notecol);
+    //console.log(state.song.getIn(["patterns", cursor.pattern, "rows", cursor.row, cursor.track, "notedata", cursor.column]));
   }
 
   deleteItemAtCursor(cursor) {
@@ -119,6 +176,8 @@ export class SongManager {
       }
       this.eventChanged(cursor, notecol);
     }
+
+    this.updateEventAtCursor(cursor, notecol);
   }
 
   setHexValueAtCursor(cursor, value) {
@@ -134,6 +193,8 @@ export class SongManager {
       notecol[entry] = (notecol[entry] & mask) | vald;
       this.eventChanged(cursor, notecol);
     }
+
+    this.updateEventAtCursor(cursor, notecol);
   }
 
   setFXAtCursor(cursor, value) {
@@ -148,6 +209,8 @@ export class SongManager {
       notecol.fxtype = value;
       this.eventChanged(cursor, notecol);
     }
+
+    this.updateEventAtCursor(cursor, notecol);
   }
 
   newSong() {
@@ -160,6 +223,7 @@ export class SongManager {
         bpm: this.song.bpm,
         speed: this.song.speed,
       },
+      song: this.song,
     });
 
     this.songChanged();
@@ -334,6 +398,7 @@ export class SongManager {
         bpm: this.song.bpm,
         speed: this.song.speed,
       },
+      song,
     });
 
     this.songChanged();
