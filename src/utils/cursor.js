@@ -17,20 +17,24 @@ const items = [
 
 export class CursorManager {
   constructor() {
-    MouseTrap.bind("down", (e) => {
-      this.rowDown();
+    MouseTrap.bind(["down", "shift+down"], (e) => {
+      const selectMode = e.shiftKey;
+      this.rowDown(1, selectMode);
       e.preventDefault();
     });
-    MouseTrap.bind("up", (e) => {
-      this.rowUp();
+    MouseTrap.bind(["up", "shift+up"], (e) => {
+      const selectMode = e.shiftKey;
+      this.rowUp(1, selectMode);
       e.preventDefault();
     });
-    MouseTrap.bind("right", (e) => {
-      this.itemRight();
+    MouseTrap.bind(["right", "shift+right"], (e) => {
+      const selectMode = e.shiftKey;
+      this.itemRight(selectMode);
       e.preventDefault();
     });
-    MouseTrap.bind("left", (e) => {
-      this.itemLeft();
+    MouseTrap.bind(["left", "shift+left"], (e) => {
+      const selectMode = e.shiftKey;
+      this.itemLeft(selectMode);
       e.preventDefault();
     });
     MouseTrap.bind("backspace", (e) => {
@@ -42,31 +46,69 @@ export class CursorManager {
     });
   }
 
-  rowUp(count = 1) {
+  storeStartCursor() {
+    if (!(state.cursor.get("selecting"))) {
+      state.set({
+        cursor: {
+          row_start: state.cursor.get("row"),
+          track_start: state.cursor.get("track"),
+          column_start: state.cursor.get("column"),
+          item_start: state.cursor.get("item"),
+          selecting: true,
+        }
+      });
+    }
+  }
+
+  resetStartCursor() {
+    state.set({
+      cursor: {
+        row_start: state.cursor.get("row"),
+        track_start: state.cursor.get("track"),
+        column_start: state.cursor.get("column"),
+        item_start: state.cursor.get("item"),
+        selecting: false,
+      }
+    });
+  }
+
+  rowUp(count, selectMode) {
     let row = state.cursor.get("row") - count;
     if (row < 0) {
       row = song.song.patterns[state.cursor.get("pattern")].numrows + row;
     }
+    if (selectMode) {
+      this.storeStartCursor();
+    } 
     state.set({
       cursor: {
         row,
       }
     });
+    if (!selectMode) {
+      this.resetStartCursor();
+    }
   }
 
-  rowDown(count = 1) {
+  rowDown(count, selectMode) {
     let row = state.cursor.get("row") + count;
     if (row >= song.song.patterns[state.cursor.get("pattern")].numrows) {
       row = 0 + (row - song.song.patterns[state.cursor.get("pattern")].numrows);
+    }
+    if (selectMode) {
+      this.storeStartCursor();
     }
     state.set({
       cursor: {
         row,
       }
     });
+    if (!selectMode) {
+      this.resetStartCursor();
+    }
   }
 
-  itemLeft() {
+  itemLeft(selectMode) {
     let item = state.cursor.get("item");
     let track = state.cursor.get("track");
     let column = state.cursor.get("column");
@@ -82,6 +124,9 @@ export class CursorManager {
         column = song.song.tracks[track].columns.length - 1;
       }
     }
+    if (selectMode) {
+      this.storeStartCursor();
+    }
     state.set({
       cursor: {
         track,
@@ -89,9 +134,12 @@ export class CursorManager {
         item, 
       }
     });
+    if (!selectMode) {
+      this.resetStartCursor();
+    }
   }
 
-  itemRight() {
+  itemRight(selectMode) {
     let item = state.cursor.get("item");
     let track = state.cursor.get("track");
     let column = state.cursor.get("column");
@@ -108,6 +156,9 @@ export class CursorManager {
         }
       }
     }
+    if (selectMode) {
+      this.storeStartCursor();
+    }
     state.set({
       cursor: {
         track,
@@ -115,6 +166,9 @@ export class CursorManager {
         item, 
       }
     });
+    if (!selectMode) {
+      this.resetStartCursor();
+    }
   }
 }
 

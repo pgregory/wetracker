@@ -514,22 +514,9 @@ export default class PatternEditorCanvas {
     var patternheight = this.canvas.height - this._pattern_header_height;
 
     ctx.imageSmoothingEnabled = false;
-    ctx.fillStyle = '#000';
-    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     ctx.globalCompositeOperation = 'source-over';
     ctx.drawImage(this.pat_canvas, 0, this.canvas.height / 2 - (this._pattern_row_height/2) - this._pattern_row_height*(state.cursor.get("row")));
-    ctx.fillStyle = '#000';
-    ctx.clearRect(0, 0, this.canvas.width, this._pattern_header_height);
-    ctx.font = "16px monospace";
-    ctx.textAlign = "center";
-    for(var i = 0; i < song.song.tracks.length; i += 1) {
-      var dx = i * this._pattern_cellwidth;
-      ctx.fillStyle = '#000';
-      ctx.fillRect(dx, 0, this._pattern_cellwidth, this._pattern_header_height);
-      ctx.fillStyle = '#FFF';
-      var trackname = song.song.tracks[i].name;
-      //ctx.fillText(trackname, dx + (this._pattern_cellwidth/2), 15, this._pattern_cellwidth);
-    }
 
     ctx.lineWidth = 2;
     ctx.strokeStyle = this.track_border_colour;
@@ -583,6 +570,40 @@ export default class PatternEditorCanvas {
     ctx.lineWidth = 1;
     ctx.strokeRect(cx-1, cy-1, this._cursor_sizes[state.cursor.get("item")]+2, this._pattern_row_height+2);
 
+    // Draw select region
+    if (state.cursor.get("selecting")) {
+      ctx.save();
+
+      let start_cursor_sy = cy - (state.cursor.get("row") - state.cursor.get("row_start")) * this._pattern_row_height;
+      let start_cursor_sx = this._event_left_margin;
+      start_cursor_sx += state.cursor.get("track_start") * this._pattern_cellwidth;
+      for(var i = 1; i <= state.cursor.get("item_start"); i += 1) {
+        start_cursor_sx += this._cursor_offsets[i];
+      }
+      let start_cursor_ex = start_cursor_sx + this._cursor_sizes[state.cursor.get("item_start")];
+      let start_cursor_ey = start_cursor_sy + this._pattern_row_height;
+
+      let end_cursor_sy = cy;
+      let end_cursor_sx = cx;
+      let end_cursor_ex = end_cursor_sx + this._cursor_sizes[state.cursor.get("item")];
+      let end_cursor_ey = end_cursor_sy + this._pattern_row_height;
+
+      const c1x = Math.min(start_cursor_sx, end_cursor_sx);
+      const c1y = Math.min(start_cursor_sy, end_cursor_sy);
+      const c2x = Math.max(start_cursor_ex, end_cursor_ex);
+      const c2y = Math.max(start_cursor_ey, end_cursor_ey);
+
+      console.log(c1x, c1y, c2x, c2y);
+
+      ctx.fillStyle = '#0F0';
+      ctx.strokeStyle = '#0F0';
+      ctx.globalAlpha = 0.2;
+      ctx.fillRect(c1x, c1y, c2x - c1x, c2y - c1y);
+      ctx.globalAlpha = 1.0;
+      ctx.strokeRect(c1x - 1, c1y - 1, c2x - c1x + 2, c2y - c1y + 2);
+      ctx.restore();
+    }
+    ctx.clearRect(0, 0, this.canvas.width, this._pattern_header_height);
   }
 
   refresh() {

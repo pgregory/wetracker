@@ -7,12 +7,17 @@ export class State {
       pattern: 0,
       sequence: 0,
       row: 0,
+      row_start: 0,
       track: 0,
+      track_start: 0,
       column: 0,
+      column_start: 0,
       item: 0,
+      item_start: 0,
       instrument: 0,
       sample: 0,
       record: false,
+      selecting: false,
     });
 
     this.tracks = new Immutable.Map({
