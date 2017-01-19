@@ -556,9 +556,9 @@ class Player {
 
     var audioContext = window.AudioContext || window.webkitAudioContext;
     this.audioctx = new audioContext();
-    this.gainNode = this.audioctx.createGain();
+    this.masterGain = this.audioctx.createGain();
 
-    this.gainNode.connect(this.audioctx.destination);
+    this.masterGain.connect(this.audioctx.destination);
 
     this.playing = false;
     this.lookahead = 25;
@@ -1120,7 +1120,7 @@ class Player {
 
   setMasterVolume(dB) {
     let gain = Math.pow(10, dB/20);
-    this.gainNode.gain.value = gain;
+    this.masterGain.gain.value = gain;
   }
 
   reset() {
@@ -1158,7 +1158,7 @@ class Player {
 
     // Initialise the channelinfo for each track.
     for(var i = 0; i < song.song.tracks.length; i += 1) {
-      var trackinfo = new Track(this.audioctx, this.gainNode);
+      var trackinfo = new Track(this.audioctx, this.masterGain);
       this.tracks.push(trackinfo);
     }
 
