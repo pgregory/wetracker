@@ -22,6 +22,7 @@ export default class SampleMapper {
     this.instrument = undefined;
     this.selectedSegment = undefined;
     this.yoff = 0;
+    this.instrumentIndex = state.cursor.get("instrument");
 
     this.playingNotes = [];
 
@@ -32,7 +33,7 @@ export default class SampleMapper {
     Signal.connect(virtualKeyboard, "noteDown", this, "onNoteDown");
     Signal.connect(virtualKeyboard, "noteUp", this, "onNoteUp");
 
-    this.setInstrument(song.song.instruments[state.cursor.get("instrument")]);
+    this.setInstrument(state.cursor.get("instrument"));
     this.updateSegments();
   }
 
@@ -254,6 +255,7 @@ export default class SampleMapper {
       for(let i = 0; i < this.segments.length; i += 1) {
         this.instrument.samplemap.fill(this.segments[i].instrument, this.segments[i].start, this.segments[i].end);
       }
+      song.updateInstrument(this.instrumentIndex, this.instrument);
     }
   } 
 
@@ -383,8 +385,9 @@ export default class SampleMapper {
     }
   }
 
-  setInstrument(instrument) {
-    this.instrument = instrument;
+  setInstrument(instrumentIndex) {
+    this.instrument = state.song.getIn(["instruments", instrumentIndex]).toJS();
+    this.instrumentIndex = instrumentIndex;
     this.updateSegments();
   }
 
@@ -396,7 +399,7 @@ export default class SampleMapper {
 
   onCursorChanged() {
     if (state.cursor.get("instrument") !== this.lastCursor.get("instrument")) {
-      this.setInstrument(song.song.instruments[state.cursor.get("instrument")]);
+      this.setInstrument(state.cursor.get("instrument"));
       this.selectedSegment = undefined;
       this.target.empty();
       this.render();
@@ -405,7 +408,7 @@ export default class SampleMapper {
   }
 
   onSongChanged() {
-    this.setInstrument(song.song.instruments[state.cursor.get("instrument")]);
+    this.setInstrument(state.cursor.get("instrument"));
     this.refresh();
   }
 

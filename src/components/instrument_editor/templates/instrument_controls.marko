@@ -1,7 +1,7 @@
 <div class="instrument-editor">
   <div class="instrument-controls">
     <div class="control-panel">
-      <div class="control-group">
+      <div class="control-group" if(data.instrument)>
         <div class="control">
           <label for="fadeout">Fadeout</label>
           <input type="range" id="fadeout" min="0" max="4095" value="${data.instrument.fadeout}"/>

@@ -68,7 +68,6 @@ export class State {
     }
 
     if ('song' in state) {
-      console.log("Song in state changed");
       this.song = this.song.merge(state.song);
     }
   }

@@ -21,10 +21,11 @@ export default class Monitors {
 
   render() {
     $(this.target).addClass('monitors');
-    var columns = Math.ceil(song.song.tracks.length / 2.0);
-    $(this.target).append(monitorsTemplate.renderToString({song: song.song, columns}));
+    const numtracks = state.song.get("tracks").size;
+    const columns = Math.ceil(state.song.get("tracks").size / 2.0);
+    $(this.target).append(monitorsTemplate.renderToString({numtracks, columns}));
 
-    for (var j = 0; j < song.song.tracks.length; j++) {
+    for (var j = 0; j < numtracks; j++) {
       var canvas = document.getElementById(`vu${j}`);
       canvas.width = canvas.offsetWidth;
       canvas.height = canvas.offsetHeight;
@@ -66,17 +67,17 @@ export default class Monitors {
     ctx.fillStyle = '#888';
     ctx.textAlign = 'start';
     ctx.textBaseline = 'top';
-    ctx.fillText(track.name, 2, 2);
+    ctx.fillText(track.get("name"), 2, 2);
   }
 
   renderMonitors() {
     var e = state.tracks;
+    const numtracks = state.song.get("tracks").size;
     // update VU meters & oscilliscopes
-    for (var j = 0; j < song.song.tracks.length; j++) {
+    state.song.get("tracks").forEach( (track, j) => {
       var canvas = document.getElementById(`vu${j}`);
       var ctx = canvas.getContext("2d");
       var ch = player.tracks[j];
-      let track = song.song.tracks[j];
 
       ctx.fillStyle = '#000';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -137,7 +138,7 @@ export default class Monitors {
 
         ctx.stroke(); 
       }
-    }
+    });
   }
 
   refresh() {

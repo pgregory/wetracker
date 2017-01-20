@@ -247,18 +247,23 @@ export class SongManager {
 
   addSampleToInstrument(instrumentIndex) {
     try {
-      this.song.instruments[instrumentIndex].samples.push({
-        'len': 0, 
-        'loop': 0,
-        'looplen': 0, 
-        'note': 0, 
-        'fine': 0,
-        'pan': 0, 
-        'type': 0, 
-        'vol': 0x40,
-        'fileoffset': 0, 
-        'name': `Sample ${this.song.instruments[instrumentIndex].samples.length}`,
+      state.set({
+        song: {
+          instruments: state.song.get("instruments").setIn([instrumentIndex, "samples"], state.song.getIn(["instruments", instrumentIndex, "samples"]).push(Immutable.fromJS({
+            'len': 0, 
+            'loop': 0,
+            'looplen': 0, 
+            'note': 0, 
+            'fine': 0,
+            'pan': 0, 
+            'type': 0, 
+            'vol': 0x40,
+            'fileoffset': 0, 
+            'name': `Sample ${state.song.getIn(["instruments", instrumentIndex, "samples"]).size}`,
+          }))),
+        }
       });
+
       this.instrumentChanged(instrumentIndex);
       state.set({
         cursor: {
@@ -566,7 +571,12 @@ export class SongManager {
     }
   }
 
-  updateInstrument(instrumentIndex) {
+  updateInstrument(instrumentIndex, data) {
+    state.set({
+      song: {
+          instruments: state.song.get("instruments").set(instrumentIndex, Immutable.fromJS(data)), 
+      }
+    });
     this.instrumentChanged(instrumentIndex);
   }
 
