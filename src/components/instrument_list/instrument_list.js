@@ -25,7 +25,8 @@ export default class InstrumentList {
     const target = $(this.target);
     target.addClass('instrument-list');
 
-    target.append(instrumentsTemplate.renderToString({song: song.song, cursor: state.cursor.toJS()}));
+    const instruments = state.song.get("instruments").toJS();
+    target.append(instrumentsTemplate.renderToString({instruments, cursor: state.cursor.toJS()}));
 
     this.rowHeight = target.find(".instrument-row")[0].clientHeight;
 
@@ -86,7 +87,7 @@ export default class InstrumentList {
   onScroll(e) {
     this.yoff += e.originalEvent.deltaY;
     var row = Math.floor((this.yoff) / this.rowHeight);
-    var maxrow = song.song.instruments.length;
+    var maxrow = state.song.get("instruments").size;
     row = ((row % maxrow) + maxrow) % maxrow;
 
     if(row !== this.lastCursor.instrument) {

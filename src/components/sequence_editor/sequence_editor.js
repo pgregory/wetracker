@@ -15,13 +15,15 @@ export default class SequenceEditor {
     this.lastCursor = undefined;
 
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
-    Signal.connect(song, "songChanged", this, "onSongChanged");
     Signal.connect(song, "sequenceChanged", this, "onSequenceChanged");
+    Signal.connect(song, "sequenceItemChanged", this, "onSequenceItemChanged");
   }
 
   render() {
     const target = $(this.target);
-    target.append(sequencesTemplate.renderToString({song: song.song, cursor: state.cursor.toJS()}));
+
+    const sequence = state.song.get("sequence").toJS();
+    target.append(sequencesTemplate.renderToString({sequence, cursor: state.cursor.toJS()}));
 
     this.rowHeight = $(this.target).find(".sequence-row")[0].clientHeight;
 
@@ -63,6 +65,7 @@ export default class SequenceEditor {
   refresh() {
     $(this.target).empty();
     this.render();
+    this.showCurrentSequence();
   }
 
   showCurrentSequence() {
@@ -71,13 +74,13 @@ export default class SequenceEditor {
     $(this.target).find(".list-container").scrollTop(state.cursor.get("sequence")*this.rowHeight);
   }
 
-  onSongChanged() {
+  onSequenceChanged() {
     this.refresh();
   }
 
-  onSequenceChanged(sequence) {
+  onSequenceItemChanged(sequence) {
     const s = $(this.target).find(`.sequence-row[data-sequenceindex="${sequence}"] .sequence-pattern div`);
-    s.text(song.song.sequence[sequence].pattern);
+    s.text(state.song.getIn(["sequence", sequence, "pattern"]));
   }
 
   onCursorChanged() {
@@ -92,14 +95,14 @@ export default class SequenceEditor {
     if(Math.abs(this.yoff) >= this.rowHeight) {
       const rowIncr = Math.floor(this.yoff / this.rowHeight);
       let row = state.cursor.get("sequence") + rowIncr;
-      const maxrow = song.song.sequence.length - 1;
+      const maxrow = state.song.get("sequence").size - 1;
       row = Math.min(Math.max(row, 0), maxrow);
 
       if(row !== this.lastCursor.sequence) {
-        var pattern = song.song.sequence[row].pattern;
+        var pattern = state.song.getIn(["sequence", row, "pattern"]);
 
         let patrow = state.cursor.get("row");
-        var maxpatrow = song.song.patterns[pattern].numrows;
+        var maxpatrow = state.song.getIn(["patterns", pattern, "numrows"]);
         patrow = ((patrow % maxpatrow) + maxpatrow) % maxpatrow;
 
         state.set({

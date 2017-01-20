@@ -386,7 +386,7 @@ export default class PatternEditorCanvas {
     });
     // Render beat rows in a separate loop to avoid thrashing state changes
     ctx.globalCompositeOperation = 'lighten';
-    for (var j = 0; j < pattern.numrows; j++) {
+    for (var j = 0; j < pattern.get("numrows"); j++) {
       var dy = j * rh;
       if (j % state.song.get("speed") == 0) {
         // Render a beat marker

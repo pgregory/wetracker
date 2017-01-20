@@ -24,7 +24,9 @@ export class SongManager {
     this.bpmChanged = Signal.signal(false);
     this.speedChanged = Signal.signal(false);
     this.sequenceChanged = Signal.signal(false);
+    this.sequenceItemChanged = Signal.signal(false);
     this.trackChanged = Signal.signal(false);
+    this.patternChanged = Signal.signal(false);
 
     this.eventEntries = [
       'note',
@@ -49,39 +51,54 @@ export class SongManager {
   }
 
   findEventAtCursor(cursor) {
-    if (cursor.pattern >= this.song.patterns.length) {
-      this.song.patterns[cursor.pattern] = {
-        patternid: `p${this.song.patterns.length + 1}`,
-        name: `Pattern ${this.song.patterns.length + 1}`,
-        numrows: 32,
-        rows: [] 
-      };
+    if (!state.song.hasIn(["patterns", cursor.pattern])) {
+      state.song.set({
+        song: {
+          patterns: state.song.get("patterns").set(cursor.pattern, Immutable.fromJS({
+            patternid: `p${cursor.pattern}`,
+            name: `Pattern ${cursor.pattern}`,
+            numrows: 32,
+            rows: [] 
+          })),
+        }
+      });
     }
-    const pattern = this.song.patterns[cursor.pattern];
 
-    if (cursor.row >= pattern.rows.length ||
-        !pattern.rows[cursor.row]) {
-      pattern.rows[cursor.row] = [];
+    if (!state.song.hasIn(["pattern", cursor.pattern, "rows", cursor.row])) {
+      state.set({
+        song: {
+          patterns: state.song.get("patterns").setIn([cursor.pattern, "rows", cursor.row], new Immutable.List()),
+        },
+      });
     }
-    const row = pattern.rows[cursor.row];
 
-    if (cursor.track >= row.length || row[cursor.track] == null) {
-      row[cursor.track] = {
-        trackindex: cursor.track,
-        notedata: []
-      };
+    if (!state.song.hasIn(["pattern", cursor.pattern, "rows", cursor.row, cursor.track])) {
+      state.set({
+        song: {
+          patterns: state.song.get("patterns").setIn([cursor.pattern, "rows", cursor.row, cursor.track], Immutable.fromJS({
+            trackindex: cursor.track,
+            notedata: []
+          })),
+        },
+      });
     }
-    const track = row[cursor.track];
 
-    if (!("notedata" in track)) {
-      track["notedata"] = [];
+    if (state.song.hasIn(["patterns", cursor.pattern, "rows", cursor.row, cursor.track, "notedata"])) {
+      state.set({
+        song: {
+          patterns: state.song.get("patterns").setIn([cursor.pattern, "rows", cursor.row, cursor.track, "notedata"], new Immutable.List()),
+        },
+      });
     }
-    const events = track.notedata;
 
-    if (cursor.column >= events.length) {
-      events[cursor.column] = {};
+    if (!state.song.hasIn(["patterns", cursor.pattern, "rows", cursor.row, cursor.track, "notedata", cursor.column])) {
+      state.set({
+        song: {
+          patterns: state.song.get("patterns").setIn([cursor.pattern, "rows", cursor.row, cursor.track, "notedata", cursor.column], new Immutable.Map()),
+        },
+      });
     }
-    const notecol = events[cursor.column];
+    const notecol = state.song.getIn(["patterns", cursor.pattern, "rows", cursor.row, cursor.track, "notedata", cursor.column]);
 
     return notecol;
   }
@@ -90,7 +107,7 @@ export class SongManager {
     if (state.song.hasIn(["patterns", cursor.pattern, "rows", cursor.row, cursor.track, "notedata"])) {
       state.set({
         song: {
-          patterns: state.song.get("patterns").setIn(["rows", cursor.pattern, cursor.row, cursor.track, "notedata", cursor.column], Immutable.fromJS(event)),
+          patterns: state.song.get("patterns").setIn([cursor.pattern, "rows", cursor.row, cursor.track, "notedata", cursor.column], event),
         }
       });
     } else if (state.song.hasIn(["patterns", cursor.pattern, "rows", cursor.row])) {
@@ -98,7 +115,7 @@ export class SongManager {
         "notedata": [],
         trackindex: cursor.track,
       };
-      newTrack.notedata[cursor.column] = event;
+      newTrack.notedata[cursor.column] = event.toJS();
       state.set({
         song: {
           patterns: state.song.get("patterns").setIn([cursor.pattern, "rows", cursor.row, cursor.track], Immutable.fromJS(newTrack)),
@@ -109,12 +126,12 @@ export class SongManager {
         "notedata": [],
         trackindex: cursor.track,
       };
-      newTrack.notedata[cursor.column] = event;
+      newTrack.notedata[cursor.column] = event.toJS();
       const newRow = [];
       newRow[cursor.track] = newTrack;
       state.set({
         song: {
-          patterns: state.song.get("patterns").setIn([cursor.pattern, cursor.row], Immutable.fromJS(newRow)),
+          patterns: state.song.get("patterns").setIn([cursor.pattern, "rows", cursor.row], Immutable.fromJS(newRow)),
         }
       });
     } else {
@@ -122,7 +139,7 @@ export class SongManager {
         "notedata": [],
         trackindex: cursor.track,
       };
-      newTrack.notedata[cursor.column] = event;
+      newTrack.notedata[cursor.column] = event.toJS();
       const newRow = [];
       newRow[cursor.track] = newTrack;
       const newPattern = {
@@ -141,15 +158,14 @@ export class SongManager {
   }
 
   addNoteToSong(cursor, note, instrument = null) {
-    const notecol = this.findEventAtCursor(cursor);
-    notecol['note'] = note;
+    let notecol = this.findEventAtCursor(cursor);
+    notecol = notecol.set("note", note);
     if (instrument != null) {
-      notecol['instrument'] = instrument;
+      notecol = notecol.set("instrument", instrument);
     }
-    this.eventChanged(cursor, notecol);
-
     this.updateEventAtCursor(cursor, notecol);
-    //console.log(state.song.getIn(["patterns", cursor.pattern, "rows", cursor.row, cursor.track, "notedata", cursor.column]));
+    this.eventChanged(cursor, notecol);
+    console.log(state.song.getIn(["patterns", cursor.pattern, "rows", cursor.row, cursor.track, "notedata", cursor.column]));
   }
 
   deleteItemAtCursor(cursor) {
@@ -230,13 +246,22 @@ export class SongManager {
   }
 
   addInstrument() {
-    const samplemap = new Uint8Array(96);
-    this.song.instruments.push({
-      'name': `Instrument ${this.song.instruments.length}`,
-      'number': this.song.instruments.length,
-      'samples': [],
-      samplemap,
-    });
+    const samplemap = new Array(96);
+    try {
+      state.set({
+        song: {
+          instruments: state.song.get("instruments").push(Immutable.fromJS({
+            'name': `Instrument ${state.song.get("instruments").size}`,
+            'number': state.song.get("instruments").size,
+            'samples': [],
+            samplemap,
+          })),
+        }
+      });
+    } catch(e) {
+      console.log(e);
+    }
+
     this.instrumentListChanged();
     state.set({
       cursor: {
@@ -275,29 +300,40 @@ export class SongManager {
     }
   }
 
-  addPattern(sequence) {
-    this.song.patterns.push({
-      patternid: this.song.patterns.length,
-      name: `Pattern ${this.song.patterns.length}`,
-      numrows: 32,
-      rows: [],
+  appendPattern() {
+    const patternNo = state.song.get("patterns").size;
+    state.set({
+      song: {
+        patterns: state.song.get("patterns").push(Immutable.fromJS({
+          patternid: patternNo,
+          name: `Pattern ${patternNo}`,
+          numrows: 32,
+          rows: [],
+        })),
+      }
     });
+    return patternNo;
+  }
+
+  addPattern(sequence) {
+    const pid = this.appendPattern();
     let pos = sequence + 1;
-    if(!sequence || sequence > this.song.sequence.length) {
-      pos = this.song.sequence.length;
+    if(!sequence || sequence > state.song.get("sequence").size) {
+      pos = state.song.get("sequence").size;
     }
-    this.song.sequence.splice(pos, 
-                              0, 
-                              {
-                                pattern: this.song.patterns.length - 1,
-                              });
-    this.songChanged();
     state.set({
       cursor: {
         sequence: pos,
-        pattern: this.song.sequence[pos].pattern,
+        pattern: pid,
+      },
+      song: {
+        sequence: state.song.get("sequence").insert(pos, Immutable.fromJS({
+          pattern: pid,
+        })),
       }
     });
+    this.sequenceChanged();
+    this.patternChanged();
   }
 
   deletePattern(sequence) {
@@ -305,39 +341,45 @@ export class SongManager {
     if (pos < 0) {
       pos = 0;
     }
-    this.song.sequence.splice(sequence, 1, );
-    this.songChanged();
     state.set({
       cursor: {
         sequence: pos,
-        pattern: this.song.sequence[pos].pattern,
-      }
+        pattern: state.song.getIn(["sequence", pos, "pattern"]),
+      },
+      song: {
+        sequence: state.song.get("sequence").delete(sequence),
+      },
     });
+    this.sequenceChanged();
   }
 
   clonePattern(sequence) {
-    const donor = this.song.patterns[this.song.sequence[sequence].pattern];
-    const newPattern = $.extend(true, {}, donor);
-    newPattern.patternid = this.song.patterns.length;
-    newPattern.name = `Pattern ${this.song.patterns.length}`;
-    console.log(newPattern);
-    this.song.patterns.push(newPattern);
+    const donor = state.song.getIn(["patterns", state.song.getIn(["sequence", sequence, "pattern"])]);
+    let newPattern = Immutable.fromJS(donor.toJS());
+    const pid = state.song.get("patterns").size;
+    newPattern = newPattern.merge({
+      patternid: pid, 
+      name: `Pattern ${pid}`,
+    });
     let pos = sequence + 1;
-    if(!sequence || sequence > this.song.sequence.length) {
-      pos = this.song.sequence.length;
+    if(!sequence || sequence > state.song.get("sequence").size) {
+      pos = state.song.get("sequence").size;
     }
-    this.song.sequence.splice(pos, 
-                              0, 
-                              {
-                                pattern: this.song.patterns.length - 1,
-                              });
-    this.songChanged();
+
     state.set({
+      song: {
+        patterns: state.song.get("patterns").push(newPattern),
+        sequence: state.song.get("sequence").insert(pos, Immutable.fromJS({
+          pattern: pid,
+        })),
+      },
       cursor: {
         sequence: pos,
-        pattern: this.song.sequence[pos].pattern,
-      }
+        pattern: pid,
+      },
     });
+
+    this.sequenceChanged();
   }
 
   duplicatePattern(sequence) {
@@ -360,25 +402,21 @@ export class SongManager {
   }
 
   updateSequencePattern(sequence, increment) {
-    const val = this.song.sequence[sequence].pattern + increment;
+    const val = state.song.getIn(["sequence", sequence, "pattern"]) + increment;
     if (val >= 0 && val >= this.song.patterns.length) {
-      this.song.patterns.push({
-        patternid: this.song.patterns.length,
-        name: `Pattern ${this.song.patterns.length}`,
-        numrows: 32,
-        rows: [],
-      });
+      this.appendPattern();
     }
     if (val >= 0) {
-      this.song.sequence[sequence].pattern = val;
-      this.sequenceChanged(sequence);
-
-      const pattern = this.song.sequence[sequence].pattern;
       state.set({
         cursor: {
-          pattern,
+          val,
+        },
+        song: {
+          sequence: state.song.get("sequence").setIn([sequence, "pattern"], val),
         },
       });
+
+      this.sequenceItemChanged(sequence);
     }
   }
 
