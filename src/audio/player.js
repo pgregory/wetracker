@@ -290,7 +290,6 @@ class PlayerInstrument {
 
 class Instrument {
   constructor(instrumentIndex, ctx) {
-    // TODO: Don't do toJS
     this.inst = state.song.getIn(["instruments", instrumentIndex]).toJS();
     this.instrumentIndex = instrumentIndex;
     this.ctx = ctx;
@@ -677,36 +676,6 @@ class Player {
     return this.audioctx.currentTime;
   }
 
-  prettify_note(note) {
-    if (note < 0) return "---";
-    if (note == 96) return "^^^";
-    return this._note_names[note%12] + ~~(note/12);
-  }
-
-  prettify_number(num) {
-    if (num == -1) return "--";
-    if (num < 10) return "0" + num;
-    return num;
-  }
-
-  prettify_volume(num) {
-    if (num < 0x10) return "--";
-    return num.toString(16);
-  }
-
-  prettify_effect(t, p) {
-    if (t >= 10) t = String.fromCharCode(55 + t);
-    if (p < 16) p = '0' + p.toString(16);
-    else p = p.toString(16);
-    return t + p;
-  }
-
-  prettify_notedata(data) {
-    return (this.prettify_note(data[0]) + " " + this.prettify_number(data[1]) + " " +
-        this.prettify_volume(data[2]) + " " +
-        this.prettify_effect(data[3], data[4]));
-  }
-
   // Return 2-pole Butterworth lowpass filter coefficients for
   // center frequncy f_c (relative to sampling frequency)
   filterCoeffs(f_c) {
@@ -782,7 +751,6 @@ class Player {
         this.setCurrentPattern();
       }
     }
-    // TODO: Don't use toJS
     var pattern = state.song.getIn(["patterns", this.cur_pat]);
     if(this.cur_row < pattern.get("rows").size) {
       const row = pattern.getIn(["rows", this.cur_row]);
@@ -797,7 +765,6 @@ class Player {
           ch.triggernote = false;
           var event = {};
           if (track.has("notedata") && track.get("notedata").size > 0) {
-            // TODO: Don't use toJS
             event = track.getIn(["notedata", 0]).toJS();
           }
 
@@ -888,40 +855,44 @@ class Player {
 
           ch.effectfn = undefined;
           if("fxtype" in event && event.fxtype != -1) {
-            ch.effect = event.fxtype;
-            ch.effectdata = event.fxparam;
-            if (ch.effect < 36) {
-              ch.effectfn = this.effects_t1[ch.effect];
-              var eff_t0 = this.effects_t0[ch.effect];
-              if (eff_t0 && eff_t0.bind(this)(ch, ch.effectdata)) {
-                ch.triggernote = false;
+            try {
+              ch.effect = event.fxtype;
+              ch.effectdata = event.fxparam;
+              if (ch.effect < 36) {
+                ch.effectfn = this.effects_t1[ch.effect];
+                var eff_t0 = this.effects_t0[ch.effect];
+                if (eff_t0 && eff_t0.bind(this)(ch, ch.effectdata)) {
+                  ch.triggernote = false;
+                }
+                // If effect B or D, jump or pattern break, don't process any more columns.
+                if (ch.effect === 0xb || ch.effect === 0xd ) {
+                  return;
+                }
+              } else {
+                console.log("Track", trackindex, "effect > 36", ch.effect);
               }
-              // If effect B or D, jump or pattern break, don't process any more columns.
-              if (ch.effect === 0xb || ch.effect === 0xd ) {
-                return;
-              }
-            } else {
-              console.log("Track", trackindex, "effect > 36", ch.effect);
-            }
 
-            // special handling for portamentos: don't trigger the note
-            if (ch.effect == 3 || ch.effect == 5 || event.volume >= 0xf0) {
-              if (event.note != -1) {
-                ch.periodtarget = ch.inst.periodForNote(ch, ch.note, ch.fine);
-              }
-              ch.triggernote = false;
-              if (inst && inst.inst && inst.inst.samplemap) {
-                if (ch.currentlyPlaying == null) {
-                  // note wasn't already playing; we basically have to ignore the
-                  // portamento and just trigger
-                  ch.triggernote = true;
-                } else if (ch.release) {
-                  // reset envelopes if note was released but leave offset/pitch/etc
-                  // alone
-                  ch.envtick = 0;
-                  ch.release = 0;
+              // special handling for portamentos: don't trigger the note
+              if (ch.effect == 3 || ch.effect == 5 || event.volume >= 0xf0) {
+                if (event.note != -1) {
+                  ch.periodtarget = ch.inst.periodForNote(ch, ch.note, ch.fine);
+                }
+                ch.triggernote = false;
+                if (inst && inst.inst && inst.inst.samplemap) {
+                  if (ch.currentlyPlaying == null) {
+                    // note wasn't already playing; we basically have to ignore the
+                    // portamento and just trigger
+                    ch.triggernote = true;
+                  } else if (ch.release) {
+                    // reset envelopes if note was released but leave offset/pitch/etc
+                    // alone
+                    ch.envtick = 0;
+                    ch.release = 0;
+                  }
                 }
               }
+            } catch(e) {
+              console.log(e);
             }
           }
 
@@ -973,10 +944,7 @@ class Player {
         if(ch.effectfn) ch.effectfn.bind(this)(ch);
       }
       if (isNaN(ch.period)) {
-        // TODO: Fix
-        //console.log(this.prettify_notedata(
-        //      song.song.patterns[this.cur_pat].rows[this.cur_row][j]),
-        //    "set channel", j, "period to NaN");
+        throw "NaN Period";
       }
       if (inst === undefined)
         continue;
@@ -1183,8 +1151,6 @@ class Player {
   }
 
   onInstrumentChanged(instrumentIndex) {
-    // TODO: This is a bit heavy handed, should check what has changed.
-    // Requires we switch to immutable for song first.
     try {
       this.instruments[instrumentIndex] = new Instrument(instrumentIndex, this.audioctx);
     } catch(e) {
@@ -1415,7 +1381,7 @@ class Player {
       case 0x0c:  // note cut handled in eff_t1_e
         break;
       default:
-        console.log("unimplemented extended effect E", ch.effectdata.toString(16));
+        throw `Unimplemented extended effect E ${ch.effectdata.toString(16)}`;
         break;
     }
   }
@@ -1503,7 +1469,7 @@ class Player {
 
   eff_unimplemented() {}
   eff_unimplemented_t0(ch, data) {
-    console.log("unimplemented effect", this.prettify_effect(ch.effect, data));
+    throw `Unimplemented effect ${ch.effect} ${data}`;
   }
 }
 
