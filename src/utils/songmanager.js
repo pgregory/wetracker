@@ -741,6 +741,24 @@ export class SongManager {
   }
 
   /**
+   * Get the initial song bpm.
+   *
+   * @returns {number}
+   */
+  getBpm() {
+    return state.song.get("bpm");
+  }
+
+  /**
+   * Get the loop position in the sequence.
+   *
+   * @returns {number} The sequence index to loop back to.
+   */
+  getLoopPosition() {
+    return state.song.get("loopPosition");
+  }
+
+  /**
    * Get the number of rows in the given pattern.
    *
    * @param patternIndex {number} The index of the pattern.
@@ -815,6 +833,15 @@ export class SongManager {
       console.log(e);
       return [];
     }
+  }
+
+  /** 
+   * Get number of patterns in the song.
+   *
+   * @returns {number}
+   */
+  getNumPatterns() {
+    return state.song.get("patterns").size;
   }
 }
 
