@@ -85,7 +85,7 @@ export default class SequenceEditor {
 
   onSequenceItemChanged(sequence) {
     const s = $(this.target).find(`.sequence-row[data-sequenceindex="${sequence}"] .sequence-pattern div`);
-    s.text(state.song.getIn(["sequence", sequence, "pattern"]));
+    s.text(song.getSequencePatternNumber(sequence));
   }
 
   onCursorChanged() {
@@ -100,14 +100,14 @@ export default class SequenceEditor {
     if(Math.abs(this.yoff) >= this.rowHeight) {
       const rowIncr = Math.floor(this.yoff / this.rowHeight);
       let row = state.cursor.get("sequence") + rowIncr;
-      const maxrow = state.song.get("sequence").size - 1;
+      const maxrow = song.getSequenceLength() - 1;
       row = Math.min(Math.max(row, 0), maxrow);
 
       if(row !== this.lastCursor.sequence) {
-        var pattern = state.song.getIn(["sequence", row, "pattern"]);
+        var pattern = song.getSequencePatternNumber(row);
 
         let patrow = state.cursor.get("row");
-        var maxpatrow = state.song.getIn(["patterns", pattern, "numrows"]);
+        var maxpatrow = song.getPatternRowCount(pattern);
         patrow = ((patrow % maxpatrow) + maxpatrow) % maxpatrow;
 
         state.set({

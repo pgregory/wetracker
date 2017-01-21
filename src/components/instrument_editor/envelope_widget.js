@@ -422,7 +422,7 @@ export default class EnvelopeWidget {
 
   setInstrument(instrumentIndex) {
     this.instrumentIndex = instrumentIndex;
-    this.instrument = state.song.getIn(["instruments", instrumentIndex]).toJS();
+    this.instrument = song.getInstrument(instrumentIndex);
   }
 
   refresh() {

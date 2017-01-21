@@ -21,8 +21,8 @@ export default class Monitors {
 
   render() {
     $(this.target).addClass('monitors');
-    const numtracks = state.song.get("tracks").size;
-    const columns = Math.ceil(state.song.get("tracks").size / 2.0);
+    const numtracks = song.getNumTracks();
+    const columns = Math.ceil(numtracks / 2.0);
     $(this.target).append(monitorsTemplate.renderToString({numtracks, columns}));
 
     for (var j = 0; j < numtracks; j++) {
@@ -72,7 +72,7 @@ export default class Monitors {
 
   renderMonitors() {
     var e = state.tracks;
-    const numtracks = state.song.get("tracks").size;
+    const numtracks = song.getNumTracks();
     // update VU meters & oscilliscopes
     state.song.get("tracks").forEach( (track, j) => {
       var canvas = document.getElementById(`vu${j}`);

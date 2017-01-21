@@ -112,7 +112,7 @@ export default class SampleList {
 
   updateSample() {
     this.cur_instr = state.cursor.get("instrument");
-    this.instrument = state.song.getIn(["instruments", this.cur_instr]).toJS();
+    this.instrument = song.getInstrument(this.cur_instr);
   }
 
   scrollToSample(sample) {

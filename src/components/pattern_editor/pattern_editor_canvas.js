@@ -193,7 +193,8 @@ export default class PatternEditorCanvas {
   }
 
   initWidth() {
-    this.canvas.width = this._pattern_cellwidth * state.song.get("tracks").size;
+    const numtracks = song.getNumTracks();
+    this.canvas.width = this._pattern_cellwidth * numtracks;
     this.timelines.each((i, t) => {
       t.width = this.timeline_canvas.width + this._timeline_right_margin;
     });
@@ -354,7 +355,6 @@ export default class PatternEditorCanvas {
   }
 
   renderPattern(index) {
-    const pattern = state.song.getIn(["patterns", index]);
     var cw = this._pattern_character_width;
     var rh = this._pattern_row_height;
 
@@ -364,16 +364,18 @@ export default class PatternEditorCanvas {
     var ctx = this.pat_canvas.getContext('2d');
     ctx.imageSmoothingEnabled = false;
 
-    this.pat_canvas.width = state.song.get("tracks").size * cellwidth;
-    this.pat_canvas.height = pattern.get("numrows") * rh;
+    const numtracks = song.getNumTracks();
+    const numrows = song.getPatternRowCount(index);
+    this.pat_canvas.width = numtracks * cellwidth;
+    this.pat_canvas.height = numrows * rh;
 
     ctx.drawImage(this.empty_pattern_canvas, 0, 0);
 
-    pattern.get("rows").forEach((row, j) => {
+    for(let j = 0; j < numrows; j += 1) {
       var dy = j * rh + ((rh - 8)/2);
       var trackColumn = 0;
 
-      state.song.get("tracks").forEach((trackinfo, tracki) => {
+      for (let tracki = 0; tracki < numtracks; tracki += 1) {
         const track = state.song.getIn(["patterns", index, "rows", j, tracki]);
         if (track && track.has("notedata")) {
           track.get("notedata").forEach((col, coli) => {
@@ -381,14 +383,14 @@ export default class PatternEditorCanvas {
             this.renderEvent(ctx, col, dx, dy);
           });
         } 
-        trackColumn += trackinfo.get("columns").size;
-      });
-    });
+        trackColumn += song.getTrackNumColumns(tracki);
+      }
+    }
     // Render beat rows in a separate loop to avoid thrashing state changes
     ctx.globalCompositeOperation = 'lighten';
-    for (var j = 0; j < pattern.get("numrows"); j++) {
+    for (var j = 0; j < numrows; j += 1) {
       var dy = j * rh;
-      if (j % state.song.get("speed") == 0) {
+      if (j % song.getSpeed() == 0) {
         // Render a beat marker
         ctx.fillStyle = '#333';
         ctx.fillRect(0, dy, this.pat_canvas.width, this._pattern_row_height);
@@ -399,7 +401,7 @@ export default class PatternEditorCanvas {
 
   renderEventBeat(ctx, cursor, cx, cy) {
     ctx.globalCompositeOperation = 'lighten';
-    if (cursor.row % state.song.get("speed") == 0) {
+    if (cursor.row % song.getSpeed() == 0) {
       // Render a beat marker
       ctx.fillStyle = '#333';
       ctx.fillRect(cx, cy, this._pattern_cellwidth, this._pattern_row_height);
@@ -411,11 +413,11 @@ export default class PatternEditorCanvas {
     $(this.target).addClass('pattern-editor');
 
     const pindex = state.cursor.get("pattern");
-    const p = state.song.getIn(["patterns", pindex]);
+    const numrows = song.getPatternRowCount(pindex);
     $(this.target).append(patternEditorTemplate.renderToString({
       transport: state.transport.toJS(), 
-      tracks: state.song.get("tracks").toJS(), 
-      pattern: p.toJS()
+      tracknames: song.getTrackNames(),
+      numrows,
     }));
     this.canvas = $(this.target).find("canvas#gfxpattern")[0];
     this.timelines = $(this.target).find("canvas.timelinecanvas");
@@ -504,18 +506,19 @@ export default class PatternEditorCanvas {
     ctx.lineWidth = 2;
     ctx.strokeStyle = this.track_border_colour;
     ctx.beginPath();
-    state.song.get("tracks").forEach((t, i) => {
+    const numtracks = song.getNumTracks();
+    for (let i = 0; i < numtracks; i += 1) {
       var dx = i * this._pattern_cellwidth;
       ctx.moveTo(dx, 0);
       ctx.lineTo(dx, this.canvas.height);
-    });
+    }
     ctx.stroke();
 
     // Draw the timeline fixed to the left of the view.
     this.timelines.each((i, t) => {
       var tctx = t.getContext('2d');
       var tlw = this.timeline_canvas.width;
-      var tlh = this._pattern_row_height * state.song.getIn(["patterns", state.cursor.get("pattern"), "numrows"]);
+      var tlh = this._pattern_row_height * song.getPatternRowCount(state.cursor.get("pattern"));
       tctx.fillStyle = '#000';
       tctx.fillRect(0, 0, this.timeline_canvas.width, this.canvas.height);
       tctx.drawImage(this.timeline_canvas, 0, 0, tlw, tlh, 0, this.canvas.height / 2 - (this._pattern_row_height/2) - this._pattern_row_height*(state.cursor.get("row")), tlw, tlh);
@@ -567,7 +570,7 @@ export default class PatternEditorCanvas {
       if (Math.abs(this.yoff) >= this._pattern_row_height) {
         const rowIncr = Math.floor(this.yoff / this._pattern_row_height);
         let row = state.cursor.get("row") + rowIncr;
-        var maxrow = state.song.getIn(["patterns", state.cursor.get('pattern'), "numrows"]);
+        var maxrow = song.getPatternRowCount(state.cursor.get("pattern"));
         row = ((row % maxrow) + maxrow) % maxrow;
         state.set({
           cursor: {
@@ -616,7 +619,7 @@ export default class PatternEditorCanvas {
     var clickRow = Math.floor((ypos - cy) / this._pattern_row_height);
     var row = state.cursor.get("row") + clickRow;
 
-    const maxrow = state.song.getIn(["patterns", state.cursor.get("pattern"), "numrows"]);
+    const maxrow = song.getPatternRowCount(state.cursor.get("pattern"));
     if (row < 0) {
       row = 0;
     } else if (row >= maxrow) {
@@ -665,7 +668,7 @@ export default class PatternEditorCanvas {
       }
     }
 
-    $(this.target).find("#length").val(state.song.getIn(["patterns", state.cursor.get("pattern"), "numrows"]));
+    $(this.target).find("#length").val(song.getPatternRowCount(state.cursor.get("pattern")));
 
     var widget = $(this.target).parent(".chrome");
     if (widget.length > 0) {

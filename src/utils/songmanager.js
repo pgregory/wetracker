@@ -670,6 +670,121 @@ export class SongManager {
       console.error(e);
     }
   }
+
+  /** 
+   * Get the song name.
+   *
+   * @returns {string} The song name.
+   */
+  getSongName() {
+    return state.song.get("name");
+  }
+
+  /** 
+   * Get an instrument as a separate JS object for use outside the 
+   * song. Changes to the returned object will have no effect on the
+   * song data itself.
+   *
+   * @param {number} instrumentIndex The index of the instrument in the song.
+   * @returns {Object} 
+   */
+  getInstrument(instrumentIndex) {
+    return state.song.getIn(["instruments", instrumentIndex]).toJS();
+  }
+
+  /**
+   * Get a list of all instrument names in the song.
+   *
+   * @returns {Array.} An array containing the names in indexed order of all
+   * instruments in the song.
+   */
+  getInstrumentNames() {
+    return state.song.get("instruments").map(i => i.get("name")).toJS();
+  }
+
+  /**
+   * Get the number of instruments in the song. Includes empty slots.
+   *
+   * @returns {number} The total number of instruments in the song, including
+   * empty slots.
+   */
+  getNumInstruments() {
+    return state.song.get("instruments").size;
+  }
+
+  /**
+   * Get a list of all track names in the song.
+   *
+   * @returns {Array.} An array containing the names in indexed order of all
+   * tracks in the song.
+   */
+  getTrackNames() {
+    return state.song.get("tracks").map(i => i.get("name")).toJS();
+  }
+
+  /**
+   * Get the number of tracks in the song.
+   *
+   * @returns {number} The total number of tracks in the song.
+   */
+  getNumTracks() {
+    return state.song.get("tracks").size;
+  }
+
+  /**
+   * Get the initial song speed.
+   *
+   * @returns {number}
+   */
+  getSpeed() {
+    return state.song.get("speed");
+  }
+
+  /**
+   * Get the number of rows in the given pattern.
+   *
+   * @param patternIndex {number} The index of the pattern.
+   *
+   * @returns {number} The number of rows in the given pattern.
+   */
+  getPatternRowCount(patternIndex) {
+    try {
+      return state.song.getIn(["patterns", patternIndex, "numrows"]);
+    } catch(e) {
+      return 0;
+    }
+  }
+
+  /**
+   * Get the number of columns in the given track.
+   *
+   * @param trackIndex {number} The index of the track.
+   *
+   * @returns {number} The number of columns in the track.
+   */
+  getTrackNumColumns(trackIndex) {
+    return state.song.getIn(["tracks", trackIndex, "columns"]).size;
+  }
+
+  /** 
+   * Get the pattern number for the given index in the song sequence.
+   *
+   * @param sequenceIndex {number} The index in the sequence to retrieve.
+   *
+   * @returns {number} The pattern number at the given sequence index.
+   */
+  getSequencePatternNumber(sequenceIndex) {
+    return state.song.getIn(["sequence", sequenceindex, "pattern"]);
+  }
+
+  /** 
+   * Get the length of the song sequence.
+   *
+   * @returns {number} The total number of entries in the song sequence.
+   */
+  getSequenceLength() {
+    return state.song.get("sequence").size;
+  }
 }
 
 export let song = new SongManager(); 

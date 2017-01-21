@@ -386,7 +386,7 @@ export default class SampleMapper {
   }
 
   setInstrument(instrumentIndex) {
-    this.instrument = state.song.getIn(["instruments", instrumentIndex]).toJS();
+    this.instrument = song.getInstrument(instrumentIndex);
     this.instrumentIndex = instrumentIndex;
     this.updateSegments();
   }

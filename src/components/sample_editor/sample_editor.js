@@ -41,7 +41,7 @@ export default class SampleEditor {
     this.sampleIndex = state.cursor.get("sample");
 
     try {
-      this.instrument = state.song.getIn(["instruments", this.instrumentIndex]).toJS();
+      this.instrument = song.getInstrument(this.instrumentIndex);
       this.sample = this.instrument.samples[this.sampleIndex];
       // Set default zoom to fill the window.
       const len = this.sample.len;
