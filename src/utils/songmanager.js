@@ -37,14 +37,14 @@ export class SongManager {
     ];
 
     this.eventIndices = [
-      { itemIndex: 0, mask: 0, shift: 0 },
-      { itemIndex: 1, mask: 0x0F, shift: 4},
-      { itemIndex: 1, mask: 0xF0, shift: 0},
-      { itemIndex: 2, mask: 0x0F, shift: 4},
-      { itemIndex: 2, mask: 0xF0, shift: 0},
-      { itemIndex: 3, mask: 0x00, shift: 0},
-      { itemIndex: 4, mask: 0x0F, shift: 4},
-      { itemIndex: 4, mask: 0xF0, shift: 0},
+      { itemIndex: 0, mask: 0, shift: 0 },   // Note
+      { itemIndex: 1, mask: 0x0F, shift: 4}, // Instrument H
+      { itemIndex: 1, mask: 0xF0, shift: 0}, // Instrument L
+      { itemIndex: 2, mask: 0x0F, shift: 4}, // Volume H
+      { itemIndex: 2, mask: 0xF0, shift: 0}, // Volume L
+      { itemIndex: 3, mask: 0x00, shift: 0}, // Effect Type
+      { itemIndex: 4, mask: 0x0F, shift: 4}, // Effect Param H
+      { itemIndex: 4, mask: 0xF0, shift: 0}, // Effect Param L
     ];
 
     this.newSong();
@@ -205,11 +205,13 @@ export class SongManager {
       const shift = this.eventIndices[cursor.item].shift
       const vald = value << shift;
 
-      notecol[entry] = (notecol[entry] & mask) | vald;
+      notecol.set(entry, (notecol.get(entry) & mask) | vald);
+      if (entry === 'fxparam' && (!(notecol.has('fxtype')) || notecol.get('fxtype') === -1)) {
+        notecol.set('fxtype', 0);
+      }
+      this.updateEventAtCursor(cursor, notecol);
       this.eventChanged(cursor, notecol.toJS());
     }
-
-    this.updateEventAtCursor(cursor, notecol);
   }
 
   setFXAtCursor(cursor, value) {
@@ -221,11 +223,13 @@ export class SongManager {
 
     const eventItem = this.eventIndices[cursor.item].itemIndex;
     if (eventItem < this.eventEntries.length) {
-      notecol.fxtype = value;
+      notecol.set("fxtype", value);
+      if(!(notecol.has("fxparam")) || notecol.get("fxparam") === -1) {
+        notecol.set("fxparam", 0);
+      }
+      this.updateEventAtCursor(cursor, notecol);
       this.eventChanged(cursor, notecol.toJS());
     }
-
-    this.updateEventAtCursor(cursor, notecol);
   }
 
   newSong() {
