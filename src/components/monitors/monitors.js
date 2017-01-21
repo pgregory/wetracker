@@ -62,19 +62,20 @@ export default class Monitors {
     this.renderMonitors();
   }
 
-  renderTrackName(track, ctx) {
+  renderTrackName(trackname, ctx) {
     ctx.font = "10px monospace";
     ctx.fillStyle = '#888';
     ctx.textAlign = 'start';
     ctx.textBaseline = 'top';
-    ctx.fillText(track.get("name"), 2, 2);
+    ctx.fillText(trackname, 2, 2);
   }
 
   renderMonitors() {
     var e = state.tracks;
     const numtracks = song.getNumTracks();
+    const trackNames = song.getTrackNames();
     // update VU meters & oscilliscopes
-    state.song.get("tracks").forEach( (track, j) => {
+    for (let j = 0; j < numtracks; j += 1) {
       var canvas = document.getElementById(`vu${j}`);
       var ctx = canvas.getContext("2d");
       var ch = player.tracks[j];
@@ -82,7 +83,7 @@ export default class Monitors {
       ctx.fillStyle = '#000';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      this.renderTrackName(track, ctx);
+      this.renderTrackName(trackNames[j], ctx);
 
       if([MUTE, SILENT].indexOf(e.getIn(['states', j, 'state'])) !== -1) {
         let text = "MUTE";
@@ -138,7 +139,7 @@ export default class Monitors {
 
         ctx.stroke(); 
       }
-    });
+    }
   }
 
   refresh() {

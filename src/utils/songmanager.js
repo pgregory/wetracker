@@ -164,7 +164,7 @@ export class SongManager {
       notecol = notecol.set("instrument", instrument);
     }
     this.updateEventAtCursor(cursor, notecol);
-    this.eventChanged(cursor, notecol);
+    this.eventChanged(cursor, notecol.toJS());
   }
 
   deleteItemAtCursor(cursor) {
@@ -189,7 +189,7 @@ export class SongManager {
           notecol[entry] = 0;
           break;
       }
-      this.eventChanged(cursor, notecol);
+      this.eventChanged(cursor, notecol.toJS());
     }
 
     this.updateEventAtCursor(cursor, notecol);
@@ -206,7 +206,7 @@ export class SongManager {
       const vald = value << shift;
 
       notecol[entry] = (notecol[entry] & mask) | vald;
-      this.eventChanged(cursor, notecol);
+      this.eventChanged(cursor, notecol.toJS());
     }
 
     this.updateEventAtCursor(cursor, notecol);
@@ -222,7 +222,7 @@ export class SongManager {
     const eventItem = this.eventIndices[cursor.item].itemIndex;
     if (eventItem < this.eventEntries.length) {
       notecol.fxtype = value;
-      this.eventChanged(cursor, notecol);
+      this.eventChanged(cursor, notecol.toJS());
     }
 
     this.updateEventAtCursor(cursor, notecol);
@@ -774,7 +774,7 @@ export class SongManager {
    * @returns {number} The pattern number at the given sequence index.
    */
   getSequencePatternNumber(sequenceIndex) {
-    return state.song.getIn(["sequence", sequenceindex, "pattern"]);
+    return state.song.getIn(["sequence", sequenceIndex, "pattern"]);
   }
 
   /** 
@@ -784,6 +784,37 @@ export class SongManager {
    */
   getSequenceLength() {
     return state.song.get("sequence").size;
+  }
+
+  /** 
+   * Get track event data for the given pattern, row and track.
+   *
+   * @param patternIndex {number} The index of the pattern to query.
+   * @param rowNumber {number} The row in the pattern to query.
+   * @param trackIndex {number} The track number in the row to query.
+   *
+   * @returns {Object} A representation of the track data as a JS Object.
+   */
+  getTrackDataForPatternRow(patternIndex, rowNumber, trackIndex) {
+    try {
+      return state.song.getIn(["patterns", patternIndex, "rows", rowNumber, trackIndex]).toJS();
+    } catch(e) {
+      return {};
+    }
+  }
+
+  /** 
+   * Get sequence as an array of pattern indexes.
+   *
+   * @returns {Array.number} An array of pattern indexes.
+   */
+  getSequencePatterns() {
+    try {
+      return state.song.get("sequence").map( a => a.get("pattern") ).toJS();
+    } catch(e) {
+      console.log(e);
+      return [];
+    }
   }
 }
 

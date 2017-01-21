@@ -290,7 +290,7 @@ export default class PatternEditorCanvas {
     var cw = this._pattern_character_width;
     var rh = this._pattern_row_height;
     // render note
-    var note = col.get("note");
+    var note = col.note;
     if (note == null || note === -1) {
       // no note = ...
       ctx.drawImage(this.mixedFont, 8*39, 0, 8, 8, dx, dy, this._pattern_note_width, 8);
@@ -309,7 +309,7 @@ export default class PatternEditorCanvas {
     dx += this._pattern_note_width + this._element_spacing;
 
     // render instrument
-    var inst = col.get("instrument");
+    var inst = col.instrument;
     if (inst && inst != -1) {  // no instrument = render nothing
       ctx.drawImage(this.mixedFont, 8*(inst>>4), this.instrumentFontOffset, 8, 8, dx, dy, 8, 8);
       ctx.drawImage(this.mixedFont, 8*(inst&15), this.instrumentFontOffset, 8, 8, dx+cw, dy, 8, 8);
@@ -317,7 +317,7 @@ export default class PatternEditorCanvas {
     dx += this._pattern_inst_width + this._element_spacing;
 
     // render volume
-    var vol = col.get("volume");
+    var vol = col.volume;
     if (vol == null || vol < 0x10) {
       // no volume = ..
       ctx.drawImage(this.mixedFont, 312, 0, 8, 8, dx, dy, cw, 8);
@@ -329,8 +329,8 @@ export default class PatternEditorCanvas {
     dx += this._pattern_volu_width + this._element_spacing;
 
     // render effect
-    var eff = col.get("fxtype");
-    var effdata = col.get("fxparam");
+    var eff = col.fxtype;
+    var effdata = col.fxparam;
     if ((eff != null && eff !== -1) && (eff !== 0 || effdata !== 0)) {
       // draw effect with tiny font (4px space + effect type 0..9a..z)
       ctx.drawImage(this.mixedFont, 8*eff, this.fxFontOffset, 8, 8, dx, dy, cw, 8);
@@ -376,12 +376,13 @@ export default class PatternEditorCanvas {
       var trackColumn = 0;
 
       for (let tracki = 0; tracki < numtracks; tracki += 1) {
-        const track = state.song.getIn(["patterns", index, "rows", j, tracki]);
-        if (track && track.has("notedata")) {
-          track.get("notedata").forEach((col, coli) => {
+        const track = song.getTrackDataForPatternRow(index, j, tracki);
+        if (track && "notedata" in track) {
+          const numcolumns = track.notedata.length;
+          for (let coli = 0; coli < numcolumns; coli += 1) {
             var dx = ((trackColumn + coli) * cellwidth) + this._event_left_margin;
-            this.renderEvent(ctx, col, dx, dy);
-          });
+            this.renderEvent(ctx, track.notedata[coli], dx, dy);
+          }
         } 
         trackColumn += song.getTrackNumColumns(tracki);
       }

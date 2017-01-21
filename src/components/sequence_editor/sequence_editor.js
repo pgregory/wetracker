@@ -23,7 +23,7 @@ export default class SequenceEditor {
   render() {
     const target = $(this.target);
 
-    const sequence = state.song.get("sequence").toJS();
+    const sequence = song.getSequencePatterns();
     target.append(sequencesTemplate.renderToString({sequence, cursor: state.cursor.toJS()}));
 
     this.rowHeight = $(this.target).find(".sequence-row")[0].clientHeight;
