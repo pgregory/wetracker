@@ -64,7 +64,7 @@ export class SongManager {
       });
     }
 
-    if (!state.song.hasIn(["pattern", cursor.pattern, "rows", cursor.row])) {
+    if (!state.song.hasIn(["patterns", cursor.pattern, "rows", cursor.row])) {
       state.set({
         song: {
           patterns: state.song.get("patterns").setIn([cursor.pattern, "rows", cursor.row], new Immutable.List()),
@@ -72,7 +72,7 @@ export class SongManager {
       });
     }
 
-    if (!state.song.hasIn(["pattern", cursor.pattern, "rows", cursor.row, cursor.track])) {
+    if (!state.song.hasIn(["patterns", cursor.pattern, "rows", cursor.row, cursor.track])) {
       state.set({
         song: {
           patterns: state.song.get("patterns").setIn([cursor.pattern, "rows", cursor.row, cursor.track], Immutable.fromJS({
@@ -83,7 +83,7 @@ export class SongManager {
       });
     }
 
-    if (state.song.hasIn(["patterns", cursor.pattern, "rows", cursor.row, cursor.track, "notedata"])) {
+    if (!state.song.hasIn(["patterns", cursor.pattern, "rows", cursor.row, cursor.track, "notedata"])) {
       state.set({
         song: {
           patterns: state.song.get("patterns").setIn([cursor.pattern, "rows", cursor.row, cursor.track, "notedata"], new Immutable.List()),
@@ -168,36 +168,19 @@ export class SongManager {
   }
 
   deleteItemAtCursor(cursor) {
-    const notecol = this.findEventAtCursor(cursor);
-
     const eventItem = this.eventIndices[cursor.item].itemIndex;
     if (eventItem < this.eventEntries.length) {
       const entry = this.eventEntries[eventItem];
 
-      switch(entry) {
-        case "note":
-        case "instrument":
-        case "volume":
-          notecol[entry] = -1;
-          break;
-        case "fxtype":
-        case "fxparam":
-          notecol["fxtype"] = 0;
-          notecol["fxparam"] = 0;
-          break;
-        default:
-          notecol[entry] = 0;
-          break;
-      }
+      let notecol = this.findEventAtCursor(cursor);
+      notecol = notecol.delete(entry);
+
+      this.updateEventAtCursor(cursor, notecol);
       this.eventChanged(cursor, notecol.toJS());
     }
-
-    this.updateEventAtCursor(cursor, notecol);
   }
 
   setHexValueAtCursor(cursor, value) {
-    const notecol = this.findEventAtCursor(cursor);
-
     const eventItem = this.eventIndices[cursor.item].itemIndex;
     if (eventItem < this.eventEntries.length) {
       const entry = this.eventEntries[eventItem];
@@ -205,9 +188,10 @@ export class SongManager {
       const shift = this.eventIndices[cursor.item].shift
       const vald = value << shift;
 
-      notecol.set(entry, (notecol.get(entry) & mask) | vald);
+      let notecol = this.findEventAtCursor(cursor);
+      notecol = notecol.set(entry, (notecol.get(entry) & mask) | vald);
       if (entry === 'fxparam' && (!(notecol.has('fxtype')) || notecol.get('fxtype') === -1)) {
-        notecol.set('fxtype', 0);
+        notecol = notecol.set('fxtype', 0);
       }
       this.updateEventAtCursor(cursor, notecol);
       this.eventChanged(cursor, notecol.toJS());
@@ -215,7 +199,6 @@ export class SongManager {
   }
 
   setFXAtCursor(cursor, value) {
-    const notecol = this.findEventAtCursor(cursor);
     let vald = value;
     if(cursor.item !== 5) {
       return;
@@ -223,9 +206,10 @@ export class SongManager {
 
     const eventItem = this.eventIndices[cursor.item].itemIndex;
     if (eventItem < this.eventEntries.length) {
-      notecol.set("fxtype", value);
+      let notecol = this.findEventAtCursor(cursor);
+      notecol = notecol.set("fxtype", value);
       if(!(notecol.has("fxparam")) || notecol.get("fxparam") === -1) {
-        notecol.set("fxparam", 0);
+        notecol = notecol.set("fxparam", 0);
       }
       this.updateEventAtCursor(cursor, notecol);
       this.eventChanged(cursor, notecol.toJS());

@@ -34,11 +34,13 @@ export class CursorManager {
       e.preventDefault();
     });
     MouseTrap.bind("backspace", (e) => {
-      if (e.ctrlKey || e.shiftKey || e.metaKey ) {
-        return;
+      if (state.cursor.get("record")) {
+        if (e.ctrlKey || e.shiftKey || e.metaKey ) {
+          return;
+        }
+        song.deleteItemAtCursor(state.cursor.toJS());
+        event.preventDefault();
       }
-      song.deleteItemAtCursor(state.cursor.toJS());
-      event.preventDefault();
     });
   }
 
