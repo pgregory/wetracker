@@ -18,9 +18,7 @@ export class FXInput {
       "t", "w", "x",
     ];
 
-    MouseTrap.bind(this.validEffects, (e) => {
-      this.handleKeyAtCursor(e);
-    });
+    window.addEventListener("keyup", this.handleKeyAtCursor.bind(this));
   }
 
   handleKeyAtCursor(event) {
