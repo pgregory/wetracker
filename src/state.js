@@ -36,19 +36,46 @@ export class State {
 
     this.song = new Immutable.Map();
 
+    this.history = [];
+
     this.cursorChanged = Signal.signal(true);
     this.tracksChanged = Signal.signal(true);
     this.transportChanged = Signal.signal(true);
     this.playingInstrumentsChanged = Signal.signal(true);
+    this.songChanged = Signal.signal(true);
+  }
+
+  recordHistory(state, annotation) {
+    const snapshot = {};
+    
+    // Don't undo/redo cursor, it would be too intensive.
+
+    // Don't undo/redo tracks, they are transient, not user editable.
+
+    if ('transport' in state ) {
+      snapshot.transport = this.transport;
+    }
+
+    // Don't undo/redo playingInstruments, they are transient, not user editable.
+
+    if ('song' in state) {
+      snapshot.song = this.song;
+    }
+
+    if (Object.keys(snapshot).length !== 0) {
+      this.history.push({annotation, snapshot});
+    }
   }
 
 
-  set(state) {
+  set(state, annotation) {
+    this.recordHistory(state, annotation);
+    this.updateState(state);
+  }
+
+  updateState(state) {
     if ('cursor' in state ) {
       this.cursor = this.cursor.merge(state.cursor);
-      if(this.cursor.get('sequence') == undefined) {
-        console.log("Set sequence to undefined");
-      }
       this.cursorChanged();
     }
 
@@ -69,7 +96,34 @@ export class State {
 
     if ('song' in state) {
       this.song = this.song.merge(state.song);
+      this.songChanged();
     }
+  }
+
+  groupHistoryStart(annotation) {
+    this.history.push({annotation, group: 0});
+  }
+
+  groupHistoryEnd() {
+    this.history.push({group: 1});
+  }
+
+  undo() {
+    if (this.history.length > 0) {
+      let past = this.history.pop();
+      if ("group" in past && past.group === 1) {
+        past = this.history.pop();
+        while (!("group" in past) || past.group !== 0) {
+          this.updateState(past.snapshot);
+          past = this.history.pop();
+        }
+        console.log("Undo: " + past.annotation);
+      }
+    }
+  }
+
+  redo() {
+    console.log("Redo");
   }
 }
 

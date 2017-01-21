@@ -189,6 +189,7 @@ export default class PatternEditorCanvas {
     Signal.connect(state, "transportChanged", this, "onTransportChanged");
     Signal.connect(song, "eventChanged", this, "onEventChanged");
     Signal.connect(song, "songChanged", this, "onSongChanged");
+    Signal.connect(state, "songChanged", this, "onSongStateChanged");
     Signal.connect(state, "tracksChanged", this, "onTracksChanged");
   }
 
@@ -697,6 +698,11 @@ export default class PatternEditorCanvas {
     this.renderEvent(ctx, event, pos.cx + this._event_left_margin, pos.cy + (this._pattern_row_height - 8)/2);
     this.renderEventBeat(ctx, cursor, pos.cx, pos.cy);
     this.redrawCanvas();
+  }
+
+  onSongStateChanged() {
+    this.lastCursor = {};
+    this.refresh();
   }
 
   onSongChanged() {
