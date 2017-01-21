@@ -47,7 +47,15 @@ export default class InstrumentList {
       });
     });
 
-    target.find('#add-instrument').click((e) => song.addInstrument());
+    target.find('#add-instrument').click((e) => {
+      const instr = song.addInstrument()
+      state.set({
+        cursor: {
+          instrument: instr,
+          sample: 0,
+        }
+      });
+    });
 
     target.find('.instrument-name div').inlineEdit({
       accept: function(val) {
@@ -58,6 +66,8 @@ export default class InstrumentList {
         }
       },
     });
+
+    this.scrollToInstrument(state.cursor.get("instrument"));
 
     this.lastCursor = state.cursor.toJS();
   }
@@ -75,11 +85,16 @@ export default class InstrumentList {
     this.refresh();
   }
 
+  scrollToInstrument(instrument) {
+    const target = $(this.target);
+    target.find(".current-instrument").removeClass('current-instrument');
+    target.find(".instrument-row").eq(instrument).addClass('current-instrument');
+    target.find(".instruments-list").scrollTop(instrument * this.rowHeight);
+  }
+
   onCursorChanged() {
     if (state.cursor.get("instrument") !== this.lastCursor.instrument) {
-      $(this.target).find(".current-instrument").removeClass('current-instrument');
-      $(this.target).find(".instrument-row").eq(state.cursor.get("instrument")).addClass('current-instrument');
-      $(this.target).find(".instruments-list").scrollTop(state.cursor.get("instrument")*this.rowHeight);
+      this.scrollToInstrument(state.cursor.get("instrument"));
     }
     this.lastCursor = state.cursor.toJS();
   }
@@ -94,6 +109,7 @@ export default class InstrumentList {
       state.set({
         cursor: {
           instrument: row,
+          sample: 0,
         }
       });
     }

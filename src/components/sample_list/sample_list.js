@@ -52,7 +52,14 @@ export default class SampleList {
       });
     });
 
-    target.find('#add-sample').click((e) => song.addSampleToInstrument(this.cur_instr));
+    target.find('#add-sample').click((e) => {
+      const sampid = song.addSampleToInstrument(this.cur_instr)
+      state.set({
+        cursor: {
+          sample: sampid,
+        }
+      });
+    });
 
 
     target.find('#load-sample').click((e) => {

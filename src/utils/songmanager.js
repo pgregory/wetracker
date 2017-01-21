@@ -165,7 +165,6 @@ export class SongManager {
     }
     this.updateEventAtCursor(cursor, notecol);
     this.eventChanged(cursor, notecol);
-    console.log(state.song.getIn(["patterns", cursor.pattern, "rows", cursor.row, cursor.track, "notedata", cursor.column]));
   }
 
   deleteItemAtCursor(cursor) {
@@ -230,16 +229,16 @@ export class SongManager {
   }
 
   newSong() {
-    this.song = Immutable.fromJS(songdata).toJS();
-    this.song.instruments.push(Immutable.fromJS(cymbal).toJS());
-    this.song.instruments.push(Immutable.fromJS(pad).toJS());
+    let song = Immutable.fromJS(songdata).toJS();
+    song.instruments.push(Immutable.fromJS(cymbal).toJS());
+    song.instruments.push(Immutable.fromJS(pad).toJS());
 
     state.set({
       transport: {
-        bpm: this.song.bpm,
-        speed: this.song.speed,
+        bpm: song.bpm,
+        speed: song.speed,
       },
-      song: this.song,
+      song: song,
     });
 
     this.songChanged();
@@ -247,30 +246,28 @@ export class SongManager {
 
   addInstrument() {
     const samplemap = new Array(96);
+    const instid = state.song.get("instruments").size;
     try {
       state.set({
         song: {
           instruments: state.song.get("instruments").push(Immutable.fromJS({
-            'name': `Instrument ${state.song.get("instruments").size}`,
-            'number': state.song.get("instruments").size,
+            'name': `Instrument ${instid}`,
+            'number': instid,
             'samples': [],
             samplemap,
           })),
-        }
+        },
       });
     } catch(e) {
       console.log(e);
     }
-
     this.instrumentListChanged();
-    state.set({
-      cursor: {
-        instrument: this.song.instruments.length - 1,
-      }
-    });
+
+    return instid;
   }
 
   addSampleToInstrument(instrumentIndex) {
+    const sampid = state.song.getIn(["instruments", instrumentIndex, "samples"]).size;
     try {
       state.set({
         song: {
@@ -284,17 +281,14 @@ export class SongManager {
             'type': 0, 
             'vol': 0x40,
             'fileoffset': 0, 
-            'name': `Sample ${state.song.getIn(["instruments", instrumentIndex, "samples"]).size}`,
+            'name': `Sample ${sampid}`,
           }))),
         }
       });
 
       this.instrumentChanged(instrumentIndex);
-      state.set({
-        cursor: {
-          sample: this.song.instruments[instrumentIndex].samples.length - 1,
-        }
-      });
+
+      return sampid;
     } catch(e) {
       console.log(e);
     }
@@ -383,27 +377,29 @@ export class SongManager {
   }
 
   duplicatePattern(sequence) {
+    const pid = state.song.getIn(["sequence", sequence, "pattern"]);
     let pos = sequence + 1;
-    if(!sequence || sequence > this.song.sequence.length) {
-      pos = this.song.sequence.length;
+    if(!sequence || sequence > state.song.get("sequence").size) {
+      pos = state.song.get("sequence").size;
     }
-    this.song.sequence.splice(pos, 
-                              0, 
-                              {
-                                pattern: this.song.sequence[sequence].pattern,
-                              });
-    this.songChanged();
     state.set({
+      song: {
+        sequence: state.song.get("sequence").insert(pos, Immutable.fromJS({
+          pattern: pid,
+        })),
+      },
       cursor: {
         sequence: pos,
-        pattern: this.song.sequence[pos].pattern,
-      }
+        pattern: pid,
+      },
     });
+
+    this.sequenceChanged();
   }
 
   updateSequencePattern(sequence, increment) {
     const val = state.song.getIn(["sequence", sequence, "pattern"]) + increment;
-    if (val >= 0 && val >= this.song.patterns.length) {
+    if (val >= 0 && val >= state.song.get("patterns").size) {
       this.appendPattern();
     }
     if (val >= 0) {
@@ -421,7 +417,6 @@ export class SongManager {
   }
 
   setSong(song) {
-    this.song = song;
     state.set({
       cursor: {
         pattern: 0,
@@ -438,8 +433,8 @@ export class SongManager {
 
     state.set({
       transport: {
-        bpm: this.song.bpm,
-        speed: this.song.speed,
+        bpm: song.bpm,
+        speed: song.speed,
       },
       song,
     });
@@ -486,7 +481,7 @@ export class SongManager {
       a.click();
     }
 
-    let input = new Buffer(JSON.stringify(this.song, (k, v) => {
+    let input = new Buffer(JSON.stringify(state.song.toJS(), (k, v) => {
       // Deal with sampledata differently, as we encode the binary data for
       // efficient serialisation.
       if (k === 'sampledata') {
@@ -501,7 +496,8 @@ export class SongManager {
 
     let output = LZ4.compress(input);
 
-    download(output, this.song.name ? `${this.song.name.trim()}.lz4` : 'wetracker-song.lz4', 'application/octet-stream');
+    const name = state.song.get("name");
+    download(output, name ? `${name.trim()}.lz4` : 'wetracker-song.lz4', 'application/octet-stream');
   }
 
   loadSongFromFile(file, callback) {
@@ -567,8 +563,12 @@ export class SongManager {
 
   setInstrumentName(instrumentIndex, name) {
     try {
-      const instrument = this.song.instruments[instrumentIndex];
-      instrument.name = name;
+      state.set({
+        song: {
+          instruments: state.song.get("instruments").setIn([instrumentIndex, "name"], name),
+        }
+      });
+
       this.instrumentChanged(instrumentIndex);
     } catch(e) {
       console.error(e);
@@ -577,19 +577,28 @@ export class SongManager {
 
   setInstrumentSampleData(instrumentIndex, sampleIndex, data) {
     try {
-      const instrument = this.song.instruments[instrumentIndex];
-      while (sampleIndex >= instrument.samples.length) {
+      while (sampleIndex >= state.song.getIn(["instruments", instrumentIndex, "samples"]).size) {
         this.addSampleToInstrument(instrumentIndex);
       }
-      const sample = instrument.samples[sampleIndex];
 
-      sample.sampledata.data = new Array(data.length);
+      let sampledata = new Array(data.length);
       for(let i = 0; i < data.length; i += 1) {
-        sample.sampledata.data[i] = data[i];
+        sampledata[i] = data[i];
       }
-      sample.len = data.length;
-      sample.note = 29; // F-6
-      sample.fine = -28; // Note: this presumes the sample is 44.1KHz
+      state.set({
+        song: {
+          instruments: state.song.get("instruments").setIn([instrumentIndex, "samples", sampleIndex], 
+            state.song.getIn(["instruments", instrumentIndex, "samples", sampleIndex]).merge({
+              len: data.length,
+              note: 29, // F-6
+              fine: -29, // Note: this presumes the sample is 44.1KHz
+              sampledata: {
+                data: sampledata,
+              },
+            }),
+          ),
+        },
+      });
 
       this.instrumentChanged(instrumentIndex);
       this.sampleChanged(instrumentIndex, sampleIndex);
@@ -600,9 +609,12 @@ export class SongManager {
 
   setInstrumentSampleName(instrumentIndex, sampleIndex, name) {
     try {
-      const instrument = this.song.instruments[instrumentIndex];
-      const sample = instrument.samples[sampleIndex];
-      sample.name = name;
+      state.set({
+        song: {
+          instruments: state.song.get("instruments").setIn([instrumentIndex, "samples", sampleIndex, "name"], name),
+        }
+      });
+
       this.instrumentChanged(instrumentIndex);
     } catch(e) {
       console.error(e);
@@ -619,30 +631,40 @@ export class SongManager {
   }
 
   setBPM(bpm) {
-    this.song.bpm = bpm;
-    this.bpmChanged(this.song.bpm);
+    state.song.set("bpm", bpm);
+    this.bpmChanged(bpm);
   }
 
   setSpeed(speed) {
-    this.song.speed = speed;
-    this.speedChanged(this.song.speed);
+    state.song.set("speed", speed);
+    this.speedChanged(speed);
   }
 
   setPatternLength(pattern, length) {
-    if (pattern < this.song.patterns.length) {
-      const oldlength = this.song.patterns[pattern].numrows;
-      this.song.patterns[pattern].numrows = length;
-      if (oldlength > length) {
-        this.song.patterns[pattern].rows = this.song.patterns[pattern].rows.slice(1, length);
-      }
+    if (state.song.hasIn(["patterns", pattern])) {
+      const oldlength = state.song.getIn(["patterns", pattern, "numrows"]);
+
+      state.set({
+        song: {
+          patterns: state.song.get("patterns").set(pattern, 
+            state.song.getIn(["patterns", pattern]).merge({
+              numrows: length,
+              rows: state.song.getIn(["patterns", pattern, "rows"]).setSize(length),
+            })),
+        }
+      });
       this.songChanged();
     }
   }
 
   setTrackName(trackIndex, name) {
     try {
-      const track = this.song.tracks[trackIndex];
-      track.name = name;
+      state.set({
+        song: {
+          tracks: state.song.get("tracks").setIn([trackIndex, "name"], name),
+        }
+      });
+
       this.trackChanged(trackIndex);
     } catch(e) {
       console.error(e);

@@ -45,7 +45,7 @@ export class CursorManager {
   rowUp(count = 1) {
     let row = state.cursor.get("row") - count;
     if (row < 0) {
-      row = song.song.patterns[state.cursor.get("pattern")].numrows + row;
+      row = state.song.getIn(["patterns", state.cursor.get("pattern"), "numrows"]) + row;
     }
     state.set({
       cursor: {
@@ -56,8 +56,8 @@ export class CursorManager {
 
   rowDown(count = 1) {
     let row = state.cursor.get("row") + count;
-    if (row >= song.song.patterns[state.cursor.get("pattern")].numrows) {
-      row = 0 + (row - song.song.patterns[state.cursor.get("pattern")].numrows);
+    if (row >= state.song.getIn(["patterns", state.cursor.get("pattern"), "numrows"])) {
+      row = 0 + (row - state.song.getIn(["patterns", state.cursor.get("pattern"), "numrows"]));
     }
     state.set({
       cursor: {
@@ -77,9 +77,9 @@ export class CursorManager {
       if (column < 0) {
         track -= 1;
         if (track < 0) {
-          track = song.song.tracks.length - 1;
+          track = state.song.get("tracks").size - 1;
         }
-        column = song.song.tracks[track].columns.length - 1;
+        column = state.song.getIn(["tracks", track, "columns"]).size - 1;
       }
     }
     state.set({
@@ -100,10 +100,10 @@ export class CursorManager {
       item = 0; 
       // Next notecolumn
       column += 1;
-      if (column >= song.song.tracks[track].columns.length) {
+      if (column >= state.song.getIn(["tracks", track, "columns"]).size) {
         column = 0;
         track += 1;
-        if (track >= song.song.tracks.length) {
+        if (track >= state.song.get("tracks").size) {
           track = 0;
         }
       }

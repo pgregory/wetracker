@@ -16,6 +16,7 @@ export default class SequenceEditor {
 
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
     Signal.connect(song, "sequenceChanged", this, "onSequenceChanged");
+    Signal.connect(song, "songChanged", this, "onSongChanged");
     Signal.connect(song, "sequenceItemChanged", this, "onSequenceItemChanged");
   }
 
@@ -72,6 +73,10 @@ export default class SequenceEditor {
     $(this.target).find(".current-pattern").removeClass('current-pattern');
     $(this.target).find(".sequence-row").eq(state.cursor.get("sequence")).addClass('current-pattern');
     $(this.target).find(".list-container").scrollTop(state.cursor.get("sequence")*this.rowHeight);
+  }
+
+  onSongChanged() {
+    this.refresh();
   }
 
   onSequenceChanged() {
