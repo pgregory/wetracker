@@ -60,55 +60,12 @@ export class SongManager {
   }
 
   findEventAtCursor(cursor) {
-    if (!state.song.hasIn(["patterns", cursor.pattern])) {
-      state.song.set({
-        song: {
-          patterns: state.song.get("patterns").set(cursor.pattern, Immutable.fromJS({
-            patternid: `p${cursor.pattern}`,
-            name: `Pattern ${cursor.pattern}`,
-            numrows: 32,
-            rows: [] 
-          })),
-        }
-      });
+    let notecol = new Immutable.Map();
+    try {
+      notecol = state.song.getIn(["patterns", cursor.pattern, "rows", cursor.row, cursor.track, "notedata", cursor.column]) || new Immutable.Map();
+    } catch(e) {
+      console.log(e);
     }
-
-    if (!state.song.hasIn(["patterns", cursor.pattern, "rows", cursor.row])) {
-      state.set({
-        song: {
-          patterns: state.song.get("patterns").setIn([cursor.pattern, "rows", cursor.row], new Immutable.List()),
-        },
-      });
-    }
-
-    if (!state.song.hasIn(["patterns", cursor.pattern, "rows", cursor.row, cursor.track])) {
-      state.set({
-        song: {
-          patterns: state.song.get("patterns").setIn([cursor.pattern, "rows", cursor.row, cursor.track], Immutable.fromJS({
-            trackindex: cursor.track,
-            notedata: []
-          })),
-        },
-      });
-    }
-
-    if (!state.song.hasIn(["patterns", cursor.pattern, "rows", cursor.row, cursor.track, "notedata"])) {
-      state.set({
-        song: {
-          patterns: state.song.get("patterns").setIn([cursor.pattern, "rows", cursor.row, cursor.track, "notedata"], new Immutable.List()),
-        },
-      });
-    }
-
-    if (!state.song.hasIn(["patterns", cursor.pattern, "rows", cursor.row, cursor.track, "notedata", cursor.column])) {
-      state.set({
-        song: {
-          patterns: state.song.get("patterns").setIn([cursor.pattern, "rows", cursor.row, cursor.track, "notedata", cursor.column], new Immutable.Map()),
-        },
-      });
-    }
-    const notecol = state.song.getIn(["patterns", cursor.pattern, "rows", cursor.row, cursor.track, "notedata", cursor.column]);
-
     return notecol;
   }
 
@@ -119,7 +76,8 @@ export class SongManager {
           patterns: state.song.get("patterns").setIn([cursor.pattern, "rows", cursor.row, cursor.track, "notedata", cursor.column], event),
         }
       }, annotation);
-    } else if (state.song.hasIn(["patterns", cursor.pattern, "rows", cursor.row])) {
+    } else if ((state.song.hasIn(["patterns", cursor.pattern, "rows", cursor.row])) &&
+               (state.song.getIn(["patterns", cursor.pattern, "rows", cursor.row]) != null)) {
       const newTrack = {
         "notedata": [],
         trackindex: cursor.track,
@@ -130,7 +88,8 @@ export class SongManager {
           patterns: state.song.get("patterns").setIn([cursor.pattern, "rows", cursor.row, cursor.track], Immutable.fromJS(newTrack)),
         }
       }, annotation);
-    } else if (state.song.hasIn(["patterns", cursor.pattern])) {
+    } else if ((state.song.hasIn(["patterns", cursor.pattern])) &&
+               (state.song.getIn(["patterns", cursor.pattern]) != null)) {
       const newTrack = {
         "notedata": [],
         trackindex: cursor.track,
