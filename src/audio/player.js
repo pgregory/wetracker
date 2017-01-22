@@ -600,7 +600,7 @@ class Player {
 
   onInteractiveTimerMessage(e) {
     if( e.data === "tick") {
-      var msPerTick = 2.5 / song.getBpm();
+      var msPerTick = 2.5 / this.bpm;
       while(this.nextInteractiveTickTime < (this.audioctx.currentTime + this.interactiveScheduleAheadTime)) {
         for (let i = 0; i < this.playingInstruments.length; i += 1) {
           this.playingInstruments[i].updateVolumeEnvelope(this.nextInteractiveTickTime, this.playingInstruments[i].release);
@@ -955,7 +955,7 @@ class Player {
   }
 
   scheduler() {
-    var msPerTick = 2.5 / song.getBpm();
+    var msPerTick = 2.5 / this.bpm;
     while(this.nextTickTime < (this.audioctx.currentTime + this.scheduleAheadTime)) {
       this.processTick();
       this.nextTickTime += msPerTick;
