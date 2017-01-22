@@ -498,7 +498,8 @@ export default class PatternEditorCanvas {
     var patternheight = this.canvas.height - this._pattern_header_height;
 
     ctx.imageSmoothingEnabled = false;
-    ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     ctx.globalCompositeOperation = 'source-over';
     ctx.drawImage(this.pat_canvas, 0, this.canvas.height / 2 - (this._pattern_row_height/2) - this._pattern_row_height*(state.cursor.get("row")));
 
