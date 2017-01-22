@@ -503,16 +503,6 @@ export default class PatternEditorCanvas {
     ctx.globalCompositeOperation = 'source-over';
     ctx.drawImage(this.pat_canvas, 0, this.canvas.height / 2 - (this._pattern_row_height/2) - this._pattern_row_height*(state.cursor.get("row")));
 
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = this.track_border_colour;
-    ctx.beginPath();
-    const numtracks = song.getNumTracks();
-    for (let i = 0; i < numtracks; i += 1) {
-      var dx = i * this._pattern_cellwidth;
-      ctx.moveTo(dx, 0);
-      ctx.lineTo(dx, this.canvas.height);
-    }
-    ctx.stroke();
 
     // Draw the timeline fixed to the left of the view.
     this.timelines.each((i, t) => {
@@ -557,6 +547,17 @@ export default class PatternEditorCanvas {
     ctx.strokeRect(cx-1, cy-1, this._cursor_sizes[state.cursor.get("item")]+2, this._pattern_row_height+2);
 
     ctx.clearRect(0, 0, this.canvas.width, this._pattern_header_height);
+
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = this.track_border_colour;
+    ctx.beginPath();
+    const numtracks = song.getNumTracks();
+    for (let i = 0; i <= numtracks; i += 1) {
+      var dx = i * this._pattern_cellwidth;
+      ctx.moveTo(dx, 0);
+      ctx.lineTo(dx, this.canvas.height);
+    }
+    ctx.stroke();
   }
 
   refresh() {
