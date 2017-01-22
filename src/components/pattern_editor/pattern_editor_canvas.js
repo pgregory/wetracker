@@ -556,6 +556,7 @@ export default class PatternEditorCanvas {
     ctx.lineWidth = 1;
     ctx.strokeRect(cx-1, cy-1, this._cursor_sizes[state.cursor.get("item")]+2, this._pattern_row_height+2);
 
+    ctx.clearRect(0, 0, this.canvas.width, this._pattern_header_height);
   }
 
   refresh() {
