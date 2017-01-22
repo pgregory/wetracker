@@ -502,8 +502,6 @@ export default class PatternEditorCanvas {
     ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     ctx.globalCompositeOperation = 'source-over';
     ctx.drawImage(this.pat_canvas, 0, this.canvas.height / 2 - (this._pattern_row_height/2) - this._pattern_row_height*(state.cursor.get("row")));
-    ctx.fillStyle = '#000';
-    ctx.clearRect(0, 0, this.canvas.width, this._pattern_header_height);
 
     ctx.lineWidth = 2;
     ctx.strokeStyle = this.track_border_colour;
