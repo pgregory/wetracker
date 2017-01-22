@@ -1,3 +1,4 @@
+import Immutable from 'immutable';
 import $ from 'jquery';
 
 import Signal from '../../utils/signal';
@@ -25,11 +26,13 @@ export default class VolumeEnvelope extends EnvelopeWidget {
     }
     this.envelope = this.instrument.env_vol;
 
+    song.updateInstrument(this.instrumentIndex, this.instrument);
+
     super.createEnvelope();
   }
 
   setInstrument(instrument) {
     super.setInstrument(instrument);
-    this.envelope = instrument.env_vol;
+    this.envelope = this.instrument.env_vol;
   }
 }

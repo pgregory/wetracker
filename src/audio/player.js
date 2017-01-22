@@ -1,3 +1,4 @@
+import Immutable from 'immutable';
 import Signal from '../utils/signal';
 
 import { state } from '../state';
@@ -126,7 +127,8 @@ class XMViewObject {
     const scopes = [];
     const states = [];
 
-    for (let j = 0; j < song.song.tracks.length; j += 1) {
+    const numtracks = song.getNumTracks();
+    for (let j = 0; j < numtracks; j += 1) {
       const ch = this.player.tracks[j];
       ch.updateAnalyserScopeData();
       scopes.push({
@@ -212,7 +214,7 @@ class PlayerInstrument {
     // globalVolume is 0-128
     // volE is 0-1
     // channel.vol is 0-64
-    let vol = Math.max(0, Math.min(1, (song.song.globalVolume / 128) * volE * (this.channel.vol / 64)));
+    let vol = Math.max(0, Math.min(1, (player.globalVolume / 128) * volE * (this.channel.vol / 64)));
 
     this.gainNode.gain.linearRampToValueAtTime(vol, time);
     this.panningNode.pan.linearRampToValueAtTime(pan, time);
@@ -289,7 +291,7 @@ class PlayerInstrument {
 
 class Instrument {
   constructor(instrumentIndex, ctx) {
-    this.inst = song.song.instruments[instrumentIndex]; // A reference to the instrument in the song
+    this.inst = song.getInstrument(instrumentIndex);
     this.instrumentIndex = instrumentIndex;
     this.ctx = ctx;
     this.samples = [];
@@ -473,8 +475,9 @@ class Player {
     this.cur_row = 64;
     this.cur_ticksamp = 0;
     this.cur_tick = 0;
-    song.song.globalVolume = this.max_global_volume = 128;
+    this.globalVolume = this.max_global_volume = 128;
     this.masterVolume = undefined;
+    this.speed = song.getSpeed();
 
     this.effects_t0 = [  // effect functions on tick 0
       this.eff_t1_0,  // 1, arpeggio is processed on all ticks
@@ -597,7 +600,7 @@ class Player {
 
   onInteractiveTimerMessage(e) {
     if( e.data === "tick") {
-      var msPerTick = 2.5 / song.song.bpm;
+      var msPerTick = 2.5 / song.getBpm();
       while(this.nextInteractiveTickTime < (this.audioctx.currentTime + this.interactiveScheduleAheadTime)) {
         for (let i = 0; i < this.playingInstruments.length; i += 1) {
           this.playingInstruments[i].updateVolumeEnvelope(this.nextInteractiveTickTime, this.playingInstruments[i].release);
@@ -674,36 +677,6 @@ class Player {
     return this.audioctx.currentTime;
   }
 
-  prettify_note(note) {
-    if (note < 0) return "---";
-    if (note == 96) return "^^^";
-    return this._note_names[note%12] + ~~(note/12);
-  }
-
-  prettify_number(num) {
-    if (num == -1) return "--";
-    if (num < 10) return "0" + num;
-    return num;
-  }
-
-  prettify_volume(num) {
-    if (num < 0x10) return "--";
-    return num.toString(16);
-  }
-
-  prettify_effect(t, p) {
-    if (t >= 10) t = String.fromCharCode(55 + t);
-    if (p < 16) p = '0' + p.toString(16);
-    else p = p.toString(16);
-    return t + p;
-  }
-
-  prettify_notedata(data) {
-    return (this.prettify_note(data[0]) + " " + this.prettify_number(data[1]) + " " +
-        this.prettify_volume(data[2]) + " " +
-        this.prettify_effect(data[3], data[4]));
-  }
-
   // Return 2-pole Butterworth lowpass filter coefficients for
   // center frequncy f_c (relative to sampling frequency)
   filterCoeffs(f_c) {
@@ -729,157 +702,145 @@ class Player {
 
 
   setCurrentPattern() {
-    var nextPat = song.song.sequence[this.cur_songpos].pattern;
+    var nextPat = song.getSequencePatternNumber(this.cur_songpos);
 
     // check for out of range pattern index
-    while (nextPat >= song.song.patterns.length) {
-      if (this.cur_songpos + 1 < song.song.sequence.length) {
+    const maxpat = song.getNumPatterns();
+    const maxseq = song.getSequenceLength();
+    while (nextPat >= maxpat) {
+      if ((this.cur_songpos + 1) < maxseq) {
         // first try skipping the position
         this.cur_songpos++;
-      } else if ((this.cur_songpos === song.song.loopPosition && this.cur_songpos !== 0)
-        || song.song.loopPosition >= song.song.sequence.length) {
+      } else if ((this.cur_songpos === song.getLoopPosition() && this.cur_songpos !== 0)
+        || song.getLoopPosition() >= maxseq) {
         // if we allready tried song_looppos or if song_looppos
         // is out of range, go to the first position
         this.cur_songpos = 0;
       } else {
         // try going to song_looppos
-        this.cur_songpos = song.song.loopPosition;
+        this.cur_songpos = song.getLoopPosition();
       }
-      nextPat = song.song.sequence[this.cur_songpos].pattern;
+      nextPat = song.getSequencePatternNumber(this.cur_songpos);
     }
 
     this.cur_pat = nextPat;
   }
 
   processRow() {
-    if (this.cur_pat == null || this.cur_row >= song.song.patterns[this.cur_pat].numrows) {
+    if (this.cur_pat == null || this.cur_row >= song.getPatternRowCount(this.cur_pat)) {
       if (this.cyclePattern != null) {
         this.cur_pat = this.cyclePattern;
         this.cur_row = 0;
       } else {
         this.cur_row = 0;
         this.cur_songpos++;
-        if (this.cur_songpos >= song.song.sequence.length) {
-          this.cur_songpos = song.song.loopPosition;
+        if (this.cur_songpos >= song.getSequenceLength()) {
+          this.cur_songpos = song.getLoopPosition();
         }
         this.setCurrentPattern();
       }
     }
-    var pattern = song.song.patterns[this.cur_pat];
-    if(this.cur_row < pattern.rows.length) {
-      var row = pattern.rows[this.cur_row];
-      for (var trackindex = 0; trackindex < song.song.tracks.length; trackindex += 1) {
-        var track = {
-          notedata: [
-            {
-              note: -1,
-              instrument: -1,
-              volume: -1,
-              fxtype: -1,
-              fxparam: -1,
-            }
-          ]
-        };
-        if(row && trackindex < row.length && row[trackindex] != null) {
-          track = row[trackindex];
+    const numrows = song.getPatternRowCount(this.cur_pat);
+    if(this.cur_row < numrows) {
+      const numtracks = song.getNumTracks();
+      for (let trackindex = 0; trackindex < numtracks; trackindex += 1) {
+        let track = song.getTrackDataForPatternRow(this.cur_pat, this.cur_row, trackindex);
+        var ch = this.tracks[trackindex];
+        var inst = ch.inst;
+        ch.triggernote = false;
+        var event = {};
+        if ("notedata" in track && track.notedata.length > 0) {
+          event = track.notedata[0];
         }
-        var trackinfo = song.song.tracks[trackindex];
-        if (trackinfo) {
-          var ch = this.tracks[trackindex];
-          var inst = ch.inst;
-          ch.triggernote = false;
-          var event = {};
-          if ("notedata" in track && track.notedata.length > 0) {
-            event = track.notedata[0];
-          }
 
-          // instrument trigger
-          if (event.instrument && event.instrument !== -1) {
-            inst = this.instruments[event.instrument - 1];
-            if (inst && inst.inst && inst.inst.samplemap) {
-              ch.inst = inst;
-              // reset properties, but let the same instrument and note keep playing.
-              // note: it doesn't matter what the instrument number is, it just retriggers the
-              // properties of the currently playing instrument. Only if you specify a note AND
-              // instrument does it change the playing instrument.
-              if (ch.note && inst.inst.samplemap) {
-                const samp = inst.inst.samples[inst.inst.samplemap[ch.note]];
-                ch.vol = samp.vol;
-                ch.pan = samp.pan;
-                ch.fine = samp.fine;
-                if(ch.currentlyPlaying) {
-                  ch.currentlyPlaying.resetEnvelopes();
-                }
+        // instrument trigger
+        if (event.instrument && event.instrument !== -1) {
+          inst = this.instruments[event.instrument - 1];
+          if (inst && inst.inst && inst.inst.samplemap) {
+            ch.inst = inst;
+            // reset properties, but let the same instrument and note keep playing.
+            // note: it doesn't matter what the instrument number is, it just retriggers the
+            // properties of the currently playing instrument. Only if you specify a note AND
+            // instrument does it change the playing instrument.
+            if (ch.note && inst.inst.samplemap) {
+              const samp = inst.inst.samples[inst.inst.samplemap[ch.note]];
+              ch.vol = samp.vol;
+              ch.pan = samp.pan;
+              ch.fine = samp.fine;
+              if(ch.currentlyPlaying) {
+                ch.currentlyPlaying.resetEnvelopes();
               }
             }
           }
+        }
 
-          // note trigger
-          if ("note" in event && event.note != -1) {
-            if (event.note == 96) {
-              ch.release = 1;
-              ch.triggernote = false;
-            } else {
-              if (inst && inst.inst && inst.inst.samplemap) {
-                var note = event.note;
-                ch.note = note;
-                //if (ch.triggernote) {
-                  // if we were already triggering the note, reset vol/pan using
-                  // (potentially) new sample
-                  const samp = inst.inst.samples[inst.inst.samplemap[note]];
-                  ch.pan = samp.pan;
-                  ch.vol = samp.vol;
-                  ch.fine = samp.fine;
-                //}
-                ch.triggernote = true;
-              }
+        // note trigger
+        if ("note" in event && event.note != -1) {
+          if (event.note == 96) {
+            ch.release = 1;
+            ch.triggernote = false;
+          } else {
+            if (inst && inst.inst && inst.inst.samplemap) {
+              var note = event.note;
+              ch.note = note;
+              //if (ch.triggernote) {
+                // if we were already triggering the note, reset vol/pan using
+                // (potentially) new sample
+                const samp = inst.inst.samples[inst.inst.samplemap[note]];
+                ch.pan = samp.pan;
+                ch.vol = samp.vol;
+                ch.fine = samp.fine;
+              //}
               ch.triggernote = true;
             }
+            ch.triggernote = true;
           }
+        }
 
-          ch.voleffectfn = undefined;
-          if ("volume" in event && event.volume != -1) {  // volume column
-            var v = event.volume;
-            ch.voleffectdata = v & 0x0f;
-            if (v < 0x10) {
-              if (v !== 0) {
-                console.log("Track", trackindex, "invalid volume", event.volume.toString(16));
-              }
-            } else if (v <= 0x50) {
-              ch.vol = v - 0x10;
-            } else if (v >= 0x60 && v < 0x70) {  // volume slide down
-              ch.voleffectfn = function(ch) {
-                ch.vol = Math.max(0, ch.vol - ch.voleffectdata);
-              };
-            } else if (v >= 0x70 && v < 0x80) {  // volume slide up
-              ch.voleffectfn = function(ch) {
-                ch.vol = Math.min(64, ch.vol + ch.voleffectdata);
-              };
-            } else if (v >= 0x80 && v < 0x90) {  // fine volume slide down
-              ch.vol = Math.max(0, ch.vol - (v & 0x0f));
-            } else if (v >= 0x90 && v < 0xa0) {  // fine volume slide up
-              ch.vol = Math.min(64, ch.vol + (v & 0x0f));
-            } else if (v >= 0xa0 && v < 0xb0) {  // vibrato speed
-              ch.vibratospeed = v & 0x0f;
-            } else if (v >= 0xb0 && v < 0xc0) {  // vibrato w/ depth
-              ch.vibratodepth = v & 0x0f;
-              ch.voleffectfn = this.effects_t1[4];  // use vibrato effect directly
-              var tempeffectfn = this.effects_t1[4];
-              if(tempeffectfn) tempeffectfn.bind(this)(ch);  // and also call it on tick 0
-            } else if (v >= 0xc0 && v < 0xd0) {  // set panning
-              ch.pan = (v & 0x0f) * 0x11;
-            } else if (v >= 0xf0 && v <= 0xff) {  // portamento
-              if (v & 0x0f) {
-                ch.portaspeed = (v & 0x0f) << 4;
-              }
-              ch.voleffectfn = this.effects_t1[3].bind(this);  // just run 3x0
-            } else {
-              console.log("Track", trackindex, "volume effect", v.toString(16));
+        ch.voleffectfn = undefined;
+        if ("volume" in event && event.volume != -1) {  // volume column
+          var v = event.volume;
+          ch.voleffectdata = v & 0x0f;
+          if (v < 0x10) {
+            if (v !== 0) {
+              console.log("Track", trackindex, "invalid volume", event.volume.toString(16));
             }
+          } else if (v <= 0x50) {
+            ch.vol = v - 0x10;
+          } else if (v >= 0x60 && v < 0x70) {  // volume slide down
+            ch.voleffectfn = function(ch) {
+              ch.vol = Math.max(0, ch.vol - ch.voleffectdata);
+            };
+          } else if (v >= 0x70 && v < 0x80) {  // volume slide up
+            ch.voleffectfn = function(ch) {
+              ch.vol = Math.min(64, ch.vol + ch.voleffectdata);
+            };
+          } else if (v >= 0x80 && v < 0x90) {  // fine volume slide down
+            ch.vol = Math.max(0, ch.vol - (v & 0x0f));
+          } else if (v >= 0x90 && v < 0xa0) {  // fine volume slide up
+            ch.vol = Math.min(64, ch.vol + (v & 0x0f));
+          } else if (v >= 0xa0 && v < 0xb0) {  // vibrato speed
+            ch.vibratospeed = v & 0x0f;
+          } else if (v >= 0xb0 && v < 0xc0) {  // vibrato w/ depth
+            ch.vibratodepth = v & 0x0f;
+            ch.voleffectfn = this.effects_t1[4];  // use vibrato effect directly
+            var tempeffectfn = this.effects_t1[4];
+            if(tempeffectfn) tempeffectfn.bind(this)(ch);  // and also call it on tick 0
+          } else if (v >= 0xc0 && v < 0xd0) {  // set panning
+            ch.pan = (v & 0x0f) * 0x11;
+          } else if (v >= 0xf0 && v <= 0xff) {  // portamento
+            if (v & 0x0f) {
+              ch.portaspeed = (v & 0x0f) << 4;
+            }
+            ch.voleffectfn = this.effects_t1[3].bind(this);  // just run 3x0
+          } else {
+            console.log("Track", trackindex, "volume effect", v.toString(16));
           }
+        }
 
-          ch.effectfn = undefined;
-          if("fxtype" in event && event.fxtype != -1) {
+        ch.effectfn = undefined;
+        if("fxtype" in event && event.fxtype != -1) {
+          try {
             ch.effect = event.fxtype;
             ch.effectdata = event.fxparam;
             if (ch.effect < 36) {
@@ -890,7 +851,7 @@ class Player {
               }
               // If effect B or D, jump or pattern break, don't process any more columns.
               if (ch.effect === 0xb || ch.effect === 0xd ) {
-                break;
+                return;
               }
             } else {
               console.log("Track", trackindex, "effect > 36", ch.effect);
@@ -915,20 +876,22 @@ class Player {
                 }
               }
             }
+          } catch(e) {
+            console.log(e);
           }
+        }
 
-          if (ch.triggernote) {
-            // there's gotta be a less hacky way to handle offset commands...
-            if (ch.effect != 9) ch.off = 0;
-            ch.release = 0;
-            ch.envtick = 0;
-            if (ch.note) {
-              ch.period = ch.inst.periodForNote(ch, ch.note, ch.fine);
-            }
-            // waveforms 0-3 are retriggered on new notes while 4-7 are continuous
-            if (ch.vibratotype < 4) {
-              ch.vibratopos = 0;
-            }
+        if (ch.triggernote) {
+          // there's gotta be a less hacky way to handle offset commands...
+          if (ch.effect != 9) ch.off = 0;
+          ch.release = 0;
+          ch.envtick = 0;
+          if (ch.note) {
+            ch.period = ch.inst.periodForNote(ch, ch.note, ch.fine);
+          }
+          // waveforms 0-3 are retriggered on new notes while 4-7 are continuous
+          if (ch.vibratotype < 4) {
+            ch.vibratopos = 0;
           }
         }
       }
@@ -945,11 +908,11 @@ class Player {
       console.log("Lag!!!");
     }
     var j, ch;
-    for (j in song.song.tracks) {
+    for (j in this.tracks) {
       ch = this.tracks[j];
       ch.periodoffset = 0;
     }
-    if (this.cur_tick >= song.song.speed) {
+    if (this.cur_tick >= this.speed) {
       this.cur_tick = 0;
     }
 
@@ -957,7 +920,7 @@ class Player {
       this.processRow();
     }
 
-    for (j = 0; j < song.song.tracks.length; j += 1) {
+    for (j = 0; j < this.tracks.length; j += 1) {
       ch = this.tracks[j];
       var inst = ch.inst;
       if (this.cur_tick !== 0) {
@@ -965,9 +928,7 @@ class Player {
         if(ch.effectfn) ch.effectfn.bind(this)(ch);
       }
       if (isNaN(ch.period)) {
-        console.log(this.prettify_notedata(
-              song.song.patterns[this.cur_pat].rows[this.cur_row][j]),
-            "set channel", j, "period to NaN");
+        throw "NaN Period";
       }
       if (inst === undefined)
         continue;
@@ -994,7 +955,7 @@ class Player {
   }
 
   scheduler() {
-    var msPerTick = 2.5 / song.song.bpm;
+    var msPerTick = 2.5 / song.getBpm();
     while(this.nextTickTime < (this.audioctx.currentTime + this.scheduleAheadTime)) {
       this.processTick();
       this.nextTickTime += msPerTick;
@@ -1124,11 +1085,13 @@ class Player {
   }
 
   reset() {
-    this.cur_pat = song.song.sequence[0].pattern;
+    this.cur_pat = song.getSequencePatternNumber(0);
     this.cur_row = 0;
     this.cur_songpos = 0;
     this.cur_ticksamp = 0;
     this.cur_tick = 0;
+    this.speed = song.getSpeed();
+    this.bpm  = song.getBpm();
 
     state.set({
       cursor: {
@@ -1138,7 +1101,7 @@ class Player {
       },
     });
 
-    song.song.globalVolume = this.max_global_volume;
+    this.globalVolume = this.max_global_volume;
   }
 
   onSongChanged() {
@@ -1148,7 +1111,7 @@ class Player {
     this.cur_ticksamp = 0;
     this.cur_tick = 0;
     this.playing = false;
-    song.song.globalVolume = this.max_global_volume;
+    this.globalVolume = this.max_global_volume;
 
     this.reset();
 
@@ -1157,14 +1120,16 @@ class Player {
     this.tracks = [];
 
     // Initialise the channelinfo for each track.
-    for(var i = 0; i < song.song.tracks.length; i += 1) {
+    const numtracks = song.getNumTracks();
+    for (let i = 0; i < numtracks; i += 1) {
       var trackinfo = new Track(this.audioctx, this.masterGain);
       this.tracks.push(trackinfo);
     }
 
     this.instruments = [];
+    const numinstruments = song.getNumInstruments();
     // Initialise the instrument envelope objects
-    for(i = 0; i < song.song.instruments.length; i += 1) {
+    for (let i = 0; i < numinstruments; i += 1) {
       this.instruments.push(new Instrument(i, this.audioctx));
     }
 
@@ -1174,8 +1139,6 @@ class Player {
   }
 
   onInstrumentChanged(instrumentIndex) {
-    // TODO: This is a bit heavy handed, should check what has changed.
-    // Requires we switch to immutable for song first.
     try {
       this.instruments[instrumentIndex] = new Instrument(instrumentIndex, this.audioctx);
     } catch(e) {
@@ -1186,7 +1149,8 @@ class Player {
   onInstrumentListChanged() {
     this.instruments = [];
     // Initialise the instrument envelope objects
-    for(let i = 0; i < song.song.instruments.length; i += 1) {
+    const numinstruments = song.getNumInstruments();
+    for (let i = 0; i < numinstruments; i += 1) {
       this.instruments.push(new Instrument(i, this.audioctx));
     }
   }
@@ -1353,9 +1317,9 @@ class Player {
   }
 
   eff_t0_b(ch, data) {  // song jump (untested)
-    if (data < song.song.sequence.length) {
+    if (data < song.getSequenceLength()) {
       this.cur_songpos = data;
-      this.cur_pat = song.song.sequence[this.cur_songpos].pattern;
+      this.cur_pat = song.getSequencePatternNumber(this.cur_songpos);
       this.cur_row = -1;
     }
   }
@@ -1366,9 +1330,9 @@ class Player {
 
   eff_t0_d(ch, data) {  // pattern jump
     this.cur_songpos++;
-    if (this.cur_songpos >= song.song.sequence.length)
-      this.cur_songpos = song.song.loopPosition;
-    this.cur_pat = song.song.sequence[this.cur_songpos].pattern;
+    if (this.cur_songpos >= song.getSequenceLength())
+      this.cur_songpos = song.getLoopPosition();
+    this.cur_pat = song.getSequencePatternNumber(this.cur_songpos);
     this.cur_row = (data >> 4) * 10 + (data & 0x0f) - 1;
   }
 
@@ -1406,7 +1370,7 @@ class Player {
       case 0x0c:  // note cut handled in eff_t1_e
         break;
       default:
-        console.log("unimplemented extended effect E", ch.effectdata.toString(16));
+        throw `Unimplemented extended effect E ${ch.effectdata.toString(16)}`;
         break;
     }
   }
@@ -1426,14 +1390,14 @@ class Player {
       console.log("tempo 0?");
       return;
     } else if (data < 0x20) {
-      song.song.speed = data;
+      this.speed = data;
     } else {
-      song.song.bpm = data;
+      this.bpm = data;
     }
     state.set({
       transport: {
-        bpm: song.song.bpm,
-        speed: song.song.speed,
+        bpm: this.bpm,
+        speed: this.speed,
       },
     });
   }
@@ -1442,23 +1406,23 @@ class Player {
     if (data <= 0x40) {
       // volume gets multiplied by 2 to match
       // the initial max global volume of 128
-      song.song.globalVolume = Math.max(0, data * 2);
+      this.globalVolume = Math.max(0, data * 2);
     } else {
-      song.song.globalVolume = this.max_global_volume;
+      this.globalVolume = this.max_global_volume;
     }
   }
 
   eff_t0_h(ch, data) {  // global volume slide
     if (data) {
       // same as Axy but multiplied by 2
-      song.song.globalVolumeslide = (-(data & 0x0f) + (data >> 4)) * 2;
+      this.globalVolumeslide = (-(data & 0x0f) + (data >> 4)) * 2;
     }
   }
 
   eff_t1_h(ch) {  // global volume slide
-    if (song.song.globalVolumeslide !== undefined) {
-      song.song.globalVolume = Math.max(0, Math.min(this.max_global_volume,
-        song.song.globalVolume + song.song.globalVolumeslide));
+    if (this.globalVolumeslide !== undefined) {
+      this.globalVolume = Math.max(0, Math.min(this.max_global_volume,
+        this.globalVolume + this.globalVolumeslide));
     }
   }
 
@@ -1494,7 +1458,7 @@ class Player {
 
   eff_unimplemented() {}
   eff_unimplemented_t0(ch, data) {
-    console.log("unimplemented effect", this.prettify_effect(ch.effect, data));
+    throw `Unimplemented effect ${ch.effect} ${data}`;
   }
 }
 

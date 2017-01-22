@@ -1,5 +1,4 @@
 import Signal from '../utils/signal';
-import MouseTrap from 'mousetrap';
 
 import { song } from './songmanager';
 import { state } from '../state';
@@ -17,9 +16,7 @@ export class HexInput {
       "8", "9", "a", "b", "c", "d", "e", "f",
     ];
 
-    MouseTrap.bind(this.validKeys, (e) => {
-      this.handleKeyAtCursor(e);
-    });
+    window.addEventListener("keyup", this.handleKeyAtCursor.bind(this));
   }
 
   handleKeyAtCursor(event) {
@@ -41,7 +38,9 @@ export class HexInput {
         val = (charcode - this.hexAlphaMin) + 10;
       } 
       if(val != null) {
+        state.groupHistoryStart(`Set ${song.eventItemName(state.cursor.get("item"))} in pattern`);
         song.setHexValueAtCursor(state.cursor.toJS(), val); 
+        state.groupHistoryEnd();
         cursor.rowDown(state.transport.get("step"));
       }
       return;

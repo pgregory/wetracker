@@ -52,6 +52,14 @@ $(document).ready(() => {
       e.preventDefault();
     });
 
+    MouseTrap.bind("mod+z", (e) => {
+      state.undo();
+    });
+
+    MouseTrap.bind("shift+mod+z", (e) => {
+      state.redo();
+    });
+
     song.newSong();
 
     window.requestAnimationFrame(() => {

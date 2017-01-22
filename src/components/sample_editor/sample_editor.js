@@ -41,8 +41,8 @@ export default class SampleEditor {
     this.sampleIndex = state.cursor.get("sample");
 
     try {
-      this.instrument = song.song.instruments[this.instrumentIndex];
-      this.sample = song.song.instruments[this.instrumentIndex].samples[this.sampleIndex];
+      this.instrument = song.getInstrument(this.instrumentIndex);
+      this.sample = this.instrument.samples[this.sampleIndex];
       // Set default zoom to fill the window.
       const len = this.sample.len;
       if (len > 0) {
@@ -216,11 +216,14 @@ export default class SampleEditor {
         this.sample.looplen = this.sample.len;
       }
       this.updateControlPanel();
-      song.updateInstrument(this.instrumentIndex);
+      song.updateInstrument(this.instrumentIndex, this.instrument);
     });
 
     $(this.canvas).on("mousedown", this.onMouseDown.bind(this));
     $(this.canvas).on("mouseup", (e) => {
+      if (this.dragging) {
+        song.updateInstrument(this.instrumentIndex, this.instrument);
+      }
       this.dragging = false;
     });
     $(this.canvas).on("mousemove", this.onMouseMove.bind(this));
@@ -258,11 +261,11 @@ export default class SampleEditor {
           // Dragging the loop start marker
           this.sample.looplen -= (newX - this.sample.loop);
           this.sample.loop = newX;
-          song.updateInstrument(this.instrumentIndex);
+          //song.updateInstrument(this.instrumentIndex, this.instrument);
         } else if(this.dragMarker === 1) {
           // Dragging the loop end marker
           this.sample.looplen = newX - this.sample.loop;
-          song.updateInstrument(this.instrumentIndex);
+          //song.updateInstrument(this.instrumentIndex, this.instrument);
         } else {
           // Dragging the waveform
           this.offset -= (e.offsetX - this.mouseX);

@@ -97,7 +97,9 @@ class VirtualKeyboard {
       }
       const current_octave = state.transport.get("octave"); 
       if (event.key in this.mappingTable) {
+        state.groupHistoryStart("Play note into pattern");
         song.addNoteToSong(state.cursor.toJS(), this.mappingTable[event.key] + (12 * current_octave), state.cursor.get("instrument") + 1); 
+        state.groupHistoryEnd();
         cursor.rowDown(state.transport.get("step"));
       } else {
         if (event.key == '`') {
