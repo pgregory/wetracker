@@ -18,6 +18,7 @@ export default class InstrumentList {
 
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
     Signal.connect(song, "songChanged", this, "onSongChanged");
+    Signal.connect(state, "songChanged", this, "onSongChanged");
     Signal.connect(song, "instrumentListChanged", this, "onInstrumentListChanged");
   }
 

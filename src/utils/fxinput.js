@@ -44,7 +44,9 @@ export class FXInput {
         val = (charcode - this.alphaMin) + 10;
       } 
       if(val != null) {
+        state.groupHistoryStart(`Set ${song.eventItemName(state.cursor.get("item"))} in pattern`);
         song.setFXAtCursor(state.cursor.toJS(), val); 
+        state.groupHistoryEnd();
         cursor.rowDown(state.transport.get("step"));
       }
     }

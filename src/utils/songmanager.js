@@ -50,6 +50,15 @@ export class SongManager {
     this.newSong();
   }
 
+  eventItemName(item) {
+    const eventItem = this.eventIndices[item].itemIndex;
+    if (eventItem < this.eventEntries.length) {
+      return this.eventEntries[eventItem];
+    } else {
+      return "unknown";
+    }
+  }
+
   findEventAtCursor(cursor) {
     if (!state.song.hasIn(["patterns", cursor.pattern])) {
       state.song.set({
@@ -163,7 +172,7 @@ export class SongManager {
     if (instrument != null) {
       notecol = notecol.set("instrument", instrument);
     }
-    this.updateEventAtCursor(cursor, notecol, "Update note column");
+    this.updateEventAtCursor(cursor, notecol, "Change note in pattern");
     this.eventChanged(cursor, notecol.toJS());
   }
 
@@ -175,7 +184,7 @@ export class SongManager {
       let notecol = this.findEventAtCursor(cursor);
       notecol = notecol.delete(entry);
 
-      this.updateEventAtCursor(cursor, notecol);
+      this.updateEventAtCursor(cursor, notecol, `Delete ${this.eventItemName(cursor.item)} from pattern`);
       this.eventChanged(cursor, notecol.toJS());
     }
   }
@@ -193,7 +202,7 @@ export class SongManager {
       if (entry === 'fxparam' && (!(notecol.has('fxtype')) || notecol.get('fxtype') === -1)) {
         notecol = notecol.set('fxtype', 0);
       }
-      this.updateEventAtCursor(cursor, notecol);
+      this.updateEventAtCursor(cursor, notecol, `Edit ${this.eventItemName(cursor.item)} in pattern`);
       this.eventChanged(cursor, notecol.toJS());
     }
   }
@@ -211,7 +220,7 @@ export class SongManager {
       if(!(notecol.has("fxparam")) || notecol.get("fxparam") === -1) {
         notecol = notecol.set("fxparam", 0);
       }
-      this.updateEventAtCursor(cursor, notecol);
+      this.updateEventAtCursor(cursor, notecol, `Edit ${this.eventItemName(cursor.item)} in pattern`);
       this.eventChanged(cursor, notecol.toJS());
     }
   }
@@ -227,8 +236,9 @@ export class SongManager {
         speed: song.speed,
       },
       song: song,
-    });
+    }, "Song change");
 
+    state.clearHistory();
     this.songChanged();
   }
 
@@ -245,7 +255,7 @@ export class SongManager {
             samplemap,
           })),
         },
-      });
+      }, "Add instrument");
     } catch(e) {
       console.log(e);
     }
@@ -272,7 +282,7 @@ export class SongManager {
             'name': `Sample ${sampid}`,
           }))),
         }
-      });
+      }, "Add sample to instrument");
 
       this.instrumentChanged(instrumentIndex);
 
@@ -293,7 +303,7 @@ export class SongManager {
           rows: [],
         })),
       }
-    });
+    }, "Append pattern");
     return patternNo;
   }
 
@@ -313,7 +323,7 @@ export class SongManager {
           pattern: pid,
         })),
       }
-    });
+    }, "Add pattern to sequence");
     this.sequenceChanged();
     this.patternChanged();
   }
@@ -331,7 +341,7 @@ export class SongManager {
       song: {
         sequence: state.song.get("sequence").delete(sequence),
       },
-    });
+    }, "Delete pattern");
     this.sequenceChanged();
   }
 
@@ -359,7 +369,7 @@ export class SongManager {
         sequence: pos,
         pattern: pid,
       },
-    });
+    }, "Clone pattern");
 
     this.sequenceChanged();
   }
@@ -380,7 +390,7 @@ export class SongManager {
         sequence: pos,
         pattern: pid,
       },
-    });
+    }, "Duplicate pattern");
 
     this.sequenceChanged();
   }
@@ -398,7 +408,7 @@ export class SongManager {
         song: {
           sequence: state.song.get("sequence").setIn([sequence, "pattern"], val),
         },
-      });
+      }, "Change sequence pattern number");
 
       this.sequenceItemChanged(sequence);
     }
@@ -427,6 +437,7 @@ export class SongManager {
       song,
     });
 
+    state.clearHistory();
     this.songChanged();
   }
 
@@ -555,7 +566,7 @@ export class SongManager {
         song: {
           instruments: state.song.get("instruments").setIn([instrumentIndex, "name"], name),
         }
-      });
+      }, "Set instrument name");
 
       this.instrumentChanged(instrumentIndex);
     } catch(e) {
@@ -586,7 +597,7 @@ export class SongManager {
             }),
           ),
         },
-      });
+      }, "Set sample data");
 
       this.instrumentChanged(instrumentIndex);
       this.sampleChanged(instrumentIndex, sampleIndex);
@@ -601,7 +612,7 @@ export class SongManager {
         song: {
           instruments: state.song.get("instruments").setIn([instrumentIndex, "samples", sampleIndex, "name"], name),
         }
-      });
+      }, "Set sample name");
 
       this.instrumentChanged(instrumentIndex);
     } catch(e) {
@@ -614,17 +625,25 @@ export class SongManager {
       song: {
           instruments: state.song.get("instruments").set(instrumentIndex, Immutable.fromJS(data)), 
       }
-    });
+    }, "Change instrument");
     this.instrumentChanged(instrumentIndex);
   }
 
   setBPM(bpm) {
-    state.song.set("bpm", bpm);
+    state.set({
+      song: {
+        bpm,
+      }
+    }, "Set bpm");
     this.bpmChanged(bpm);
   }
 
   setSpeed(speed) {
-    state.song.set("speed", speed);
+    state.set({
+      song: {
+        speed,
+      }
+    });
     this.speedChanged(speed);
   }
 
@@ -640,7 +659,7 @@ export class SongManager {
               rows: state.song.getIn(["patterns", pattern, "rows"]).setSize(length),
             })),
         }
-      });
+      }, "Change pattern length");
       this.songChanged();
     }
   }
@@ -651,7 +670,7 @@ export class SongManager {
         song: {
           tracks: state.song.get("tracks").setIn([trackIndex, "name"], name),
         }
-      });
+      }, "Set track name");
 
       this.trackChanged(trackIndex);
     } catch(e) {

@@ -38,7 +38,9 @@ export class HexInput {
         val = (charcode - this.hexAlphaMin) + 10;
       } 
       if(val != null) {
+        state.groupHistoryStart(`Set ${song.eventItemName(state.cursor.get("item"))} in pattern`);
         song.setHexValueAtCursor(state.cursor.toJS(), val); 
+        state.groupHistoryEnd();
         cursor.rowDown(state.transport.get("step"));
       }
       return;

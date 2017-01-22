@@ -36,7 +36,8 @@ export class State {
 
     this.song = new Immutable.Map();
 
-    this.history = [];
+    this.history = [{}];
+    this.historyIndex = 0;
 
     this.cursorChanged = Signal.signal(true);
     this.tracksChanged = Signal.signal(true);
@@ -52,9 +53,9 @@ export class State {
 
     // Don't undo/redo tracks, they are transient, not user editable.
 
-    if ('transport' in state ) {
+    /*if ('transport' in state ) {
       snapshot.transport = this.transport;
-    }
+    }*/
 
     // Don't undo/redo playingInstruments, they are transient, not user editable.
 
@@ -63,7 +64,9 @@ export class State {
     }
 
     if (Object.keys(snapshot).length !== 0) {
+      this.history = this.history.slice(0, this.historyIndex + 1);
       this.history.push({annotation, snapshot});
+      this.historyIndex += 1;
     }
   }
 
@@ -101,29 +104,63 @@ export class State {
   }
 
   groupHistoryStart(annotation) {
+    this.history = this.history.slice(0, this.historyIndex + 1);
     this.history.push({annotation, group: 0});
+    this.historyIndex += 1;
   }
 
   groupHistoryEnd() {
+    this.history = this.history.slice(0, this.historyIndex + 1);
     this.history.push({group: 1});
+    this.historyIndex += 1;
   }
 
   undo() {
-    if (this.history.length > 0) {
-      let past = this.history.pop();
+    if (this.historyIndex > 0) {
+      let past = this.history[this.historyIndex];
+      this.historyIndex -= 1;
       if ("group" in past && past.group === 1) {
-        past = this.history.pop();
-        while (!("group" in past) || past.group !== 0) {
+        past = this.history[this.historyIndex];
+        this.historyIndex -= 1;
+        while ((this.historyIndex > 0) &&
+               (!("group" in past) || past.group !== 0)) {
           this.updateState(past.snapshot);
-          past = this.history.pop();
+          past = this.history[this.historyIndex];
+          this.historyIndex -= 1;
         }
+        console.log("Undo: " + past.annotation);
+      } else {
+        this.updateState(past.snapshot);
         console.log("Undo: " + past.annotation);
       }
     }
   }
 
   redo() {
-    console.log("Redo");
+    if (this.historyIndex < this.history.length) {
+      this.historyIndex += 1;
+      let future = this.history[this.historyIndex];
+      let annotation = future.annotation;
+      if ("group" in future && future.group === 0) {
+        this.historyIndex += 1;
+        future = this.history[this.historyIndex];
+        do {
+          this.updateState(future.snapshot);
+          this.historyIndex += 1;
+          future = this.history[this.historyIndex];
+        } while ((this.historyIndex < this.history.length) &&
+               (!("group" in future) || future.group !== 1))
+        console.log("Redo: " + annotation);
+      } else {
+        this.updateState(future.snapshot);
+        console.log("Redo: " + annotation);
+      }
+    }
+  }
+
+  clearHistory() {
+    this.history = [{}];
+    this.historyIndex = 0;
   }
 }
 
