@@ -36,8 +36,15 @@ export class State {
 
     this.song = new Immutable.Map();
 
-    this.history = [{}];
+    this.history = [{
+      snapshot: {
+        song: this.song,
+      },
+      annotation: "Start",
+    }];
     this.historyIndex = 0;
+    this.historyGrouping = false;
+    this.historyGroupAnnotation = "";
 
     this.cursorChanged = Signal.signal(true);
     this.tracksChanged = Signal.signal(true);
@@ -46,34 +53,26 @@ export class State {
     this.songChanged = Signal.signal(true);
   }
 
-  recordHistory(state, annotation) {
-    const snapshot = {};
-    
-    // Don't undo/redo cursor, it would be too intensive.
-
-    // Don't undo/redo tracks, they are transient, not user editable.
-
-    /*if ('transport' in state ) {
-      snapshot.transport = this.transport;
-    }*/
-
-    // Don't undo/redo playingInstruments, they are transient, not user editable.
-
-    if ('song' in state) {
-      snapshot.song = this.song;
-    }
-
-    if (Object.keys(snapshot).length !== 0) {
+  recordCurrentState(annotation) {
+    if (!this.historyGrouping) {
+      const snapshot = {
+        song: this.song,
+      };
       this.history = this.history.slice(0, this.historyIndex + 1);
       this.history.push({annotation, snapshot});
+      // Move the pointer forward, historyIndex now points at the 
+      // current state duplicated in the history buffer.
       this.historyIndex += 1;
     }
   }
 
-
   set(state, annotation) {
-    this.recordHistory(state, annotation);
+    // Update the current state
     this.updateState(state);
+    // Push a reference to this new state onto the history buffer.
+    if ('song' in state) {
+      this.recordCurrentState(annotation);
+    }
   }
 
   updateState(state) {
@@ -104,62 +103,62 @@ export class State {
   }
 
   groupHistoryStart(annotation) {
-    this.history = this.history.slice(0, this.historyIndex + 1);
-    this.history.push({annotation, group: 0});
-    this.historyIndex += 1;
+    // Tell the history that it doesn't need to record anything until we've done the group
+    this.historyGrouping = true;
+    this.historyGroupAnnotation = annotation;
   }
 
   groupHistoryEnd() {
-    this.history = this.history.slice(0, this.historyIndex + 1);
-    this.history.push({group: 1});
-    this.historyIndex += 1;
+    // Tell the history that it has completed the group, and take a snapshot of the current 
+    // state.
+    this.historyGrouping = false;
+    this.recordCurrentState(this.historyGroupAnnotation);
+    this.historyGroupAnnotation = "";
   }
 
   undo() {
+    let past = undefined;
+    // If there is any history to undo.
     if (this.historyIndex > 0) {
-      let past = this.history[this.historyIndex];
+      // Move the marker back to the previous state in history.
       this.historyIndex -= 1;
-      if ("group" in past && past.group === 1) {
-        past = this.history[this.historyIndex];
-        this.historyIndex -= 1;
-        while ((this.historyIndex > 0) &&
-               (!("group" in past) || past.group !== 0)) {
-          this.updateState(past.snapshot);
-          past = this.history[this.historyIndex];
-          this.historyIndex -= 1;
-        }
-        console.log("Undo: " + past.annotation);
-      } else {
+      // Get the state at this point in history
+      past = this.history[this.historyIndex];
+      // Apply that historic state to the current state.
+      try {
         this.updateState(past.snapshot);
         console.log("Undo: " + past.annotation);
+      } catch(e) {
+        console.log(e);
       }
     }
   }
 
   redo() {
-    if (this.historyIndex < this.history.length) {
+    let future = undefined;
+    // Check if there is any future state to restore
+    if (this.historyIndex < this.history.length - 1) {
+      // Move the marker forward in history.
       this.historyIndex += 1;
-      let future = this.history[this.historyIndex];
-      let annotation = future.annotation;
-      if ("group" in future && future.group === 0) {
-        this.historyIndex += 1;
-        future = this.history[this.historyIndex];
-        do {
-          this.updateState(future.snapshot);
-          this.historyIndex += 1;
-          future = this.history[this.historyIndex];
-        } while ((this.historyIndex < this.history.length) &&
-               (!("group" in future) || future.group !== 1))
-        console.log("Redo: " + annotation);
-      } else {
+      // Get the state at this point in history
+      future = this.history[this.historyIndex];
+      // Apply that historic state to the current state.
+      try {
         this.updateState(future.snapshot);
-        console.log("Redo: " + annotation);
+        console.log("Redo: " + future.annotation);
+      } catch(e) {
+        console.log(e);
       }
     }
   }
 
   clearHistory() {
-    this.history = [{}];
+    this.history = [{
+      snapshot: {
+        song: this.song,
+      },
+      annotation: "Reset",
+    }];
     this.historyIndex = 0;
   }
 }
