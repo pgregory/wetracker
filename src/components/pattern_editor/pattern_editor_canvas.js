@@ -212,7 +212,7 @@ export default class PatternEditorCanvas {
     var rgbks = generateRGBKs( this.fontimg );
     var noteFont = generateTintImage( this.fontimg, rgbks, 255, 255, 255 );
     var instrumentFont = generateTintImage( this.fontimg, rgbks, 255, 102, 102 );
-    var volumeFont = generateTintImage( this.fontimg, rgbks, 102, 102, 102 );
+    var volumeFont = generateTintImage( this.fontimg, rgbks, 102, 255, 102 );
     var panningFont = generateTintImage( this.fontimg, rgbks, 153, 102, 153 );
     var delayFont = generateTintImage( this.fontimg, rgbks, 153, 153, 102 );
     var fxFont = generateTintImage( this.fontimg, rgbks, 200, 200, 0 );
@@ -324,7 +324,13 @@ export default class PatternEditorCanvas {
       ctx.drawImage(this.mixedFont, 312, 0, 8, 8, dx, dy, cw, 8);
       ctx.drawImage(this.mixedFont, 312, 0, 8, 8, dx+cw, dy, cw, 8);
     } else {
-      ctx.drawImage(this.mixedFont, 8*(vol>>4), this.volumeFontOffset, 8, 8, dx, dy, cw, 8);
+      // Draw the volume effect type
+      const voltype = vol >> 4;
+      if(voltype >= 1 && voltype <= 5) {
+        ctx.drawImage(this.mixedFont, 8*(voltype-1), this.volumeFontOffset, 8, 8, dx, dy, cw, 8);
+      } else {
+        ctx.drawImage(this.mixedFont, 368 + (8*(voltype - 6)), this.volumeFontOffset, 8, 8, dx, dy, cw, 8);
+      }
       ctx.drawImage(this.mixedFont, 8*(vol&15), this.volumeFontOffset, 8, 8, dx+cw, dy, cw, 8);
     }
     dx += this._pattern_volu_width + this._element_spacing;
