@@ -62,14 +62,15 @@ $(document).ready(() => {
 
     song.newSong();
 
+    state.set({
+      transport: {
+        masterVolume: -10.0,
+      }
+    });
+
     window.requestAnimationFrame(() => {
       transport.refresh();
       tabs.refresh();
-      state.set({
-        transport: {
-          masterVolume: -10.0,
-        }
-      });
     });
   };
 
