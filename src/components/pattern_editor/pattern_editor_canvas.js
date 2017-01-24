@@ -212,7 +212,7 @@ export default class PatternEditorCanvas {
     var rgbks = generateRGBKs( this.fontimg );
     var noteFont = generateTintImage( this.fontimg, rgbks, 255, 255, 255 );
     var instrumentFont = generateTintImage( this.fontimg, rgbks, 255, 102, 102 );
-    var volumeFont = generateTintImage( this.fontimg, rgbks, 102, 102, 102 );
+    var volumeFont = generateTintImage( this.fontimg, rgbks, 102, 255, 102 );
     var panningFont = generateTintImage( this.fontimg, rgbks, 153, 102, 153 );
     var delayFont = generateTintImage( this.fontimg, rgbks, 153, 153, 102 );
     var fxFont = generateTintImage( this.fontimg, rgbks, 200, 200, 0 );
@@ -324,7 +324,13 @@ export default class PatternEditorCanvas {
       ctx.drawImage(this.mixedFont, 312, 0, 8, 8, dx, dy, cw, 8);
       ctx.drawImage(this.mixedFont, 312, 0, 8, 8, dx+cw, dy, cw, 8);
     } else {
-      ctx.drawImage(this.mixedFont, 8*(vol>>4), this.volumeFontOffset, 8, 8, dx, dy, cw, 8);
+      // Draw the volume effect type
+      const voltype = vol >> 4;
+      if(voltype >= 1 && voltype <= 5) {
+        ctx.drawImage(this.mixedFont, 8*(voltype-1), this.volumeFontOffset, 8, 8, dx, dy, cw, 8);
+      } else {
+        ctx.drawImage(this.mixedFont, 368 + (8*(voltype - 6)), this.volumeFontOffset, 8, 8, dx, dy, cw, 8);
+      }
       ctx.drawImage(this.mixedFont, 8*(vol&15), this.volumeFontOffset, 8, 8, dx+cw, dy, cw, 8);
     }
     dx += this._pattern_volu_width + this._element_spacing;
@@ -503,16 +509,6 @@ export default class PatternEditorCanvas {
     ctx.globalCompositeOperation = 'source-over';
     ctx.drawImage(this.pat_canvas, 0, this.canvas.height / 2 - (this._pattern_row_height/2) - this._pattern_row_height*(state.cursor.get("row")));
 
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = this.track_border_colour;
-    ctx.beginPath();
-    const numtracks = song.getNumTracks();
-    for (let i = 0; i < numtracks; i += 1) {
-      var dx = i * this._pattern_cellwidth;
-      ctx.moveTo(dx, 0);
-      ctx.lineTo(dx, this.canvas.height);
-    }
-    ctx.stroke();
 
     // Draw the timeline fixed to the left of the view.
     this.timelines.each((i, t) => {
@@ -579,8 +575,6 @@ export default class PatternEditorCanvas {
       const c2x = Math.max(start_cursor_ex, end_cursor_ex);
       const c2y = Math.max(start_cursor_ey, end_cursor_ey);
 
-      console.log(c1x, c1y, c2x, c2y);
-
       ctx.fillStyle = '#0F0';
       ctx.strokeStyle = '#0F0';
       ctx.globalAlpha = 0.2;
@@ -590,6 +584,17 @@ export default class PatternEditorCanvas {
       ctx.restore();
     }
     ctx.clearRect(0, 0, this.canvas.width, this._pattern_header_height);
+
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = this.track_border_colour;
+    ctx.beginPath();
+    const numtracks = song.getNumTracks();
+    for (let i = 0; i <= numtracks; i += 1) {
+      var dx = i * this._pattern_cellwidth;
+      ctx.moveTo(dx, 0);
+      ctx.lineTo(dx, this.canvas.height);
+    }
+    ctx.stroke();
   }
 
   refresh() {

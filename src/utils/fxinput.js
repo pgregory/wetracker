@@ -18,36 +18,71 @@ export class FXInput {
       "t", "w", "x",
     ];
 
+    this.validVolumeEffects = [
+      "0", "1", "2", "3", "4", 
+      "-", "+", "d", "u", "s", "v", "p", "l", "r", "m", 
+    ];
+
+    this.volumeEffectMap = {
+      "0" : 0x1,
+      "1" : 0x2,
+      "2" : 0x3,
+      "3" : 0x4,
+      "4" : 0x5,
+      "-" : 0x6,
+      "+" : 0x7,
+      "d" : 0x8,
+      "u" : 0x9,
+      "s" : 0xa,
+      "v" : 0xb,
+      "p" : 0xc,
+      "l" : 0xd,
+      "r" : 0xe,
+      "m" : 0xf,
+    };
+
     window.addEventListener("keyup", this.handleKeyAtCursor.bind(this));
   }
 
   handleKeyAtCursor(event) {
     if (state.cursor.get("record")) {
-      // Can only input fx on the fx column.
-      if (state.cursor.get("item") !== 5) {
-        return;
-      }
       // Only support keys with no modifiers for now.
-      if (event.ctrlKey || event.shiftKey || event.metaKey ) {
+      if (event.ctrlKey || event.metaKey ) {
         return;
       }
-      // Check if it's a valid effect command
-      if (this.validEffects.indexOf(event.key) === -1) {
-        return;
-      }
+      // Can only input fx on the fx column.
+      if (state.cursor.get("item") === 5) {
+        // Check if it's a valid effect command
+        if (this.validEffects.indexOf(event.key) === -1) {
+          return;
+        }
 
-      let val = undefined;
-      const charcode = event.key.charCodeAt(0);
-      if (charcode >= this.numMin && charcode <= this.numMax) {
-        val = charcode - this.numMin;
-      } else if(charcode >= this.alphaMin && charcode <= this.alphaMax) {
-        val = (charcode - this.alphaMin) + 10;
-      } 
-      if(val != null) {
-        state.groupHistoryStart(`Set ${song.eventItemName(state.cursor.get("item"))} in pattern`);
-        song.setFXAtCursor(state.cursor.toJS(), val); 
-        state.groupHistoryEnd();
-        cursor.rowDown(state.transport.get("step"));
+        let val = undefined;
+        const charcode = event.key.charCodeAt(0);
+        if (charcode >= this.numMin && charcode <= this.numMax) {
+          val = charcode - this.numMin;
+        } else if(charcode >= this.alphaMin && charcode <= this.alphaMax) {
+          val = (charcode - this.alphaMin) + 10;
+        } 
+        if(val != null) {
+          state.groupHistoryStart(`Set ${song.eventItemName(state.cursor.get("item"))} in pattern`);
+          song.setFXAtCursor(state.cursor.toJS(), val); 
+          state.groupHistoryEnd();
+          cursor.rowDown(state.transport.get("step"));
+        }
+      } else if (state.cursor.get("item") === 3) {
+        // Check if it's a valid volume effect command
+        if (this.validVolumeEffects.indexOf(event.key) === -1) {
+          return;
+        }
+
+        let val = this.volumeEffectMap[event.key];
+        if(val != null) {
+          state.groupHistoryStart(`Set ${song.eventItemName(state.cursor.get("item"))} in pattern`);
+          song.setHexValueAtCursor(state.cursor.toJS(), val); 
+          state.groupHistoryEnd();
+          cursor.rowDown(state.transport.get("step"));
+        }
       }
     }
   }

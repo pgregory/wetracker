@@ -22,7 +22,7 @@ export class HexInput {
   handleKeyAtCursor(event) {
     if (state.cursor.get("record")) {
       // Can't input hex on a note.
-      if (state.cursor.get("item") === 0 || state.cursor.get("item") === 5) {
+      if (state.cursor.get("item") === 0 || state.cursor.get("item") === 5 || state.cursor.get("item") === 3) {
         return;
       }
       // Only support keys with no modifiers for now.
