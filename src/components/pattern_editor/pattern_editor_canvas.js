@@ -189,6 +189,12 @@ export default class PatternEditorCanvas {
 
     MouseTrap.bind("mod+c", (e) => {
       this.copyRegion();
+      e.preventDefault();
+    });
+
+    MouseTrap.bind("mod+v", (e) => {
+      this.pasteRegion();
+      e.preventDefault();
     });
 
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
@@ -644,23 +650,69 @@ export default class PatternEditorCanvas {
   copyRegion() {
     const regionCursor = this.normaliseSelectionCursors();
 
-    let copybuffer = [];
+    this.copybuffer = [];
 
     for (let r = regionCursor.row_start; r <= regionCursor.row_end; r += 1) {
       let copyrow = [];
       for (let t = regionCursor.track_start; t <= regionCursor.track_end; t += 1) {
         const data = song.getTrackDataForPatternRow(state.cursor.get("pattern"), r, t);
         const coli = (t === regionCursor.track_start)? regionCursor.column_start : 0;
-        const cole = (t === regionCursor.track_end)? regionCursor.column_end : data.notedata.length - 1;
-        if ("notedata" in data && data.notedata.length > 0) {
-          for (let c = coli; c <= cole; c += 1) {
-            copyrow.push(data.notedata[c]);
+        const cole = (t === regionCursor.track_end)? regionCursor.column_end : song.getTrackNumColumns(t) - 1;
+        for (let c = coli; c <= cole; c += 1) {
+          const itemi = (t === regionCursor.track_start && c === regionCursor.column_start)? regionCursor.item_start : 0;
+          const iteme = (t === regionCursor.track_end && c === regionCursor.column_end)? regionCursor.item_end : song.eventIndices.length - 1;
+          if ("notedata" in data && data.notedata.length > 0) {
+            let event = {};
+            for (let i = itemi; i <= iteme; i += 1) {
+              const itemName = song.eventEntries[song.eventIndices[i].itemIndex];
+              event[itemName] = data.notedata[c][itemName] || song.emptyEvent[itemName];
+            }
+            copyrow.push(event);
+          } else {
+            let event = {};
+            for (let i = itemi; i <= iteme; i += 1) {
+              const itemName = song.eventEntries[song.eventIndices[i].itemIndex];
+              event[itemName] = song.emptyEvent[itemName];
+            }
+            copyrow.push(event);
           }
         }
       }
-      copybuffer.push(copyrow);
+      this.copybuffer.push(copyrow);
     }
-    console.log(copybuffer);
+  }
+
+
+  pasteRegion() {
+    if (this.copybuffer && this.copybuffer.length > 0) {
+
+      let pattern = state.cursor.get("pattern");
+      let row = state.cursor.get("row");
+
+      for (let r = 0; r < this.copybuffer.length; r += 1) {
+        let track = state.cursor.get("track");
+        let column = state.cursor.get("column");
+        let maxcol = song.getTrackNumColumns(track);
+
+        let trackdata = song.getTrackDataForPatternRow(pattern, row + r, track);
+        let notedata = ("notedata" in trackdata)? trackdata.notedata : [];
+        for (let c = 0; c < this.copybuffer[r].length;) {
+          while (column < maxcol) {
+            const event = Object.assign(notedata[column] || {}, this.copybuffer[r][c]); 
+            song.setEventAtPattarnRowTrackColumn(pattern, row + r, track, column, event);
+            column += 1;
+            c += 1;
+          }
+          column = 0; 
+          track += 1;
+          if (track >= song.getNumTracks() ) {
+            break;
+          }
+          trackdata = song.getTrackDataForPatternRow(pattern, row + r, track);
+          notedata = ("notedata" in trackdata)? trackdata.notedata : [];
+        }
+      }
+    }
   }
 
   refresh() {

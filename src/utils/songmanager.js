@@ -36,6 +36,15 @@ export class SongManager {
       'fxparam',
     ];
 
+    this.emptyEvent = {
+      note: -1,
+      instrument: -1,
+      volume: -1,
+      fxtype: 0,
+      fxparam: 0,
+    };
+
+
     this.eventIndices = [
       { itemIndex: 0, mask: 0, shift: 0 },   // Note
       { itemIndex: 1, mask: 0x0F, shift: 4}, // Instrument H
@@ -70,6 +79,13 @@ export class SongManager {
   }
 
   updateEventAtCursor(cursor, event, annotation) {
+    if (cursor.pattern > this.getNumPatterns() || 
+        cursor.row > this.getPatternRowCount(cursor.pattern) || 
+        cursor.track > this.getNumTracks() || 
+        cursor.column > this.getTrackNumColumns(cursor.track)) {
+      throw "Attempt to set data at invalid place in song: " + cursor;
+      return;
+    }
     if (state.song.hasIn(["patterns", cursor.pattern, "rows", cursor.row, cursor.track, "notedata"])) {
       state.set({
         song: {
@@ -808,6 +824,19 @@ export class SongManager {
    */
   getNumPatterns() {
     return state.song.get("patterns").size;
+  }
+
+  /**
+   * Set track data for given pattern, row, track, and column
+   *
+   * @param patternIndex {number} pattern number to update
+   * @param rowNumber {number} row number in the pattern
+   * @param trackIndex {number} track number in the row
+   * @param columnIndex {number} column in the track
+   * @param event {Object} the event data to set at that song position.
+   */
+  setEventAtPattarnRowTrackColumn(patternIndex, rowNumber, trackIndex, columnIndex, event) {
+    this.updateEventAtCursor({pattern: patternIndex, row: rowNumber, track: trackIndex, column: columnIndex}, Immutable.fromJS(event));
   }
 }
 
