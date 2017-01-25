@@ -103,7 +103,6 @@ export class State {
 
     if ('song' in state) {
       this.song = this.song.merge(state.song);
-      this.songChanged();
     }
   }
 
@@ -132,6 +131,7 @@ export class State {
       // Apply that historic state to the current state.
       try {
         this.updateState(past.snapshot);
+        this.songChanged();
         console.log("Undo: " + past.annotation);
       } catch(e) {
         console.log(e);

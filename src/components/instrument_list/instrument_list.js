@@ -18,7 +18,6 @@ export default class InstrumentList {
 
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
     Signal.connect(song, "songChanged", this, "onSongChanged");
-    Signal.connect(state, "songChanged", this, "onSongChanged");
     Signal.connect(song, "instrumentListChanged", this, "onInstrumentListChanged");
   }
 
@@ -78,11 +77,11 @@ export default class InstrumentList {
     this.render();
   }
 
-  onSongChanged() {
+  onInstrumentListChanged() {
     this.refresh();
   }
 
-  onInstrumentListChanged() {
+  onSongChanged() {
     this.refresh();
   }
 

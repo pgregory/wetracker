@@ -714,6 +714,10 @@ export default class PatternEditorCanvas {
         }
       }
       state.groupHistoryEnd();
+
+      this.renderPattern(state.cursor.get("pattern"));
+      this.updateCanvas();
+      this.redrawCanvas();
     }
   }
 
@@ -857,11 +861,6 @@ export default class PatternEditorCanvas {
     this.redrawCanvas();
   }
 
-  onSongStateChanged() {
-    this.lastCursor = {};
-    this.refresh();
-  }
-
   onSongChanged() {
     this.lastCursor = {};
     this.refresh();
@@ -874,6 +873,12 @@ export default class PatternEditorCanvas {
         item: 0,
       }
     });
+  }
+
+  onSongStateChanged() {
+    this.renderPattern(state.cursor.get("pattern"));
+    this.updateCanvas();
+    this.redrawCanvas();
   }
 }
 

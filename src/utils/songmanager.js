@@ -28,6 +28,8 @@ export class SongManager {
     this.trackChanged = Signal.signal(false);
     this.patternChanged = Signal.signal(false);
 
+    Signal.connect(state, "songChanged", this, "onStateSongChanged");
+
     this.eventEntries = [
       'note',
       'instrument',
@@ -57,6 +59,9 @@ export class SongManager {
     ];
 
     this.newSong();
+  }
+
+  onStateSongChanged() {
   }
 
   eventItemName(item) {
@@ -300,7 +305,6 @@ export class SongManager {
       }
     }, "Add pattern to sequence");
     this.sequenceChanged();
-    this.patternChanged();
   }
 
   deletePattern(sequence) {

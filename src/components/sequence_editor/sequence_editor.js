@@ -17,7 +17,6 @@ export default class SequenceEditor {
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
     Signal.connect(song, "sequenceChanged", this, "onSequenceChanged");
     Signal.connect(song, "songChanged", this, "onSongChanged");
-    Signal.connect(state, "songChanged", this, "onSongStateChanged");
     Signal.connect(song, "sequenceItemChanged", this, "onSequenceItemChanged");
   }
 
@@ -77,10 +76,6 @@ export default class SequenceEditor {
   }
 
   onSongChanged() {
-    this.refresh();
-  }
-
-  onSongStateChanged() {
     this.refresh();
   }
 
