@@ -684,11 +684,12 @@ export default class PatternEditorCanvas {
 
 
   pasteRegion() {
-    if (this.copybuffer && this.copybuffer.length > 0) {
+    if (state.cursor.get("record") && this.copybuffer && this.copybuffer.length > 0) {
 
       let pattern = state.cursor.get("pattern");
       let row = state.cursor.get("row");
 
+      state.groupHistoryStart("Paste region");
       for (let r = 0; r < this.copybuffer.length; r += 1) {
         let track = state.cursor.get("track");
         let column = state.cursor.get("column");
@@ -712,6 +713,7 @@ export default class PatternEditorCanvas {
           notedata = ("notedata" in trackdata)? trackdata.notedata : [];
         }
       }
+      state.groupHistoryEnd();
     }
   }
 
