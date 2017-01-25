@@ -16,7 +16,7 @@ export class HexInput {
       "8", "9", "a", "b", "c", "d", "e", "f",
     ];
 
-    window.addEventListener("keyup", this.handleKeyAtCursor.bind(this));
+    window.addEventListener("keypress", this.handleKeyAtCursor.bind(this));
   }
 
   handleKeyAtCursor(event) {

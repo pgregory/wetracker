@@ -41,7 +41,7 @@ export class FXInput {
       "m" : 0xf,
     };
 
-    window.addEventListener("keyup", this.handleKeyAtCursor.bind(this));
+    window.addEventListener("keypress", this.handleKeyAtCursor.bind(this));
   }
 
   handleKeyAtCursor(event) {
