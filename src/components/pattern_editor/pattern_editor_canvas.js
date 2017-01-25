@@ -5,6 +5,8 @@ import '../../utils/inlineedit';
 import styles from './styles.css';
 
 import Signal from '../../utils/signal';
+import MouseTrap from 'mousetrap';
+
 import { state } from '../../state';
 import { song } from '../../utils/songmanager';
 import { player, MUTE, SILENT } from '../../audio/player';
@@ -184,6 +186,10 @@ export default class PatternEditorCanvas {
     this.timeline_canvas.width = 30;
 
     this.track_border_colour = "#666";
+
+    MouseTrap.bind("mod+c", (e) => {
+      this.copyRegion();
+    });
 
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
     Signal.connect(state, "transportChanged", this, "onTransportChanged");
@@ -485,6 +491,44 @@ export default class PatternEditorCanvas {
     }
   }
 
+  normaliseSelectionCursors() {
+    let cursor = state.cursor.toJS();
+
+    let result = {};
+
+    result.row_start = Math.min(cursor.row, cursor.row_start);
+    result.row_end = Math.max(cursor.row, cursor.row_start);
+
+    let item1 = 0;
+    let col1 = 0;
+    for(let t = 0; t < cursor.track; t += 1) {
+      col1 += song.getTrackNumColumns(t);
+      item1 += song.getTrackNumColumns(t) * 8;
+    }
+    col1 += cursor.column;
+    item1 += cursor.item;
+
+    let item2 = 0;
+    let col2 = 0;
+    for(let t = 0; t < cursor.track_start; t += 1) {
+      col2 += song.getTrackNumColumns(t);
+      item2 += song.getTrackNumColumns(t) * 8;
+    }
+    col2 += cursor.column_start;
+    item2 += cursor.item_start;
+
+    result.track_start = Math.min(cursor.track, cursor.track_start);
+    result.track_end = Math.max(cursor.track, cursor.track_start);
+    
+    result.column_start = (col1 < col2)? cursor.column : cursor.column_start;
+    result.column_end = (col1 < col2)? cursor.column_start : cursor.column;
+
+    result.item_start = (item1 < item2)? cursor.item : cursor.item_start;
+    result.item_end = (item1 < item2)? cursor.item_start : cursor.item;
+
+    return result;
+  }
+
   redrawCanvas() {
     if(!this.fontloaded) {
       window.requestAnimationFrame(() => this.redrawCanvas() );
@@ -595,6 +639,28 @@ export default class PatternEditorCanvas {
       ctx.lineTo(dx, this.canvas.height);
     }
     ctx.stroke();
+  }
+
+  copyRegion() {
+    const regionCursor = this.normaliseSelectionCursors();
+
+    let copybuffer = [];
+
+    for (let r = regionCursor.row_start; r <= regionCursor.row_end; r += 1) {
+      let copyrow = [];
+      for (let t = regionCursor.track_start; t <= regionCursor.track_end; t += 1) {
+        const data = song.getTrackDataForPatternRow(state.cursor.get("pattern"), r, t);
+        const coli = (t === regionCursor.track_start)? regionCursor.column_start : 0;
+        const cole = (t === regionCursor.track_end)? regionCursor.column_end : data.notedata.length - 1;
+        if ("notedata" in data && data.notedata.length > 0) {
+          for (let c = coli; c <= cole; c += 1) {
+            copyrow.push(data.notedata[c]);
+          }
+        }
+      }
+      copybuffer.push(copyrow);
+    }
+    console.log(copybuffer);
   }
 
   refresh() {
