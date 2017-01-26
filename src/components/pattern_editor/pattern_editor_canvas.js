@@ -471,6 +471,18 @@ export default class PatternEditorCanvas {
       },
     });
 
+    $(this.target).find('#add-track').click((e) => {
+      song.addTrack();
+      this.renderPattern(state.cursor.get("pattern"));
+      this.refresh();
+    });
+
+    $(this.target).find('#remove-track').click((e) => {
+      song.removeTrack(song.getNumTracks() - 1);
+      this.renderPattern(state.cursor.get("pattern"));
+      this.refresh();
+    });
+
     this.updateCanvas();
   }
 

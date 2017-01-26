@@ -14,6 +14,11 @@
   flex-shrink: 0;
 }
 
+.horizontal-buttons {
+  flex-direction: row;
+  padding: 3px;
+}
+
 .control {
   display: flex;
   flex-direction: row;

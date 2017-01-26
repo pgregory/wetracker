@@ -842,6 +842,40 @@ export class SongManager {
   setEventAtPattarnRowTrackColumn(patternIndex, rowNumber, trackIndex, columnIndex, event) {
     this.updateEventAtCursor({pattern: patternIndex, row: rowNumber, track: trackIndex, column: columnIndex}, Immutable.fromJS(event));
   }
+
+  /**
+   * Add track
+   */
+  addTrack() {
+    state.set({
+      song: {
+        tracks: state.song.get("tracks").push(Immutable.fromJS({
+          fxcolumns: 1,
+          name: `Track ${this.getNumTracks()}`,
+          type: "play",
+          color: "#999999",
+          columns: [
+            {
+              id: "c1",
+            }
+          ],
+        })),
+      }
+    });
+    this.songChanged();
+  }
+
+  /**
+   * Remove track
+   */
+  removeTrack(index) {
+    state.set({
+      song: {
+        tracks: state.song.get("tracks").delete(index),
+      }
+    });
+    this.songChanged();
+  }
 }
 
 export let song = new SongManager(); 
