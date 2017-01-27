@@ -1319,8 +1319,8 @@ class Player {
   eff_t0_b(ch, data) {  // song jump (untested)
     if (data < song.getSequenceLength()) {
       this.cur_songpos = data;
-      this.cur_pat = song.getSequencePatternNumber(this.cur_songpos);
-      this.cur_row = -1;
+      this.setCurrentPattern();
+      this.cur_row = 0;
     }
   }
 
@@ -1333,7 +1333,7 @@ class Player {
     if (this.cur_songpos >= song.getSequenceLength())
       this.cur_songpos = song.getLoopPosition();
     this.cur_pat = song.getSequencePatternNumber(this.cur_songpos);
-    this.cur_row = (data >> 4) * 10 + (data & 0x0f) - 1;
+    this.cur_row = (data >> 4) * 10 + (data & 0x0f);
   }
 
   eff_t0_e(ch, data) {  // extended effects!
