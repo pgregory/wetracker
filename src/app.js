@@ -88,7 +88,9 @@ $(document).ready(() => {
         song.downloadSong(url).then(function() {
           dialog.dialog( "close" );
           if(qs.play) {
-            player.play();
+            window.setTimeout(() => {
+              player.play();
+            }, 2000);
           }
         });
       } catch(e) {
