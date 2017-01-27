@@ -26,6 +26,16 @@
   flex: 1;
 }
 
+.monitors .monitor-empty {
+  background: repeating-linear-gradient(
+    45deg,
+    #222,
+    #222 10px,
+    #111 10px,
+    #111 20px
+  )
+}
+
 
 .monitors .blank {
   flex: 1;
