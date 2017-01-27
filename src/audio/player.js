@@ -1011,6 +1011,7 @@ class Player {
         }
       } else {
         for (let t = 0; t < this.tracks.length; t += 1) {
+          this.tracks[t].popState();
           if (t === index) {
             this.tracks[t].pushState({
               state: SOLO,
@@ -1022,7 +1023,7 @@ class Player {
             this.tracks[t].pushState({
               state: SILENT,
               properties: {
-                gain: 0,
+                gain: this.tracks[t].gainNode.gain.value,
               }
             });
             this.tracks[t].gainNode.gain.value = 0;
