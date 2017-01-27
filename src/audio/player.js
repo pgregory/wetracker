@@ -432,12 +432,33 @@ class Track {
   }
 
   pushState(state) {
-    if ('gain' in state.properties) {
+    if ('properties' in state && 'gain' in state.properties) {
       this.gainNode.gain.value = state.properties.gain; 
     } else {
-      state.properties.gain = this.gainNode.gain.value;
+      if ('properties' in state) {
+        state.properties.gain = this.gainNode.gain.value;
+      } else {
+        state.properties = {
+          gain: this.gainNode.gain.value,
+        }
+      }
     }
     this.stateStack.push(state);
+  }
+
+  setState(state) {
+    if ('properties' in state && 'gain' in state.properties) {
+      this.gainNode.gain.value = state.properties.gain; 
+    } else {
+      if ('properties' in state) {
+        state.properties.gain = this.gainNode.gain.value;
+      } else {
+        state.properties = {
+          gain: this.gainNode.gain.value,
+        }
+      }
+    }
+    this.stateStack[this.stateStack.length - 1] = state;
   }
 
   popState() {
@@ -1006,27 +1027,45 @@ class Player {
     if (index < this.tracks.length) {
       const currentState = this.tracks[index].getState();
       if (currentState.state === SOLO) {
+        // If we've clicked on the solo'd track, just pop state back 
+        // to previous.
         for (let t = 0; t < this.tracks.length; t += 1) {
           this.tracks[t].popState();
         }
-      } else {
+      } else if (currentState.state === SILENT) {
+        // We've clicked on a silent track, set it's state to solo
+        // and the current solo'd track to silent.
         for (let t = 0; t < this.tracks.length; t += 1) {
-          this.tracks[t].popState();
+          if (t === index) {
+            this.tracks[t].setState({
+              state: SOLO,
+              properties: {
+                gain: 1,
+              },
+            });
+          } else {
+            this.tracks[t].setState({
+              state: SILENT,
+              properties: {
+                gain: 0,
+              }
+            });
+          }
+        }
+      } else {
+        // We're not in solo mode, so enter it now.
+        for (let t = 0; t < this.tracks.length; t += 1) {
           if (t === index) {
             this.tracks[t].pushState({
               state: SOLO,
-              properties: {
-                gain: this.tracks[t].gainNode.gain.value,
-              }
             });
           } else {
             this.tracks[t].pushState({
               state: SILENT,
               properties: {
-                gain: this.tracks[t].gainNode.gain.value,
+                gain: 0,
               }
             });
-            this.tracks[t].gainNode.gain.value = 0;
           }
         }
       }
