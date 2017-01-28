@@ -8,9 +8,35 @@ WeTracker Interface
 ===================
 
 WeTracker is a single page application, organsed as a series of tab views, each
-containing a number of 'widgets' organised in a grid in the view. The diagram
-below shows the main sections of the WeTracker interface.
+containing a number of 'widgets' organised in a grid in the view. Each widget
+in the the interface is independently placed within a grid layout. You can
+reorganise the widgets in any way that suits your working preferences. Each
+widget has a border, in each corner you'll see a small arrow icon. Select and
+drag on any of these to resize the widget. 
+<img style="float: right;" src="{{site.baseurl}}/images/dragwidget.png"
+width="200px"/>
+The neigbouring widgets will move to compensate for the change. Widgets cannot
+go beyond the bounds of the screen horizontally, but the space will grow
+vertically to accept the new layout.  Grabbing the header bar of the widget
+will allow you to move it freely within the grid. Again, other widgets will
+automatically move to accommodate the new layout. While dragging, the final
+location of the widget will be displayed as a dotted line, allowing you to see
+the effect of your change before dropping it.
 
+*Note:*{:style="color: red"} The widget layout is not stored between sessions
+at this time, any changes made will be lost the next time you refresh the
+application.
+
+*Note:*{:style="color: red"} It is not possible to add or remove widgets from a
+layout at this time.
+
+<div style="margin: 3px;">
+  <a href="{{site.baseurl}}/images/interface1.png">
+    <img src="{{site.baseurl}}/images/interface1.png" width="100%"/>
+  </a>
+</div>
+
+## Transport
 
 At the top of the screen is the Transport, this is a fixed set of controls that
 are generally useful irresepctive of which tab you're currently working in.
