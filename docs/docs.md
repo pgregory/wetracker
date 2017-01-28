@@ -1,27 +1,20 @@
 ---
-layout: default
+layout: documentation
 permalink: docs
 ---
 
-# Docs
+# Documentation
 
-## Configuration
+*Note:*{:style="color: red"} This documentation is currently under construction.
 
-This theme can be configured by modifying the `_config.yml` file.
+Welcome to the user manual for WeTracker. The documentation is organised into
+sections, listed to the left in the main navitation menu. The manual serves as
+both an introduction to the functionality of WeTracker and as a reference to
+the same. It is structured to work equally well read beginning to end, or
+piecemeal, as you wish to dig deeper into a particular aspect. 
 
-### Theme settings
+This manual will teach you the operation of the WeTracker software, but is not
+intended to teach music theory or practice.
 
-This theme supports three different mode provided by `hack.css`:
-
-- `standard`
-- `markdown`
-- `dark`
-
-Set `theme_mode` to the desired value.
-
-### Available customizations
-
-- `your_name` and `email` strings to display them in different places on site
-- `navigation` is an array of `text` and `url` pairs to render the menu
-- `projects` is a setting that contains data for the `examples` page, every item must contain `name` and `link`, `image` and `description` are optional
-- `social` contains an array of three required params: `service` is used to include a service icon by the {% raw %}`{% include icon-{{ service }}.html %}`{% endraw %} command, `username` and `link` are quite obvious
+Please feel free to <a href="mailto:aqsis1@gmail.com">contact us</a> if you
+have any questions about this manual or the WeTracker application.

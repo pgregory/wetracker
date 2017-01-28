@@ -19,13 +19,17 @@
     <div class="container">
       <div class="grid">
         <aside class="cell -3of12" role="navigation">
+          {% capture submenu %}
+            {% assign pages = site.documentation | sort:"index" %}
+            {% for page in pages %}
+              <a class="menu-item {% if url == page.url %}active{% endif %}"
+                role="menuitem" href="{{ page.url | prepend: site.baseurl }}" title="{{ page.title }}">
+                {{ page.title }} <div class="pull-right">»</div>
+              </a>
+            {% endfor %}
+          {% endcapture %}
           {% include navigation.html %}
-          {% for link in page.submenu %}
-            <a class="menu-item {% if url == link.url %}active{% endif %}"
-              role="menuitem" href="{{ link.url | prepend: site.baseurl }}" title="{{ link.title }}">
-              {{ link.text }} <div class="pull-right">»</div>
-            </a>
-          {%  endfor %}
+          </nav>
         </aside>
 
         <main class="cell -9of12">

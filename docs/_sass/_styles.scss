@@ -8,6 +8,15 @@
     padding-right: $spacing-unit;
   }
 
+  &-submenu-separator {
+    height: 2px;
+    border-bottom: 1px solid white;
+  }
+
+  &-submenu {
+    margin-left: 10px;
+  }
+
   @at-root .hack &-navigation-heading {
     padding-top: 20px;
   }
