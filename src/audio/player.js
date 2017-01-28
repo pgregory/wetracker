@@ -19,7 +19,7 @@ class EnvelopeFollower {
     this.tick = 0;
   }
 
-  Tick(release, def = 64.0) {
+  Tick(release, def, releaseval) {
     if(this.env != null && (this.env.type & 0x1) !== 0) {
       var value = this.env.Get(this.tick);
 
@@ -41,7 +41,12 @@ class EnvelopeFollower {
         return value;
       }
     }
-    return def;
+
+    if (release) {
+      return releaseval;
+    } else {
+      return def;
+    }
   }
 
   reset() {
@@ -205,8 +210,8 @@ class PlayerInstrument {
   }
 
   updateVolumeEnvelope(time, release) {
-    let volE = this.volumeEnvelope.Tick(release) / 64.0;
-    let panE = (this.panningEnvelope.Tick(release, 32.0) - 32) / 32.0;
+    let volE = this.volumeEnvelope.Tick(release, 64.0, 0.0) / 64.0;
+    let panE = (this.panningEnvelope.Tick(release, 32.0, 32.0) - 32) / 32.0;
 
     // panE is -1 to 1
     // channel.pan is 0 to 255 
