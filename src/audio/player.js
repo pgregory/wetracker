@@ -988,14 +988,17 @@ class Player {
     }
   }
 
-  playPattern(pattern) {
+  playPattern(sequence) {
+    const pattern = song.getSequencePatternNumber(sequence);
     this.cyclePattern = pattern;
     this.cur_pat = pattern;
     this.cur_row = -1;
+    this.cur_songpos = sequence;
 
     state.set({
       cursor: {
         pattern: pattern,
+        sequence: sequence,
         row: 0,
       },
     });
@@ -1362,9 +1365,13 @@ class Player {
   }
 
   eff_t0_b(ch, data) {  // song jump (untested)
-    if (data < song.getSequenceLength()) {
-      this.cur_songpos = data;
-      this.setCurrentPattern();
+    if (this.cyclePattern == null) {
+      if (data < song.getSequenceLength()) {
+        this.cur_songpos = data;
+        this.setCurrentPattern();
+        this.cur_row = 0;
+      }
+    } else {
       this.cur_row = 0;
     }
   }
@@ -1374,10 +1381,12 @@ class Player {
   }
 
   eff_t0_d(ch, data) {  // pattern jump
-    this.cur_songpos++;
-    if (this.cur_songpos >= song.getSequenceLength())
-      this.cur_songpos = song.getLoopPosition();
-    this.cur_pat = song.getSequencePatternNumber(this.cur_songpos);
+    if (this.cyclePattern == null) {
+      this.cur_songpos++;
+      if (this.cur_songpos >= song.getSequenceLength())
+        this.cur_songpos = song.getLoopPosition();
+      this.cur_pat = song.getSequencePatternNumber(this.cur_songpos);
+    }
     this.cur_row = (data >> 4) * 10 + (data & 0x0f);
   }
 
