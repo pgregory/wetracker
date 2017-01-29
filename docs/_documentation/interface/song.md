@@ -20,10 +20,10 @@ into a single, effective layout.
 
 Each widget is described in detail in subsequent documentation sections.
 
-* [Monitors](/documentation/interface/song/monitors){: style="color:#0074E6"}
-* [Instruments](/documentation/interface/song/instruments){:
+* [Monitors]({{site.baseurl}}/documentation/interface/song/monitors){: style="color:#0074E6"}
+* [Instruments]({{site.baseurl}}/documentation/interface/song/instruments){:
   style="color:#FF3B3B"}
-* [Sequence](/documentation/interface/song/sequence){: style="color:#5D56E9"}
-* [Pattern Editor](/documentation/interface/song/patterneditor){: style="color:#0AE200"}
-* [Browser](/documentation/interface/song/browser){: style="color:#0BD7E4"}
-* [Effects](/documentation/interface/song/effects){: style="color:#FF76E1"}
+* [Sequence]({{site.baseurl}}/documentation/interface/song/sequence){: style="color:#5D56E9"}
+* [Pattern Editor]({{site.baseurl}}/documentation/interface/song/patterneditor){: style="color:#0AE200"}
+* [Browser]({{site.baseurl}}/documentation/interface/song/browser){: style="color:#0BD7E4"}
+* [Effects]({{site.baseurl}}/documentation/interface/song/effects){: style="color:#FF76E1"}
