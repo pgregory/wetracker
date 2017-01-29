@@ -33,6 +33,15 @@ application.
 layout at this time.
 {: .t-hackcss-note }
 
+Widgets typically include some common features, already mentioned is the border
+with resizing controls. Many widgets will also include a toolbar, which can be
+attached to any of the sides of the widget body. More complex widgets will
+include control panels, again attached to one of the widget sides, which will
+contain controls specific to the element the widget is responsible for.
+
+See the subsequence sections for details of each widget type, it's elements and
+function.
+
 <a href="{{site.baseurl}}/images/interface_tabs.png">
   <img src="{{site.baseurl}}/images/interface_tabs.png" width="100%"/>
 </a>
@@ -57,3 +66,5 @@ you've customised the view.
 **Note:** Currently it is not possible to add or delete tabs, or store changes
 to the page layouts.
 {: .t-hackcss-note }
+
+[modeline]: # ( vim: set textwidth=79: )
