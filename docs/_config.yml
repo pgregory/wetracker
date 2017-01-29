@@ -33,7 +33,7 @@ navigation:
   - text: Blog
     url: /blog
   - text: Docs
-    url: /docs
+    url: /documentation/intro
 
 social:
   - service: github

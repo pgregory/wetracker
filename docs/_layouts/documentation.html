@@ -20,12 +20,14 @@
       <div class="grid">
         <aside class="cell -3of12" role="navigation">
           {% capture submenu %}
+            {% assign url = page.url %}
             {% assign pages = site.documentation | sort:"index" %}
-            {% for page in pages %}
-              <a class="menu-item {% if url == page.url %}active{% endif %}"
-                role="menuitem" href="{{ page.url | prepend: site.baseurl }}" title="{{ page.title }}">
-                {{ page.title }} <div class="pull-right">»</div>
-              </a>
+            {% for page in pages %} 
+              <a class="menu-item {% if url == page.url %}active{% endif %} menu-indent-{{ page.indent }}" 
+                                   role="menuitem" href="{{ page.url | prepend:
+                                   site.baseurl }}" title="{{ page.title }}">
+                {{ page.title }} <div class="pull-right">»</div> 
+              </a> 
             {% endfor %}
           {% endcapture %}
           {% include navigation.html %}
@@ -33,8 +35,14 @@
         </aside>
 
         <main class="cell -9of12">
+
+          <div class="t-hackcss-warning">
+            <strong>Note:</strong> This documentation is currently under heavy construction.
+          </div>
+
           {{ content }}
         </main>
+
       </div>
 
     {% include footer.html %}

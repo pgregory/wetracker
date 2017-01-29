@@ -2,6 +2,7 @@
 title: Interface
 layout: documentation
 index: 20
+indent: 1
 ---
 
 WeTracker Interface
@@ -32,119 +33,27 @@ application.
 layout at this time.
 {: .t-hackcss-note }
 
-<a href="{{site.baseurl}}/images/interface1.png">
-  <img src="{{site.baseurl}}/images/interface1.png" width="100%"/>
+<a href="{{site.baseurl}}/images/interface_tabs.png">
+  <img src="{{site.baseurl}}/images/interface_tabs.png" width="100%"/>
 </a>
 
-## Transport
-{:style="color: #E5D964"}
+The main screen is split into three sections, the
+*Transport*{:style="color:#E5D964"}, the *Tabs*{:style="color:#E20000"}, and
+the main *Tab Pages*{:style="color:#87AE9A"} area.
 
-At the top of the screen is the Transport, this is a fixed set of controls that
-are generally useful irresepctive of which tab you're currently working in.
+The transport contains controls that are generally common enough to be
+applicable at any point in the process of creating music. This sticks to the
+top of the browser window, making the controls always visible and accessible.
+See [Transport](/documentation/interface/transport) for details of the controls
+available.
 
-![new]({{site.baseurl}}/images/new_song_icon.png) **Reset**
-: Reinitialise the application to the default state, with an empty song and two
-  sample instruments.
+The tabs section lists the pages that are currently configured. Each page
+contains it's own set of widgets, in it's own layout, often specific to a
+particular aspect of song creation. By default, WeTracker presents a song
+editing and instrument editing page, the default layout is described in the
+documentation as a guide, however, this page setup and layout may change if
+you've customised the view.
 
-![save]({{site.baseurl}}/images/save_song_icon.png) **Save**
-: Download your current song as WeTracker JSON format.
-
-![load]({{site.baseurl}}/images/load_song_icon.png) **Load**
-: Load a song, in WeTracker JSON format or FastTrackerII .xm format.
-
-![play]({{site.baseurl}}/images/play_icon.png) **Play**
-: Begin playing the whole song from the start.  
-
-![play pattern]({{site.baseurl}}/images/play_pattern_icon.png) **Play Pattern**
-: Play the current pattern in a continuous cycle.
-
-![pause]({{site.baseurl}}/images/pause_icon.png) **Pause**
-: Pause playback.
-
-![stop]({{site.baseurl}}/images/stop_icon.png) **Stop**
-: Stop playback and reset play position, also stops any looping instruments that
-  have been triggered from the keyboard.
-
-![restart]({{site.baseurl}}/images/play_icon.png) **Restart**
-: Go back to the start of the song.
-
-![octave]({{site.baseurl}}/images/octave_control.png) **Octave**
-: Change the octave that the keyboard plays, this is the octave that the 'Z' key
-  will play a C note in.
-
-![speed]({{site.baseurl}}/images/speed_control.png) **Speed**
-: Change the speed of the song, this is effectively the number of ticks per row,
-  higher will have the effect of slowing the song down but give more control over
-  effects between rows.
-
-![bpm]({{site.baseurl}}/images/bpm_control.png) **BPM**
-: Change the number of beats/rows per minute, use in combination with speed to
-get the song playback speed.
-
-![volume]({{site.baseurl}}/images/volume_control.png) **Master Volume**
-: Master playback volume, affects all tracks.
-
-You can edit the octave values in the Transpora directlt, or use """ and "|" to
-increment and decrement the current octave value.
-
-
-## Monitors
-{:style="color: #0074E6"}
-
-This widget serves two purposes. Firstly, it displays a waveform representing
-the amplitude changes of a small section of the sound playing on that channel.
-Secondly, it provides a convenient user interface to control the playback of
-individual channels.
-
-<a href="{{site.baseurl}}/images/monitors.png"><img
-src="{{site.baseurl}}/images/monitors.png" width="100%"></a>
-
-Each square section of the monitor widget represents a track in the pattern
-editor, identified by the name displayed in the top left corner. The graph
-shows approximately 23ms of the final sound playing on that track, after all
-effects and controls are applied, basically what comes out of the track and is
-sent to the master sound output.
-
-Using the mouse, you can control the state of these tracks by clicking on the
-squares representing the tracks. 
-
-* Left click to mute a track, and then again to unmute it.
-
-  <div style="width: 50%;">
-    <a href="{{site.baseurl}}/images/monitors-mute.png">
-      <img src="{{site.baseurl}}/images/monitors-mute.png" width="100%">
-    </a>
-  </div>
-
-* Shift+left click to solo a track. 
-
-  <div style="width: 50%;">
-    <a href="{{site.baseurl}}/images/monitors-solo.png">
-      <img src="{{site.baseurl}}/images/monitors-solo.png" width="100%">
-    </a>
-  </div>
-
-  When you solo a track, all other tracks are silenced, only the selected track
-  will be heard.  While in solo mode, shift+left clicking on any other track will
-  make that one the solo track, silencing the previous one. Shift+left clicking
-  again on the solo track will turn off solo mode, and return to the previous
-  state, restoring the mute status of any previously muted tracks.
-
-## Instruments
-{:style="color: #FF3B3B"}
-
-
-## Sequence
-{:style="color: #5D56E9"}
-
-
-## Pattern Editor
-{:style="color: #0AE200"}
-
-
-## Browser
-{:style="color: #0BD7E4"}
-
-
-## Effects
-{:style="color: #FF76E1"}
+**Note:** Currently it is not possible to add or delete tabs, or store changes
+to the page layouts.
+{: .t-hackcss-note }

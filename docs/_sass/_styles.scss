@@ -14,7 +14,18 @@
   }
 
   &-submenu {
+  }
+
+  &-submenu .menu-indent-1 {
     margin-left: 10px;
+  }
+
+  &-submenu .menu-indent-2 {
+    margin-left: 20px;
+  }
+
+  &-submenu .menu-indent-3 {
+    margin-left: 30px;
   }
 
   @at-root .hack &-navigation-heading {
@@ -99,6 +110,13 @@
     width: 100%;
     border: 1px solid #0F0;
     background-color: #151;
+    padding: 4px !important;
+  }
+
+  &-warning {
+    width: 100%;
+    border: 1px solid #F00;
+    background-color: #511;
     padding: 4px !important;
   }
 }
