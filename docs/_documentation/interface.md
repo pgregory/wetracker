@@ -13,8 +13,8 @@ in the the interface is independently placed within a grid layout. You can
 reorganise the widgets in any way that suits your working preferences. Each
 widget has a border, in each corner you'll see a small arrow icon. Select and
 drag on any of these to resize the widget. 
-<img style="float: right;" src="{{site.baseurl}}/images/dragwidget.png"
-width="200px"/>
+<a href="{{site.baseurl}}/images/dragwidget.png"><img style="float: right;"
+src="{{site.baseurl}}/images/dragwidget.png" width="200px"/></a>
 The neigbouring widgets will move to compensate for the change. Widgets cannot
 go beyond the bounds of the screen horizontally, but the space will grow
 vertically to accept the new layout.  Grabbing the header bar of the widget
@@ -23,20 +23,21 @@ automatically move to accommodate the new layout. While dragging, the final
 location of the widget will be displayed as a dotted line, allowing you to see
 the effect of your change before dropping it.
 
-*Note:*{:style="color: red"} The widget layout is not stored between sessions
+**Note:** The widget layout is not stored between sessions
 at this time, any changes made will be lost the next time you refresh the
-application.
+application.  
+{: .t-hackcss-note }
 
-*Note:*{:style="color: red"} It is not possible to add or remove widgets from a
+**Note:** It is not possible to add or remove widgets from a
 layout at this time.
+{: .t-hackcss-note }
 
-<div style="margin: 3px;">
-  <a href="{{site.baseurl}}/images/interface1.png">
-    <img src="{{site.baseurl}}/images/interface1.png" width="100%"/>
-  </a>
-</div>
+<a href="{{site.baseurl}}/images/interface1.png">
+  <img src="{{site.baseurl}}/images/interface1.png" width="100%"/>
+</a>
 
 ## Transport
+{:style="color: #E5D964"}
 
 At the top of the screen is the Transport, this is a fixed set of controls that
 are generally useful irresepctive of which tab you're currently working in.
@@ -85,3 +86,65 @@ get the song playback speed.
 
 You can edit the octave values in the Transpora directlt, or use """ and "|" to
 increment and decrement the current octave value.
+
+
+## Monitors
+{:style="color: #0074E6"}
+
+This widget serves two purposes. Firstly, it displays a waveform representing
+the amplitude changes of a small section of the sound playing on that channel.
+Secondly, it provides a convenient user interface to control the playback of
+individual channels.
+
+<a href="{{site.baseurl}}/images/monitors.png"><img
+src="{{site.baseurl}}/images/monitors.png" width="100%"></a>
+
+Each square section of the monitor widget represents a track in the pattern
+editor, identified by the name displayed in the top left corner. The graph
+shows approximately 23ms of the final sound playing on that track, after all
+effects and controls are applied, basically what comes out of the track and is
+sent to the master sound output.
+
+Using the mouse, you can control the state of these tracks by clicking on the
+squares representing the tracks. 
+
+* Left click to mute a track, and then again to unmute it.
+
+  <div style="width: 50%;">
+    <a href="{{site.baseurl}}/images/monitors-mute.png">
+      <img src="{{site.baseurl}}/images/monitors-mute.png" width="100%">
+    </a>
+  </div>
+
+* Shift+left click to solo a track. 
+
+  <div style="width: 50%;">
+    <a href="{{site.baseurl}}/images/monitors-solo.png">
+      <img src="{{site.baseurl}}/images/monitors-solo.png" width="100%">
+    </a>
+  </div>
+
+  When you solo a track, all other tracks are silenced, only the selected track
+  will be heard.  While in solo mode, shift+left clicking on any other track will
+  make that one the solo track, silencing the previous one. Shift+left clicking
+  again on the solo track will turn off solo mode, and return to the previous
+  state, restoring the mute status of any previously muted tracks.
+
+## Instruments
+{:style="color: #FF3B3B"}
+
+
+## Sequence
+{:style="color: #5D56E9"}
+
+
+## Pattern Editor
+{:style="color: #0AE200"}
+
+
+## Browser
+{:style="color: #0BD7E4"}
+
+
+## Effects
+{:style="color: #FF76E1"}

@@ -5,7 +5,8 @@ permalink: docs
 
 # Documentation
 
-*Note:*{:style="color: red"} This documentation is currently under construction.
+**Note:** This documentation is currently under construction.
+{: .t-hackcss-note }
 
 Welcome to the user manual for WeTracker. The documentation is organised into
 sections, listed to the left in the main navitation menu. The manual serves as
