@@ -30,6 +30,7 @@ export default class SampleMapper {
 
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
     Signal.connect(song, "songChanged", this, "onSongChanged");
+    Signal.connect(song, "instrumentChanged", this, "onInstrumentChanged");
     Signal.connect(virtualKeyboard, "noteDown", this, "onNoteDown");
     Signal.connect(virtualKeyboard, "noteUp", this, "onNoteUp");
 
@@ -226,7 +227,7 @@ export default class SampleMapper {
 
   updateSegments() {
     this.segments = [];
-    if(this.instrument) { 
+    if(this.instrument && this.instrument.samplemap) { 
       let b = 0;
       let w = 0;
       let i = 0;
@@ -410,6 +411,14 @@ export default class SampleMapper {
   onSongChanged() {
     this.setInstrument(state.cursor.get("instrument"));
     this.refresh();
+  }
+
+  onInstrumentChanged(instrumentIndex) {
+    if (instrumentIndex === this.instrumentIndex) {
+      this.setInstrument(instrumentIndex);
+      this.updateSegments();
+      this.redrawGraph();
+    }
   }
 
   onNoteDown(note) { 

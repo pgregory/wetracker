@@ -223,7 +223,7 @@ export class SongManager {
   }
 
   addInstrument() {
-    const samplemap = new Array(96);
+    const samplemap = new Array(96).fill(0);
     const instid = state.song.get("instruments").size;
     try {
       state.set({
@@ -245,22 +245,41 @@ export class SongManager {
   }
 
   addSampleToInstrument(instrumentIndex) {
-    const sampid = state.song.getIn(["instruments", instrumentIndex, "samples"]).size;
+    let sampid = undefined;
+    let samples = undefined;
+    let samplemap = undefined;
+    try {
+      samples = state.song.getIn(["instruments", instrumentIndex, "samples"]);
+      samplemap = state.song.getIn(["instruments", instrumentIndex, "samplemap"]);
+      if (samples == null) {
+        samples = new Immutable.List();
+      }
+      if (samplemap == null) {
+        samplemap = Immutable.fromJS(new Uint8Array(96).fill(0));
+      }
+      sampid = samples.size;
+    } catch(e) {
+      samples = new Immutable.List();
+      sampid = 0;
+    }
     try {
       state.set({
         song: {
-          instruments: state.song.get("instruments").setIn([instrumentIndex, "samples"], state.song.getIn(["instruments", instrumentIndex, "samples"]).push(Immutable.fromJS({
-            'len': 0, 
-            'loop': 0,
-            'looplen': 0, 
-            'note': 0, 
-            'fine': 0,
-            'pan': 0, 
-            'type': 0, 
-            'vol': 0x40,
-            'fileoffset': 0, 
-            'name': `Sample ${sampid}`,
-          }))),
+          instruments: state.song.get("instruments").set(instrumentIndex, state.song.getIn(["instruments", instrumentIndex]).merge({
+            samples: samples.push(Immutable.fromJS({
+              'len': 0, 
+              'loop': 0,
+              'looplen': 0, 
+              'note': 0, 
+              'fine': 0,
+              'pan': 0x80, 
+              'type': 0, 
+              'vol': 0x40,
+              'fileoffset': 0, 
+              'name': `Sample ${sampid}`,
+            })),
+            samplemap,
+          })),
         }
       }, "Add sample to instrument");
 

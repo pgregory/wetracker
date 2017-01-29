@@ -27,6 +27,7 @@ export default class EnvelopeWidget {
 
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
     Signal.connect(song, "songChanged", this, "onSongChanged");
+    Signal.connect(song, "instrumentChanged", this, "onInstrumentChanged");
   }
 
   renderGridAndAxes() {
@@ -298,6 +299,9 @@ export default class EnvelopeWidget {
   }
 
   onMouseUp(e) {
+    if(this.dragging) {
+      song.updateInstrument(this.instrumentIndex, this.instrument);
+    }
     this.dragging = false;
   }
 
@@ -351,7 +355,7 @@ export default class EnvelopeWidget {
     this.envelope.points[index * 2] = curveX;
     this.envelope.points[(index * 2) + 1] = y;
 
-    song.updateInstrument(this.instrumentIndex, this.instrument);
+    //song.updateInstrument(this.instrumentIndex, this.instrument);
   }
 
   curvePointToCanvas(pointIndex) {
@@ -442,5 +446,12 @@ export default class EnvelopeWidget {
   onSongChanged() {
     this.setInstrument(state.cursor.get("instrument"));
     this.refresh();
+  }
+
+  onInstrumentChanged(instrumentIndex) {
+    if (instrumentIndex === this.instrumentIndex) {
+      this.setInstrument(instrumentIndex);
+      this.refresh();
+    }
   }
 }

@@ -135,7 +135,7 @@ export default class SampleEditor {
   }
 
   drawPositions() {
-    if(this.positions) {
+    if(this.positions && this.sample) {
       const ctx = this.canvas.getContext('2d');
       const len = this.sample.len;
       ctx.strokeStyle = "#F00";
@@ -311,8 +311,12 @@ export default class SampleEditor {
         (state.cursor.get("sample") !== this.lastCursor.get("sample"))) {
       this.updateSample();
 
-      this.updateDisplay();
-      this.updateControlPanel();
+      try {
+        this.updateDisplay();
+        this.updateControlPanel();
+      } catch(e) {
+        console.log(e);
+      }
 
       this.lastCursor = state.cursor;
     }
