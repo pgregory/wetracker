@@ -796,7 +796,7 @@ class Player {
         }
 
         // instrument trigger
-        if (event.instrument && event.instrument !== -1) {
+        if ("instrument" in event && event.instrument !== -1) {
           inst = this.instruments[event.instrument - 1];
           if (inst && inst.inst && inst.inst.samplemap) {
             ch.inst = inst;
@@ -809,7 +809,6 @@ class Player {
               ch.vol = samp.vol;
               ch.pan = samp.pan;
               ch.fine = samp.fine;
-              console.log(ch.fine, trackindex);
               if(ch.currentlyPlaying) {
                 ch.currentlyPlaying.resetEnvelopes();
               }
@@ -826,15 +825,12 @@ class Player {
             if (inst && inst.inst && inst.inst.samplemap) {
               var note = event.note;
               ch.note = note;
-              //if (ch.triggernote) {
-                // if we were already triggering the note, reset vol/pan using
-                // (potentially) new sample
+              if ("instrument" in event && event.instrument !== -1) {
                 const samp = inst.inst.samples[inst.inst.samplemap[note]];
-                //ch.pan = samp.pan;
-                //ch.vol = samp.vol;
-                //ch.fine = samp.fine;
-              //}
-              ch.triggernote = true;
+                ch.pan = samp.pan;
+                ch.vol = samp.vol;
+                ch.fine = samp.fine;
+              }
             }
             ch.triggernote = true;
           }
@@ -882,7 +878,7 @@ class Player {
         }
 
         ch.effectfn = undefined;
-        if("fxtype" in event && event.fxtype != -1) {
+        if(("fxtype" in event && "fxparam" in event) && (event.fxtype !== -1 && event.fxparam !== 0)) {
           try {
             ch.effect = event.fxtype;
             ch.effectdata = event.fxparam;
@@ -952,8 +948,7 @@ class Player {
     }
     var j, ch;
     for (j in this.tracks) {
-      ch = this.tracks[j];
-      ch.periodoffset = 0;
+      this.tracks[j].periodoffset = 0;
     }
     if (this.cur_tick >= this.speed) {
       this.cur_tick = 0;
@@ -971,13 +966,11 @@ class Player {
         if(ch.effectfn) ch.effectfn.bind(this)(ch);
       }
       if (isNaN(ch.period)) {
-        console.log(ch.note, ch.fine, ch.period);
-
-        //throw "NaN Period";
+        throw "NaN Period";
       }
       if (inst === undefined)
         continue;
-
+      
       if (ch.triggernote) {
         if(ch.currentlyPlaying) {
           ch.currentlyPlaying.stop(this.nextTickTime);
@@ -988,6 +981,7 @@ class Player {
       if(ch.currentlyPlaying) {
         ch.currentlyPlaying.release = ch.release;
         if(ch.currentlyPlaying.updateVolumeEnvelope(this.nextTickTime)) {
+          ch.currentlyPlaying.stop(this.nextTickTime);
           ch.currentlyPlaying = null;
         } else {
           ch.currentlyPlaying.updateChannelPeriod(this.nextTickTime, ch.period + ch.periodoffset);
