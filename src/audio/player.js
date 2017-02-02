@@ -197,10 +197,12 @@ class PlayerInstrument {
     this.sourceNode.loopStart = this.sample.loopStart;
     this.sourceNode.loopEnd = this.sample.loopEnd;
     this.volumeEnvelope = new EnvelopeFollower(instrument.envelopes.volume);
+    this.fadeOutVol = 65536;
     this.panningEnvelope = new EnvelopeFollower(instrument.envelopes.panning);
     this.sourceNode.onended = () => this.onEnded();
     this.startTime = time;
     this.finished = finished;
+    this.release = false;
 
     this.offset = 0;
     if (channel.off != null && channel.off > 0) {
@@ -209,9 +211,18 @@ class PlayerInstrument {
     this.sourceNode.start(this.startTime, this.offset);
   }
 
-  updateVolumeEnvelope(time, release) {
-    let volE = this.volumeEnvelope.Tick(release, 64.0, 0.0) / 64.0;
-    let panE = (this.panningEnvelope.Tick(release, 32.0, 32.0) - 32) / 32.0;
+  updateVolumeEnvelope(time) {
+    if(this.release) {
+      this.fadeOutVol -= this.instrument.inst.fadeout;
+      if(this.fadeOutVol < 0) {
+        return true;
+      }
+    }
+    let volE = this.volumeEnvelope.Tick(this.release, 64.0, 0.0) / 64.0;
+    let panE = (this.panningEnvelope.Tick(this.release, 32.0, 32.0) - 32) / 32.0;
+
+    // Fade out
+    volE = (this.fadeOutVol/65536) * volE;
 
     // panE is -1 to 1
     // channel.pan is 0 to 255 
@@ -223,6 +234,8 @@ class PlayerInstrument {
 
     this.gainNode.gain.linearRampToValueAtTime(vol, time);
     this.panningNode.pan.linearRampToValueAtTime(pan, time);
+
+    return false;
   }
 
   stop(time) {
@@ -498,7 +511,7 @@ class Player {
     this.cur_songpos = -1;
     this.cur_pat = undefined;
     this.cyclePattern = undefined;
-    this.cur_row = 64;
+    this.cur_row = 0;
     this.cur_ticksamp = 0;
     this.cur_tick = 0;
     this.globalVolume = this.max_global_volume = 128;
@@ -628,8 +641,11 @@ class Player {
     if( e.data === "tick") {
       var msPerTick = 2.5 / this.bpm;
       while(this.nextInteractiveTickTime < (this.audioctx.currentTime + this.interactiveScheduleAheadTime)) {
-        for (let i = 0; i < this.playingInstruments.length; i += 1) {
-          this.playingInstruments[i].updateVolumeEnvelope(this.nextInteractiveTickTime, this.playingInstruments[i].release);
+        let i = this.playingInstruments.length;
+        while (i--) {
+          if (this.playingInstruments[i].updateVolumeEnvelope(this.nextInteractiveTickTime)) {
+            this.playingInstruments.splice(i, 1);
+          }
         }
         this.nextInteractiveTickTime += msPerTick;
       }
@@ -793,6 +809,7 @@ class Player {
               ch.vol = samp.vol;
               ch.pan = samp.pan;
               ch.fine = samp.fine;
+              console.log(ch.fine, trackindex);
               if(ch.currentlyPlaying) {
                 ch.currentlyPlaying.resetEnvelopes();
               }
@@ -813,9 +830,9 @@ class Player {
                 // if we were already triggering the note, reset vol/pan using
                 // (potentially) new sample
                 const samp = inst.inst.samples[inst.inst.samplemap[note]];
-                ch.pan = samp.pan;
-                ch.vol = samp.vol;
-                ch.fine = samp.fine;
+                //ch.pan = samp.pan;
+                //ch.vol = samp.vol;
+                //ch.fine = samp.fine;
               //}
               ch.triggernote = true;
             }
@@ -954,7 +971,9 @@ class Player {
         if(ch.effectfn) ch.effectfn.bind(this)(ch);
       }
       if (isNaN(ch.period)) {
-        throw "NaN Period";
+        console.log(ch.note, ch.fine, ch.period);
+
+        //throw "NaN Period";
       }
       if (inst === undefined)
         continue;
@@ -967,8 +986,12 @@ class Player {
         ch.triggernote = false;
       }
       if(ch.currentlyPlaying) {
-        ch.currentlyPlaying.updateVolumeEnvelope(this.nextTickTime, ch.release);
-        ch.currentlyPlaying.updateChannelPeriod(this.nextTickTime, ch.period + ch.periodoffset);
+        ch.currentlyPlaying.release = ch.release;
+        if(ch.currentlyPlaying.updateVolumeEnvelope(this.nextTickTime)) {
+          ch.currentlyPlaying = null;
+        } else {
+          ch.currentlyPlaying.updateChannelPeriod(this.nextTickTime, ch.period + ch.periodoffset);
+        }
       }
     }
     this.XMView.pushEvent({
