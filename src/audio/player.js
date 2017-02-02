@@ -143,13 +143,11 @@ class XMViewObject {
 
       states.push(ch.getState());
     }
-    state.set({
-      tracks: {
-        t: e.t,
-        vu: e.vu,
-        scopes,
-        states,
-      }
+    this.player.tracksChanged({
+      t: e.t,
+      vu: e.vu,
+      scopes,
+      states,
     });
 
     const positions = [];
@@ -623,6 +621,8 @@ class Player {
     this.interactiveTimerWorker.port.start();
 
     this.playingInstruments = [];
+
+    this.tracksChanged = Signal.signal(false);
 
     Signal.connect(song, 'songChanged', this, 'onSongChanged');
     Signal.connect(song, 'instrumentChanged', this, 'onInstrumentChanged');

@@ -202,7 +202,6 @@ export default class PatternEditorCanvas {
     Signal.connect(song, "eventChanged", this, "onEventChanged");
     Signal.connect(song, "songChanged", this, "onSongChanged");
     Signal.connect(state, "songChanged", this, "onSongStateChanged");
-    Signal.connect(state, "tracksChanged", this, "onTracksChanged");
   }
 
   initWidth() {
@@ -858,10 +857,6 @@ export default class PatternEditorCanvas {
 
       this.lastTransport = state.transport;
     }
-  }
-
-  onTracksChanged() {
-    this.redrawCanvas();
   }
 
   onEventChanged(cursor, event) {

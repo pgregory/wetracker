@@ -13,8 +13,13 @@ export default class Monitors {
   constructor(target) {
     this._scope_width = 50,
     this.target = target;
+    this.tracks = {
+      t: 0,
+      VU: [],
+      scopes: []
+    };
 
-    Signal.connect(state, "tracksChanged", this, "onTracksChanged");
+    Signal.connect(player, "tracksChanged", this, "onTracksChanged");
     Signal.connect(song, "trackChanged", this, "onTrackChanged");
     Signal.connect(song, "songChanged", this, "onSongChanged");
   }
@@ -54,7 +59,8 @@ export default class Monitors {
     player.toggleSoloTrack(index);
   }
 
-  onTracksChanged() {
+  onTracksChanged(tracks) {
+    this.tracks = tracks;
     this.renderMonitors();
   }
 
@@ -71,7 +77,7 @@ export default class Monitors {
   }
 
   renderMonitors() {
-    var e = state.tracks;
+    var e = this.tracks;
     const numtracks = song.getNumTracks();
     const trackNames = song.getTrackNames();
     // update VU meters & oscilliscopes
@@ -85,10 +91,10 @@ export default class Monitors {
 
       this.renderTrackName(trackNames[j], ctx);
 
-      if([MUTE, SILENT].indexOf(e.getIn(['states', j, 'state'])) !== -1) {
+      if('states' in e && [MUTE, SILENT].indexOf(e.states[j].state) !== -1) {
         let text = "MUTE";
         let color = "#900";
-        if (e.getIn(['states', j, 'state']) === SILENT) {
+        if (e.states[j].state === SILENT) {
           text = "SILENT";
           color = "#099";
         }
@@ -115,29 +121,30 @@ export default class Monitors {
         //var vu_y = -Math.log(e.vu[j])*10;
         //ctx.fillRect(10, vu_y, 5, canvas.height-vu_y);
         
-        const scopeData = e.getIn(['scopes', j, 'scopeData']);
-        const bufferLength = e.getIn(['scopes', j, 'bufferLength']);
+        if ('scopes' in e && j < e.scopes.length && 'scopeData' in e.scopes[j]) {
+          const scopeData = e.scopes[j].scopeData;
+          const bufferLength = e.scopes[j].bufferLength;
 
-        ctx.beginPath();
+          ctx.beginPath();
 
-        const sliceWidth = canvas.width * (1.0 / (bufferLength - 1));
-        let x = 0;
+          const sliceWidth = canvas.width * (1.0 / (bufferLength - 1));
+          let x = 0;
 
-        for (var i = 0; i < bufferLength; i++) {
+          for (var i = 0; i < bufferLength; i++) {
 
-          const v = scopeData[i] / 128.0;
-          const y = v * canvas.height / 2;
+            const v = scopeData[i] / 128.0;
+            const y = v * canvas.height / 2;
 
-          if (i === 0) {
-            ctx.moveTo(x, y);
-          } else {
-            ctx.lineTo(x, y);
+            if (i === 0) {
+              ctx.moveTo(x, y);
+            } else {
+              ctx.lineTo(x, y);
+            }
+
+            x += sliceWidth;
           }
-
-          x += sliceWidth;
+          ctx.stroke(); 
         }
-
-        ctx.stroke(); 
       }
     }
   }

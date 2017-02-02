@@ -20,12 +20,6 @@ export class State {
       selecting: false,
     });
 
-    this.tracks = new Immutable.Map({
-      t: 0,
-      VU: [],
-      scopes: [],
-    });
-
     this.transport = new Immutable.Map({
       step: 4,
       octave: 4,
@@ -52,7 +46,6 @@ export class State {
     this.historyGroupAnnotation = "";
 
     this.cursorChanged = Signal.signal(true);
-    this.tracksChanged = Signal.signal(true);
     this.transportChanged = Signal.signal(true);
     this.playingInstrumentsChanged = Signal.signal(true);
     this.songChanged = Signal.signal(true);
@@ -84,11 +77,6 @@ export class State {
     if ('cursor' in state ) {
       this.cursor = this.cursor.merge(state.cursor);
       this.cursorChanged();
-    }
-
-    if ('tracks' in state ) {
-      this.tracks = this.tracks.merge(state.tracks);
-      this.tracksChanged();
     }
 
     if ('transport' in state ) {
