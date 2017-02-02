@@ -768,7 +768,8 @@ class Player {
     this.cur_pat = nextPat;
   }
 
-  processRow() {
+  nextRow() {
+    this.cur_row += 1;
     if (this.cur_pat == null || this.cur_row >= song.getPatternRowCount(this.cur_pat)) {
       if (this.cyclePattern != null) {
         this.cur_pat = this.cyclePattern;
@@ -782,160 +783,159 @@ class Player {
         this.setCurrentPattern();
       }
     }
-    const numrows = song.getPatternRowCount(this.cur_pat);
-    if(this.cur_row < numrows) {
-      const numtracks = song.getNumTracks();
-      for (let trackindex = 0; trackindex < numtracks; trackindex += 1) {
-        let track = song.getTrackDataForPatternRow(this.cur_pat, this.cur_row, trackindex);
-        var ch = this.tracks[trackindex];
-        var inst = ch.inst;
-        ch.triggernote = false;
-        var event = {};
-        if ("notedata" in track && track.notedata.length > 0) {
-          event = track.notedata[0];
-        }
+  }
 
-        // instrument trigger
-        if ("instrument" in event && event.instrument !== -1) {
-          inst = this.instruments[event.instrument - 1];
-          if (inst && inst.inst && inst.inst.samplemap) {
-            ch.inst = inst;
-            // reset properties, but let the same instrument and note keep playing.
-            // note: it doesn't matter what the instrument number is, it just retriggers the
-            // properties of the currently playing instrument. Only if you specify a note AND
-            // instrument does it change the playing instrument.
-            if (ch.note && inst.inst.samplemap) {
-              const samp = inst.inst.samples[inst.inst.samplemap[ch.note]];
-              ch.vol = samp.vol;
-              ch.pan = samp.pan;
-              ch.fine = samp.fine;
-              if(ch.currentlyPlaying) {
-                ch.currentlyPlaying.resetEnvelopes();
-              }
-            }
-          }
-        }
+  processRow() {
+    const numtracks = song.getNumTracks();
+    for (let trackindex = 0; trackindex < numtracks; trackindex += 1) {
+      let track = song.getTrackDataForPatternRow(this.cur_pat, this.cur_row, trackindex);
+      var ch = this.tracks[trackindex];
+      var inst = ch.inst;
+      ch.triggernote = false;
+      var event = {};
+      if ("notedata" in track && track.notedata.length > 0) {
+        event = track.notedata[0];
+      }
 
-        // note trigger
-        if ("note" in event && event.note != -1) {
-          if (event.note == 96) {
-            ch.release = 1;
-            ch.triggernote = false;
-          } else {
-            if (inst && inst.inst && inst.inst.samplemap) {
-              var note = event.note;
-              ch.note = note;
-              if ("instrument" in event && event.instrument !== -1) {
-                const samp = inst.inst.samples[inst.inst.samplemap[note]];
-                ch.pan = samp.pan;
-                ch.vol = samp.vol;
-                ch.fine = samp.fine;
-              }
+      // instrument trigger
+      if ("instrument" in event && event.instrument !== -1) {
+        inst = this.instruments[event.instrument - 1];
+        if (inst && inst.inst && inst.inst.samplemap) {
+          ch.inst = inst;
+          // reset properties, but let the same instrument and note keep playing.
+          // note: it doesn't matter what the instrument number is, it just retriggers the
+          // properties of the currently playing instrument. Only if you specify a note AND
+          // instrument does it change the playing instrument.
+          if (ch.note && inst.inst.samplemap) {
+            const samp = inst.inst.samples[inst.inst.samplemap[ch.note]];
+            ch.vol = samp.vol;
+            ch.pan = samp.pan;
+            ch.fine = samp.fine;
+            if(ch.currentlyPlaying) {
+              ch.currentlyPlaying.resetEnvelopes();
             }
-            ch.triggernote = true;
-          }
-        }
-
-        ch.voleffectfn = undefined;
-        if ("volume" in event && event.volume != -1) {  // volume column
-          var v = event.volume;
-          ch.voleffectdata = v & 0x0f;
-          if (v < 0x10) {
-            if (v !== 0) {
-              console.log("Track", trackindex, "invalid volume", event.volume.toString(16));
-            }
-          } else if (v <= 0x50) {
-            ch.vol = v - 0x10;
-          } else if (v >= 0x60 && v < 0x70) {  // volume slide down
-            ch.voleffectfn = function(ch) {
-              ch.vol = Math.max(0, ch.vol - ch.voleffectdata);
-            };
-          } else if (v >= 0x70 && v < 0x80) {  // volume slide up
-            ch.voleffectfn = function(ch) {
-              ch.vol = Math.min(64, ch.vol + ch.voleffectdata);
-            };
-          } else if (v >= 0x80 && v < 0x90) {  // fine volume slide down
-            ch.vol = Math.max(0, ch.vol - (v & 0x0f));
-          } else if (v >= 0x90 && v < 0xa0) {  // fine volume slide up
-            ch.vol = Math.min(64, ch.vol + (v & 0x0f));
-          } else if (v >= 0xa0 && v < 0xb0) {  // vibrato speed
-            ch.vibratospeed = v & 0x0f;
-          } else if (v >= 0xb0 && v < 0xc0) {  // vibrato w/ depth
-            ch.vibratodepth = v & 0x0f;
-            ch.voleffectfn = this.effects_t1[4];  // use vibrato effect directly
-            var tempeffectfn = this.effects_t1[4];
-            if(tempeffectfn) tempeffectfn.bind(this)(ch);  // and also call it on tick 0
-          } else if (v >= 0xc0 && v < 0xd0) {  // set panning
-            ch.pan = (v & 0x0f) * 0x11;
-          } else if (v >= 0xf0 && v <= 0xff) {  // portamento
-            if (v & 0x0f) {
-              ch.portaspeed = (v & 0x0f) << 4;
-            }
-            ch.voleffectfn = this.effects_t1[3].bind(this);  // just run 3x0
-          } else {
-            console.log("Track", trackindex, "volume effect", v.toString(16));
-          }
-        }
-
-        ch.effectfn = undefined;
-        if(("fxtype" in event && "fxparam" in event) && (event.fxtype !== -1 && event.fxparam !== 0)) {
-          try {
-            ch.effect = event.fxtype;
-            ch.effectdata = event.fxparam;
-            if (ch.effect < 36) {
-              ch.effectfn = this.effects_t1[ch.effect];
-              var eff_t0 = this.effects_t0[ch.effect];
-              if (eff_t0 && eff_t0.bind(this)(ch, ch.effectdata)) {
-                ch.triggernote = false;
-              }
-              // If effect B or D, jump or pattern break, don't process any more columns.
-              if (ch.effect === 0xb || ch.effect === 0xd ) {
-                return;
-              }
-            } else {
-              console.log("Track", trackindex, "effect > 36", ch.effect);
-            }
-
-            // special handling for portamentos: don't trigger the note
-            if (ch.effect == 3 || ch.effect == 5 || event.volume >= 0xf0) {
-              if (event.note != -1) {
-                ch.periodtarget = ch.inst.periodForNote(ch, ch.note, ch.fine);
-              }
-              ch.triggernote = false;
-              if (inst && inst.inst && inst.inst.samplemap) {
-                if (ch.currentlyPlaying == null) {
-                  // note wasn't already playing; we basically have to ignore the
-                  // portamento and just trigger
-                  ch.triggernote = true;
-                } else if (ch.release) {
-                  // reset envelopes if note was released but leave offset/pitch/etc
-                  // alone
-                  ch.envtick = 0;
-                  ch.release = 0;
-                }
-              }
-            }
-          } catch(e) {
-            console.log(e);
-          }
-        }
-
-        if (ch.triggernote) {
-          // there's gotta be a less hacky way to handle offset commands...
-          if (ch.effect != 9) ch.off = 0;
-          ch.release = 0;
-          ch.envtick = 0;
-          if (ch.note) {
-            ch.period = ch.inst.periodForNote(ch, ch.note, ch.fine);
-          }
-          // waveforms 0-3 are retriggered on new notes while 4-7 are continuous
-          if (ch.vibratotype < 4) {
-            ch.vibratopos = 0;
           }
         }
       }
+
+      // note trigger
+      if ("note" in event && event.note != -1) {
+        if (event.note == 96) {
+          ch.release = 1;
+          ch.triggernote = false;
+        } else {
+          if (inst && inst.inst && inst.inst.samplemap) {
+            var note = event.note;
+            ch.note = note;
+            if ("instrument" in event && event.instrument !== -1) {
+              const samp = inst.inst.samples[inst.inst.samplemap[note]];
+              ch.pan = samp.pan;
+              ch.vol = samp.vol;
+              ch.fine = samp.fine;
+            }
+          }
+          ch.triggernote = true;
+        }
+      }
+
+      ch.voleffectfn = undefined;
+      if ("volume" in event && event.volume != -1) {  // volume column
+        var v = event.volume;
+        ch.voleffectdata = v & 0x0f;
+        if (v < 0x10) {
+          if (v !== 0) {
+            console.log("Track", trackindex, "invalid volume", event.volume.toString(16));
+          }
+        } else if (v <= 0x50) {
+          ch.vol = v - 0x10;
+        } else if (v >= 0x60 && v < 0x70) {  // volume slide down
+          ch.voleffectfn = function(ch) {
+            ch.vol = Math.max(0, ch.vol - ch.voleffectdata);
+          };
+        } else if (v >= 0x70 && v < 0x80) {  // volume slide up
+          ch.voleffectfn = function(ch) {
+            ch.vol = Math.min(64, ch.vol + ch.voleffectdata);
+          };
+        } else if (v >= 0x80 && v < 0x90) {  // fine volume slide down
+          ch.vol = Math.max(0, ch.vol - (v & 0x0f));
+        } else if (v >= 0x90 && v < 0xa0) {  // fine volume slide up
+          ch.vol = Math.min(64, ch.vol + (v & 0x0f));
+        } else if (v >= 0xa0 && v < 0xb0) {  // vibrato speed
+          ch.vibratospeed = v & 0x0f;
+        } else if (v >= 0xb0 && v < 0xc0) {  // vibrato w/ depth
+          ch.vibratodepth = v & 0x0f;
+          ch.voleffectfn = this.effects_t1[4];  // use vibrato effect directly
+          var tempeffectfn = this.effects_t1[4];
+          if(tempeffectfn) tempeffectfn.bind(this)(ch);  // and also call it on tick 0
+        } else if (v >= 0xc0 && v < 0xd0) {  // set panning
+          ch.pan = (v & 0x0f) * 0x11;
+        } else if (v >= 0xf0 && v <= 0xff) {  // portamento
+          if (v & 0x0f) {
+            ch.portaspeed = (v & 0x0f) << 4;
+          }
+          ch.voleffectfn = this.effects_t1[3].bind(this);  // just run 3x0
+        } else {
+          console.log("Track", trackindex, "volume effect", v.toString(16));
+        }
+      }
+
+      ch.effectfn = undefined;
+      if(("fxtype" in event && "fxparam" in event) && (event.fxtype !== -1 && event.fxparam !== 0)) {
+        try {
+          ch.effect = event.fxtype;
+          ch.effectdata = event.fxparam;
+          if (ch.effect < 36) {
+            ch.effectfn = this.effects_t1[ch.effect];
+            var eff_t0 = this.effects_t0[ch.effect];
+            if (eff_t0 && eff_t0.bind(this)(ch, ch.effectdata)) {
+              ch.triggernote = false;
+            }
+            // If effect B or D, jump or pattern break, don't process any more columns.
+            if (ch.effect === 0xb || ch.effect === 0xd ) {
+              return;
+            }
+          } else {
+            console.log("Track", trackindex, "effect > 36", ch.effect);
+          }
+
+          // special handling for portamentos: don't trigger the note
+          if (ch.effect == 3 || ch.effect == 5 || event.volume >= 0xf0) {
+            if (event.note != -1) {
+              ch.periodtarget = ch.inst.periodForNote(ch, ch.note, ch.fine);
+            }
+            ch.triggernote = false;
+            if (inst && inst.inst && inst.inst.samplemap) {
+              if (ch.currentlyPlaying == null) {
+                // note wasn't already playing; we basically have to ignore the
+                // portamento and just trigger
+                ch.triggernote = true;
+              } else if (ch.release) {
+                // reset envelopes if note was released but leave offset/pitch/etc
+                // alone
+                ch.envtick = 0;
+                ch.release = 0;
+              }
+            }
+          }
+        } catch(e) {
+          console.log(e);
+        }
+      }
+
+      if (ch.triggernote) {
+        // there's gotta be a less hacky way to handle offset commands...
+        if (ch.effect != 9) ch.off = 0;
+        ch.release = 0;
+        ch.envtick = 0;
+        if (ch.note) {
+          ch.period = ch.inst.periodForNote(ch, ch.note, ch.fine);
+        }
+        // waveforms 0-3 are retriggered on new notes while 4-7 are continuous
+        if (ch.vibratotype < 4) {
+          ch.vibratopos = 0;
+        }
+      }
     }
-    this.cur_row++;
   }
 
 
@@ -949,9 +949,6 @@ class Player {
     var j, ch;
     for (j in this.tracks) {
       this.tracks[j].periodoffset = 0;
-    }
-    if (this.cur_tick >= this.speed) {
-      this.cur_tick = 0;
     }
 
     if (this.cur_tick === 0) {
@@ -994,13 +991,17 @@ class Player {
       pat: this.cur_pat,
       row: this.cur_row
     });
-    this.cur_tick++;
   }
 
   scheduler() {
     var msPerTick = 2.5 / this.bpm;
     while(this.nextTickTime < (this.audioctx.currentTime + this.scheduleAheadTime)) {
       this.processTick();
+      this.cur_tick++;
+      if(this.cur_tick >= this.speed) {
+        this.cur_tick = 0;
+        this.nextRow();
+      }
       this.nextTickTime += msPerTick;
     }
   }
