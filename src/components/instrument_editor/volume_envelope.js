@@ -12,6 +12,8 @@ import styles from './styles.css';
 export default class VolumeEnvelope extends EnvelopeWidget {
   constructor(target) {
     super(target);
+
+    this.setInstrument(state.cursor.get("instrument"));
   }
 
   createEnvelope() {

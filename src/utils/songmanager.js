@@ -57,8 +57,6 @@ export class SongManager {
       { itemIndex: 4, mask: 0x0F, shift: 4}, // Effect Param H
       { itemIndex: 4, mask: 0xF0, shift: 0}, // Effect Param L
     ];
-
-    this.newSong();
   }
 
   onStateSongChanged() {
