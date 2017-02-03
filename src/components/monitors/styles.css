@@ -24,6 +24,16 @@
 .monitors .monitor {
   border: 1px solid gray;
   flex: 1;
+  position: relative;
+}
+
+.monitors .monitor .track-name {
+  position: absolute;
+  left: 2px;
+  top: 0;
+  font-size: 1.0em;
+  font-family: monospace;
+  color: dimgrey;
 }
 
 .monitors .monitor-empty {
