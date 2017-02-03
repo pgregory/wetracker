@@ -72,6 +72,24 @@ $(document).ready(() => {
       transport.refresh();
       tabs.refresh();
     });
+
+    var curYPos, curXPos, curDown;
+
+    $('body').on('mousemove', function(e){ 
+      if(curDown){
+        window.scrollTo(document.body.scrollLeft + (curXPos - e.pageX), document.body.scrollTop + (curYPos - e.pageY));
+      }
+    });
+
+    $('.sidebar.left').on('mousedown', function(e){ 
+      curYPos = e.pageY; 
+      curXPos = e.pageX; 
+      curDown = true; 
+    });
+
+    $('body').on('mouseup', function(e){ 
+      curDown = false; 
+    });
   };
 
   let loadSong = function() {
