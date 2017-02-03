@@ -21,6 +21,7 @@
         "sustain": 0,
         "type": 2
     },
+    "fadeout": 255,
     "name": "Pad Sound",
     "number": 3,
     "samplemap": {
