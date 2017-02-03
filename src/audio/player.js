@@ -625,6 +625,8 @@ class Player {
     this.tracksChanged = Signal.signal(false);
 
     Signal.connect(song, 'songChanged', this, 'onSongChanged');
+    Signal.connect(song, 'bpmChanged', this, 'onBpmChanged');
+    Signal.connect(song, 'speedChanged', this, 'onSpeedChanged');
     Signal.connect(song, 'instrumentChanged', this, 'onInstrumentChanged');
     Signal.connect(song, 'instrumentListChanged', this, 'onInstrumentListChanged');
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
@@ -1202,6 +1204,14 @@ class Player {
     this.XMView.pushEvent({
       t: this.audioctx.currentTime,
     });
+  }
+
+  onBpmChanged(bpm) {
+    this.bpm = bpm;
+  }
+
+  onSpeedChanged(speed) {
+    this.speed = speed;
   }
 
   onInstrumentChanged(instrumentIndex) {
