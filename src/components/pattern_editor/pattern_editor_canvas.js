@@ -565,19 +565,18 @@ export default class PatternEditorCanvas {
     var patternheight = this.canvas.height - this._pattern_header_height;
 
     ctx.imageSmoothingEnabled = false;
-    ctx.fillStyle = "#000";
-    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    //ctx.fillStyle = "#000";
+    //ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     ctx.globalCompositeOperation = 'source-over';
     ctx.drawImage(this.pat_canvas, 0, this.canvas.height / 2 - (this._pattern_row_height/2) - this._pattern_row_height*(state.cursor.get("row")));
 
-
-    // Draw the timeline fixed to the left of the view.
+    // Draw the timeline fixed to the left and right of the view.
     this.timelines.each((i, t) => {
       var tctx = t.getContext('2d');
       var tlw = this.timeline_canvas.width;
       var tlh = this._pattern_row_height * song.getPatternRowCount(state.cursor.get("pattern"));
-      tctx.fillStyle = '#000';
-      tctx.fillRect(0, 0, this.timeline_canvas.width, this.canvas.height);
+      //tctx.fillStyle = '#000';
+      //tctx.fillRect(0, 0, this.timeline_canvas.width, this.canvas.height);
       tctx.drawImage(this.timeline_canvas, 0, 0, tlw, tlh, 0, this.canvas.height / 2 - (this._pattern_row_height/2) - this._pattern_row_height*(state.cursor.get("row")), tlw, tlh);
       tctx.fillRect(0, 0, this.timeline_canvas.width, this._pattern_header_height);
     });
