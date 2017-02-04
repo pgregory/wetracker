@@ -296,6 +296,20 @@ export default class SampleMapper {
       }
       //this.saveSegments();
       window.requestAnimationFrame(() => this.redrawGraph());
+    } else {
+      if(this.selectedSegment != null) {
+        const segx1 = this.segments[this.selectedSegment].start * this.notesize;
+        const segx2 = this.segments[this.selectedSegment].end * this.notesize;
+        const x = (e.offsetX - this.left_margin) - this.offset;
+        const y = e.offsetY;
+
+        if(((x > (segx1 - 5)) && (x < (segx1 + 5))) || 
+           ((x > (segx2 - 5)) && (x < (segx2 + 5)))) {
+          $(this.canvas).toggleClass('dragging', true);
+        } else {
+          $(this.canvas).toggleClass('dragging', false);
+        }
+      }
     }
   }
 
@@ -310,10 +324,10 @@ export default class SampleMapper {
     if(this.selectedSegment != null) {
       const segx1 = this.segments[this.selectedSegment].start * this.notesize;
       const segx2 = this.segments[this.selectedSegment].end * this.notesize;
-      if((x > (segx1 - 2)) && (x < (segx1 + 2))) {
+      if((x > (segx1 - 5)) && (x < (segx1 + 5))) {
         this.dragging = true;
         this.selectedEdge = 0;
-      } else if((x > (segx2 - 2)) && (x < (segx2 + 2))) {
+      } else if((x > (segx2 - 5)) && (x < (segx2 + 5))) {
         this.dragging = true;
         this.selectedEdge = 1;
       } else {
