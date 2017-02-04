@@ -294,7 +294,7 @@ export default class SampleMapper {
         currSeg.end = xnote;
         this.segments[this.selectedSegment + 1].start = xnote;
       }
-      this.saveSegments();
+      //this.saveSegments();
       window.requestAnimationFrame(() => this.redrawGraph());
     }
   }
@@ -330,6 +330,7 @@ export default class SampleMapper {
   }
 
   onMouseUp(e) {
+    this.saveSegments();
     this.dragging = false;
   }
 
