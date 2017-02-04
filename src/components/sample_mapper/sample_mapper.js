@@ -352,7 +352,7 @@ export default class SampleMapper {
       const xnote = Math.round(x / this.notesize);
       const currSeg = this.segments[this.selectedSegment];
       this.segments.splice(this.selectedSegment + 1, 0, {
-        instrument: 0, 
+        instrument: this.segments.length, 
         start: xnote,
         end: currSeg.end,
       });
