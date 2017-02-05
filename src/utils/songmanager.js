@@ -208,16 +208,7 @@ export class SongManager {
     song.instruments.push(Immutable.fromJS(cymbal).toJS());
     song.instruments.push(Immutable.fromJS(pad).toJS());
 
-    state.set({
-      transport: {
-        bpm: song.bpm,
-        speed: song.speed,
-      },
-      song: song,
-    }, "Song change");
-
-    state.clearHistory();
-    this.songChanged();
+    this.setSong(song);
   }
 
   addInstrument() {
@@ -412,6 +403,14 @@ export class SongManager {
 
   setSong(song) {
     state.set({
+      transport: {
+        bpm: song.bpm,
+        speed: song.speed,
+      },
+      song,
+    });
+
+    state.set({
       cursor: {
         pattern: 0,
         sequence: 0,
@@ -423,14 +422,6 @@ export class SongManager {
         column: 0,
         record: false,
       }
-    });
-
-    state.set({
-      transport: {
-        bpm: song.bpm,
-        speed: song.speed,
-      },
-      song,
     });
 
     state.clearHistory();
@@ -680,7 +671,11 @@ export class SongManager {
    * @returns {string} The song name.
    */
   getSongName() {
-    return state.song.get("name");
+    try {
+      return state.song.get("name");
+    } catch(e) {
+      return "";
+    }
   }
 
   /** 
@@ -692,7 +687,11 @@ export class SongManager {
    * @returns {Object} 
    */
   getInstrument(instrumentIndex) {
-    return state.song.getIn(["instruments", instrumentIndex]).toJS();
+    try {
+      return state.song.getIn(["instruments", instrumentIndex]).toJS();
+    } catch(e) {
+      return {};
+    }
   }
 
   /**
@@ -702,7 +701,11 @@ export class SongManager {
    * instruments in the song.
    */
   getInstrumentNames() {
-    return state.song.get("instruments").map(i => i.get("name")).toJS();
+    try {
+      return state.song.get("instruments").map(i => i.get("name")).toJS();
+    } catch(e) {
+      return [];
+    }
   }
 
   /**
@@ -712,7 +715,11 @@ export class SongManager {
    * empty slots.
    */
   getNumInstruments() {
-    return state.song.get("instruments").size;
+    try {
+      return state.song.get("instruments").size;
+    } catch(e) {
+      return 0;
+    }
   }
 
   /**
@@ -722,7 +729,11 @@ export class SongManager {
    * tracks in the song.
    */
   getTrackNames() {
-    return state.song.get("tracks").map(i => i.get("name")).toJS();
+    try {
+      return state.song.get("tracks").map(i => i.get("name")).toJS();
+    } catch(e) {
+      return [];
+    }
   }
 
   /**
@@ -731,7 +742,11 @@ export class SongManager {
    * @returns {number} The total number of tracks in the song.
    */
   getNumTracks() {
-    return state.song.get("tracks").size;
+    try {
+      return state.song.get("tracks").size;
+    } catch(e) {
+      return 0;
+    }
   }
 
   /**
@@ -740,7 +755,11 @@ export class SongManager {
    * @returns {number}
    */
   getSpeed() {
-    return state.song.get("speed");
+    try {
+      return state.song.get("speed");
+    } catch(e) {
+      return 4;
+    }
   }
 
   /**
@@ -749,7 +768,11 @@ export class SongManager {
    * @returns {number}
    */
   getBpm() {
-    return state.song.get("bpm");
+    try {
+      return state.song.get("bpm");
+    } catch(e) {
+      return 120;
+    }
   }
 
   /**
@@ -758,7 +781,11 @@ export class SongManager {
    * @returns {number} The sequence index to loop back to.
    */
   getLoopPosition() {
-    return state.song.get("loopPosition");
+    try {
+      return state.song.get("loopPosition");
+    } catch(e) {
+      return 0;
+    }
   }
 
   /**
@@ -784,7 +811,11 @@ export class SongManager {
    * @returns {number} The number of columns in the track.
    */
   getTrackNumColumns(trackIndex) {
-    return state.song.getIn(["tracks", trackIndex, "columns"]).size;
+    try {
+      return state.song.getIn(["tracks", trackIndex, "columns"]).size;
+    } catch(e) {
+      return 0;
+    }
   }
 
   /** 
@@ -795,7 +826,11 @@ export class SongManager {
    * @returns {number} The pattern number at the given sequence index.
    */
   getSequencePatternNumber(sequenceIndex) {
-    return state.song.getIn(["sequence", sequenceIndex, "pattern"]);
+    try {
+      return state.song.getIn(["sequence", sequenceIndex, "pattern"]);
+    } catch(e) {
+      return 0;
+    }
   }
 
   /** 
@@ -804,7 +839,11 @@ export class SongManager {
    * @returns {number} The total number of entries in the song sequence.
    */
   getSequenceLength() {
-    return state.song.get("sequence").size;
+    try {
+      return state.song.get("sequence").size;
+    } catch(e) {
+      return 0;
+    }
   }
 
   /** 
@@ -844,7 +883,11 @@ export class SongManager {
    * @returns {number}
    */
   getNumPatterns() {
-    return state.song.get("patterns").size;
+    try {
+      return state.song.get("patterns").size;
+    } catch(e) {
+      return 0;
+    }
   }
 
   /**

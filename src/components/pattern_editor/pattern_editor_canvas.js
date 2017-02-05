@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import Immutable from 'immutable';
 
 import '../../utils/inlineedit';
 
@@ -110,7 +111,7 @@ function generateTintImage( img, rgbks, red, green, blue ) {
 export default class PatternEditorCanvas {
   constructor(target) {
     this.yoff = 0;
-    this.lastCursor = state.cursor;
+    this.lastCursor = new Immutable.Map();
 
     this.target = target;
 
@@ -167,8 +168,6 @@ export default class PatternEditorCanvas {
     this.fontimg.src = fontimage;
 
     this._fontmap_notes = [8*5, 8*22, 8*28];
-
-    this.xoffset;
 
     // canvas to render patterns onto
     this.pat_canvas = document.createElement('canvas');
@@ -482,30 +481,7 @@ export default class PatternEditorCanvas {
       this.refresh();
     });
 
-    this.updateCanvas();
-  }
-
-  updateCanvas() {
-    if(!this.fontloaded) {
-      window.requestAnimationFrame(() => this.updateCanvas() );
-      return;
-    }
-    if (state.cursor.get("row") !== this.lastCursor.row || 
-        state.cursor.get("sequence") !== this.lastCursor.sequence ||
-        state.cursor.get("track") !== this.lastCursor.track ||
-        state.cursor.get("column") !== this.lastCursor.column ||
-        state.cursor.get("item") !== this.lastCursor.item ||
-        state.cursor.get("pattern") !== this.lastCursor.pattern ||
-        this.patterndata.scrollLeft() !== this.xoffset) {
-      if (state.cursor.get("pattern") !== this.lastCursor.pattern) {
-        this.renderPattern(state.cursor.get("pattern"));
-      }
-
-      this.redrawCanvas();
-
-      this.lastCursor = state.cursor.toJS();
-      this.xoffset = this.patterndata.scrollLeft();
-    }
+    this.redrawCanvas();
   }
 
   normaliseSelectionCursors() {
@@ -546,11 +522,16 @@ export default class PatternEditorCanvas {
     return result;
   }
 
-  redrawCanvas() {
-    if(!this.fontloaded) {
-      window.requestAnimationFrame(() => this.redrawCanvas() );
+  redrawPatternAndCanvas(pattern) {
+    if (!this.fontloaded) {
+      window.requestAnimationFrame(() => this.redrawPatternAndCanvas(pattern));
       return;
     }
+    this.renderPattern(pattern);
+    this.redrawCanvas();
+  }
+
+  redrawCanvas() {
     var ctx = this.canvas.getContext('2d');
 
     var h = $(this.target).find(".patterndata").height();
@@ -558,15 +539,8 @@ export default class PatternEditorCanvas {
     this.timelines.each((i, t) => {
       t.height = h;
     });
-    h = Math.floor(h/this._pattern_row_height);
-    if(h%2 === 0) h -= 1;
-    h *= this._pattern_row_height;
-
-    var patternheight = this.canvas.height - this._pattern_header_height;
 
     ctx.imageSmoothingEnabled = false;
-    //ctx.fillStyle = "#000";
-    //ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     ctx.globalCompositeOperation = 'source-over';
     ctx.drawImage(this.pat_canvas, 0, this.canvas.height / 2 - (this._pattern_row_height/2) - this._pattern_row_height*(state.cursor.get("row")));
 
@@ -575,8 +549,6 @@ export default class PatternEditorCanvas {
       var tctx = t.getContext('2d');
       var tlw = this.timeline_canvas.width;
       var tlh = this._pattern_row_height * song.getPatternRowCount(state.cursor.get("pattern"));
-      //tctx.fillStyle = '#000';
-      //tctx.fillRect(0, 0, this.timeline_canvas.width, this.canvas.height);
       tctx.drawImage(this.timeline_canvas, 0, 0, tlw, tlh, 0, this.canvas.height / 2 - (this._pattern_row_height/2) - this._pattern_row_height*(state.cursor.get("row")), tlw, tlh);
       tctx.fillRect(0, 0, this.timeline_canvas.width, this._pattern_header_height);
     });
@@ -726,7 +698,6 @@ export default class PatternEditorCanvas {
       state.groupHistoryEnd();
 
       this.renderPattern(state.cursor.get("pattern"));
-      this.updateCanvas();
       this.redrawCanvas();
     }
   }
@@ -734,7 +705,10 @@ export default class PatternEditorCanvas {
   refresh() {
     $(this.target).empty();
     this.render();
-    window.requestAnimationFrame(() => this.redrawCanvas());
+    window.requestAnimationFrame(() => {
+      this.renderPattern(state.cursor.get("pattern"));
+      this.redrawCanvas()
+    });
   }
 
   onScroll(e) {
@@ -754,7 +728,7 @@ export default class PatternEditorCanvas {
       }
     } else {
       this.patterndata.scrollLeft(this.patterndata.scrollLeft() + e.originalEvent.deltaX);
-      this.updateCanvas();
+      this.redrawCanvas();
     }
     e.preventDefault();
   }
@@ -816,7 +790,7 @@ export default class PatternEditorCanvas {
     function animateScroll() {
       currentTime += increment;
       element.scrollLeft(easeInOutQuad(currentTime, start, change, duration));
-      this.updateCanvas();
+      this.redrawCanvas();
       if (currentTime < duration) {
         setTimeout(animateScroll.bind(this), increment);
       }
@@ -825,29 +799,42 @@ export default class PatternEditorCanvas {
   }
 
   onCursorChanged(state) {
-    /* If the cursor has moved to a different track, column or item,
-     * check if it's still visible and scroll into view if not.
-     */
-    if ((this.lastCursor.item !== state.cursor.get("item")) ||
-        (this.lastCursor.track !== state.cursor.get("track")) ||
-        (this.lastCursor.column !== state.cursor.get("column"))) {
-      var pos = this.eventPositionInPatternCanvas(state.cursor.toJS());
-      var maxpos = this.patterndata.width();
-      var minpos = 0;
-      if(((pos.cx + this._pattern_cellwidth) - this.patterndata.scrollLeft()) > maxpos) {
-       this.scrollHorizTo(this.patterndata, ((pos.cx + this._pattern_cellwidth) - maxpos) + 8, 100); 
-      } else if((pos.cx - this.patterndata.scrollLeft()) < minpos) {
-        this.scrollHorizTo(this.patterndata, pos.cx - 6, 100);
-      }
-    }
-
-    $(this.target).find("#length").val(song.getPatternRowCount(state.cursor.get("pattern")));
-
     var widget = $(this.target).parent(".chrome");
     if (widget.length > 0) {
       widget.toggleClass("record", state.cursor.get("record"));
     }
-    window.requestAnimationFrame(this.updateCanvas.bind(this));
+
+    if (this.lastCursor !== state.cursor) {
+      if ((this.lastCursor.get("item") !== state.cursor.get("item")) ||
+          (this.lastCursor.get("track") !== state.cursor.get("track")) ||
+          (this.lastCursor.get("column") !== state.cursor.get("column"))) {
+        /* If the cursor has moved to a different track, column or item,
+         * check if it's still visible and scroll into view if not.
+         */
+        var pos = this.eventPositionInPatternCanvas(state.cursor.toJS());
+        var maxpos = this.patterndata.width();
+        var minpos = 0;
+        if(((pos.cx + this._pattern_cellwidth) - this.patterndata.scrollLeft()) > maxpos) {
+          this.scrollHorizTo(this.patterndata, ((pos.cx + this._pattern_cellwidth) - maxpos) + 8, 100); 
+          // scrollHorizTo will take care of redrawCanvas calls, no need to do that here.
+          this.lastCursor = state.cursor;
+          return;
+        } else if((pos.cx - this.patterndata.scrollLeft()) < minpos) {
+          this.scrollHorizTo(this.patterndata, pos.cx - 6, 100);
+          // scrollHorizTo will take care of redrawCanvas calls, no need to do that here.
+          this.lastCursor = state.cursor;
+          return;
+        }
+      }
+      if (this.lastCursor.get("pattern") !== state.cursor.get("pattern")) {
+        $(this.target).find("#length").val(song.getPatternRowCount(state.cursor.get("pattern")));
+        window.requestAnimationFrame(() => this.redrawPatternAndCanvas(state.cursor.get("pattern")));
+        this.lastCursor = state.cursor;
+        return;
+      }
+      window.requestAnimationFrame(() => this.redrawCanvas());
+      this.lastCursor = state.cursor;
+    }
   }
 
   onTransportChanged() {
@@ -868,7 +855,7 @@ export default class PatternEditorCanvas {
   }
 
   onSongChanged() {
-    this.lastCursor = {};
+    this.lastCursor = new Immutable.Map();
     this.refresh();
     state.set({
       cursor: {
@@ -882,9 +869,12 @@ export default class PatternEditorCanvas {
   }
 
   onSongStateChanged() {
-    this.renderPattern(state.cursor.get("pattern"));
-    this.updateCanvas();
-    this.redrawCanvas();
+    // If this is the first song loaded, the font might not be ready.
+    if (!this.fontloaded) {
+      window.requestAnimationFrame(() => this.onSongStateChanged());
+      return;
+    }
+    this.refresh();
   }
 }
 

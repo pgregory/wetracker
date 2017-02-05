@@ -26,7 +26,11 @@ export default class SequenceEditor {
     const sequence = song.getSequencePatterns();
     target.append(sequencesTemplate.renderToString({sequence, cursor: state.cursor.toJS()}));
 
-    this.rowHeight = $(this.target).find(".sequence-row")[0].clientHeight;
+    try {
+      this.rowHeight = $(this.target).find(".sequence-row")[0].clientHeight;
+    } catch(e) {
+      this.rowHeight = 0;
+    }
 
     target.find(".sequence-top-padding div").height(
       (target.height()-this.rowHeight)/2.0);

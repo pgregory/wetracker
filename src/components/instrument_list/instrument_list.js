@@ -28,7 +28,11 @@ export default class InstrumentList {
     const instrumentnames = song.getInstrumentNames();
     target.append(instrumentsTemplate.renderToString({instrumentnames, cursor: state.cursor.toJS()}));
 
-    this.rowHeight = target.find(".instrument-row")[0].clientHeight;
+    try {
+      this.rowHeight = target.find(".instrument-row")[0].clientHeight;
+    } catch(e) {
+      this.rowHeight = 0;
+    }
 
     const containerHeight = target.find(".instruments-list").height();
     target.find(".instruments-top-padding div").height((containerHeight - this.rowHeight)/2.0);

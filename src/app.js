@@ -60,17 +60,18 @@ $(document).ready(() => {
       state.redo();
     });
 
-    song.newSong();
-
-    state.set({
-      transport: {
-        masterVolume: -10.0,
-      }
-    });
-
     window.requestAnimationFrame(() => {
       transport.refresh();
       tabs.refresh();
+
+      song.newSong();
+
+      state.set({
+        transport: {
+          masterVolume: -10.0,
+        }
+      });
+
     });
 
     var curYPos, curXPos, curDown;
@@ -90,6 +91,7 @@ $(document).ready(() => {
     $('body').on('mouseup', function(e){ 
       curDown = false; 
     });
+
   };
 
   let loadSong = function() {
