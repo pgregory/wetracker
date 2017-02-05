@@ -64,14 +64,15 @@ $(document).ready(() => {
       transport.refresh();
       tabs.refresh();
 
-      song.newSong();
+      state.songChanged();
+    });
 
-      state.set({
-        transport: {
-          masterVolume: -10.0,
-        }
-      });
+    song.newSong();
 
+    state.set({
+      transport: {
+        masterVolume: -10.0,
+      }
     });
 
     var curYPos, curXPos, curDown;
