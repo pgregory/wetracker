@@ -507,9 +507,12 @@ class Player {
     this.popfilter_alpha = 0.9837;
 
     this.cur_songpos = -1;
+    this.jump_songpos = undefined;
     this.cur_pat = undefined;
+    this.jump_pat = undefined;
     this.cyclePattern = undefined;
     this.cur_row = 0;
+    this.jump_row = undefined;
     this.cur_ticksamp = 0;
     this.cur_tick = 0;
     this.globalVolume = this.max_global_volume = 128;
@@ -789,6 +792,9 @@ class Player {
 
   processRow() {
     const numtracks = song.getNumTracks();
+    this.jump_songpos = undefined;
+    this.jump_pat = undefined;
+    this.jump_row = undefined;
     for (let trackindex = 0; trackindex < numtracks; trackindex += 1) {
       let track = song.getTrackDataForPatternRow(this.cur_pat, this.cur_row, trackindex);
       var ch = this.tracks[trackindex];
@@ -882,7 +888,7 @@ class Player {
       }
 
       ch.effectfn = undefined;
-      if(("fxtype" in event && "fxparam" in event) && (event.fxtype !== -1 && event.fxparam !== 0)) {
+      if(("fxtype" in event && "fxparam" in event) && (event.fxtype !== -1 || event.fxparam !== 0)) {
         try {
           ch.effect = event.fxtype;
           ch.effectdata = event.fxparam;
@@ -894,7 +900,7 @@ class Player {
             }
             // If effect B or D, jump or pattern break, don't process any more columns.
             if (ch.effect === 0xb || ch.effect === 0xd ) {
-              return;
+              //return;
             }
           } else {
             console.log("Track", trackindex, "effect > 36", ch.effect);
@@ -954,6 +960,11 @@ class Player {
     }
 
     if (this.cur_tick === 0) {
+      if(this.jump_row != null && this.jump_pat != null && this.jump_songpos != null) {
+        this.cur_songpos = this.jump_songpos;
+        this.cur_pat = this.jump_pat;
+        this.cur_row = this.jump_row;
+      }
       this.processRow();
     }
 
@@ -1410,12 +1421,15 @@ class Player {
 
   eff_t0_d(ch, data) {  // pattern jump
     if (this.cyclePattern == null) {
-      this.cur_songpos++;
-      if (this.cur_songpos >= song.getSequenceLength())
-        this.cur_songpos = song.getLoopPosition();
-      this.cur_pat = song.getSequencePatternNumber(this.cur_songpos);
+      this.jump_songpos = this.cur_songpos + 1;
+      if (this.jump_songpos >= song.getSequenceLength())
+        this.jump_songpos = song.getLoopPosition();
+      this.jump_pat = song.getSequencePatternNumber(this.jump_songpos);
+    } else {
+      this.jump_songpos = this.cur_songpos;
+      this.jump_pat = this.cur_pat;
     }
-    this.cur_row = (data >> 4) * 10 + (data & 0x0f);
+    this.jump_row = (data >> 4) * 10 + (data & 0x0f);
   }
 
   eff_t0_e(ch, data) {  // extended effects!
