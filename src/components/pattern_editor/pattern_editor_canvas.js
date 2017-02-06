@@ -201,6 +201,7 @@ export default class PatternEditorCanvas {
     Signal.connect(song, "eventChanged", this, "onEventChanged");
     Signal.connect(song, "songChanged", this, "onSongChanged");
     Signal.connect(state, "songChanged", this, "onSongStateChanged");
+    Signal.connect(player, "tracksChanged", this, "onTracksChanged");
   }
 
   initWidth() {
@@ -540,6 +541,9 @@ export default class PatternEditorCanvas {
       t.height = h;
     });
 
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
     ctx.imageSmoothingEnabled = false;
     ctx.globalCompositeOperation = 'source-over';
     ctx.drawImage(this.pat_canvas, 0, this.canvas.height / 2 - (this._pattern_row_height/2) - this._pattern_row_height*(state.cursor.get("row")));
@@ -843,6 +847,10 @@ export default class PatternEditorCanvas {
 
       this.lastTransport = state.transport;
     }
+  }
+
+  onTracksChanged(tracks) {
+    this.redrawCanvas();
   }
 
   onEventChanged(cursor, event) {
