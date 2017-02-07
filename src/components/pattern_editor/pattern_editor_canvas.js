@@ -541,24 +541,25 @@ export default class PatternEditorCanvas {
       t.height = h;
     });
 
+    ctx.imageSmoothingEnabled = false;
     ctx.fillStyle = "#000";
     ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-    ctx.imageSmoothingEnabled = false;
     ctx.globalCompositeOperation = 'source-over';
-    ctx.drawImage(this.pat_canvas, 0, this.canvas.height / 2 - (this._pattern_row_height/2) - this._pattern_row_height*(state.cursor.get("row")));
+    let y = Math.round(this.canvas.height / 2 - (this._pattern_row_height/2) - this._pattern_row_height*(state.cursor.get("row")));
+    ctx.drawImage(this.pat_canvas, 0, y);
 
     // Draw the timeline fixed to the left and right of the view.
     this.timelines.each((i, t) => {
       var tctx = t.getContext('2d');
       var tlw = this.timeline_canvas.width;
       var tlh = this._pattern_row_height * song.getPatternRowCount(state.cursor.get("pattern"));
-      tctx.drawImage(this.timeline_canvas, 0, 0, tlw, tlh, 0, this.canvas.height / 2 - (this._pattern_row_height/2) - this._pattern_row_height*(state.cursor.get("row")), tlw, tlh);
+      tctx.drawImage(this.timeline_canvas, 0, 0, tlw, tlh, 0, y, tlw, tlh);
       tctx.fillRect(0, 0, this.timeline_canvas.width, this._pattern_header_height);
     });
 
     // Draw the cursor row.
-    var cy = this.canvas.height/2 - (this._pattern_row_height/2);
+    var cy = Math.round(this.canvas.height/2 - (this._pattern_row_height/2));
     ctx.globalCompositeOperation = 'lighten';
     ctx.fillStyle = '#2a5684';
     ctx.fillRect(0, cy, this.canvas.width, this._pattern_row_height);
@@ -592,7 +593,7 @@ export default class PatternEditorCanvas {
     if (state.cursor.get("selecting")) {
       ctx.save();
 
-      let start_cursor_sy = cy - (state.cursor.get("row") - state.cursor.get("row_start")) * this._pattern_row_height;
+      let start_cursor_sy = cy - Math.round((state.cursor.get("row") - state.cursor.get("row_start")) * this._pattern_row_height);
       let start_cursor_sx = this._event_left_margin;
       start_cursor_sx += state.cursor.get("track_start") * this._pattern_cellwidth;
       for(var i = 1; i <= state.cursor.get("item_start"); i += 1) {
@@ -709,10 +710,7 @@ export default class PatternEditorCanvas {
   refresh() {
     $(this.target).empty();
     this.render();
-    window.requestAnimationFrame(() => {
-      this.renderPattern(state.cursor.get("pattern"));
-      this.redrawCanvas()
-    });
+    this.redrawPatternAndCanvas(state.cursor.get("pattern"));
   }
 
   onScroll(e) {
