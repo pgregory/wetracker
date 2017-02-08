@@ -1,0 +1,34 @@
+<macro effect_header(name)>
+  <div class="effect-header">
+    <div class="name">${name}</div>
+    <div class="bypass">
+      <input type="checkbox" id="bypass" class="bypass" checked="true"/>
+    </div>
+  </div>
+</macro>
+
+<div class="effect-control-panel">
+  <effect_header name="Chorus"/>
+  <div class="control-group">
+    <div class="control">
+      <div class="label">Rate</div>
+      <div id="rate-slider" class="slider"></div>
+      <input type="text" id="rate-value" value="1.5"/>
+    </div>
+    <div class="control">
+      <label for="feedback">
+        Feedback
+      </label>
+      <div id="feedback-slider" class="slider"></div>
+      <input type="text" id="feedback-value" value="0.2"/>
+    </div>
+    <div class="control">
+      <label for="delay">
+        Delay
+      </label>
+      <div id="delay-slider" class="slider"></div>
+      <input type="text" id="delay-value" value="0.0045"/>
+    </div>
+  </div>
+</div>
+

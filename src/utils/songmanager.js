@@ -936,6 +936,13 @@ export class SongManager {
     });
     this.songChanged();
   }
+
+  /**
+   * Get track effects
+   */
+  getTrackEffects(index) {
+    return state.song.getIn(["tracks", index, "effects"]).toJS();
+  }
 }
 
 export let song = new SongManager(); 
