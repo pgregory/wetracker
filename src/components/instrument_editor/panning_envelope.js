@@ -1,3 +1,4 @@
+import Immutable from 'immutable';
 import $ from 'jquery';
 
 import Signal from '../../utils/signal';
@@ -11,6 +12,8 @@ import styles from './styles.css';
 export default class PanningEnvelope extends EnvelopeWidget {
   constructor(target) {
     super(target);
+
+    this.setInstrument(state.cursor.get("instrument"));
   }
 
   createEnvelope() {
@@ -25,11 +28,13 @@ export default class PanningEnvelope extends EnvelopeWidget {
     }
     this.envelope = this.instrument.env_pan;
 
+    song.updateInstrument(this.instrumentIndex, this.instrument);
+
     super.createEnvelope();
   }
 
   setInstrument(instrument) {
     super.setInstrument(instrument);
-    this.envelope = instrument.env_pan;
+    this.envelope = this.instrument.env_pan;
   }
 }

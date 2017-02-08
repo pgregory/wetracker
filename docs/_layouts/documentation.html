@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+  {% include head.html %}
+
+
+  {% if site.theme_mode == 'markdown' %}
+  <body class="hack">
+  {% elsif site.theme_mode == 'standard' %}
+  <body class="standard">
+  {% elsif site.theme_mode == 'dark' %}
+  <body class="hack dark">
+  {% endif %}
+
+    {% include tagmanager-body.html %}
+
+    {% include github-ribbon.html %}
+
+    <div class="container">
+      <div class="grid">
+        <aside class="cell -3of12" role="navigation">
+          {% capture submenu %}
+            {% assign url = page.url %}
+            {% assign pages = site.documentation | sort:"index" %}
+            {% for page in pages %} 
+              <a class="menu-item {% if url == page.url %}active{% endif %} menu-indent-{{ page.indent }}" 
+                                   role="menuitem" href="{{ page.url | prepend:
+                                   site.baseurl }}" title="{{ page.title }}">
+                {{ page.title }} <div class="pull-right">»</div> 
+              </a> 
+            {% endfor %}
+          {% endcapture %}
+          {% include navigation.html %}
+          </nav>
+        </aside>
+
+        <main class="cell -9of12">
+
+          <div class="t-hackcss-warning">
+            <strong>Note:</strong> This documentation is currently under heavy construction.
+          </div>
+
+          {{ content }}
+        </main>
+
+      </div>
+
+    {% include footer.html %}
+
+    </div>
+
+    <!-- Prism.js -->
+    <script src="https://npmcdn.com/prismjs@1.5.1/prism.js"></script>
+  </body>
+
+</html>

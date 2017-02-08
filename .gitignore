@@ -4,6 +4,7 @@ bin
 node_modules
 stats.json
 docs/_site
+docs/.sass-cache
 
 # Cruft
 .DS_Store

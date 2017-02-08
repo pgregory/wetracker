@@ -22,6 +22,7 @@ export default class SampleMapper {
     this.instrument = undefined;
     this.selectedSegment = undefined;
     this.yoff = 0;
+    this.instrumentIndex = state.cursor.get("instrument");
 
     this.playingNotes = [];
 
@@ -29,10 +30,11 @@ export default class SampleMapper {
 
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
     Signal.connect(song, "songChanged", this, "onSongChanged");
+    Signal.connect(song, "instrumentChanged", this, "onInstrumentChanged");
     Signal.connect(virtualKeyboard, "noteDown", this, "onNoteDown");
     Signal.connect(virtualKeyboard, "noteUp", this, "onNoteUp");
 
-    this.setInstrument(song.song.instruments[state.cursor.get("instrument")]);
+    this.setInstrument(state.cursor.get("instrument"));
     this.updateSegments();
   }
 
@@ -225,7 +227,7 @@ export default class SampleMapper {
 
   updateSegments() {
     this.segments = [];
-    if(this.instrument) { 
+    if(this.instrument && this.instrument.samplemap) { 
       let b = 0;
       let w = 0;
       let i = 0;
@@ -254,6 +256,7 @@ export default class SampleMapper {
       for(let i = 0; i < this.segments.length; i += 1) {
         this.instrument.samplemap.fill(this.segments[i].instrument, this.segments[i].start, this.segments[i].end);
       }
+      song.updateInstrument(this.instrumentIndex, this.instrument);
     }
   } 
 
@@ -291,8 +294,22 @@ export default class SampleMapper {
         currSeg.end = xnote;
         this.segments[this.selectedSegment + 1].start = xnote;
       }
-      this.saveSegments();
+      //this.saveSegments();
       window.requestAnimationFrame(() => this.redrawGraph());
+    } else {
+      if(this.selectedSegment != null) {
+        const segx1 = this.segments[this.selectedSegment].start * this.notesize;
+        const segx2 = this.segments[this.selectedSegment].end * this.notesize;
+        const x = (e.offsetX - this.left_margin) - this.offset;
+        const y = e.offsetY;
+
+        if(((x > (segx1 - 5)) && (x < (segx1 + 5))) || 
+           ((x > (segx2 - 5)) && (x < (segx2 + 5)))) {
+          $(this.canvas).toggleClass('dragging', true);
+        } else {
+          $(this.canvas).toggleClass('dragging', false);
+        }
+      }
     }
   }
 
@@ -307,10 +324,10 @@ export default class SampleMapper {
     if(this.selectedSegment != null) {
       const segx1 = this.segments[this.selectedSegment].start * this.notesize;
       const segx2 = this.segments[this.selectedSegment].end * this.notesize;
-      if((x > (segx1 - 2)) && (x < (segx1 + 2))) {
+      if((x > (segx1 - 5)) && (x < (segx1 + 5))) {
         this.dragging = true;
         this.selectedEdge = 0;
-      } else if((x > (segx2 - 2)) && (x < (segx2 + 2))) {
+      } else if((x > (segx2 - 5)) && (x < (segx2 + 5))) {
         this.dragging = true;
         this.selectedEdge = 1;
       } else {
@@ -327,6 +344,7 @@ export default class SampleMapper {
   }
 
   onMouseUp(e) {
+    this.saveSegments();
     this.dragging = false;
   }
 
@@ -349,7 +367,7 @@ export default class SampleMapper {
       const xnote = Math.round(x / this.notesize);
       const currSeg = this.segments[this.selectedSegment];
       this.segments.splice(this.selectedSegment + 1, 0, {
-        instrument: 0, 
+        instrument: this.segments.length, 
         start: xnote,
         end: currSeg.end,
       });
@@ -383,8 +401,9 @@ export default class SampleMapper {
     }
   }
 
-  setInstrument(instrument) {
-    this.instrument = instrument;
+  setInstrument(instrumentIndex) {
+    this.instrument = song.getInstrument(instrumentIndex);
+    this.instrumentIndex = instrumentIndex;
     this.updateSegments();
   }
 
@@ -396,7 +415,7 @@ export default class SampleMapper {
 
   onCursorChanged() {
     if (state.cursor.get("instrument") !== this.lastCursor.get("instrument")) {
-      this.setInstrument(song.song.instruments[state.cursor.get("instrument")]);
+      this.setInstrument(state.cursor.get("instrument"));
       this.selectedSegment = undefined;
       this.target.empty();
       this.render();
@@ -405,8 +424,16 @@ export default class SampleMapper {
   }
 
   onSongChanged() {
-    this.setInstrument(song.song.instruments[state.cursor.get("instrument")]);
+    this.setInstrument(state.cursor.get("instrument"));
     this.refresh();
+  }
+
+  onInstrumentChanged(instrumentIndex) {
+    if (instrumentIndex === this.instrumentIndex) {
+      this.setInstrument(instrumentIndex);
+      this.updateSegments();
+      this.redrawGraph();
+    }
   }
 
   onNoteDown(note) { 

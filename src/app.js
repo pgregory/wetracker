@@ -52,17 +52,47 @@ $(document).ready(() => {
       e.preventDefault();
     });
 
-    song.newSong();
+    MouseTrap.bind("mod+z", (e) => {
+      state.undo();
+    });
+
+    MouseTrap.bind("shift+mod+z", (e) => {
+      state.redo();
+    });
 
     window.requestAnimationFrame(() => {
       transport.refresh();
       tabs.refresh();
-      state.set({
-        transport: {
-          masterVolume: -10.0,
-        }
-      });
+
+      state.songChanged();
     });
+
+    song.newSong();
+
+    state.set({
+      transport: {
+        masterVolume: -10.0,
+      }
+    });
+
+    var curYPos, curXPos, curDown;
+
+    $('body').on('mousemove', function(e){ 
+      if(curDown){
+        window.scrollTo(document.body.scrollLeft + (curXPos - e.pageX), document.body.scrollTop + (curYPos - e.pageY));
+      }
+    });
+
+    $('.sidebar.left').on('mousedown', function(e){ 
+      curYPos = e.pageY; 
+      curXPos = e.pageX; 
+      curDown = true; 
+    });
+
+    $('body').on('mouseup', function(e){ 
+      curDown = false; 
+    });
+
   };
 
   let loadSong = function() {
@@ -79,7 +109,9 @@ $(document).ready(() => {
         song.downloadSong(url).then(function() {
           dialog.dialog( "close" );
           if(qs.play) {
-            player.play();
+            window.setTimeout(() => {
+              player.play();
+            }, 2000);
           }
         });
       } catch(e) {

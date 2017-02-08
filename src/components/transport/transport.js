@@ -43,7 +43,7 @@ export default class Transport {
   }
 
   render() {
-    $(this.target).append(transportTemplate.renderToString({transport: state.transport.toJS(), song: song.song}));
+    $(this.target).append(transportTemplate.renderToString({transport: state.transport.toJS(), songname: song.getSongName()}));
 
     $(this.target).find("#master-volume").slider({
       max: 3.0,
@@ -80,7 +80,7 @@ export default class Transport {
       player.play();
     });
     $(this.target).find('#play-pattern').click((e) => {
-      player.playPattern(state.cursor.get("pattern"));
+      player.playPattern(state.cursor.get("sequence"));
     });
     $(this.target).find('#pause').click((e) => {
       player.pause();

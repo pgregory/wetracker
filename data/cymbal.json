@@ -22,6 +22,7 @@
         "sustain": 0,
         "type": 2
     },
+    "fadeout": 255,
     "number": 18,
     "samplemap": {
         "0": 0,

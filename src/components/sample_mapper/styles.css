@@ -20,7 +20,7 @@
 }
 
 .sample-mapper .graph canvas.dragging {
-  cursor: crosshair;
+  cursor: ew-resize;
 }
 
 .sample-mapper .graph canvas.moveable {

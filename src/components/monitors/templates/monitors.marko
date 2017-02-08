@@ -1,14 +1,24 @@
-<if(data.song.tracks.length > 6)>
-  <var columns=Math.ceil(data.song.tracks.length / 2.0)/>
+<if(data.numtracks > 6)>
   <div class="monitors">
     <div class="monitors-row">
       <for(c from 0 to data.columns - 1)>
-        <div class="monitor"><canvas id="vu${c}" data-trackindex="${c}" style="width:100%;height:100%;" class="monitor-canvas"></canvas></div>
+        <div class="monitor">
+          <canvas id="vu${c}" data-trackindex="${c}" style="width:100%;height:100%;" class="monitor-canvas"></canvas>
+          <span class="track-name">${data.tracknames[c]}</span>
+        </div>
       </for>
     </div>
     <div class="monitors-row">
-      <for(c from data.columns to data.song.tracks.length - 1)>
-        <div class="monitor"><canvas id="vu${c}" data-trackindex="${c}" style="width:100%;height:100%;" class="monitor-canvas"></canvas></div>
+      <for(c from 0 to data.columns - 1)>
+        <if((c + data.columns) < data.numtracks)>
+          <div class="monitor">
+            <canvas id="vu${c + data.columns}" data-trackindex="${c + data.columns}" style="width:100%;height:100%;" class="monitor-canvas"></canvas>
+            <span class="track-name">${data.tracknames[c + data.columns]}</span>
+          </div>
+        </if>
+        <else>
+          <div class="monitor monitor-empty"></div>
+        </else>
       </for>
     </div>
   </div>
@@ -16,8 +26,11 @@
 <else>
   <div class="monitors">
     <div class="monitors-row">
-      <for(c from 0 to data.song.tracks.length - 1)>
-        <div class="monitor"><canvas id="vu${c}" data-trackindex="${c}" style="width:100%;height:100%;" class="monitor-canvas"></canvas></div>
+      <for(c from 0 to data.numtracks - 1)>
+        <div class="monitor">
+          <canvas id="vu${c}" data-trackindex="${c}" style="width:100%;height:100%;" class="monitor-canvas"></canvas>
+          <span class="track-name">${data.tracknames[c]}</span>
+        </div>
       </for>
     </div>
   </div>

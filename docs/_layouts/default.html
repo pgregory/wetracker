@@ -20,6 +20,12 @@
       <div class="grid">
         <aside class="cell -3of12" role="navigation">
           {% include navigation.html %}
+          {% for link in page.submenu %}
+            <a class="menu-item {% if url == link.url %}active{% endif %}"
+              role="menuitem" href="{{ link.url | prepend: site.baseurl }}" title="{{ link.title }}">
+              {{ link.text }} <div class="pull-right">»</div>
+            </a>
+          {%  endfor %}
         </aside>
 
         <main class="cell -9of12">

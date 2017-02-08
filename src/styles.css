@@ -5,14 +5,21 @@ html {
 body {
   display: flex;
   flex-direction: column;
-  height: 100%;
   background: black;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 #container {
   width: 100%;
   height: calc(100% - 30px);
   margin-top: 50px;
+  display: flex;
+  flex-direction: row;
 }
 
 #tabs {
@@ -22,6 +29,24 @@ body {
   margin-top: 30px;
   position: fixed;
   z-index: 100;
+}
+
+#tabscontainer {
+  flex: 1;
+}
+
+.sidebar {
+  width: 20px;
+  background-size: 20px auto;
+  background-repeat: repeat-y;
+}
+
+.sidebar.left {
+  background-image: url('../static/rail-l.png');
+}
+
+.sidebar.right {
+  background-image: url('../static/rail-r.png');
 }
 
 ul.tab {

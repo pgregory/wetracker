@@ -5,8 +5,8 @@
     </div>
     <div class="patterndata">
       <div class="track-names">
-        <div class="track-name" data-trackindex="${loop.getIndex()}" for(track in data.song.tracks | status-var=loop)>
-          <div>${track.name}</div>
+        <div class="track-name" data-trackindex="${loop.getIndex()}" for(i in data.tracknames | status-var=loop)>
+          <div>${i}</div>
         </div>
       </div> 
       <canvas id="gfxpattern"></canvas>
@@ -39,10 +39,14 @@
         <input
           id="length"
           class="range-input"
-          value="${data.pattern.numrows}"
+          value='${data.numrows}'
           type="text"
         />
       </div>
+    </div>
+    <div class="control-group horizontal-buttons">
+      <button id="add-track" class="fa fa-plus"></button>
+      <button id="remove-track" class="fa fa-minus"></button>
     </div>
   </div>
 </div>

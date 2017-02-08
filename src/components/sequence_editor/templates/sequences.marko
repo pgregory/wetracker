@@ -4,9 +4,9 @@
       <div class="sequence-top-padding">
         <div></div>
       </div>
-      <div class={"sequence-row": true, "current-pattern": data.cursor.sequence === loop.getIndex()} data-sequenceindex="${loop.getIndex()}" for(p in data.song.sequence | status-var=loop)>
+      <div class={"sequence-row": true, "current-pattern": data.cursor.sequence === loop.getIndex()} data-sequenceindex="${loop.getIndex()}" for(p in data.sequence | status-var=loop)>
         <div class="sequence-index"><div>${loop.getIndex()}</div></div>
-        <div class="sequence-pattern"><div>${p.pattern}</div></div>
+        <div class="sequence-pattern"><div>${p}</div></div>
       </div>
       <div class="sequence-bottom-padding">
         <div></div>

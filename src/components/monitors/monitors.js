@@ -11,23 +11,31 @@ import styles from './styles.css';
 
 export default class Monitors {
   constructor(target) {
-    this._scope_width = 50,
     this.target = target;
+    this.tracks = {
+      t: 0,
+      VU: [],
+      scopes: []
+    };
+    this.trackNames = song.getTrackNames();
+    this.scopes = [];
 
-    Signal.connect(state, "tracksChanged", this, "onTracksChanged");
+    Signal.connect(player, "tracksChanged", this, "onTracksChanged");
     Signal.connect(song, "trackChanged", this, "onTrackChanged");
     Signal.connect(song, "songChanged", this, "onSongChanged");
   }
 
   render() {
     $(this.target).addClass('monitors');
-    var columns = Math.ceil(song.song.tracks.length / 2.0);
-    $(this.target).append(monitorsTemplate.renderToString({song: song.song, columns}));
+    const numtracks = song.getNumTracks();
+    const columns = Math.ceil(numtracks / 2.0);
+    $(this.target).append(monitorsTemplate.renderToString({numtracks, columns, tracknames: this.trackNames}));
 
-    for (var j = 0; j < song.song.tracks.length; j++) {
+    for (var j = 0; j < numtracks; j++) {
       var canvas = document.getElementById(`vu${j}`);
       canvas.width = canvas.offsetWidth;
       canvas.height = canvas.offsetHeight;
+      this.scopes[j] = canvas;
     }
 
     this.renderMonitors();
@@ -53,40 +61,32 @@ export default class Monitors {
     player.toggleSoloTrack(index);
   }
 
-  onTracksChanged() {
-    this.renderMonitors();
+  onTracksChanged(tracks) {
+    this.tracks = tracks;
+    this.refresh();
   }
 
   onTrackChanged() {
-    this.renderMonitors();
-  }
-
-  renderTrackName(track, ctx) {
-    ctx.font = "10px monospace";
-    ctx.fillStyle = '#888';
-    ctx.textAlign = 'start';
-    ctx.textBaseline = 'top';
-    ctx.fillText(track.name, 2, 2);
+    this.trackNames = song.getTrackNames();
+    this.refresh();
   }
 
   renderMonitors() {
-    var e = state.tracks;
+    var e = this.tracks;
+    const numtracks = song.getNumTracks();
     // update VU meters & oscilliscopes
-    for (var j = 0; j < song.song.tracks.length; j++) {
-      var canvas = document.getElementById(`vu${j}`);
-      var ctx = canvas.getContext("2d");
+    for (let j = 0; j < numtracks; j += 1) {
+      var canvas = this.scopes[j]; //document.getElementById(`vu${j}`);
+      var ctx = canvas.getContext("2d", {alpha: false});
       var ch = player.tracks[j];
-      let track = song.song.tracks[j];
 
       ctx.fillStyle = '#000';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      this.renderTrackName(track, ctx);
-
-      if([MUTE, SILENT].indexOf(e.getIn(['states', j, 'state'])) !== -1) {
+      if('states' in e && [MUTE, SILENT].indexOf(e.states[j].state) !== -1) {
         let text = "MUTE";
         let color = "#900";
-        if (e.getIn(['states', j, 'state']) === SILENT) {
+        if (e.states[j].state === SILENT) {
           text = "SILENT";
           color = "#099";
         }
@@ -113,29 +113,26 @@ export default class Monitors {
         //var vu_y = -Math.log(e.vu[j])*10;
         //ctx.fillRect(10, vu_y, 5, canvas.height-vu_y);
         
-        const scopeData = e.getIn(['scopes', j, 'scopeData']);
-        const bufferLength = e.getIn(['scopes', j, 'bufferLength']);
+        const cho2 = canvas.height / 2;
+        
+        if ('scopes' in e && j < e.scopes.length && 'scopeData' in e.scopes[j]) {
+          const scopeData = e.scopes[j].scopeData;
+          const bufferLength = e.scopes[j].bufferLength;
+          
 
-        ctx.beginPath();
+          const sliceWidth = canvas.width * (1.0 / (bufferLength - 1));
+          let x = 0;
+          let y = (scopeData[0] / 128.0) * cho2;
 
-        const sliceWidth = canvas.width * (1.0 / (bufferLength - 1));
-        let x = 0;
-
-        for (var i = 0; i < bufferLength; i++) {
-
-          const v = scopeData[i] / 128.0;
-          const y = v * canvas.height / 2;
-
-          if (i === 0) {
-            ctx.moveTo(x, y);
-          } else {
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+          for (var i = 1; i < bufferLength; i++) {
+            y = (scopeData[i] / 128.0) * cho2;
             ctx.lineTo(x, y);
+            x += sliceWidth;
           }
-
-          x += sliceWidth;
+          ctx.stroke(); 
         }
-
-        ctx.stroke(); 
       }
     }
   }
@@ -146,6 +143,7 @@ export default class Monitors {
   }
 
   onSongChanged() {
+    this.trackNames = song.getTrackNames();
     this.refresh();
   }
 }

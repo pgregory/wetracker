@@ -12,23 +12,14 @@ export default class InstrumentControls {
   constructor(target) {
     this.target = target;
     this.lastCursor = state.cursor;
+    this.instrumentIndex = undefined;
     this.instrument = undefined;
 
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
   }
 
   render() {
-    const cur_instr = state.cursor.get("instrument");
-
-    try {
-      this.instrument = song.song.instruments[cur_instr];
-
-      if (this.instrument && 'samples' in this.instrument && this.instrument.samples.length > 0) {
-        $(this.target).append(controlsTemplate.renderToString({instrument: this.instrument}));
-      }
-    } catch(e) {
-      console.log(e);
-    }
+    $(this.target).append(controlsTemplate.renderToString({instrument: this.instrument}));
   }
 
   refresh() {
@@ -36,8 +27,14 @@ export default class InstrumentControls {
     this.render();
   }
 
+  setInstrument(instrumentIndex) {
+    this.instrumentIndex = instrumentIndex;
+    this.instrument = song.getInstrument(instrumentIndex);
+  }
+
   onCursorChanged() {
     if (state.cursor.get("instrument") !== this.lastCursor.get("instrument")) {
+      this.setInstrument(state.cursor.get("instrument"));
       this.target.empty();
       this.render();
       this.lastCursor = state.cursor;
@@ -45,6 +42,7 @@ export default class InstrumentControls {
   }
 
   onSongChanged() {
+    this.setInstrument(state.cursor.get("instrument"));
     this.refresh();
   }
 }

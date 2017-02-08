@@ -9,6 +9,12 @@
         {{ link.text }} <div class="pull-right">»</div>
       </a>
     {% endfor %}
+    {% if submenu %}
+      <div class="t-hackcss-submenu-separator"></div>
+      <div class="t-hackcss-submenu">
+        {{ submenu }}
+      </div>
+    {% endif %}
   </nav>
 
 </div>

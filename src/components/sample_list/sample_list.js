@@ -52,7 +52,14 @@ export default class SampleList {
       });
     });
 
-    target.find('#add-sample').click((e) => song.addSampleToInstrument(this.cur_instr));
+    target.find('#add-sample').click((e) => {
+      const sampid = song.addSampleToInstrument(this.cur_instr)
+      state.set({
+        cursor: {
+          sample: sampid,
+        }
+      });
+    });
 
 
     target.find('#load-sample').click((e) => {
@@ -105,7 +112,7 @@ export default class SampleList {
 
   updateSample() {
     this.cur_instr = state.cursor.get("instrument");
-    this.instrument = song.song.instruments[this.cur_instr];
+    this.instrument = song.getInstrument(this.cur_instr);
   }
 
   scrollToSample(sample) {

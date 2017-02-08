@@ -25,9 +25,14 @@ export default class InstrumentList {
     const target = $(this.target);
     target.addClass('instrument-list');
 
-    target.append(instrumentsTemplate.renderToString({song: song.song, cursor: state.cursor.toJS()}));
+    const instrumentnames = song.getInstrumentNames();
+    target.append(instrumentsTemplate.renderToString({instrumentnames, cursor: state.cursor.toJS()}));
 
-    this.rowHeight = target.find(".instrument-row")[0].clientHeight;
+    try {
+      this.rowHeight = target.find(".instrument-row")[0].clientHeight;
+    } catch(e) {
+      this.rowHeight = 0;
+    }
 
     const containerHeight = target.find(".instruments-list").height();
     target.find(".instruments-top-padding div").height((containerHeight - this.rowHeight)/2.0);
@@ -46,7 +51,15 @@ export default class InstrumentList {
       });
     });
 
-    target.find('#add-instrument').click((e) => song.addInstrument());
+    target.find('#add-instrument').click((e) => {
+      const instr = song.addInstrument()
+      state.set({
+        cursor: {
+          instrument: instr,
+          sample: 0,
+        }
+      });
+    });
 
     target.find('.instrument-name div').inlineEdit({
       accept: function(val) {
@@ -58,6 +71,8 @@ export default class InstrumentList {
       },
     });
 
+    this.scrollToInstrument(state.cursor.get("instrument"));
+
     this.lastCursor = state.cursor.toJS();
   }
 
@@ -66,19 +81,24 @@ export default class InstrumentList {
     this.render();
   }
 
-  onSongChanged() {
-    this.refresh();
-  }
-
   onInstrumentListChanged() {
     this.refresh();
   }
 
+  onSongChanged() {
+    this.refresh();
+  }
+
+  scrollToInstrument(instrument) {
+    const target = $(this.target);
+    target.find(".current-instrument").removeClass('current-instrument');
+    target.find(".instrument-row").eq(instrument).addClass('current-instrument');
+    target.find(".instruments-list").scrollTop(instrument * this.rowHeight);
+  }
+
   onCursorChanged() {
     if (state.cursor.get("instrument") !== this.lastCursor.instrument) {
-      $(this.target).find(".current-instrument").removeClass('current-instrument');
-      $(this.target).find(".instrument-row").eq(state.cursor.get("instrument")).addClass('current-instrument');
-      $(this.target).find(".instruments-list").scrollTop(state.cursor.get("instrument")*this.rowHeight);
+      this.scrollToInstrument(state.cursor.get("instrument"));
     }
     this.lastCursor = state.cursor.toJS();
   }
@@ -86,13 +106,14 @@ export default class InstrumentList {
   onScroll(e) {
     this.yoff += e.originalEvent.deltaY;
     var row = Math.floor((this.yoff) / this.rowHeight);
-    var maxrow = song.song.instruments.length;
+    var maxrow = song.getNumInstruments();
     row = ((row % maxrow) + maxrow) % maxrow;
 
     if(row !== this.lastCursor.instrument) {
       state.set({
         cursor: {
           instrument: row,
+          sample: 0,
         }
       });
     }

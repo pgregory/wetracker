@@ -27,6 +27,7 @@ export default class EnvelopeWidget {
 
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
     Signal.connect(song, "songChanged", this, "onSongChanged");
+    Signal.connect(song, "instrumentChanged", this, "onInstrumentChanged");
   }
 
   renderGridAndAxes() {
@@ -184,7 +185,8 @@ export default class EnvelopeWidget {
   changeOptions() {
     if (this.envelope) {
       const on = $(this.target).find("input:checkbox#on")[0].checked;
-      this.envelope.type = (this.envelope.type & 0xFE);
+
+      this.envelope.type = this.envelope.type & 0xFE;
       if (on) {
         this.envelope.type = this.envelope.type | 0x1;
       }
@@ -203,11 +205,12 @@ export default class EnvelopeWidget {
         this.envelope.type = this.envelope.type | 0x4;
       }
       const loopStart = parseInt($(this.target).find("input#loop-start-point")[0].value);
-      this.envelope.loopstart = loopStart;
       const loopEnd = parseInt($(this.target).find("input#loop-end-point")[0].value);
+
+      this.envelope.loopstart = loopStart;
       this.envelope.loopend = loopEnd;
 
-      song.updateInstrument(this.instrumentIndex);
+      song.updateInstrument(this.instrumentIndex, this.instrument);
     }
   }
 
@@ -296,6 +299,9 @@ export default class EnvelopeWidget {
   }
 
   onMouseUp(e) {
+    if(this.dragging) {
+      song.updateInstrument(this.instrumentIndex, this.instrument);
+    }
     this.dragging = false;
   }
 
@@ -310,6 +316,8 @@ export default class EnvelopeWidget {
         this.envelope.points.splice((point * 2), 2);
       }
     }
+
+    song.updateInstrument(this.instrumentIndex, this.instrument);
   }
 
   addPointToCurve(x, y) {
@@ -325,6 +333,8 @@ export default class EnvelopeWidget {
         this.envelope.points.splice(index, 0, x, y);
       }
     }
+
+    song.updateInstrument(this.instrumentIndex, this.instrument);
   }
 
   setCurvePoint(index, x, y) {
@@ -344,6 +354,8 @@ export default class EnvelopeWidget {
 
     this.envelope.points[index * 2] = curveX;
     this.envelope.points[(index * 2) + 1] = y;
+
+    //song.updateInstrument(this.instrumentIndex, this.instrument);
   }
 
   curvePointToCanvas(pointIndex) {
@@ -412,8 +424,9 @@ export default class EnvelopeWidget {
     return val;
   }
 
-  setInstrument(instrument) {
-    this.instrument = instrument;
+  setInstrument(instrumentIndex) {
+    this.instrumentIndex = instrumentIndex;
+    this.instrument = song.getInstrument(instrumentIndex);
   }
 
   refresh() {
@@ -423,8 +436,7 @@ export default class EnvelopeWidget {
 
   onCursorChanged() {
     if (state.cursor.get("instrument") !== this.lastCursor.get("instrument")) {
-      this.instrumentIndex = state.cursor.get("instrument");
-      this.setInstrument(song.song.instruments[this.instrumentIndex]);
+      this.setInstrument(state.cursor.get("instrument"));
       this.target.empty();
       this.render();
       this.lastCursor = state.cursor;
@@ -432,7 +444,14 @@ export default class EnvelopeWidget {
   }
 
   onSongChanged() {
-    this.setInstrument(song.song.instruments[state.cursor.get("instrument")]);
+    this.setInstrument(state.cursor.get("instrument"));
     this.refresh();
+  }
+
+  onInstrumentChanged(instrumentIndex) {
+    if (instrumentIndex === this.instrumentIndex) {
+      this.setInstrument(instrumentIndex);
+      this.refresh();
+    }
   }
 }
