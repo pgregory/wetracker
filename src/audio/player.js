@@ -100,7 +100,7 @@ class XMViewObject {
 
   pushEvent(e) {
     this.audio_events.push(e);
-    if(this.audio_events.length == 1) {
+    if(this.audio_events.length === 1 || e.t === -1) {
       window.requestAnimationFrame(this.redrawScreen);
     }
   }
@@ -670,7 +670,7 @@ class Player {
         this.nextInteractiveTickTime += msPerTick;
       }
       this.XMView.pushEvent({
-        t: this.nextInteractiveTickTime,
+        t: -1,
       });
     }
   }
@@ -1072,7 +1072,7 @@ class Player {
         this.tracks[index].gainNode.gain.value = 0;
       }
       this.XMView.pushEvent({
-        t: this.audioctx.currentTime,
+        t: -1,
       });
     }
   }
@@ -1124,7 +1124,7 @@ class Player {
         }
       }
       this.XMView.pushEvent({
-        t: this.audioctx.currentTime,
+        t: -1,
       });
     }
   }
@@ -1228,7 +1228,7 @@ class Player {
     }
 
     this.XMView.pushEvent({
-      t: this.audioctx.currentTime,
+      t: -1,
     });
   }
 
