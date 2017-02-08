@@ -70,45 +70,51 @@ export default class EffectsEditor {
     ];
 
     try {
-      this.track = song.song.tracks[cur_track];
+      //this.track = song.song.tracks[cur_track];
 
       //if (this.track && 'effects' in this.track && this.track.effects.length > 0) {
-        $(this.target).append(template.renderToString({track: this.track, effects}));
+        $(this.target).append(template.renderToString({/*track: this.track,*/ effects}));
         let rateSlider = $("#rate-slider").slider({
           min: 0.01,
           max: 8,
           step: 0.01,
-          value: 1.5,
+          value: player.chorus.rate.value,
           slide: (event, ui) => {
             $("#rate-value").val(ui.value);
+            player.chorus.rate = ui.value;
           }
         });
         $("#rate-value").on("change", (e) => {
           rateSlider.slider("value", $(e.target).val());
+          player.chorus.rate = $(e.target).val();
         });
         let feedbackSlider = $("#feedback-slider").slider({
           min: 0,
           max: 1,
           step: 0.001,
-          value: 0.2,
+          value: player.chorus.feedback,
           slide: (event, ui) => {
             $("#feedback-value").val(ui.value);
+            player.chorus.feedback = ui.value;
           }
         });
         $("#feedback-value").on("change", (e) => {
           feedbackSlider.slider("value", $(e.target).val());
+          player.chorus.feedback = $(e.target).val();
         });
         let delaySlider = $("#delay-slider").slider({
           min: 0,
           max: 1,
           step: 0.001,
-          value: 0.0045,
+          value: player.chorus.delay,
           slide: (event, ui) => {
             $("#delay-value").val(ui.value);
+            player.chorus.delay = ui.value;
           }
         });
         $("#delay-value").on("change", (e) => {
           delaySlider.slider("value", $(e.target).val());
+          player.chorus.delay = $(e.target).val();
         });
         $("#bypass").on("change", (e) => {
           player.chorus.bypass = !e.target.checked;
