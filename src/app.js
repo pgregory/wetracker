@@ -44,11 +44,24 @@ $(document).ready(() => {
     $('#instruments-view').append($(instrumentsViewTemplate.renderToString()));
 
     MouseTrap.bind("space", (e) => {
-      state.set({
-        cursor: {
-          record: !state.cursor.get("record"),
-        }
-      });
+      if(player.playing) {
+        player.pause();
+      } else {
+        state.set({
+          cursor: {
+            record: !state.cursor.get("record"),
+          }
+        });
+      }
+      e.preventDefault();
+    });
+
+    MouseTrap.bind("enter", (e) => {
+      if(!player.playing) {
+        player.play();
+      } else {
+        player.pause();
+      }
       e.preventDefault();
     });
 
