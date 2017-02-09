@@ -63,7 +63,7 @@ export default class Monitors {
 
   onTracksChanged(tracks) {
     this.tracks = tracks;
-    this.refresh();
+    this.renderMonitors();
   }
 
   onTrackChanged() {
