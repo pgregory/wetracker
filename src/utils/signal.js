@@ -40,7 +40,9 @@ export function signal(stateful) {
       var fun = slots[j][1];
       try{
         fun.apply(obj,arglist);
-      }catch(e){}
+      }catch(e){
+        console.log(e);
+      }
     }
   }
   /* _signal.connect: Function
