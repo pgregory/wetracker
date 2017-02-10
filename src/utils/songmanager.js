@@ -165,6 +165,17 @@ export class SongManager {
     }
   }
 
+  deleteRow(row) {
+    if(row >= 0 && row < this.getPatternRowCount(state.cursor.get("pattern"))) {
+      state.set({
+        song: {
+          patterns: state.song.get("patterns").deleteIn([state.cursor.get("pattern"), "rows", row]),
+        }
+      }, "Delete row");
+      this.patternChanged();
+    }
+  }
+
   setHexValueAtCursor(cursor, value) {
     const eventItem = this.eventIndices[cursor.item].itemIndex;
     if (eventItem < this.eventEntries.length) {
