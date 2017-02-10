@@ -65,6 +65,9 @@ module.exports = {
     }, {
       test: /\.marko$/,
       loader: "marko-loader"
+    }, {
+      test: /\.lz4$/,
+      loader: "arraybuffer-loader"
     }]
   },
   node: {
