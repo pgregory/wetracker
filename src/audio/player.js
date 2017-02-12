@@ -682,7 +682,7 @@ class Player {
         let i = this.playingInstruments.length;
         while (i--) {
           if (this.playingInstruments[i].updateVolumeEnvelope(this.nextInteractiveTickTime)) {
-            this.playingInstruments.splice(i, 1);
+            this.stopInteractiveInstrument(this.playingInstruments[i]);
           }
         }
         this.nextInteractiveTickTime += msPerTick;
@@ -709,7 +709,6 @@ class Player {
     for (let i = this.playingInstruments.length - 1; i >= 0; i -= 1) {
       if(this.playingInstruments[i].release) {
         this.playingInstruments[i].stop(time);
-        this.playingInstruments.splice(i, 1);
       }
     }
 
