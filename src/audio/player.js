@@ -509,6 +509,12 @@ class Track {
 
   buildEffectChain(effects) {
     this.effectChain = [];
+    if(this.effectChain.length > 0) {
+      this.gainNode.disconnect(this.effectChain[0]);
+    }
+    for(let i = 0; i < this.effectChain.length; i += 1) {
+      this.effectChain[i].disconnect();
+    }
     this.gainNode.connect(this.analyser);
     for (let i = 0; i < effects.length; i += 1) {
       let fx = effects[i].createEffectNode(player.tuna);
