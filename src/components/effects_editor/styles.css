@@ -31,6 +31,7 @@
   border-radius: 3px;
   flex: 0 0 auto;
   min-width: 200px;
+  margin-right: 3px;
 }
 
 .effect-control-panel .effect-header {
