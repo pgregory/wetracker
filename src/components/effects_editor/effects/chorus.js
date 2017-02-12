@@ -14,57 +14,32 @@ export class ChorusEffectUI {
     this.effectChanged = Signal.signal(false);
   }
 
+  bindParameterToUI(element, textElement, min, max, step, paramName) {
+    let paramSlider = this.panel.find(element).slider({
+      min,
+      max,
+      step,
+      value: this.effect.parameters[paramName],
+      slide: (event, ui) => {
+        this.panel.find(textElement).val(ui.value);
+        this.effect.parameters[paramName] = ui.value;
+        this.effectChanged(this.location, this.effect);
+      }
+    });
+    this.panel.find(textElement).on("change", (e) => {
+      paramSlider.slider("value", $(e.target).val());
+      this.effect.parameters[paramName] = $(e.target).val();
+      this.effectChanged(this.location, this.effect);
+    });
+  }
+
   render() {
-    $(this.target).append(template.renderToString());
-    let rateSlider = $("#rate-slider").slider({
-      min: 0.01,
-      max: 8,
-      step: 0.01,
-      value: this.effect.parameters.rate,
-      slide: (event, ui) => {
-        $("#rate-value").val(ui.value);
-        this.effect.parameters.rate = ui.value;
-        this.effectChanged(this.location, this.effect);
-      }
-    });
-    $("#rate-value").on("change", (e) => {
-      rateSlider.slider("value", $(e.target).val());
-      this.effect.parameters.rate = $(e.target).val();
-      this.effectChanged(this.location, this.effect);
-    });
-    let feedbackSlider = $("#feedback-slider").slider({
-      min: 0,
-      max: 1,
-      step: 0.001,
-      value: this.effect.parameters.feedback,
-      slide: (event, ui) => {
-        $("#feedback-value").val(ui.value);
-        this.effect.parameters.feedback = ui.value;
-        this.effectChanged(this.location, this.effect);
-      }
-    });
-    $("#feedback-value").on("change", (e) => {
-      feedbackSlider.slider("value", $(e.target).val());
-      this.effect.parameters.feedback = $(e.target).val();
-      this.effectChanged(this.location, this.effect);
-    });
-    let delaySlider = $("#delay-slider").slider({
-      min: 0,
-      max: 1,
-      step: 0.001,
-      value: this.effect.parameters.delay,
-      slide: (event, ui) => {
-        $("#delay-value").val(ui.value);
-        this.effect.parameters.delay = ui.value;
-        this.effectChanged(this.location, this.effect);
-      }
-    });
-    $("#delay-value").on("change", (e) => {
-      delaySlider.slider("value", $(e.target).val());
-      this.effect.parameters.delay = $(e.target).val();
-      this.effectChanged(this.location, this.effect);
-    });
-    $("#bypass").on("change", (e) => {
+    this.panel = $(template.renderToString());
+    $(this.target).append(this.panel);
+    this.bindParameterToUI("#rate-slider", "#rate-value", 0.01, 8, 0.01, "rate");
+    this.bindParameterToUI("#feedback-slider", "#feedback-value", 0, 1, 0.001, "feedback");
+    this.bindParameterToUI("#delay-slider", "#delay-value", 0, 1, 0.001, "delay");
+    this.panel.find("#bypass").on("change", (e) => {
       this.effect.bypass = !e.target.checked;
       this.effectChanged(this.location, this.effect);
     });

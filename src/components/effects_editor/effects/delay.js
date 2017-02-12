@@ -15,18 +15,18 @@ export class DelayEffectUI {
   }
 
   bindParameterToUI(element, textElement, min, max, step, paramName) {
-    let paramSlider = $(element).slider({
+    let paramSlider = this.panel.find(element).slider({
       min,
       max,
       step,
       value: this.effect.parameters[paramName],
       slide: (event, ui) => {
-        $(textElement).val(ui.value);
+        this.panel.find(textElement).val(ui.value);
         this.effect.parameters[paramName] = ui.value;
         this.effectChanged(this.location, this.effect);
       }
     });
-    $(textElement).on("change", (e) => {
+    this.panel.find(textElement).on("change", (e) => {
       paramSlider.slider("value", $(e.target).val());
       this.effect.parameters[paramName] = $(e.target).val();
       this.effectChanged(this.location, this.effect);
@@ -34,13 +34,14 @@ export class DelayEffectUI {
   }
 
   render() {
-    $(this.target).append(template.renderToString());
+    this.panel = $(template.renderToString());
+    $(this.target).append(this.panel);
     this.bindParameterToUI("#delay-slider", "#delay-value", 1, 10000, 1, "delay");
     this.bindParameterToUI("#feedback-slider", "#feedback-value", 0, 1, 0.001, "feedback");
     this.bindParameterToUI("#wet-slider", "#wet-value", 0, 1, 0.001, "wet");
     this.bindParameterToUI("#dry-slider", "#dry-value", 0, 1, 0.001, "dry");
     this.bindParameterToUI("#cutoff-slider", "#cutoff-value", 20, 22050, 1, "cutoff");
-    $("#bypass").on("change", (e) => {
+    this.panel.find("#bypass").on("change", (e) => {
       this.effect.bypass = !e.target.checked;
       this.effectChanged(this.location, this.effect);
     });
