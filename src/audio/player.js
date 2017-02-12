@@ -9,6 +9,9 @@ import TimerWorker from 'shared-worker!./timerworker';
 
 import Tuna from 'tunajs';
 
+import { ChorusEffectNode } from '../components/effects_editor/effects/chorus';
+import { DelayEffectNode } from '../components/effects_editor/effects/delay';
+
 export const SILENT = 'silent';
 export const SOLO = 'solo';
 export const MUTE = 'mute';
@@ -235,6 +238,10 @@ class PlayerInstrument {
     this.gainNode.gain.linearRampToValueAtTime(vol, time);
     this.panningNode.pan.linearRampToValueAtTime(pan, time);
 
+    if (this.release && (volE <= 0)) {
+      return true;
+    }
+
     return false;
   }
 
@@ -443,6 +450,8 @@ class Track {
     this.gainNode.connect(this.analyser);
     this.analyser.connect(destination);
     this.gainNode.gain.value = 1.0;
+
+    this.effectChain = [];
   }
 
   updateAnalyserScopeData() {
@@ -496,6 +505,21 @@ class Track {
         },
       };
     }
+  }
+
+  buildEffectChain(effects) {
+    this.effectChain = [];
+    this.gainNode.connect(this.analyser);
+    for (let i = 0; i < effects.length; i += 1) {
+      let fx = effects[i].createEffectNode(player.tuna);
+      if (i > 0) {
+        this.effectChain[i - 1].fx.connect(fx.fx);
+      }
+      this.effectChain.push(fx);
+    }
+    // Link into the node tree.
+    this.gainNode.connect(this.effectChain[0].fx);
+    this.effectChain[this.effectChain.length - 1].fx.connect(this.analyser);
   }
 }
 
@@ -606,17 +630,8 @@ class Player {
     this.gainNode = this.audioctx.createGain();
     this.gainNode.gain.value = 0.5;  // master volume
 
-    this.chorus = new this.tuna.Chorus({
-      rate: 1.5,
-      feedback: 0.2,
-      delay: 0.0045,
-      bypass: 0
-    });
-
     this.masterGain = this.audioctx.createGain();
-
-    this.masterGain.connect(this.chorus);
-    this.chorus.connect(this.audioctx.destination);
+    this.masterGain.connect(this.audioctx.destination);
 
     this.playing = false;
     this.lookahead = 25;
@@ -648,6 +663,8 @@ class Player {
     Signal.connect(song, 'speedChanged', this, 'onSpeedChanged');
     Signal.connect(song, 'instrumentChanged', this, 'onInstrumentChanged');
     Signal.connect(song, 'instrumentListChanged', this, 'onInstrumentListChanged');
+    Signal.connect(song, 'trackEffectChainChanged', this, 'onTrackEffectChainChanged');
+    Signal.connect(song, 'trackEffectChanged', this, 'onTrackEffectChanged');
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
     Signal.connect(state, "transportChanged", this, "onTransportChanged");
   }
@@ -1274,6 +1291,24 @@ class Player {
     if (this.masterVolume !== state.transport.get("masterVolume")) {
       this.masterVolume = state.transport.get("masterVolume");
       this.setMasterVolume(state.transport.get("masterVolume"));
+    }
+  }
+
+  onTrackEffectChainChanged(trackIndex) {
+    try {
+      let effects = song.getTrackEffects(trackIndex);
+      this.tracks[trackIndex].buildEffectChain(effects);
+    } catch(e) {
+      console.log(e);
+    }
+  }
+
+  onTrackEffectChanged(track, index, effect) {
+    try {
+      let fx = this.tracks[track].effectChain[index];
+      fx.updateFromParameterObject(effect);
+    } catch(e) {
+      console.log(e);
     }
   }
 

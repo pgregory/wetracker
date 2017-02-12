@@ -8,7 +8,8 @@ import { player } from '../../audio/player';
 
 import template from './templates/effects_editor.marko';
 
-import ChorusEffect from './effects/chorus.js';
+import { ChorusEffectUI, ChorusEffectParameterObject, chorusEffectName, chorusEffectType } from './effects/chorus.js';
+import { DelayEffectUI, DelayEffectParameterObject, delayEffectName, delayEffectType } from './effects/delay.js';
 
 import styles from './styles.css';
 
@@ -19,67 +20,55 @@ export default class EffectsEditor {
     this.track = undefined;
 
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
+    Signal.connect(song, "songChanged", this, "onSongChanged");
+    Signal.connect(song, "trackEffectChainChanged", this, "onTrackEffectChainChanged");
   }
 
   render() {
     const cur_track = state.cursor.get("track");
     const effects = [
       {
-        name: "Overdrive",
+        name: chorusEffectName,
+        type: chorusEffectType,
+        constructor: ChorusEffectUI,
+        poConstructor: ChorusEffectParameterObject,
       },
       {
-        name: "Filter",
+        name: delayEffectName,
+        type: delayEffectType,
+        constructor: DelayEffectUI,
+        poConstructor: DelayEffectParameterObject,
       },
-      {
-        name: "Cabinet",
-      },
-      {
-        name: "Delay",
-      },
-      {
-        name: "Reverb",
-      },
-      {
-        name: "Compressor",
-      },
-      {
-        name: "WahWah",
-      },
-      {
-        name: "Tremolo",
-      },
-      {
-        name: "Phaser",
-      },
-      {
-        name: "Chorus",
-      },
-      {
-        name: "Bitcrusher",
-      },
-      {
-        name: "Moog Filter",
-      },
-      {
-        name: "Ping Pong Delay",
-      },
-      {
-        name: "Panner",
-      },
-      {
-        name: "Gain",
-      }
     ];
 
     try {
       $(this.target).append(template.renderToString({effects}));
       let trackEffects = song.getTrackEffects(0);
       for (let i = 0; i < trackEffects.length; i += 1) {
-        let chorus = new ChorusEffect($(this.target).find("#effects-chain"), trackEffects[i]);
-        chorus.render();
+        let fxIndex = effects.findIndex((e) => e.type === trackEffects[i].type);
+        if (fxIndex !== -1) {
+          let fx = new effects[fxIndex].constructor($(this.target).find("#effects-chain"), trackEffects[i], { type: "track", track: 0, index: i });
+          Signal.connect(fx, "effectChanged", this, "onEffectInterfaceChanged");
+          fx.render();
+        }
       }
+
+      $(this.target).find(".effect-name").dblclick((e) => {
+        let fxIndex = $(e.target).data("fxindex");
+        song.appendEffectToTrackChain(state.cursor.get("track"), new effects[fxIndex].poConstructor());
+      });
     } catch(e) {
       console.log(e);
+    }
+  }
+
+  onEffectInterfaceChanged(location, effect) {
+    if (location.type === "track" && "track" in location) {
+      try {
+        song.updateTrackEffect(location.track, location.index, effect);
+      } catch(e) {
+        console.log(e);
+      }
     }
   }
 
@@ -97,6 +86,11 @@ export default class EffectsEditor {
   }
 
   onSongChanged() {
+    this.refresh();
+  }
+
+  onTrackEffectChainChanged(trackIndex) {
+    // TODO: Check if the changed track is currently displayed.
     this.refresh();
   }
 }

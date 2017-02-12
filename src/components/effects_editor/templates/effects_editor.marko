@@ -1,6 +1,6 @@
 <div class="effects-editor">
   <div class="effects-list">
-    <div class="effect-name" for(effect in data.effects)>${effect.name}</div>
+    <div class="effect-name" data-fxindex="${loop.getIndex()}" for(effect in data.effects | status-var=loop)>${effect.name}</div>
   </div>
   <div id="effects-chain" class="effects-chain">
   </div>

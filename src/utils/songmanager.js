@@ -25,6 +25,8 @@ export class SongManager {
     this.sequenceItemChanged = Signal.signal(false);
     this.trackChanged = Signal.signal(false);
     this.patternChanged = Signal.signal(false);
+    this.trackEffectChainChanged = Signal.signal(false);
+    this.trackEffectChanged = Signal.signal(false);
 
     Signal.connect(state, "songChanged", this, "onStateSongChanged");
 
@@ -58,6 +60,7 @@ export class SongManager {
   }
 
   onStateSongChanged() {
+    this.songChanged();
   }
 
   eventItemName(item) {
@@ -961,8 +964,44 @@ export class SongManager {
    * Get track effects
    */
   getTrackEffects(index) {
-    return state.song.getIn(["tracks", index, "effects"]).toJS();
+    try {
+      return state.song.getIn(["tracks", index, "effects"]).toJS();
+    } catch(e) {
+      return [];
+    }
+  }
+
+  /**
+   * Append a new effect to the end of the chain on the specified track.
+   */
+  appendEffectToTrackChain(trackIndex, effect) {
+    try {
+      let effects = new Immutable.List();
+      if (state.song.hasIn(["tracks", trackIndex, "effects"])) {
+        effects = state.song.getIn(["tracks", trackIndex, "effects"]);
+      }
+      state.set({
+        song: state.song.setIn(["tracks", trackIndex, "effects"], effects.push(effect)),
+      });
+      this.trackEffectChainChanged(trackIndex);
+    } catch(e) {
+      console.log(e);
+    }
+  }
+
+  /** 
+   * Update the effect data for an effect in the chain associated with the given track.
+   */
+  updateTrackEffect(track, index, effect) {
+    try {
+      state.song.setIn(["tracks", track, "effects", index], effect);
+    } catch(e) {
+      console.log(e);
+    }
+    this.trackEffectChanged(track, index, effect);
   }
 }
+
+
 
 export let song = new SongManager(); 

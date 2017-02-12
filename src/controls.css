@@ -14,6 +14,10 @@
   flex-shrink: 0;
 }
 
+.control-group.horizontal {
+  flex-direction: row;
+}
+
 .horizontal-buttons {
   flex-direction: row;
   padding: 3px;
@@ -88,4 +92,8 @@ input.inline-editor:focus {
 .control select {
   border: 1px solid black;
   color: #888;
+}
+
+.control .slider {
+  min-width: 100px;
 }
