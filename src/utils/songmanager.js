@@ -2,11 +2,9 @@ import $ from 'jquery';
 import LZ4 from 'lz4-asm';
 import textEncoding from 'text-encoding';
 
-import songdata from '../../data/song.json';
-import cymbal from '../../data/cymbal.json';
-import pad from '../../data/instrument_3.json';
+import defsong from '../../data/defaultsong.lz4';
 
-import {encode, decode} from 'base64-arraybuffer';
+import {encode, decode} from 'tab64';
 
 import Signal from '../utils/signal';
 import Immutable from 'immutable';
@@ -167,6 +165,17 @@ export class SongManager {
     }
   }
 
+  deleteRow(row) {
+    if(row >= 0 && row < this.getPatternRowCount(state.cursor.get("pattern"))) {
+      state.set({
+        song: {
+          patterns: state.song.get("patterns").deleteIn([state.cursor.get("pattern"), "rows", row]),
+        }
+      }, "Delete row");
+      this.patternChanged();
+    }
+  }
+
   setHexValueAtCursor(cursor, value) {
     const eventItem = this.eventIndices[cursor.item].itemIndex;
     if (eventItem < this.eventEntries.length) {
@@ -204,11 +213,10 @@ export class SongManager {
   }
 
   newSong() {
-    let song = Immutable.fromJS(songdata).toJS();
-    song.instruments.push(Immutable.fromJS(cymbal).toJS());
-    song.instruments.push(Immutable.fromJS(pad).toJS());
-
-    this.setSong(song);
+    let newSong = this.loadSongFromArrayBuffer(defsong, "DefaultSong.lz4");
+    if (newSong) {
+      this.setSong(newSong);
+    }
   }
 
   addInstrument() {
@@ -222,6 +230,7 @@ export class SongManager {
             'number': instid,
             'samples': [],
             samplemap,
+            fadeout: 80,
           })),
         },
       }, "Add instrument");
@@ -401,13 +410,23 @@ export class SongManager {
     }
   }
 
+  validateSong(song) {
+    // Check all instruments have fadeout.
+    for (let i = 0; i < song.instruments.length; i += 1) {
+      if (!song.instruments[i].fadeout) {
+        song.instruments[i].fadeout = 80;
+      }
+    }
+    return song;
+  }
+
   setSong(song) {
     state.set({
       transport: {
         bpm: song.bpm,
         speed: song.speed,
       },
-      song,
+      song: this.validateSong(song),
     });
 
     state.set({
@@ -471,8 +490,9 @@ export class SongManager {
       // Deal with sampledata differently, as we encode the binary data for
       // efficient serialisation.
       if (k === 'sampledata') {
+        let sampledata = encode(new Float32Array(v.data));
         return Object.assign(v, {
-            data: encode(v.data.buffer),
+            data: sampledata,
             serialiseEncoding: 'base64',
           });
       } else {
@@ -521,7 +541,7 @@ export class SongManager {
           if ('serialiseEncoding' in v) {
             // Base64 encoding.
             if ( v.serialiseEncoding === 'base64') {
-              const sampledata = new Float32Array(decode(v.data));
+              const sampledata = new Float32Array(decode(v.data, 'float32'));
               return Object.assign(v, {
                 data: sampledata,
               });

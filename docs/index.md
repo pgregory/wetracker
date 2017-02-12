@@ -56,4 +56,4 @@ Try loading some songs from
 many work, some don't. If you find one that doesn't let me know and I'll add it
 to the test list to be reviewed.
 
-Read the [docs](/documentation/intro) for usage details and guides.
+Read the [docs]({{site.baseurl}}/documentation/intro) for usage details and guides.

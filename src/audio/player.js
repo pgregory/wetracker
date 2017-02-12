@@ -641,6 +641,7 @@ class Player {
     this.playingInstruments = [];
 
     this.tracksChanged = Signal.signal(false);
+    this.trackStateChanged = Signal.signal(false);
 
     Signal.connect(song, 'songChanged', this, 'onSongChanged');
     Signal.connect(song, 'bpmChanged', this, 'onBpmChanged');
@@ -1073,6 +1074,12 @@ class Player {
       }
       this.XMView.pushEvent({
         t: -1,
+      });
+
+      const states = this.tracks.map((t) => t.getState());
+      console.log(states);
+      this.trackStateChanged({
+        states,
       });
     }
   }

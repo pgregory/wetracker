@@ -12,11 +12,6 @@ import styles from './styles.css';
 export default class Monitors {
   constructor(target) {
     this.target = target;
-    this.tracks = {
-      t: 0,
-      VU: [],
-      scopes: []
-    };
     this.trackNames = song.getTrackNames();
     this.scopes = [];
 
@@ -38,7 +33,7 @@ export default class Monitors {
       this.scopes[j] = canvas;
     }
 
-    this.renderMonitors();
+    this.resetMonitors();
 
     $(this.target).find(".monitor-canvas").click((e) => {
       this.clickTrack(e, $(e.target).data('trackindex'));
@@ -62,8 +57,7 @@ export default class Monitors {
   }
 
   onTracksChanged(tracks) {
-    this.tracks = tracks;
-    this.refresh();
+    this.renderMonitors(tracks);
   }
 
   onTrackChanged() {
@@ -71,19 +65,42 @@ export default class Monitors {
     this.refresh();
   }
 
-  renderMonitors() {
-    var e = this.tracks;
+  resetMonitors() {
     const numtracks = song.getNumTracks();
     // update VU meters & oscilliscopes
     for (let j = 0; j < numtracks; j += 1) {
-      var canvas = this.scopes[j]; //document.getElementById(`vu${j}`);
+      var canvas = this.scopes[j];
       var ctx = canvas.getContext("2d", {alpha: false});
       var ch = player.tracks[j];
 
       ctx.fillStyle = '#000';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      if('states' in e && [MUTE, SILENT].indexOf(e.states[j].state) !== -1) {
+      ctx.fillStyle = '#0f0';
+      ctx.strokeStyle = '#04AEF7';
+      ctx.lineWidth = 1;
+
+      const y = canvas.height / 2;
+        
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(canvas.width, y);
+      ctx.stroke(); 
+    }
+  }
+
+  renderMonitors(e) {
+    const numtracks = song.getNumTracks();
+    // update VU meters & oscilliscopes
+    for (let j = 0; j < numtracks; j += 1) {
+      var canvas = this.scopes[j];
+      var ctx = canvas.getContext("2d", {alpha: false});
+      var ch = player.tracks[j];
+
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      if('states' in e && j < e.states.length && [MUTE, SILENT].indexOf(e.states[j].state) !== -1) {
         let text = "MUTE";
         let color = "#900";
         if (e.states[j].state === SILENT) {

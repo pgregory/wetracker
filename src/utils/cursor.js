@@ -37,12 +37,26 @@ export class CursorManager {
       this.itemLeft(selectMode);
       e.preventDefault();
     });
-    MouseTrap.bind("backspace", (e) => {
+    MouseTrap.bind("del", (e) => {
       if (state.cursor.get("record")) {
         if (e.ctrlKey || e.shiftKey || e.metaKey ) {
           return;
         }
         song.deleteItemAtCursor(state.cursor.toJS());
+        event.preventDefault();
+      }
+    });
+    MouseTrap.bind("backspace", (e) => {
+      if(state.cursor.get("record") && state.cursor.get("row") > 0) {
+        if (e.ctrlKey || e.shiftKey || e.metaKey ) {
+          return;
+        }
+        song.deleteRow(state.cursor.get("row") - 1);
+        state.set({
+          cursor: {
+            row: state.cursor.get("row") - 1,
+          }
+        });
         event.preventDefault();
       }
     });
