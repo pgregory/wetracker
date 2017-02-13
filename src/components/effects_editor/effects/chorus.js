@@ -7,6 +7,9 @@ import template from './templates/chorus.marko';
 
 import Signal from '../../../utils/signal';
 
+export const NAME = "Chorus";
+export const TYPE = "chorus";
+
 class ChorusEffectUI extends EffectUIBase {
   constructor(target, effect, location) {
     super(target, effect, location);
@@ -30,7 +33,7 @@ class ChorusEffectParameterObject extends EffectParameterObjectBase {
   constructor() {
     super();
 
-    this.type = "chorus",
+    this.type = TYPE,
     this.bypass = false,
     this.parameters = {
       rate: 1.5,
@@ -64,6 +67,4 @@ class ChorusEffectNode extends EffectNodeBase {
   }
 }
 
-export const NAME = "Chorus";
-export const TYPE = "chorus";
 export { ChorusEffectUI as UI, ChorusEffectNode as Node, ChorusEffectParameterObject as ParameterObject }
