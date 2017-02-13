@@ -28,7 +28,7 @@ export class EffectUIBase {
       paramSlider.slider("value", $(e.target).val());
       this.effect.parameters[paramName] = $(e.target).val();
       this.effectChanged(this.location, this.effect);
-    });
+    }).val(this.effect.parameters[paramName]);
   }
 }
 
