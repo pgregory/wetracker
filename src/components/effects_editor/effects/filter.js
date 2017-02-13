@@ -25,11 +25,8 @@ class FilterEffectUI extends EffectUIBase {
     this.panel.find("#filter-type").on("change", (e) => {
       this.effect.parameters.filterType = $(e.target).val();
       this.effectChanged(this.location, this.effect);
-    });
-    this.panel.find("#bypass").on("change", (e) => {
-      this.effect.bypass = !e.target.checked;
-      this.effectChanged(this.location, this.effect);
-    });
+    }).val(this.effect.parameters.filterType);
+    this.bindBypass();
   }
 
 }

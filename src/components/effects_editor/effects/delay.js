@@ -23,10 +23,7 @@ class DelayEffectUI extends EffectUIBase {
     this.bindParameterToUI("#wet-slider", "#wet-value", 0, 1, 0.001, "wet");
     this.bindParameterToUI("#dry-slider", "#dry-value", 0, 1, 0.001, "dry");
     this.bindParameterToUI("#cutoff-slider", "#cutoff-value", 20, 22050, 1, "cutoff");
-    this.panel.find("#bypass").on("change", (e) => {
-      this.effect.bypass = !e.target.checked;
-      this.effectChanged(this.location, this.effect);
-    });
+    this.bindBypass();
   }
 
 }
