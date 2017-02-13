@@ -13,7 +13,7 @@ class OverdriveEffectUI extends EffectUIBase {
   }
 
   render() {
-    this.panel = $(template.renderToString());
+    this.panel = $(template.renderToString({ location: this.location }));
     $(this.target).append(this.panel);
     this.bindParameterToUI("#output-slider", "#output-value", 0, 1, 0.01, "outputGain");
     this.bindParameterToUI("#drive-slider", "#drive-value", 0, 1, 0.001, "drive");

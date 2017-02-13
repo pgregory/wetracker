@@ -16,7 +16,7 @@ class ChorusEffectUI extends EffectUIBase {
   }
 
   render() {
-    this.panel = $(template.renderToString());
+    this.panel = $(template.renderToString({location: this.location }));
     $(this.target).append(this.panel);
     this.bindParameterToUI("#rate-slider", "#rate-value", 0.01, 8, 0.01, "rate");
     this.bindParameterToUI("#feedback-slider", "#feedback-value", 0, 1, 0.001, "feedback");

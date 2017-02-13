@@ -93,15 +93,20 @@ export default class EffectsEditor {
 
     try {
       $(this.target).append(template.renderToString({effects}));
-      let trackEffects = song.getTrackEffects(state.cursor.get("track"));
+      let trackEffects = song.getTrackEffects(cur_track);
       for (let i = 0; i < trackEffects.length; i += 1) {
         let fxIndex = effects.findIndex((e) => e.type === trackEffects[i].type);
         if (fxIndex !== -1) {
-          let fx = new effects[fxIndex].constructor($(this.target).find("#effects-chain"), trackEffects[i], { type: "track", track: state.cursor.get("track"), index: i });
+          let fx = new effects[fxIndex].constructor($(this.target).find("#effects-chain"), trackEffects[i], { type: "track", track: cur_track, index: i });
           Signal.connect(fx, "effectChanged", this, "onEffectInterfaceChanged");
           fx.render();
         }
       }
+
+      $(this.target).find("button.delete").click((e) => {
+        let index = $(e.target).parents(".effect-control-panel").data("chain-index");
+        song.deleteTrackEffectFromChain(cur_track, index);
+      });
 
       $(this.target).find(".effect-name").dblclick((e) => {
         let fxIndex = $(e.target).data("fxindex");

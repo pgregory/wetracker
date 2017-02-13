@@ -16,7 +16,7 @@ class CompressorEffectUI extends EffectUIBase {
   }
 
   render() {
-    this.panel = $(template.renderToString());
+    this.panel = $(template.renderToString({ location: this.location }));
     $(this.target).append(this.panel);
     this.bindParameterToUI("#threshold-slider", "#threshold-value", -100, 0, 0.1, "threshold");
     this.bindParameterToUI("#makeup-slider", "#makeup-value", 0, 12, 0.1, "makeupGain");

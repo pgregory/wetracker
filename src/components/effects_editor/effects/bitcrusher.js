@@ -16,7 +16,7 @@ class BitCrusherEffectUI extends EffectUIBase {
   }
 
   render() {
-    this.panel = $(template.renderToString());
+    this.panel = $(template.renderToString({ location: this.location }));
     $(this.target).append(this.panel);
     this.bindParameterToUI("#bits-slider", "#bits-value", 1, 16, 1, "bits");
     this.bindParameterToUI("#normfreq-slider", "#normfreq-value", 0, 1, 0.001, "normfreq");

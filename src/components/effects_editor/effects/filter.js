@@ -17,7 +17,7 @@ class FilterEffectUI extends EffectUIBase {
   }
 
   render() {
-    this.panel = $(template.renderToString());
+    this.panel = $(template.renderToString({ location: this.location }));
     $(this.target).append(this.panel);
     this.bindParameterToUI("#freq-slider", "#freq-value", 20, 22050, 1, "frequency");
     this.bindParameterToUI("#Q-slider", "#Q-value", 0.001, 100, 0.001, "Q");

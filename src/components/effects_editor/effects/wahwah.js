@@ -16,7 +16,7 @@ class WahWahEffectUI extends EffectUIBase {
   }
 
   render() {
-    this.panel = $(template.renderToString());
+    this.panel = $(template.renderToString({ location: this.location }));
     $(this.target).append(this.panel);
     this.bindParameterToUI("#base-slider", "#base-value", 0, 1, 0.001, "baseFrequency");
     this.bindParameterToUI("#excursion-slider", "#excursion-value", 1, 6, 1, "excursionOctaves");

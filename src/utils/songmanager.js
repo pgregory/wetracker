@@ -1011,13 +1011,29 @@ export class SongManager {
       let chain = state.song.getIn(["tracks", track, "effects"]);
       let olditem = chain.get(from);
       chain = chain.delete(from).insert(to, olditem);
-      console.log(chain);
       state.set({
         song: state.song.setIn(["tracks", track, "effects"], chain),
       }, "Move effect in track chain");
       this.trackEffectChainChanged(track);
     } catch(e) {
       console.log(e);
+    }
+  }
+
+  /** 
+   * Delete an effect from the chain on the specified track.
+   */
+  deleteTrackEffectFromChain(track, index) {
+    let chain = state.song.getIn(["tracks", track, "effects"]);
+    if(index < chain.size) {
+      try {
+        state.set({
+          song: state.song.setIn(["tracks", track, "effects"], chain.delete(index)),
+        });
+        this.trackEffectChainChanged(track);
+      } catch(e) {
+        console.log(e);
+      }
     }
   }
 }
