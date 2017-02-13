@@ -14,6 +14,7 @@ import * as phaser from './effects/phaser';
 import * as overdrive from './effects/overdrive';
 import * as compressor from './effects/compressor';
 import * as filter from './effects/filter';
+import * as tremolo from './effects/tremolo';
 
 import styles from './styles.css';
 
@@ -66,6 +67,12 @@ export default class EffectsEditor {
         type: filter.TYPE,
         constructor: filter.UI,
         poConstructor: filter.ParameterObject,
+      },
+      {
+        name: tremolo.NAME,
+        type: tremolo.TYPE,
+        constructor: tremolo.UI,
+        poConstructor: tremolo.ParameterObject,
       },
     ];
 
