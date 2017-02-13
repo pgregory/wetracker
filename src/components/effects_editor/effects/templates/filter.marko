@@ -1,0 +1,37 @@
+<div class="effect-control-panel">
+  <effect-header name="Filter"/>
+  <div class="control-group horizontal">
+    <div class="control-group">
+      <div class="control">
+        <div class="label">Frequency</div>
+        <div id="freq-slider" class="slider"></div>
+        <input type="text" id="freq-value" value="440"/>
+      </div>
+      <div class="control">
+        <div class="label">Q</div>
+        <div id="Q-slider" class="slider"></div>
+        <input type="text" id="Q-value" value="1"/>
+      </div>
+      <div class="control">
+        <div class="label">Gain</div>
+        <div id="gain-slider" class="slider"></div>
+        <input type="text" id="gain-value" value="0"/>
+      </div>
+    </div>
+    <div class="control-group">
+      <div class="control">
+        <div class="label">Filter Type</div>
+        <select id="filter-type">
+          <option value="lowpass" selected>LowPass</option>
+          <option value="highpass">HighPass</option>
+          <option value="lowshelf">LowShelf</option>
+          <option value="highshelf">HighShelf</option>
+          <option value="peaking">Peaking</option>
+          <option value="notch">Notch</option>
+          <option value="allpass">AllPass</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+

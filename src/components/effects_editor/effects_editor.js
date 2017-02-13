@@ -13,6 +13,7 @@ import * as delay from './effects/delay';
 import * as phaser from './effects/phaser';
 import * as overdrive from './effects/overdrive';
 import * as compressor from './effects/compressor';
+import * as filter from './effects/filter';
 
 import styles from './styles.css';
 
@@ -59,6 +60,12 @@ export default class EffectsEditor {
         type: compressor.TYPE,
         constructor: compressor.UI,
         poConstructor: compressor.ParameterObject,
+      },
+      {
+        name: filter.NAME,
+        type: filter.TYPE,
+        constructor: filter.UI,
+        poConstructor: filter.ParameterObject,
       },
     ];
 
