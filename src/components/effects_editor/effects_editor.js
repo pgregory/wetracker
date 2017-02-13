@@ -8,8 +8,9 @@ import { player } from '../../audio/player';
 
 import template from './templates/effects_editor.marko';
 
-import * as chorus from './effects/chorus.js';
-import * as delay from './effects/delay.js';
+import * as chorus from './effects/chorus';
+import * as delay from './effects/delay';
+import * as phaser from './effects/phaser';
 
 import styles from './styles.css';
 
@@ -38,6 +39,12 @@ export default class EffectsEditor {
         type: delay.TYPE,
         constructor: delay.UI,
         poConstructor: delay.ParameterObject,
+      },
+      {
+        name: phaser.NAME,
+        type: phaser.TYPE,
+        constructor: phaser.UI,
+        poConstructor: phaser.ParameterObject,
       },
     ];
 
