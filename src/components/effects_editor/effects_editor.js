@@ -11,6 +11,7 @@ import template from './templates/effects_editor.marko';
 import * as chorus from './effects/chorus';
 import * as delay from './effects/delay';
 import * as phaser from './effects/phaser';
+import * as overdrive from './effects/overdrive';
 
 import styles from './styles.css';
 
@@ -45,6 +46,12 @@ export default class EffectsEditor {
         type: phaser.TYPE,
         constructor: phaser.UI,
         poConstructor: phaser.ParameterObject,
+      },
+      {
+        name: overdrive.NAME,
+        type: overdrive.TYPE,
+        constructor: overdrive.UI,
+        poConstructor: overdrive.ParameterObject,
       },
     ];
 
