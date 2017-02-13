@@ -982,7 +982,7 @@ export class SongManager {
       }
       state.set({
         song: state.song.setIn(["tracks", trackIndex, "effects"], effects.push(effect)),
-      });
+      }, "Add effect to track");
       this.trackEffectChainChanged(trackIndex);
     } catch(e) {
       console.log(e);
@@ -1029,7 +1029,7 @@ export class SongManager {
       try {
         state.set({
           song: state.song.setIn(["tracks", track, "effects"], chain.delete(index)),
-        });
+        }, "Delete track effect");
         this.trackEffectChainChanged(track);
       } catch(e) {
         console.log(e);
