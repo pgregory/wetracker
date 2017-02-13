@@ -15,6 +15,7 @@ import * as overdrive from './effects/overdrive';
 import * as compressor from './effects/compressor';
 import * as filter from './effects/filter';
 import * as tremolo from './effects/tremolo';
+import * as wahwah from './effects/wahwah';
 
 import styles from './styles.css';
 
@@ -73,6 +74,12 @@ export default class EffectsEditor {
         type: tremolo.TYPE,
         constructor: tremolo.UI,
         poConstructor: tremolo.ParameterObject,
+      },
+      {
+        name: wahwah.NAME,
+        type: wahwah.TYPE,
+        constructor: wahwah.UI,
+        poConstructor: wahwah.ParameterObject,
       },
     ];
 
