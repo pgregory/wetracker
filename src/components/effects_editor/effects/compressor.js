@@ -52,10 +52,6 @@ class CompressorEffectParameterObject extends EffectParameterObjectBase {
       automakeup: true,
     };
   }
-
-  createEffectNode(tuna) {
-    return new CompressorEffectNode(tuna, this);
-  }
 }
 
 

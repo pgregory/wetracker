@@ -49,10 +49,6 @@ class WahWahEffectParameterObject extends EffectParameterObjectBase {
       sensitivity: 0.5,
     };
   }
-
-  createEffectNode(tuna) {
-    return new WahWahEffectNode(tuna, this);
-  }
 }
 
 

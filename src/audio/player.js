@@ -9,6 +9,28 @@ import TimerWorker from 'shared-worker!./timerworker';
 
 import Tuna from 'tunajs';
 
+import * as chorus from '../components/effects_editor/effects/chorus';
+import * as delay from '../components/effects_editor/effects/delay';
+import * as phaser from '../components/effects_editor/effects/phaser';
+import * as overdrive from '../components/effects_editor/effects/overdrive';
+import * as compressor from '../components/effects_editor/effects/compressor';
+import * as filter from '../components/effects_editor/effects/filter';
+import * as tremolo from '../components/effects_editor/effects/tremolo';
+import * as wahwah from '../components/effects_editor/effects/wahwah';
+import * as bitcrusher from '../components/effects_editor/effects/bitcrusher';
+
+const effectNodeConstructors = {
+  chorus,
+  delay,
+  phaser,
+  overdrive,
+  compressor,
+  filter,
+  tremolo,
+  wahwah,
+  bitcrusher,
+};
+
 export const SILENT = 'silent';
 export const SOLO = 'solo';
 export const MUTE = 'mute';
@@ -513,16 +535,18 @@ class Track {
       this.effectChain[i].disconnect();
     }
     this.gainNode.connect(this.analyser);
-    for (let i = 0; i < effects.length; i += 1) {
-      let fx = effects[i].createEffectNode(player.tuna);
-      if (i > 0) {
-        this.effectChain[i - 1].fx.connect(fx.fx);
+    if (effects.length > 0) {
+      for (let i = 0; i < effects.length; i += 1) {
+        let fx = new effectNodeConstructors[effects[i].type].Node(player.tuna, effects[i]);
+        if (i > 0) {
+          this.effectChain[i - 1].fx.connect(fx.fx);
+        }
+        this.effectChain.push(fx);
       }
-      this.effectChain.push(fx);
+      // Link into the node tree.
+      this.gainNode.connect(this.effectChain[0].fx);
+      this.effectChain[this.effectChain.length - 1].fx.connect(this.analyser);
     }
-    // Link into the node tree.
-    this.gainNode.connect(this.effectChain[0].fx);
-    this.effectChain[this.effectChain.length - 1].fx.connect(this.analyser);
   }
 }
 
@@ -1235,8 +1259,6 @@ class Player {
 
     this.reset();
 
-    console.log("Song changed");
-
     this.tracks = [];
 
     // Initialise the channelinfo for each track.
@@ -1244,6 +1266,8 @@ class Player {
     for (let i = 0; i < numtracks; i += 1) {
       var trackinfo = new Track(this.audioctx, this.masterGain);
       this.tracks.push(trackinfo);
+      let effects = song.getTrackEffects(i);
+      trackinfo.buildEffectChain(effects);
     }
 
     this.instruments = [];

@@ -41,10 +41,6 @@ class ChorusEffectParameterObject extends EffectParameterObjectBase {
       delay: 0.0045,
     };
   }
-
-  createEffectNode(tuna) {
-    return new ChorusEffectNode(tuna, this);
-  }
 }
 
 class ChorusEffectNode extends EffectNodeBase {

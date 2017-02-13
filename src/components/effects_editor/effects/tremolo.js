@@ -41,10 +41,6 @@ class TremoloEffectParameterObject extends EffectParameterObjectBase {
       stereoPhase: 0,
     };
   }
-
-  createEffectNode(tuna) {
-    return new TremoloEffectNode(tuna, this);
-  }
 }
 
 class TremoloEffectNode extends EffectNodeBase {

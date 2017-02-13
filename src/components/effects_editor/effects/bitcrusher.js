@@ -41,10 +41,6 @@ class BitCrusherEffectParameterObject extends EffectParameterObjectBase {
       bufferSize: 4096,
     };
   }
-
-  createEffectNode(tuna) {
-    return new BitCrusherEffectNode(tuna, this);
-  }
 }
 
 class BitCrusherEffectNode extends EffectNodeBase {

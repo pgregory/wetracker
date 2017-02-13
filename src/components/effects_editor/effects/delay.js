@@ -45,10 +45,6 @@ class DelayEffectParameterObject extends EffectParameterObjectBase {
       cutoff: 2000,
     };
   }
-
-  createEffectNode(tuna) {
-    return new DelayEffectNode(tuna, this);
-  }
 }
 
 

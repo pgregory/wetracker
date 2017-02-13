@@ -42,10 +42,6 @@ class PhaserEffectParameterObject extends EffectParameterObjectBase {
       baseModulationFrequency: 700,
     };
   }
-
-  createEffectNode(tuna) {
-    return new PhaserEffectNode(tuna, this);
-  }
 }
 
 

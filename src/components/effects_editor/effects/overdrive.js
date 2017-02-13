@@ -40,10 +40,6 @@ class OverdriveEffectParameterObject extends EffectParameterObjectBase {
       algorithmIndex: 0,
     };
   }
-
-  createEffectNode(tuna) {
-    return new OverdriveEffectNode(tuna, this);
-  }
 }
 
 

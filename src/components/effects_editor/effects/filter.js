@@ -47,10 +47,6 @@ class FilterEffectParameterObject extends EffectParameterObjectBase {
       filterType: "lowpass",
     };
   }
-
-  createEffectNode(tuna) {
-    return new FilterEffectNode(tuna, this);
-  }
 }
 
 

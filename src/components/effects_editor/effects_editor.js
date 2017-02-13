@@ -92,11 +92,11 @@ export default class EffectsEditor {
 
     try {
       $(this.target).append(template.renderToString({effects}));
-      let trackEffects = song.getTrackEffects(0);
+      let trackEffects = song.getTrackEffects(state.cursor.get("track"));
       for (let i = 0; i < trackEffects.length; i += 1) {
         let fxIndex = effects.findIndex((e) => e.type === trackEffects[i].type);
         if (fxIndex !== -1) {
-          let fx = new effects[fxIndex].constructor($(this.target).find("#effects-chain"), trackEffects[i], { type: "track", track: 0, index: i });
+          let fx = new effects[fxIndex].constructor($(this.target).find("#effects-chain"), trackEffects[i], { type: "track", track: state.cursor.get("track"), index: i });
           Signal.connect(fx, "effectChanged", this, "onEffectInterfaceChanged");
           fx.render();
         }
