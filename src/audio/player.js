@@ -528,13 +528,10 @@ class Track {
 
   buildEffectChain(effects) {
     this.effectChain = [];
-    if(this.effectChain.length > 0) {
-      this.gainNode.disconnect(this.effectChain[0]);
-    }
+    this.gainNode.disconnect();
     for(let i = 0; i < this.effectChain.length; i += 1) {
       this.effectChain[i].disconnect();
     }
-    this.gainNode.connect(this.analyser);
     if (effects.length > 0) {
       for (let i = 0; i < effects.length; i += 1) {
         let fx = new effectNodeConstructors[effects[i].type].Node(player.tuna, effects[i]);
@@ -546,6 +543,8 @@ class Track {
       // Link into the node tree.
       this.gainNode.connect(this.effectChain[0].fx);
       this.effectChain[this.effectChain.length - 1].fx.connect(this.analyser);
+    } else {
+      this.gainNode.connect(this.analyser);
     }
   }
 }
