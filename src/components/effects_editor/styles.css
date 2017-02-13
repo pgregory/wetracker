@@ -9,7 +9,7 @@
 
 .effects-editor .effects-list {
   overflow-y: scroll;
-  flex: 0 1 auto;
+  flex: 0 0 auto;
   border-radius: 3px;
   margin: 3px;
   padding: 3px;
@@ -19,11 +19,11 @@
 .effects-editor .effects-chain {
   border-radius: 3px;
   margin: 3px;
-  padding: 3px;
   background: black;
-  flex: 1 0 auto;
+  flex: 1 1 auto;
   display: flex;
   flex-direction: row;
+  overflow: auto;
 }
 
 .effects-editor .effects-chain .effect-control-panel {
@@ -31,7 +31,13 @@
   border-radius: 3px;
   flex: 0 0 auto;
   min-width: 200px;
-  margin-right: 3px;
+  border-top: 2px solid black;
+  border-bottom: 2px solid black;
+  border-left: 2px solid black;
+}
+
+.effect-control-panel:last-child {
+  border-right: 2px solid black;
 }
 
 .effect-control-panel .effect-header {
