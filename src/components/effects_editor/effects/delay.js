@@ -28,20 +28,18 @@ class DelayEffectUI extends EffectUIBase {
 
 }
 
-class DelayEffectParameterObject extends EffectParameterObjectBase {
-  constructor() {
-    super();
-
-    this.type = TYPE,
-    this.bypass = false,
-    this.parameters = {
+function delayEffectParameterObject() {
+  return {
+    type: TYPE,
+    bypass: false,
+    parameters: {
       delay: 150,
       feedback: 0.45,
       wet: 0.25,
       dry: 1.0,
       cutoff: 2000,
-    };
-  }
+    },
+  };
 }
 
 
@@ -69,4 +67,4 @@ class DelayEffectNode extends EffectNodeBase {
   }
 }
 
-export { DelayEffectUI as UI, DelayEffectNode as Node, DelayEffectParameterObject as ParameterObject }
+export { DelayEffectUI as UI, DelayEffectNode as Node, delayEffectParameterObject as parameterObject }

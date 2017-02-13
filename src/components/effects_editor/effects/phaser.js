@@ -7,6 +7,9 @@ import template from './templates/phaser.marko';
 
 import Signal from '../../../utils/signal';
 
+export const NAME = "Phaser";
+export const TYPE = "phaser";
+
 class PhaserEffectUI extends EffectUIBase {
   constructor(target, effect, location) {
     super(target, effect, location);
@@ -25,20 +28,18 @@ class PhaserEffectUI extends EffectUIBase {
 
 }
 
-class PhaserEffectParameterObject extends EffectParameterObjectBase {
-  constructor() {
-    super();
-
-    this.type = "phaser",
-    this.bypass = false,
-    this.parameters = {
+function phaserEffectParameterObject() {
+  return {
+    type: TYPE,
+    bypass: false,
+    parameters: {
       rate: 1.2,
       depth: 0.3,
       feedback: 0.2,
       stereoPhase: 30,
       baseModulationFrequency: 700,
-    };
-  }
+    },
+  };
 }
 
 
@@ -66,6 +67,4 @@ class PhaserEffectNode extends EffectNodeBase {
   }
 }
 
-export const NAME = "Phaser";
-export const TYPE = "phaser";
-export { PhaserEffectUI as UI, PhaserEffectNode as Node, PhaserEffectParameterObject as ParameterObject }
+export { PhaserEffectUI as UI, PhaserEffectNode as Node, phaserEffectParameterObject as parameterObject }

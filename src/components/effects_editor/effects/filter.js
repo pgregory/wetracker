@@ -31,19 +31,17 @@ class FilterEffectUI extends EffectUIBase {
 
 }
 
-class FilterEffectParameterObject extends EffectParameterObjectBase {
-  constructor() {
-    super();
-
-    this.type = TYPE,
-    this.bypass = false,
-    this.parameters = {
+function filterEffectParameterObject() {
+  return {
+    type: TYPE,
+    bypass: false,
+    parameters: {
       frequency: 440,
       Q: 1,
       gain: 0,
       filterType: "lowpass",
-    };
-  }
+    },
+  };
 }
 
 
@@ -69,4 +67,4 @@ class FilterEffectNode extends EffectNodeBase {
   }
 }
 
-export { FilterEffectUI as UI, FilterEffectNode as Node, FilterEffectParameterObject as ParameterObject }
+export { FilterEffectUI as UI, FilterEffectNode as Node, filterEffectParameterObject as parameterObject }

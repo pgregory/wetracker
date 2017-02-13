@@ -39,55 +39,55 @@ export default class EffectsEditor {
         name: chorus.NAME,
         type: chorus.TYPE,
         constructor: chorus.UI,
-        poConstructor: chorus.ParameterObject,
+        poConstructor: chorus.parameterObject,
       },
       {
         name: delay.NAME,
         type: delay.TYPE,
         constructor: delay.UI,
-        poConstructor: delay.ParameterObject,
+        poConstructor: delay.parameterObject,
       },
       {
         name: phaser.NAME,
         type: phaser.TYPE,
         constructor: phaser.UI,
-        poConstructor: phaser.ParameterObject,
+        poConstructor: phaser.parameterObject,
       },
       {
         name: overdrive.NAME,
         type: overdrive.TYPE,
         constructor: overdrive.UI,
-        poConstructor: overdrive.ParameterObject,
+        poConstructor: overdrive.parameterObject,
       },
       {
         name: compressor.NAME,
         type: compressor.TYPE,
         constructor: compressor.UI,
-        poConstructor: compressor.ParameterObject,
+        poConstructor: compressor.parameterObject,
       },
       {
         name: filter.NAME,
         type: filter.TYPE,
         constructor: filter.UI,
-        poConstructor: filter.ParameterObject,
+        poConstructor: filter.parameterObject,
       },
       {
         name: tremolo.NAME,
         type: tremolo.TYPE,
         constructor: tremolo.UI,
-        poConstructor: tremolo.ParameterObject,
+        poConstructor: tremolo.parameterObject,
       },
       {
         name: wahwah.NAME,
         type: wahwah.TYPE,
         constructor: wahwah.UI,
-        poConstructor: wahwah.ParameterObject,
+        poConstructor: wahwah.parameterObject,
       },
       {
         name: bitcrusher.NAME,
         type: bitcrusher.TYPE,
         constructor: bitcrusher.UI,
-        poConstructor: bitcrusher.ParameterObject,
+        poConstructor: bitcrusher.parameterObject,
       },
     ];
 
@@ -110,7 +110,7 @@ export default class EffectsEditor {
 
       $(this.target).find(".effect-name").dblclick((e) => {
         let fxIndex = $(e.target).data("fxindex");
-        song.appendEffectToTrackChain(state.cursor.get("track"), new effects[fxIndex].poConstructor());
+        song.appendEffectToTrackChain(state.cursor.get("track"), effects[fxIndex].poConstructor());
       });
 
       $(this.target).find("#effects-chain").sortable({

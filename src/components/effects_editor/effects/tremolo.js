@@ -26,18 +26,16 @@ class TremoloEffectUI extends EffectUIBase {
 
 }
 
-class TremoloEffectParameterObject extends EffectParameterObjectBase {
-  constructor() {
-    super();
-
-    this.type = TYPE,
-    this.bypass = false,
-    this.parameters = {
+function tremoloEffectParameterObject() {
+  return {
+    type: TYPE,
+    bypass: false,
+    parameters: {
       intensity: 0.3,
       rate: 4,
       stereoPhase: 0,
-    };
-  }
+    },
+  };
 }
 
 class TremoloEffectNode extends EffectNodeBase {
@@ -60,4 +58,4 @@ class TremoloEffectNode extends EffectNodeBase {
   }
 }
 
-export { TremoloEffectUI as UI, TremoloEffectNode as Node, TremoloEffectParameterObject as ParameterObject }
+export { TremoloEffectUI as UI, TremoloEffectNode as Node, tremoloEffectParameterObject as parameterObject }

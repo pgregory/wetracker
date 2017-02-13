@@ -981,7 +981,7 @@ export class SongManager {
         effects = state.song.getIn(["tracks", trackIndex, "effects"]);
       }
       state.set({
-        song: state.song.setIn(["tracks", trackIndex, "effects"], effects.push(effect)),
+        song: state.song.setIn(["tracks", trackIndex, "effects"], effects.push(Immutable.fromJS(effect))),
       }, "Add effect to track");
       this.trackEffectChainChanged(trackIndex);
     } catch(e) {
@@ -995,7 +995,7 @@ export class SongManager {
   updateTrackEffect(track, index, effect) {
     try {
       state.set({
-        song: state.song.setIn(["tracks", track, "effects", index], effect),
+        song: state.song.setIn(["tracks", track, "effects", index], Immutable.fromJS(effect)),
       }, "Update track effect");
     } catch(e) {
       console.log(e);

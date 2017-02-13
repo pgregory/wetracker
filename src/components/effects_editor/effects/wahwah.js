@@ -31,21 +31,19 @@ class WahWahEffectUI extends EffectUIBase {
   }
 }
 
-class WahWahEffectParameterObject extends EffectParameterObjectBase {
-  constructor() {
-    super();
-
-    this.type = TYPE,
-    this.bypass = false,
-    this.parameters = {
+function wahWahEffectParameterObject() {
+  return {
+    type: TYPE,
+    bypass: false,
+    parameters: {
       automode: true,
       baseFrequency: 0.5,
       excursionOctaves: 2,
       sweep: 0.2,
       resonance: 10,
       sensitivity: 0.5,
-    };
-  }
+    },
+  };
 }
 
 
@@ -75,4 +73,4 @@ class WahWahEffectNode extends EffectNodeBase {
   }
 }
 
-export { WahWahEffectUI as UI, WahWahEffectNode as Node, WahWahEffectParameterObject as ParameterObject }
+export { WahWahEffectUI as UI, WahWahEffectNode as Node, wahWahEffectParameterObject as parameterObject }

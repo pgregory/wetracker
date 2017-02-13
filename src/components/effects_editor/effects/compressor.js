@@ -33,13 +33,11 @@ class CompressorEffectUI extends EffectUIBase {
 
 }
 
-class CompressorEffectParameterObject extends EffectParameterObjectBase {
-  constructor() {
-    super();
-
-    this.type = TYPE,
-    this.bypass = false,
-    this.parameters = {
+function compressorEffectParameterObject() {
+  return {
+    type: TYPE,
+    bypass: false,
+    parameters: {
       threshold: -1,
       makeupGain: 1,
       attack: 1,
@@ -47,8 +45,8 @@ class CompressorEffectParameterObject extends EffectParameterObjectBase {
       ratio: 4,
       knee: 5,
       automakeup: true,
-    };
-  }
+    },
+  };
 }
 
 
@@ -80,4 +78,4 @@ class CompressorEffectNode extends EffectNodeBase {
   }
 }
 
-export { CompressorEffectUI as UI, CompressorEffectNode as Node, CompressorEffectParameterObject as ParameterObject }
+export { CompressorEffectUI as UI, CompressorEffectNode as Node, compressorEffectParameterObject as parameterObject }

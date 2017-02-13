@@ -26,18 +26,16 @@ class ChorusEffectUI extends EffectUIBase {
 
 }
 
-class ChorusEffectParameterObject extends EffectParameterObjectBase {
-  constructor() {
-    super();
-
-    this.type = TYPE,
-    this.bypass = false,
-    this.parameters = {
+function chorusEffectParameterObject() {
+  return {
+    type: TYPE,
+    bypass: false,
+    parameters: {
       rate: 1.5,
       feedback: 0.2,
       delay: 0.0045,
-    };
-  }
+    }
+  };
 }
 
 class ChorusEffectNode extends EffectNodeBase {
@@ -60,4 +58,4 @@ class ChorusEffectNode extends EffectNodeBase {
   }
 }
 
-export { ChorusEffectUI as UI, ChorusEffectNode as Node, ChorusEffectParameterObject as ParameterObject }
+export { ChorusEffectUI as UI, ChorusEffectNode as Node, chorusEffectParameterObject as parameterObject }

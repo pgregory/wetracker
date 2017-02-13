@@ -23,21 +23,18 @@ class BitCrusherEffectUI extends EffectUIBase {
     this.bindParameterToUI("#buffer-slider", "#buffer-value", 256, 16384, 1, "bufferSize");
     this.bindBypass();
   }
-
 }
 
-class BitCrusherEffectParameterObject extends EffectParameterObjectBase {
-  constructor() {
-    super();
-
-    this.type = TYPE,
-    this.bypass = false,
-    this.parameters = {
+function bitCrusherEffectParameterObject() {
+  return {
+    type: TYPE,
+    bypass: false,
+    parameters: {
       bits: 4,
       normfreq: 0.1,
       bufferSize: 256,
-    };
-  }
+    },
+  };
 }
 
 class BitCrusherEffectNode extends EffectNodeBase {
@@ -60,4 +57,4 @@ class BitCrusherEffectNode extends EffectNodeBase {
   }
 }
 
-export { BitCrusherEffectUI as UI, BitCrusherEffectNode as Node, BitCrusherEffectParameterObject as ParameterObject }
+export { BitCrusherEffectUI as UI, BitCrusherEffectNode as Node, bitCrusherEffectParameterObject as parameterObject }

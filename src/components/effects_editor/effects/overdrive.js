@@ -7,6 +7,10 @@ import template from './templates/overdrive.marko';
 
 import Signal from '../../../utils/signal';
 
+
+export const NAME = "Overdrive";
+export const TYPE = "overdrive";
+
 class OverdriveEffectUI extends EffectUIBase {
   constructor(target, effect, location) {
     super(target, effect, location);
@@ -24,19 +28,17 @@ class OverdriveEffectUI extends EffectUIBase {
 
 }
 
-class OverdriveEffectParameterObject extends EffectParameterObjectBase {
-  constructor() {
-    super();
-
-    this.type = "overdrive",
-    this.bypass = false,
-    this.parameters = {
+function overdriveEffectParameterObject() {
+  return {
+    type: TYPE,
+    bypass: false,
+    parameters: {
       outputGain: 0.5,
       drive: 0.7,
       curveAmount: 1,
       algorithmIndex: 0,
-    };
-  }
+    },
+  };
 }
 
 
@@ -62,6 +64,4 @@ class OverdriveEffectNode extends EffectNodeBase {
   }
 }
 
-export const NAME = "Overdrive";
-export const TYPE = "overdrive";
-export { OverdriveEffectUI as UI, OverdriveEffectNode as Node, OverdriveEffectParameterObject as ParameterObject }
+export { OverdriveEffectUI as UI, OverdriveEffectNode as Node, overdriveEffectParameterObject as parameterObject }
