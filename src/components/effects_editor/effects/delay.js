@@ -7,6 +7,9 @@ import template from './templates/delay.marko';
 
 import Signal from '../../../utils/signal';
 
+export const NAME = "Delay";
+export const TYPE = "delay";
+
 class DelayEffectUI extends EffectUIBase {
   constructor(target, effect, location) {
     super(target, effect, location);
@@ -32,7 +35,7 @@ class DelayEffectParameterObject extends EffectParameterObjectBase {
   constructor() {
     super();
 
-    this.type = "delay",
+    this.type = TYPE,
     this.bypass = false,
     this.parameters = {
       delay: 150,
@@ -73,6 +76,4 @@ class DelayEffectNode extends EffectNodeBase {
   }
 }
 
-export const NAME = "Delay";
-export const TYPE = "delay";
 export { DelayEffectUI as UI, DelayEffectNode as Node, DelayEffectParameterObject as ParameterObject }
