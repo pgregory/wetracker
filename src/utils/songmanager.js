@@ -972,6 +972,18 @@ export class SongManager {
   }
 
   /**
+   * Get reference to an effect from locator.
+   */
+  getEffectFromLocation(location) {
+    if ("track" in location && location.track < this.getNumTracks()) {
+      let trackEffects = state.song.getIn(["tracks", location.index, "effects"]);
+      if ("index" in location && location.index < trackEffects.size) {
+        return trackEffects.get(location.index);
+      }
+    }
+  }
+
+  /**
    * Append a new effect to the end of the chain on the specified track.
    */
   appendEffectToTrackChain(trackIndex, effect) {
