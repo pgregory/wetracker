@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import 'jquery-ui/widgets/slider';
+import 'jquery-ui/widgets/sortable';
 
 import Signal from '../../utils/signal';
 import { state } from '../../state';
@@ -105,6 +106,25 @@ export default class EffectsEditor {
       $(this.target).find(".effect-name").dblclick((e) => {
         let fxIndex = $(e.target).data("fxindex");
         song.appendEffectToTrackChain(state.cursor.get("track"), new effects[fxIndex].poConstructor());
+      });
+
+      $(this.target).find("#effects-chain").sortable({
+        handle: ".effect-header",
+        axis: "x",
+        containment: "document",
+        placeholder: "sortable-placeholder",
+        opacity: 0.5,
+        forcePlaceholderSize: true,
+        start: (e, ui) => {
+          $(ui.item).data("previndex", ui.item.index());
+        },
+        update: (e, ui) => {
+          let newIndex = ui.item.index();
+          let oldIndex = $(ui.item).data("previndex");
+          $(ui.item).removeAttr("data-previndex");
+          console.log(newIndex, oldIndex);
+          song.moveTrackEffectInChain(state.cursor.get("track"), oldIndex, newIndex);
+        },
       });
     } catch(e) {
       console.log(e);

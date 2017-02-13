@@ -66,3 +66,9 @@
   color: white;
   font-size: 0.75em;
 }
+
+.sortable-placeholder {
+  border: 1px dotted white;
+  border-radius: 3px;
+  margin-right: 3px;
+}

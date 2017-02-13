@@ -994,11 +994,31 @@ export class SongManager {
    */
   updateTrackEffect(track, index, effect) {
     try {
-      state.song.setIn(["tracks", track, "effects", index], effect);
+      state.set({
+        song: state.song.setIn(["tracks", track, "effects", index], effect),
+      }, "Update track effect");
     } catch(e) {
       console.log(e);
     }
     this.trackEffectChanged(track, index, effect);
+  }
+
+  /**
+   * Move an effect in the chain to a new position.
+   */
+  moveTrackEffectInChain(track, from, to) {
+    try {
+      let chain = state.song.getIn(["tracks", track, "effects"]);
+      let olditem = chain.get(from);
+      chain = chain.delete(from).insert(to, olditem);
+      console.log(chain);
+      state.set({
+        song: state.song.setIn(["tracks", track, "effects"], chain),
+      }, "Move effect in track chain");
+      this.trackEffectChainChanged(track);
+    } catch(e) {
+      console.log(e);
+    }
   }
 }
 
