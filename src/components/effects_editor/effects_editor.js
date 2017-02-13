@@ -16,6 +16,7 @@ import * as compressor from './effects/compressor';
 import * as filter from './effects/filter';
 import * as tremolo from './effects/tremolo';
 import * as wahwah from './effects/wahwah';
+import * as bitcrusher from './effects/bitcrusher';
 
 import styles from './styles.css';
 
@@ -80,6 +81,12 @@ export default class EffectsEditor {
         type: wahwah.TYPE,
         constructor: wahwah.UI,
         poConstructor: wahwah.ParameterObject,
+      },
+      {
+        name: bitcrusher.NAME,
+        type: bitcrusher.TYPE,
+        constructor: bitcrusher.UI,
+        poConstructor: bitcrusher.ParameterObject,
       },
     ];
 
