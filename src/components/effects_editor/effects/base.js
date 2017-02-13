@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import 'jquery-ui/widgets/slider';
 
+import { state } from '../../../state';
 import Signal from '../../../utils/signal';
 
 export class EffectUIBase {
@@ -18,6 +19,12 @@ export class EffectUIBase {
       max,
       step,
       value: this.effect.parameters[paramName],
+      start: (event, ui) => {
+        state.groupHistoryStart("Change effect parameter");
+      },
+      stop: (event, ui) => {
+        state.groupHistoryEnd();
+      },
       slide: (event, ui) => {
         this.panel.find(textElement).val(ui.value);
         this.effect.parameters[paramName] = ui.value;
