@@ -12,6 +12,7 @@ import * as chorus from './effects/chorus';
 import * as delay from './effects/delay';
 import * as phaser from './effects/phaser';
 import * as overdrive from './effects/overdrive';
+import * as compressor from './effects/compressor';
 
 import styles from './styles.css';
 
@@ -52,6 +53,12 @@ export default class EffectsEditor {
         type: overdrive.TYPE,
         constructor: overdrive.UI,
         poConstructor: overdrive.ParameterObject,
+      },
+      {
+        name: compressor.NAME,
+        type: compressor.TYPE,
+        constructor: compressor.UI,
+        poConstructor: compressor.ParameterObject,
       },
     ];
 
