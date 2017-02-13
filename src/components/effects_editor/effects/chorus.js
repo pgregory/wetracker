@@ -1,36 +1,15 @@
 import $ from 'jquery';
 import 'jquery-ui/widgets/slider';
 
+import { EffectUIBase, EffectParameterObjectBase, EffectNodeBase } from './base';
+
 import template from './templates/chorus.marko';
 
 import Signal from '../../../utils/signal';
 
-export class ChorusEffectUI {
+class ChorusEffectUI extends EffectUIBase {
   constructor(target, effect, location) {
-    this.target = target;
-    this.effect = effect;
-    this.location = location;
-
-    this.effectChanged = Signal.signal(false);
-  }
-
-  bindParameterToUI(element, textElement, min, max, step, paramName) {
-    let paramSlider = this.panel.find(element).slider({
-      min,
-      max,
-      step,
-      value: this.effect.parameters[paramName],
-      slide: (event, ui) => {
-        this.panel.find(textElement).val(ui.value);
-        this.effect.parameters[paramName] = ui.value;
-        this.effectChanged(this.location, this.effect);
-      }
-    });
-    this.panel.find(textElement).on("change", (e) => {
-      paramSlider.slider("value", $(e.target).val());
-      this.effect.parameters[paramName] = $(e.target).val();
-      this.effectChanged(this.location, this.effect);
-    });
+    super(target, effect, location);
   }
 
   render() {
@@ -47,8 +26,10 @@ export class ChorusEffectUI {
 
 }
 
-export class ChorusEffectParameterObject {
+class ChorusEffectParameterObject extends EffectParameterObjectBase {
   constructor() {
+    super();
+
     this.type = "chorus",
     this.bypass = false,
     this.parameters = {
@@ -63,9 +44,10 @@ export class ChorusEffectParameterObject {
   }
 }
 
-
-export class ChorusEffectNode {
+class ChorusEffectNode extends EffectNodeBase {
   constructor(tuna, po) {
+    super(tuna, po);
+
     this.fx = new tuna.Chorus({
       rate: po.parameters.rate,
       feedback: po.parameters.feedback,
@@ -82,5 +64,6 @@ export class ChorusEffectNode {
   }
 }
 
-export let chorusEffectName = "Chorus";
-export let chorusEffectType = "chorus";
+export const NAME = "Chorus";
+export const TYPE = "chorus";
+export { ChorusEffectUI as UI, ChorusEffectNode as Node, ChorusEffectParameterObject as ParameterObject }

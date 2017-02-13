@@ -1,36 +1,15 @@
 import $ from 'jquery';
 import 'jquery-ui/widgets/slider';
 
+import { EffectUIBase, EffectParameterObjectBase, EffectNodeBase } from './base';
+
 import template from './templates/delay.marko';
 
 import Signal from '../../../utils/signal';
 
-export class DelayEffectUI {
+class DelayEffectUI extends EffectUIBase {
   constructor(target, effect, location) {
-    this.target = target;
-    this.effect = effect;
-    this.location = location;
-
-    this.effectChanged = Signal.signal(false);
-  }
-
-  bindParameterToUI(element, textElement, min, max, step, paramName) {
-    let paramSlider = this.panel.find(element).slider({
-      min,
-      max,
-      step,
-      value: this.effect.parameters[paramName],
-      slide: (event, ui) => {
-        this.panel.find(textElement).val(ui.value);
-        this.effect.parameters[paramName] = ui.value;
-        this.effectChanged(this.location, this.effect);
-      }
-    });
-    this.panel.find(textElement).on("change", (e) => {
-      paramSlider.slider("value", $(e.target).val());
-      this.effect.parameters[paramName] = $(e.target).val();
-      this.effectChanged(this.location, this.effect);
-    });
+    super(target, effect, location);
   }
 
   render() {
@@ -49,8 +28,10 @@ export class DelayEffectUI {
 
 }
 
-export class DelayEffectParameterObject {
+class DelayEffectParameterObject extends EffectParameterObjectBase {
   constructor() {
+    super();
+
     this.type = "delay",
     this.bypass = false,
     this.parameters = {
@@ -68,8 +49,10 @@ export class DelayEffectParameterObject {
 }
 
 
-export class DelayEffectNode {
+class DelayEffectNode extends EffectNodeBase {
   constructor(tuna, po) {
+    super(tuna, po);
+
     this.fx = new tuna.Delay({
       feedback: po.parameters.feedback,
       delayTime: po.parameters.delay,
@@ -90,5 +73,6 @@ export class DelayEffectNode {
   }
 }
 
-export let delayEffectName = "Delay";
-export let delayEffectType = "delay";
+export const NAME = "Delay";
+export const TYPE = "delay";
+export { DelayEffectUI as UI, DelayEffectNode as Node, DelayEffectParameterObject as ParameterObject }

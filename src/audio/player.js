@@ -9,9 +9,6 @@ import TimerWorker from 'shared-worker!./timerworker';
 
 import Tuna from 'tunajs';
 
-import { ChorusEffectNode } from '../components/effects_editor/effects/chorus';
-import { DelayEffectNode } from '../components/effects_editor/effects/delay';
-
 export const SILENT = 'silent';
 export const SOLO = 'solo';
 export const MUTE = 'mute';

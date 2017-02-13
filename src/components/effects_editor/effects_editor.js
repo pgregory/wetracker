@@ -8,8 +8,8 @@ import { player } from '../../audio/player';
 
 import template from './templates/effects_editor.marko';
 
-import { ChorusEffectUI, ChorusEffectParameterObject, chorusEffectName, chorusEffectType } from './effects/chorus.js';
-import { DelayEffectUI, DelayEffectParameterObject, delayEffectName, delayEffectType } from './effects/delay.js';
+import * as chorus from './effects/chorus.js';
+import * as delay from './effects/delay.js';
 
 import styles from './styles.css';
 
@@ -28,16 +28,16 @@ export default class EffectsEditor {
     const cur_track = state.cursor.get("track");
     const effects = [
       {
-        name: chorusEffectName,
-        type: chorusEffectType,
-        constructor: ChorusEffectUI,
-        poConstructor: ChorusEffectParameterObject,
+        name: chorus.NAME,
+        type: chorus.TYPE,
+        constructor: chorus.UI,
+        poConstructor: chorus.ParameterObject,
       },
       {
-        name: delayEffectName,
-        type: delayEffectType,
-        constructor: DelayEffectUI,
-        poConstructor: DelayEffectParameterObject,
+        name: delay.NAME,
+        type: delay.TYPE,
+        constructor: delay.UI,
+        poConstructor: delay.ParameterObject,
       },
     ];
 
