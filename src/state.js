@@ -109,9 +109,11 @@ export class State {
   }
 
   undo() {
+    let now = undefined;
     let past = undefined;
     // If there is any history to undo.
     if (this.historyIndex > 0) {
+      now = this.history[this.historyIndex];
       // Move the marker back to the previous state in history.
       this.historyIndex -= 1;
       // Get the state at this point in history
@@ -120,7 +122,7 @@ export class State {
       try {
         this.updateState(past.snapshot);
         this.songChanged();
-        console.log("Undo: " + past.annotation);
+        console.log("Undo: " + now.annotation);
       } catch(e) {
         console.log(e);
       }

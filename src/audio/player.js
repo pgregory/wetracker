@@ -7,6 +7,30 @@ import Envelope from './envelope';
 
 import TimerWorker from 'shared-worker!./timerworker';
 
+import Tuna from 'tunajs';
+
+import * as chorus from '../components/effects_editor/effects/chorus';
+import * as delay from '../components/effects_editor/effects/delay';
+import * as phaser from '../components/effects_editor/effects/phaser';
+import * as overdrive from '../components/effects_editor/effects/overdrive';
+import * as compressor from '../components/effects_editor/effects/compressor';
+import * as filter from '../components/effects_editor/effects/filter';
+import * as tremolo from '../components/effects_editor/effects/tremolo';
+import * as wahwah from '../components/effects_editor/effects/wahwah';
+import * as bitcrusher from '../components/effects_editor/effects/bitcrusher';
+
+const effectNodeConstructors = {
+  chorus,
+  delay,
+  phaser,
+  overdrive,
+  compressor,
+  filter,
+  tremolo,
+  wahwah,
+  bitcrusher,
+};
+
 export const SILENT = 'silent';
 export const SOLO = 'solo';
 export const MUTE = 'mute';
@@ -445,6 +469,8 @@ class Track {
     this.gainNode.connect(this.analyser);
     this.analyser.connect(destination);
     this.gainNode.gain.value = 1.0;
+
+    this.effectChain = [];
   }
 
   updateAnalyserScopeData() {
@@ -497,6 +523,28 @@ class Track {
           gain: 1,
         },
       };
+    }
+  }
+
+  buildEffectChain(effects) {
+    this.effectChain = [];
+    this.gainNode.disconnect();
+    for(let i = 0; i < this.effectChain.length; i += 1) {
+      this.effectChain[i].disconnect();
+    }
+    if (effects.length > 0) {
+      for (let i = 0; i < effects.length; i += 1) {
+        let fx = new effectNodeConstructors[effects[i].type].Node(player.tuna, effects[i]);
+        if (i > 0) {
+          this.effectChain[i - 1].fx.connect(fx.fx);
+        }
+        this.effectChain.push(fx);
+      }
+      // Link into the node tree.
+      this.gainNode.connect(this.effectChain[0].fx);
+      this.effectChain[this.effectChain.length - 1].fx.connect(this.analyser);
+    } else {
+      this.gainNode.connect(this.analyser);
     }
   }
 }
@@ -603,8 +651,12 @@ class Player {
 
     var audioContext = window.AudioContext || window.webkitAudioContext;
     this.audioctx = new audioContext();
-    this.masterGain = this.audioctx.createGain();
+    this.tuna = new Tuna(this.audioctx);
 
+    this.gainNode = this.audioctx.createGain();
+    this.gainNode.gain.value = 0.5;  // master volume
+
+    this.masterGain = this.audioctx.createGain();
     this.masterGain.connect(this.audioctx.destination);
 
     this.playing = false;
@@ -637,6 +689,8 @@ class Player {
     Signal.connect(song, 'speedChanged', this, 'onSpeedChanged');
     Signal.connect(song, 'instrumentChanged', this, 'onInstrumentChanged');
     Signal.connect(song, 'instrumentListChanged', this, 'onInstrumentListChanged');
+    Signal.connect(song, 'trackEffectChainChanged', this, 'onTrackEffectChainChanged');
+    Signal.connect(song, 'trackEffectChanged', this, 'onTrackEffectChanged');
     Signal.connect(state, "cursorChanged", this, "onCursorChanged");
     Signal.connect(state, "transportChanged", this, "onTransportChanged");
   }
@@ -1204,8 +1258,6 @@ class Player {
 
     this.reset();
 
-    console.log("Song changed");
-
     this.tracks = [];
 
     // Initialise the channelinfo for each track.
@@ -1213,6 +1265,8 @@ class Player {
     for (let i = 0; i < numtracks; i += 1) {
       var trackinfo = new Track(this.audioctx, this.masterGain);
       this.tracks.push(trackinfo);
+      let effects = song.getTrackEffects(i);
+      trackinfo.buildEffectChain(effects);
     }
 
     this.instruments = [];
@@ -1262,6 +1316,24 @@ class Player {
     if (this.masterVolume !== state.transport.get("masterVolume")) {
       this.masterVolume = state.transport.get("masterVolume");
       this.setMasterVolume(state.transport.get("masterVolume"));
+    }
+  }
+
+  onTrackEffectChainChanged(trackIndex) {
+    try {
+      let effects = song.getTrackEffects(trackIndex);
+      this.tracks[trackIndex].buildEffectChain(effects);
+    } catch(e) {
+      console.log(e);
+    }
+  }
+
+  onTrackEffectChanged(track, index, effect) {
+    try {
+      let fx = this.tracks[track].effectChain[index];
+      fx.updateFromParameterObject(effect);
+    } catch(e) {
+      console.log(e);
     }
   }
 

@@ -868,15 +868,15 @@ export default class PatternEditorCanvas {
   onSongChanged() {
     this.lastCursor = new Immutable.Map();
     this.refresh();
-    state.set({
+    /*state.set({
       cursor: {
-        pattern,
+        pattern: this.cur_pat,
         row: 0,
         track: 0,
         column: 0,
         item: 0,
       }
-    });
+    });*/
   }
 
   onSongStateChanged() {

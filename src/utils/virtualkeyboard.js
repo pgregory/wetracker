@@ -78,7 +78,7 @@ class VirtualKeyboard {
       return;
     }
 
-    if ($(event.target).is(":input")) {
+    if ($(event.target).is(":input") && ($(event.target).attr("type") === "text")) {
       return;
     }
 

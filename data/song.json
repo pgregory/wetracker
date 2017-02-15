@@ -15,7 +15,17 @@
           {
             "id": "c1"
           }
-        ]
+        ],
+      "effects": [
+        {
+          "type": "chorus",
+          "parameters": {
+            "rate": 1.5,
+            "feedback": 0.2,
+            "delay": 0.0045
+          }
+        }
+      ]
     },
     {
       "fxcolumns": 1,
