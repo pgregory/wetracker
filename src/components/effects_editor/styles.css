@@ -58,6 +58,7 @@
 .effect-control-panel .control-group .slider {
   flex: 1 0 auto;
   margin-right: 5px;
+  margin-left: 5px;
 }
 
 .effect-header .name {
@@ -87,3 +88,4 @@ button.delete {
   padding: 0 3px;
   margin-right: 5px;
 }
+
