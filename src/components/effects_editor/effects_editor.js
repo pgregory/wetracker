@@ -92,7 +92,8 @@ export default class EffectsEditor {
     ];
 
     try {
-      $(this.target).append(template.renderToString({effects}));
+      let trackname = song.getTrackName(cur_track);
+      $(this.target).append(template.renderToString({effects, trackname}));
       let trackEffects = song.getTrackEffects(cur_track);
       for (let i = 0; i < trackEffects.length; i += 1) {
         let fxIndex = effects.findIndex((e) => e.type === trackEffects[i].type);

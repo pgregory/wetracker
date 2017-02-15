@@ -2,6 +2,10 @@
   <div class="effects-list">
     <div class="effect-name" data-fxindex="${loop.getIndex()}" for(effect in data.effects | status-var=loop)>${effect.name}</div>
   </div>
+  <div id="effects-location" class="effects-location">
+    <div class="location-name">${data.trackname}</div>
+    <div class="location-controls"></div>
+  </div>
   <div id="effects-chain" class="effects-chain">
   </div>
 </div>

@@ -89,3 +89,20 @@ button.delete {
   margin-right: 5px;
 }
 
+.effects-location {
+  background: dimgrey;
+  display: flex;
+  flex-direction: column;
+}  
+
+.effects-location .location-name {
+  font-family: monospace;
+  font-size: 12px;
+  color: white;
+}  
+
+.effects-location .location-controls {
+  flex: 1;
+  border: 1px solid black;
+  margin: 5px 0;
+}

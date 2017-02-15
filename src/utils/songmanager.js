@@ -760,6 +760,21 @@ export class SongManager {
   }
 
   /**
+   * Get the name of the indexed track.
+   *
+   * @param {number} index The index of the track to query.
+   * @returns {string} The name of the indexed track.
+   */
+  getTrackName(index) {
+    try {
+      return state.song.getIn(["tracks", index, "name"]);
+    } catch(e) {
+      console.log(e);
+      return "";
+    }
+  }
+
+  /**
    * Get the number of tracks in the song.
    *
    * @returns {number} The total number of tracks in the song.
