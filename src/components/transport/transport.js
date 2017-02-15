@@ -126,6 +126,16 @@ export default class Transport {
     $(this.target).find('#save').click((e) => {
       song.saveSongToLocal();
     });
+    $(this.target).find('#record').click((e) => {
+      player.stop();
+      player.reset();
+      state.set({
+        cursor: {
+          saveStream: true,
+        },
+      });
+      player.play();
+    });
   }
 
   onTransportChanged() {

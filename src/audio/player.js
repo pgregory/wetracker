@@ -684,6 +684,24 @@ class Player {
     this.tracksChanged = Signal.signal(false);
     this.trackStateChanged = Signal.signal(false);
 
+    this.mediaStreamDest = this.audioctx.createMediaStreamDestination();
+    this.mediaRecorder = new MediaRecorder(this.mediaStreamDest.stream);
+    this.mediaChunks = [];
+
+    this.mediaRecorder.ondataavailable = (evt) => {
+      // push each chunk (blobs) in an array
+      this.mediaChunks.push(evt.data);
+    };
+
+    this.mediaRecorder.onstop = (evt) => {
+      // Make blob out of our blobs, and open it.
+      let blob = new Blob(this.mediaChunks, { 'type' : 'audio/ogg; codecs=opus' });
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = name;
+      a.click();
+    };
+
     Signal.connect(song, 'songChanged', this, 'onSongChanged');
     Signal.connect(song, 'bpmChanged', this, 'onBpmChanged');
     Signal.connect(song, 'speedChanged', this, 'onSpeedChanged');
@@ -841,7 +859,13 @@ class Player {
         this.cur_row = 0;
         this.cur_songpos++;
         if (this.cur_songpos >= song.getSequenceLength()) {
-          this.cur_songpos = song.getLoopPosition();
+          if (state.cursor.get("saveStream")) {
+            console.log("Finished saving");
+            this.stop();
+            this.stopRecordingStream();
+          } else {
+            this.cur_songpos = song.getLoopPosition();
+          }
         }
         this.setCurrentPattern();
       }
@@ -1178,6 +1202,16 @@ class Player {
     }
   }
 
+  startRecordingStream() {
+    this.masterGain.connect(this.mediaStreamDest);
+    this.mediaRecorder.start();
+  }
+
+  stopRecordingStream() {
+    this.masterGain.disconnect(this.mediaStreamDest);
+    this.mediaRecorder.stop();
+  }
+
   _play() {
     if (!this.playing) {
       // put paused events back into action, if any
@@ -1185,6 +1219,11 @@ class Player {
       // start playing
       this.nextTickTime = this.audioctx.currentTime;
 
+      if(state.cursor.get("saveStream")) {
+        console.log("Saving to a stream");
+
+        this.startRecordingStream();
+      }
       this.timerWorker.port.postMessage("start");
     }
     this.playing = true;

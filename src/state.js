@@ -18,6 +18,7 @@ export class State {
       sample: 0,
       record: false,
       selecting: false,
+      saveStream: false,
     });
 
     this.transport = new Immutable.Map({
