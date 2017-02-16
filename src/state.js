@@ -6,6 +6,7 @@ export class State {
     this.cursor = new Immutable.Map({
       pattern: 0,
       sequence: 0,
+      recordSequence: 0,
       row: 0,
       row_start: 0,
       track: 0,
@@ -18,6 +19,7 @@ export class State {
       sample: 0,
       record: false,
       selecting: false,
+      saveStream: false,
     });
 
     this.transport = new Immutable.Map({

@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import MouseTrap from 'mousetrap';
 import 'jquery-ui/widgets/slider';
+import 'jquery-ui/widgets/progressbar';
 
 import Signal from '../../utils/signal';
 import { state } from '../../state';
@@ -8,6 +9,7 @@ import { song } from '../../utils/songmanager';
 import { player } from '../../audio/player';
 
 import transportTemplate from './templates/transport.marko';
+import recordTemplate from './templates/record.marko';
 
 import modfile from '../../../data/onward.xm';
 
@@ -40,6 +42,7 @@ export default class Transport {
 
     Signal.connect(state, "transportChanged", this, "onTransportChanged");
     Signal.connect(song, "songChanged", this, "onSongChanged");
+    Signal.connect(state, "cursorChanged", this, "onCursorChanged");
   }
 
   render() {
@@ -126,6 +129,39 @@ export default class Transport {
     $(this.target).find('#save').click((e) => {
       song.saveSongToLocal();
     });
+    $(this.target).find('#record').click((e) => {
+      player.stop();
+      player.reset();
+      state.set({
+        cursor: {
+          saveStream: true,
+        },
+      });
+
+      try {
+        $( "#dialog" ).empty();
+        $( "#dialog" ).append(recordTemplate.renderToString());
+
+        let max = song.getSequenceLength();
+        $("#record-progress").prop("max", max);
+        const dialog = $( "#dialog" ).dialog({
+          width: 500,
+          modal: true,
+          title: "Record Song",
+          close: function(event, ui) {
+            player.stopRecordingStream();
+            player.stop();
+          },
+        });
+
+        player.record().then(() => {
+          dialog.dialog("close");
+        });
+      } catch(e) {
+        console.log(e);
+      }
+
+    });
   }
 
   onTransportChanged() {
@@ -147,5 +183,13 @@ export default class Transport {
 
   onSongChanged() {
     this.refresh();
+  }
+
+  onCursorChanged() {
+    if(state.cursor.get("saveStream")) {
+      let sequence = state.cursor.get("recordSequence");
+      $("#record-progress").val(sequence);
+      $("#record-seq").text("" + sequence + "/" + song.getSequenceLength());
+    }
   }
 }

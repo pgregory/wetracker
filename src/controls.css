@@ -18,6 +18,10 @@
   flex-direction: row;
 }
 
+.control-group.noborder {
+  border: 0;
+}
+
 .horizontal-buttons {
   flex-direction: row;
   padding: 3px;
