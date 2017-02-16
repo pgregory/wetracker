@@ -63,3 +63,13 @@ input#songname {
   width: 250px;
   text-align: left;
 }
+
+#record-progress {
+  width: 100%;
+  margin: 5px;
+}
+
+#record-seq {
+  margin: 5px;
+}
+

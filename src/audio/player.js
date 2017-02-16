@@ -84,6 +84,7 @@ class XMViewObject {
       this.paused_events = [],
       this.shown_row = undefined,
       this.shown_pat = undefined,
+      this.shown_sequence = undefined,
       this._scope_width = 50,
 
       this.player = player;
@@ -139,59 +140,73 @@ class XMViewObject {
       }
       return;
     }
-    if('row' in e && 'pat' in e) {
-      if(e.row !== this.shown_row ||
-         e.pat !== this.shown_pat) {
-        state.set({
-          cursor: {
-            row: e.row,
-            pattern: e.pat,
-            sequence: e.songpos,
-          },
-        });
-        this.shown_row = e.row;
-        this.shown_pat = e.pat;
-      }
-    }
-    const scopes = [];
-    const states = [];
 
-    const numtracks = song.getNumTracks();
-    for (let j = 0; j < numtracks; j += 1) {
-      const ch = this.player.tracks[j];
-      ch.updateAnalyserScopeData();
-      scopes.push({
-        scopeData: ch.analyserScopeData,
-        bufferLength: ch.analyserBufferLength,
+    if (!state.cursor.get("saveStream")) {
+      if('row' in e && 'pat' in e) {
+        if(e.row !== this.shown_row ||
+           e.pat !== this.shown_pat) {
+          state.set({
+            cursor: {
+              row: e.row,
+              pattern: e.pat,
+              sequence: e.songpos,
+            },
+          });
+          this.shown_row = e.row;
+          this.shown_pat = e.pat;
+        }
+      }
+      const scopes = [];
+      const states = [];
+
+      const numtracks = song.getNumTracks();
+      for (let j = 0; j < numtracks; j += 1) {
+        const ch = this.player.tracks[j];
+        ch.updateAnalyserScopeData();
+        scopes.push({
+          scopeData: ch.analyserScopeData,
+          bufferLength: ch.analyserBufferLength,
+        });
+
+        states.push(ch.getState());
+      }
+      this.player.tracksChanged({
+        t: e.t,
+        vu: e.vu,
+        scopes,
+        states,
       });
 
-      states.push(ch.getState());
-    }
-    this.player.tracksChanged({
-      t: e.t,
-      vu: e.vu,
-      scopes,
-      states,
-    });
-
-    const positions = [];
-    for(let i = 0; i < this.player.playingInstruments.length; i += 1) {
-      const pInstr = this.player.playingInstruments[i];
-      if(!pInstr.release) {
-        if(pInstr.instrument.instrumentIndex > positions.length || positions[pInstr.instrument.instrumentIndex] == null) {
-          positions[pInstr.instrument.instrumentIndex] = [];
+      const positions = [];
+      for(let i = 0; i < this.player.playingInstruments.length; i += 1) {
+        const pInstr = this.player.playingInstruments[i];
+        if(!pInstr.release) {
+          if(pInstr.instrument.instrumentIndex > positions.length || positions[pInstr.instrument.instrumentIndex] == null) {
+            positions[pInstr.instrument.instrumentIndex] = [];
+          }
+          positions[pInstr.instrument.instrumentIndex].push({
+            instrument: pInstr,
+            position: pInstr.getCurrentPosition()
+          });
         }
-        positions[pInstr.instrument.instrumentIndex].push({
-          instrument: pInstr,
-          position: pInstr.getCurrentPosition()
-        });
+      }
+      state.set({
+        playingInstruments: {
+          positions,
+        }
+      });
+    } else {
+      if('songpos' in e) {
+        if(e.songpos !== this.shown_sequence) {
+          state.set({
+            cursor: {
+              recordSequence: e.songpos,
+            },
+          });
+          this.shown_sequence = e.songpos;
+        }
       }
     }
-    state.set({
-      playingInstruments: {
-        positions,
-      }
-    });
 
     if(this.player.playing || this.player.playingInteractive) {
       window.requestAnimationFrame(this.redrawScreen);
@@ -685,7 +700,7 @@ class Player {
     this.trackStateChanged = Signal.signal(false);
 
     this.mediaStreamDest = this.audioctx.createMediaStreamDestination();
-    this.mediaRecorder = new MediaRecorder(this.mediaStreamDest.stream);
+    this.mediaRecorder = new MediaRecorder(this.mediaStreamDest.stream, { mimeType: 'audio/webm; codecs=opus' });
     this.mediaChunks = [];
 
     this.mediaRecorder.ondataavailable = (evt) => {
@@ -695,9 +710,11 @@ class Player {
 
     this.mediaRecorder.onstop = (evt) => {
       // Make blob out of our blobs, and open it.
-      let blob = new Blob(this.mediaChunks, { 'type' : 'audio/ogg; codecs=opus' });
-      var a = document.createElement("a");
+      let blob = new Blob(this.mediaChunks, { 'type' : 'audio/webm; codecs=opus' });
+      let a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
+      let name = state.song.get("name");
+      name = name ? `${name.trim()}.webm` : 'wetracker-song.webm';
       a.download = name;
       a.click();
     };
@@ -860,7 +877,6 @@ class Player {
         this.cur_songpos++;
         if (this.cur_songpos >= song.getSequenceLength()) {
           if (state.cursor.get("saveStream")) {
-            console.log("Finished saving");
             this.stop();
             this.stopRecordingStream();
           } else {
@@ -1203,14 +1219,51 @@ class Player {
   }
 
   startRecordingStream() {
+    try {
+      this.masterGain.disconnect(this.audioctx.destination);
+    } catch(e) {
+    }
     this.masterGain.connect(this.mediaStreamDest);
     this.mediaRecorder.start();
   }
 
   stopRecordingStream() {
-    this.masterGain.disconnect(this.mediaStreamDest);
     this.mediaRecorder.stop();
+    try {
+      this.masterGain.disconnect(this.mediaStreamDest);
+    } catch(e) {
+    }
+    this.masterGain.connect(this.audioctx.destination);
+
+    state.set({
+      cursor: {
+        saveStream: false,
+      },
+    });
+
+    if(this.recordDoneResolve) {
+      this.recordDoneResolve();
+      this.recordDoneResolve = undefined;
+    }
   }
+
+  record() {
+    this.stop();
+    this.reset();
+    // start playing
+    this.nextTickTime = this.audioctx.currentTime;
+
+    this.startRecordingStream();
+
+    let promise = new Promise((resolve, reject) => {
+      this.recordDoneResolve = resolve;
+      this.timerWorker.port.postMessage("start");
+      this.playing = true;
+    });
+
+    return promise;
+  }
+
 
   _play() {
     if (!this.playing) {
@@ -1218,12 +1271,6 @@ class Player {
       if (this.XMView.resume) this.XMView.resume();
       // start playing
       this.nextTickTime = this.audioctx.currentTime;
-
-      if(state.cursor.get("saveStream")) {
-        console.log("Saving to a stream");
-
-        this.startRecordingStream();
-      }
       this.timerWorker.port.postMessage("start");
     }
     this.playing = true;
