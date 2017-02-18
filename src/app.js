@@ -23,7 +23,6 @@ import './controls.css';
 
 import { song } from './utils/songmanager';
 import { state } from './state';
-import { cursor } from './utils/cursor';
 import { player } from './audio/player';
 
 // Importing these is enough to instantiate the singelton and therefore
@@ -35,29 +34,31 @@ import './utils/fxinput';
 import './styles.css';
 
 $(document).ready(() => {
-
-  let showWeTrackerInterface = function() {
-    let transport = new Transport("#transport");
-    let tabs = new Tabs("#tabs");
+  const showWeTrackerInterface = () => {
+    const transport = new Transport('#transport');
+    const tabs = new Tabs('#tabs');
+    let curYPos;
+    let curXPos;
+    let curDown;
 
     $('#song-view').append($(gridTemplate.renderToString()));
     $('#instruments-view').append($(instrumentsViewTemplate.renderToString()));
 
-    MouseTrap.bind("space", (e) => {
-      if(player.playing) {
+    MouseTrap.bind('space', (e) => {
+      if (player.playing) {
         player.pause();
       } else {
         state.set({
           cursor: {
-            record: !state.cursor.get("record"),
-          }
+            record: !state.cursor.get('record'),
+          },
         });
       }
       e.preventDefault();
     });
 
-    MouseTrap.bind("enter", (e) => {
-      if(!player.playing) {
+    MouseTrap.bind('enter', (e) => {
+      if (!player.playing) {
         player.play();
       } else {
         player.pause();
@@ -65,11 +66,11 @@ $(document).ready(() => {
       e.preventDefault();
     });
 
-    MouseTrap.bind("mod+z", (e) => {
+    MouseTrap.bind('mod+z', () => {
       state.undo();
     });
 
-    MouseTrap.bind("shift+mod+z", (e) => {
+    MouseTrap.bind('shift+mod+z', () => {
       state.redo();
     });
 
@@ -85,59 +86,56 @@ $(document).ready(() => {
     state.set({
       transport: {
         masterVolume: -10.0,
-      }
+      },
     });
 
-    var curYPos, curXPos, curDown;
-
-    $('body').on('mousemove', function(e){ 
-      if(curDown){
+    $('body').on('mousemove', (e) => {
+      if (curDown) {
         window.scrollTo(document.body.scrollLeft + (curXPos - e.pageX), document.body.scrollTop + (curYPos - e.pageY));
       }
     });
 
-    $('.sidebar.left').on('mousedown', function(e){ 
-      curYPos = e.pageY; 
-      curXPos = e.pageX; 
-      curDown = true; 
+    $('.sidebar.left').on('mousedown', (e) => {
+      curYPos = e.pageY;
+      curXPos = e.pageX;
+      curDown = true;
     });
 
-    $('body').on('mouseup', function(e){ 
-      curDown = false; 
+    $('body').on('mouseup', () => {
+      curDown = false;
     });
-
   };
 
-  let loadSong = function() {
+  const loadSong = () => {
     const qs = QueryString.parse(location.hash.split('?')[1]);
-    if(qs.url) {
+    if (qs.url) {
       try {
-        $( "#dialog" ).empty();
-        $( "#dialog" ).append($("<p>Loading Song</p>"));
-        const dialog = $( "#dialog" ).dialog({
+        $('#dialog').empty();
+        $('#dialog').append($('<p>Loading Song</p>'));
+        const dialog = $('#dialog').dialog({
           width: 500,
           modal: true,
         });
         const url = decodeURIComponent(qs.url);
-        song.downloadSong(url).then(function() {
-          dialog.dialog( "close" );
-          if(qs.play) {
+        song.downloadSong(url).then(() => {
+          dialog.dialog('close');
+          if (qs.play) {
             window.setTimeout(() => {
               player.play();
             }, 2000);
           }
         });
-      } catch(e) {
+      } catch (e) {
         console.log(e);
       }
     }
   };
 
-  let routes = {
+  const routes = {
     '/loadsong': loadSong,
   };
 
-  let router = Director.Router(routes);
+  const router = Director.Router(routes);
 
   showWeTrackerInterface();
 

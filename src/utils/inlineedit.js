@@ -1,25 +1,25 @@
 import $ from 'jquery';
 import { virtualKeyboard } from './virtualkeyboard';
 
-$.fn.inlineEdit = function(options = {}) {
-  let settings = $.extend({
+$.fn.inlineEdit = function inlineEdit(options = {}) {
+  const settings = $.extend({
     editor: '<input class="inline-editor" name="temp" type="text" />',
   }, options);
 
   let cancel = false;
 
-  $(this).hover(function() {
+  $(this).hover(function hoverIn() {
     $(this).addClass('hover');
-  }, function() {
+  }, function hoverOut() {
     $(this).removeClass('hover');
   });
 
-  $(this).dblclick(function() {
+  $(this).dblclick(function dblClick() {
     virtualKeyboard.pause();
     const elem = $(this);
     cancel = false;
 
-    let replaceWith = $(settings.editor);
+    const replaceWith = $(settings.editor);
     const width = elem.width();
 
     elem.hide();
@@ -28,9 +28,9 @@ $.fn.inlineEdit = function(options = {}) {
     replaceWith.val(elem.text());
     replaceWith.focus();
 
-    replaceWith.blur(function() {
-      if ($(this).val() != "" && !cancel) {
-        if (typeof settings.accept === 'function') { 
+    replaceWith.blur(function blur() {
+      if ($(this).val() !== '' && !cancel) {
+        if (typeof settings.accept === 'function') {
           settings.accept.call(this, $(this).val());
         }
         elem.text($(this).val());
@@ -41,9 +41,9 @@ $.fn.inlineEdit = function(options = {}) {
       virtualKeyboard.resume();
     });
 
-    replaceWith.keyup(function(e) {
-      if(e.key === "Enter" || e.key === "Escape") {
-        if(e.key === "Escape") {
+    replaceWith.keyup(function keyup(e) {
+      if (e.key === 'Enter' || e.key === 'Escape') {
+        if (e.key === 'Escape') {
           cancel = true;
         } else {
           cancel = false;

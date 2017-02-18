@@ -1,5 +1,5 @@
 import Immutable from 'immutable';
-import Signal from './utils/signal';
+import { signal } from './utils/signal';
 
 export class State {
   constructor() {
@@ -41,16 +41,16 @@ export class State {
       snapshot: {
         song: this.song,
       },
-      annotation: "Start",
+      annotation: 'Start',
     }];
     this.historyIndex = 0;
     this.historyGrouping = false;
-    this.historyGroupAnnotation = "";
+    this.historyGroupAnnotation = '';
 
-    this.cursorChanged = Signal.signal(true);
-    this.transportChanged = Signal.signal(true);
-    this.playingInstrumentsChanged = Signal.signal(true);
-    this.songChanged = Signal.signal(true);
+    this.cursorChanged = signal(true);
+    this.transportChanged = signal(true);
+    this.playingInstrumentsChanged = signal(true);
+    this.songChanged = signal(true);
   }
 
   recordCurrentState(annotation) {
@@ -59,8 +59,8 @@ export class State {
         song: this.song,
       };
       this.history = this.history.slice(0, this.historyIndex + 1);
-      this.history.push({annotation, snapshot});
-      // Move the pointer forward, historyIndex now points at the 
+      this.history.push({ annotation, snapshot });
+      // Move the pointer forward, historyIndex now points at the
       // current state duplicated in the history buffer.
       this.historyIndex += 1;
     }
@@ -76,17 +76,17 @@ export class State {
   }
 
   updateState(state) {
-    if ('cursor' in state ) {
+    if ('cursor' in state) {
       this.cursor = this.cursor.merge(state.cursor);
       this.cursorChanged();
     }
 
-    if ('transport' in state ) {
+    if ('transport' in state) {
       this.transport = this.transport.merge(state.transport);
       this.transportChanged();
     }
 
-    if ('playingInstruments' in state ) {
+    if ('playingInstruments' in state) {
       this.playingInstruments = this.playingInstruments.merge(state.playingInstruments);
       this.playingInstrumentsChanged();
     }
@@ -103,16 +103,16 @@ export class State {
   }
 
   groupHistoryEnd() {
-    // Tell the history that it has completed the group, and take a snapshot of the current 
+    // Tell the history that it has completed the group, and take a snapshot of the current
     // state.
     this.historyGrouping = false;
     this.recordCurrentState(this.historyGroupAnnotation);
-    this.historyGroupAnnotation = "";
+    this.historyGroupAnnotation = '';
   }
 
   undo() {
-    let now = undefined;
-    let past = undefined;
+    let now;
+    let past;
     // If there is any history to undo.
     if (this.historyIndex > 0) {
       now = this.history[this.historyIndex];
@@ -124,15 +124,15 @@ export class State {
       try {
         this.updateState(past.snapshot);
         this.songChanged();
-        console.log("Undo: " + now.annotation);
-      } catch(e) {
+        console.log(`Undo: ${now.annotation}`);
+      } catch (e) {
         console.log(e);
       }
     }
   }
 
   redo() {
-    let future = undefined;
+    let future;
     // Check if there is any future state to restore
     if (this.historyIndex < this.history.length - 1) {
       // Move the marker forward in history.
@@ -142,8 +142,8 @@ export class State {
       // Apply that historic state to the current state.
       try {
         this.updateState(future.snapshot);
-        console.log("Redo: " + future.annotation);
-      } catch(e) {
+        console.log(`Redo: ${future.annotation}`);
+      } catch (e) {
         console.log(e);
       }
     }
@@ -154,10 +154,10 @@ export class State {
       snapshot: {
         song: this.song,
       },
-      annotation: "Reset",
+      annotation: 'Reset',
     }];
     this.historyIndex = 0;
   }
 }
 
-export let state = new State();
+export const state = new State();

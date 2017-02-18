@@ -1,4 +1,3 @@
-import Signal from './signal';
 import MouseTrap from 'mousetrap';
 
 import { state } from '../state';
@@ -17,45 +16,45 @@ const items = [
 
 export class CursorManager {
   constructor() {
-    MouseTrap.bind(["down", "shift+down"], (e) => {
+    MouseTrap.bind(['down', 'shift+down'], (e) => {
       const selectMode = e.shiftKey;
       this.rowDown(1, selectMode);
       e.preventDefault();
     });
-    MouseTrap.bind(["up", "shift+up"], (e) => {
+    MouseTrap.bind(['up', 'shift+up'], (e) => {
       const selectMode = e.shiftKey;
       this.rowUp(1, selectMode);
       e.preventDefault();
     });
-    MouseTrap.bind(["right", "shift+right"], (e) => {
+    MouseTrap.bind(['right', 'shift+right'], (e) => {
       const selectMode = e.shiftKey;
       this.itemRight(selectMode);
       e.preventDefault();
     });
-    MouseTrap.bind(["left", "shift+left"], (e) => {
+    MouseTrap.bind(['left', 'shift+left'], (e) => {
       const selectMode = e.shiftKey;
       this.itemLeft(selectMode);
       e.preventDefault();
     });
-    MouseTrap.bind("del", (e) => {
-      if (state.cursor.get("record")) {
-        if (e.ctrlKey || e.shiftKey || e.metaKey ) {
+    MouseTrap.bind('del', (e) => {
+      if (state.cursor.get('record')) {
+        if (e.ctrlKey || e.shiftKey || e.metaKey) {
           return;
         }
         song.deleteItemAtCursor(state.cursor.toJS());
         event.preventDefault();
       }
     });
-    MouseTrap.bind("backspace", (e) => {
-      if(state.cursor.get("record") && state.cursor.get("row") > 0) {
-        if (e.ctrlKey || e.shiftKey || e.metaKey ) {
+    MouseTrap.bind('backspace', (e) => {
+      if (state.cursor.get('record') && state.cursor.get('row') > 0) {
+        if (e.ctrlKey || e.shiftKey || e.metaKey) {
           return;
         }
-        song.deleteRow(state.cursor.get("row") - 1);
+        song.deleteRow(state.cursor.get('row') - 1);
         state.set({
           cursor: {
-            row: state.cursor.get("row") - 1,
-          }
+            row: state.cursor.get('row') - 1,
+          },
         });
         event.preventDefault();
       }
@@ -63,15 +62,15 @@ export class CursorManager {
   }
 
   storeStartCursor() {
-    if (!(state.cursor.get("selecting"))) {
+    if (!(state.cursor.get('selecting'))) {
       state.set({
         cursor: {
-          row_start: state.cursor.get("row"),
-          track_start: state.cursor.get("track"),
-          column_start: state.cursor.get("column"),
-          item_start: state.cursor.get("item"),
+          row_start: state.cursor.get('row'),
+          track_start: state.cursor.get('track'),
+          column_start: state.cursor.get('column'),
+          item_start: state.cursor.get('item'),
           selecting: true,
-        }
+        },
       });
     }
   }
@@ -79,27 +78,27 @@ export class CursorManager {
   resetStartCursor() {
     state.set({
       cursor: {
-        row_start: state.cursor.get("row"),
-        track_start: state.cursor.get("track"),
-        column_start: state.cursor.get("column"),
-        item_start: state.cursor.get("item"),
+        row_start: state.cursor.get('row'),
+        track_start: state.cursor.get('track'),
+        column_start: state.cursor.get('column'),
+        item_start: state.cursor.get('item'),
         selecting: false,
-      }
+      },
     });
   }
 
   rowUp(count, selectMode) {
-    let row = state.cursor.get("row") - count;
+    let row = state.cursor.get('row') - count;
     if (row < 0) {
-      row = song.getPatternRowCount(state.cursor.get("pattern")) + row;
+      row = song.getPatternRowCount(state.cursor.get('pattern')) + row;
     }
     if (selectMode) {
       this.storeStartCursor();
-    } 
+    }
     state.set({
       cursor: {
         row,
-      }
+      },
     });
     if (!selectMode) {
       this.resetStartCursor();
@@ -107,8 +106,8 @@ export class CursorManager {
   }
 
   rowDown(count, selectMode) {
-    let row = state.cursor.get("row") + count;
-    const numrows = song.getPatternRowCount(state.cursor.get("pattern"));
+    let row = state.cursor.get('row') + count;
+    const numrows = song.getPatternRowCount(state.cursor.get('pattern'));
     if (row >= numrows) {
       row = 0 + (row - numrows);
     }
@@ -118,7 +117,7 @@ export class CursorManager {
     state.set({
       cursor: {
         row,
-      }
+      },
     });
     if (!selectMode) {
       this.resetStartCursor();
@@ -126,12 +125,12 @@ export class CursorManager {
   }
 
   itemLeft(selectMode) {
-    let item = state.cursor.get("item");
-    let track = state.cursor.get("track");
-    let column = state.cursor.get("column");
+    let item = state.cursor.get('item');
+    let track = state.cursor.get('track');
+    let column = state.cursor.get('column');
     item -= 1;
-    if (item < 0 ) {
-      item = items.length-1; 
+    if (item < 0) {
+      item = items.length - 1;
       column -= 1;
       if (column < 0) {
         track -= 1;
@@ -148,8 +147,8 @@ export class CursorManager {
       cursor: {
         track,
         column,
-        item, 
-      }
+        item,
+      },
     });
     if (!selectMode) {
       this.resetStartCursor();
@@ -157,12 +156,12 @@ export class CursorManager {
   }
 
   itemRight(selectMode) {
-    let item = state.cursor.get("item");
-    let track = state.cursor.get("track");
-    let column = state.cursor.get("column");
+    let item = state.cursor.get('item');
+    let track = state.cursor.get('track');
+    let column = state.cursor.get('column');
     item += 1;
-    if (item >= items.length ) {
-      item = 0; 
+    if (item >= items.length) {
+      item = 0;
       // Next notecolumn
       column += 1;
       if (column >= song.getTrackNumColumns(track)) {
@@ -180,8 +179,8 @@ export class CursorManager {
       cursor: {
         track,
         column,
-        item, 
-      }
+        item,
+      },
     });
     if (!selectMode) {
       this.resetStartCursor();
@@ -189,5 +188,4 @@ export class CursorManager {
   }
 }
 
-export let cursor = new CursorManager(); 
-
+export const cursor = new CursorManager();
