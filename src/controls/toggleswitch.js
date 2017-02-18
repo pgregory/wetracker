@@ -12,9 +12,9 @@ import $ from 'jquery';
 
   ToggleSwitch.prototype.render = function () {
     this.$checkbox.hide();
-    this.$el = $('<div class="toggle-switch"/>')
+    this.$el = $('<div class="toggle-switch ui-corner-all ui-widget"/>')
       .insertAfter(this.$checkbox);
-    this.$handle = $('<div class="handle"/>')
+    this.$handle = $('<div class="toggle-handle"/>')
       .appendTo(this.$el);
     this.init();
   };
