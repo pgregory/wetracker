@@ -7,6 +7,8 @@ import { state } from '../../state';
 import { song } from '../../utils/songmanager';
 import { player } from '../../audio/player';
 
+import '../../controls/toggleswitch';
+
 import template from './templates/effects_editor.marko';
 
 import * as chorus from './effects/chorus';
@@ -132,6 +134,8 @@ export default class EffectsEditor {
           song.moveTrackEffectInChain(state.cursor.get("track"), oldIndex, newIndex);
         },
       });
+
+      $('.toggleSwitch').toggleSwitch();
     } catch(e) {
       console.log(e);
     }
