@@ -354,7 +354,7 @@ class XMLoader {
           if (!(envVolType & 2)) {  // if there's no sustain point, create one
             envVolSustain = envVol.length / 2;
           }
-          inst.envVol = {
+          inst.env_vol = {
             points: envVol,
             type: envVolType,
             sustain: envVolSustain,
@@ -364,7 +364,7 @@ class XMLoader {
         } else {
           // no envelope, then just make a default full-volume envelope.
           // i thought this would use fadeout, but apparently it doesn't.
-          inst.envVol = {
+          inst.env_vol = {
             points: [0, 64, 1, 0],
             type: 2,
             sustain: 0,
@@ -376,7 +376,7 @@ class XMLoader {
           if (!(envPanType & 2)) {  // if there's no sustain point, create one
             envPanSustain = (envPan.length / 2) - 1;
           }
-          inst.envPan = {
+          inst.env_pan = {
             points: envPan,
             type: envPanType,
             sustain: envPanSustain,
@@ -385,7 +385,7 @@ class XMLoader {
           };
         } else {
           // create a default empty envelope
-          inst.envPan = {
+          inst.env_pan = {
             points: [0, 32],
             type: 0,
             sustain: 0,
