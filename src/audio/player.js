@@ -738,8 +738,8 @@ class Player {
     if (e.data === 'tick') {
       const msPerTick = 2.5 / this.bpm;
       while (this.nextInteractiveTickTime < (this.audioctx.currentTime + this.interactiveScheduleAheadTime)) {
-        let i = this.playingInstruments.length;
-        while (i > 0) {
+        let i = this.playingInstruments.length - 1;
+        while (i >= 0) {
           if (this.playingInstruments[i].updateVolumeEnvelope(this.nextInteractiveTickTime)) {
             this.stopInteractiveInstrument(this.playingInstruments[i]);
           }
