@@ -36,7 +36,7 @@ export default class Browser {
           },
         },
       },
-    }).on('dblclick', '.jstree-anchor', () => {
+    }).on('dblclick', '.jstree-anchor', function dblclick() {
       const instance = $.jstree.reference(this);
       const node = instance.get_node(this);
       const songfileURL = `${__API__}songs/${node.original._id}/file`;
