@@ -1,3 +1,4 @@
+/* global MediaRecorder:false */
 // eslint-disable-next-line import/no-webpack-loader-syntax
 import TimerWorker from 'shared-worker!./timerworker';
 import Tuna from 'tunajs';
