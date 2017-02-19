@@ -2,15 +2,12 @@ import $ from 'jquery';
 import 'jstree';
 import 'jstree/dist/themes/default-dark/style.css';
 
-import MouseTrap from 'mousetrap';
-
-import Signal from '../../utils/signal';
-import { state } from '../../state';
 import { song } from '../../utils/songmanager';
 
 import browserTemplate from './templates/browser.marko';
 
-import styles from './styles.css';
+/* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
+/* global __API__:false */
 
 export default class Browser {
   constructor(target) {
@@ -21,40 +18,40 @@ export default class Browser {
     $(this.target).append(browserTemplate.renderToString());
 
     $(this.target).find('.item-list').jstree({
-      "core": {
-        "themes": {
-          "name": "default-dark",
-          "variant": "small",
+      core: {
+        themes: {
+          name: 'default-dark',
+          variant: 'small',
         },
-        "data": {
-          "url": __API__ + "songs",
-          "type": "GET",
-          "dataFilter": function(data) {
-            let songs = JSON.parse(data);
-            let result = [];
-            for (let s in songs) {
-              result.push({ "text": songs[s].name, "_id": songs[s]._id });
+        data: {
+          url: `${__API__}songs`,
+          type: 'GET',
+          dataFilter: (data) => {
+            const songs = JSON.parse(data);
+            const result = [];
+            for (let s = 0; s < songs.length; s += 1) {
+              result.push({ text: songs[s].name, _id: songs[s]._id });
             }
-            return JSON.stringify({ "text": "Demo Songs", "children": result });
+            return JSON.stringify({ text: 'Demo Songs', children: result });
           },
         },
       },
-    }).on('dblclick','.jstree-anchor', function (e) {
-      let instance = $.jstree.reference(this);
-      let node = instance.get_node(this);
-      let songfileURL = `${__API__}songs/${node.original._id}/file`;
+    }).on('dblclick', '.jstree-anchor', () => {
+      const instance = $.jstree.reference(this);
+      const node = instance.get_node(this);
+      const songfileURL = `${__API__}songs/${node.original._id}/file`;
 
       try {
-        $( "#dialog" ).empty();
-        $( "#dialog" ).append($("<p>Loading Song</p>"));
-        const dialog = $( "#dialog" ).dialog({
+        $('#dialog').empty();
+        $('#dialog').append($('<p>Loading Song</p>'));
+        const dialog = $('#dialog').dialog({
           width: 500,
           modal: true,
         });
-        song.downloadSong(songfileURL).then(function() {
-          dialog.dialog( "close" );
+        song.downloadSong(songfileURL).then(() => {
+          dialog.dialog('close');
         });
-      } catch(e) {
+      } catch (e) {
         console.log(e);
       }
     });
