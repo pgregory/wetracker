@@ -1,13 +1,13 @@
-import Immutable from 'immutable';
-import Signal from '../utils/signal';
+// eslint-disable-next-line import/no-webpack-loader-syntax
+import TimerWorker from 'shared-worker!./timerworker';
+import Tuna from 'tunajs';
+
+import { signal, connect } from '../utils/signal';
 
 import { state } from '../state';
 import { song } from '../utils/songmanager';
 import Envelope from './envelope';
 
-import TimerWorker from 'shared-worker!./timerworker';
-
-import Tuna from 'tunajs';
 
 import * as chorus from '../components/effects_editor/effects/chorus';
 import * as delay from '../components/effects_editor/effects/delay';
@@ -44,19 +44,20 @@ class EnvelopeFollower {
   }
 
   Tick(release, def, releaseval) {
-    if(this.env != null && (this.env.type & 0x1) !== 0) {
-      var value = this.env.Get(this.tick);
+    if (this.env != null && (this.env.type & 0x1) !== 0) { // eslint-disable-line no-bitwise
+      const value = this.env.Get(this.tick);
 
       if (value != null) {
         // if we're sustaining a note, stop advancing the tick counter
-        if (this.env.type & 2) {
-          if (!release && this.tick >= this.env.points[this.env.sustain*2]) {
-            return this.env.points[this.env.sustain*2 + 1];
+        if (this.env.type & 2) {  // eslint-disable-line no-bitwise
+          if (!release && this.tick >= this.env.points[this.env.sustain * 2]) {
+            return this.env.points[(this.env.sustain * 2) + 1];
           }
         }
 
         // TODO: Need to take into account vol_fadeout when releasing.
-        this.tick++;
+        this.tick += 1;
+        // eslint-disable-next-line no-bitwise
         if (this.env.type & 4) {  // envelope loop?
           if (this.tick >= this.env.loopend) {
             this.tick = this.env.loopstart;
@@ -68,9 +69,8 @@ class EnvelopeFollower {
 
     if (release) {
       return releaseval;
-    } else {
-      return def;
     }
+    return def;
   }
 
   reset() {
@@ -80,41 +80,40 @@ class EnvelopeFollower {
 
 class XMViewObject {
   constructor(player) {
-      this.audio_events = [],
-      this.paused_events = [],
-      this.shown_row = undefined,
-      this.shown_pat = undefined,
-      this.shown_sequence = undefined,
-      this._scope_width = 50,
+    this.audioEvents = [];
+    this.pausedEvents = [];
+    this.shownRow = undefined;
+    this.shownPat = undefined;
+    this.shown_sequence = undefined;
 
-      this.player = player;
+    this.player = player;
 
-      this.redrawScreen = this.redrawScreen.bind(this);
+    this.redrawScreen = this.redrawScreen.bind(this);
   }
 
   pause() {
     // grab all the audio events
-    var t = this.player.audioctx.currentTime;
-    while (this.audio_events.length > 0) {
-      var e = this.audio_events.shift();
+    const t = this.player.audioctx.currentTime;
+    while (this.audioEvents.length > 0) {
+      const e = this.audioEvents.shift();
       e.t -= t;
-      this.paused_events.push(e);
+      this.pausedEvents.push(e);
     }
   }
 
   resume() {
-    var t = this.player.audioctx.currentTime;
-    while (this.paused_events.length > 0) {
-      var e = this.paused_events.shift();
+    const t = this.player.audioctx.currentTime;
+    while (this.pausedEvents.length > 0) {
+      const e = this.pausedEvents.shift();
       e.t += t;
-      this.audio_events.push(e);
+      this.audioEvents.push(e);
     }
     window.requestAnimationFrame(this.redrawScreen);
   }
 
   stop() {
-    this.audio_events = [];
-    this.paused_events = [];
+    this.audioEvents = [];
+    this.pausedEvents = [];
   }
 
   start() {
@@ -122,17 +121,17 @@ class XMViewObject {
   }
 
   pushEvent(e) {
-    this.audio_events.push(e);
-    if(this.audio_events.length === 1 || e.t === -1) {
+    this.audioEvents.push(e);
+    if (this.audioEvents.length === 1 || e.t === -1) {
       window.requestAnimationFrame(this.redrawScreen);
     }
   }
 
   redrawScreen() {
-    var e;
-    var t = this.player.audioctx.currentTime;
-    while (this.audio_events.length > 0 && this.audio_events[0].t <= t) {
-      e = this.audio_events.shift();
+    let e;
+    const t = this.player.audioctx.currentTime;
+    while (this.audioEvents.length > 0 && this.audioEvents[0].t <= t) {
+      e = this.audioEvents.shift();
     }
     if (!e) {
       if (this.player.playing || this.player.playingInteractive) {
@@ -141,10 +140,10 @@ class XMViewObject {
       return;
     }
 
-    if (!state.cursor.get("saveStream")) {
-      if('row' in e && 'pat' in e) {
-        if(e.row !== this.shown_row ||
-           e.pat !== this.shown_pat) {
+    if (!state.cursor.get('saveStream')) {
+      if ('row' in e && 'pat' in e) {
+        if (e.row !== this.shownRow ||
+           e.pat !== this.shownPat) {
           state.set({
             cursor: {
               row: e.row,
@@ -152,8 +151,8 @@ class XMViewObject {
               sequence: e.songpos,
             },
           });
-          this.shown_row = e.row;
-          this.shown_pat = e.pat;
+          this.shownRow = e.row;
+          this.shownPat = e.pat;
         }
       }
       const scopes = [];
@@ -178,37 +177,35 @@ class XMViewObject {
       });
 
       const positions = [];
-      for(let i = 0; i < this.player.playingInstruments.length; i += 1) {
+      for (let i = 0; i < this.player.playingInstruments.length; i += 1) {
         const pInstr = this.player.playingInstruments[i];
-        if(!pInstr.release) {
-          if(pInstr.instrument.instrumentIndex > positions.length || positions[pInstr.instrument.instrumentIndex] == null) {
+        if (!pInstr.release) {
+          if (pInstr.instrument.instrumentIndex > positions.length || positions[pInstr.instrument.instrumentIndex] == null) {
             positions[pInstr.instrument.instrumentIndex] = [];
           }
           positions[pInstr.instrument.instrumentIndex].push({
             instrument: pInstr,
-            position: pInstr.getCurrentPosition()
+            position: pInstr.getCurrentPosition(),
           });
         }
       }
       state.set({
         playingInstruments: {
           positions,
-        }
+        },
       });
-    } else {
-      if('songpos' in e) {
-        if(e.songpos !== this.shown_sequence) {
-          state.set({
-            cursor: {
-              recordSequence: e.songpos,
-            },
-          });
-          this.shown_sequence = e.songpos;
-        }
+    } else if ('songpos' in e) {
+      if (e.songpos !== this.shown_sequence) {
+        state.set({
+          cursor: {
+            recordSequence: e.songpos,
+          },
+        });
+        this.shown_sequence = e.songpos;
       }
     }
 
-    if(this.player.playing || this.player.playingInteractive) {
+    if (this.player.playing || this.player.playingInteractive) {
       window.requestAnimationFrame(this.redrawScreen);
     }
   }
@@ -249,25 +246,25 @@ class PlayerInstrument {
   }
 
   updateVolumeEnvelope(time) {
-    if(this.release) {
+    if (this.release) {
       this.fadeOutVol -= this.instrument.inst.fadeout;
-      if(this.fadeOutVol < 0) {
+      if (this.fadeOutVol < 0) {
         return true;
       }
     }
     let volE = this.volumeEnvelope.Tick(this.release, 64.0, 0.0) / 64.0;
-    let panE = (this.panningEnvelope.Tick(this.release, 32.0, 32.0) - 32) / 32.0;
+    const panE = (this.panningEnvelope.Tick(this.release, 32.0, 32.0) - 32) / 32.0;
 
     // Fade out
-    volE = (this.fadeOutVol/65536) * volE;
+    volE *= this.fadeOutVol / 65536;
 
     // panE is -1 to 1
-    // channel.pan is 0 to 255 
-    let pan = Math.max(-1, Math.min(1, panE + ((this.channel.pan - 128) / 128.0)));  // final pan
+    // channel.pan is 0 to 255
+    const pan = Math.max(-1, Math.min(1, panE + ((this.channel.pan - 128) / 128.0)));  // final pan
     // globalVolume is 0-128
     // volE is 0-1
     // channel.vol is 0-64
-    let vol = Math.max(0, Math.min(1, (player.globalVolume / 128) * volE * (this.channel.vol / 64)));
+    const vol = Math.max(0, Math.min(1, (player.globalVolume / 128) * volE * (this.channel.vol / 64)));
 
     this.gainNode.gain.linearRampToValueAtTime(vol, time);
     this.panningNode.pan.linearRampToValueAtTime(pan, time);
@@ -293,19 +290,17 @@ class PlayerInstrument {
   }
 
   updateChannelPeriod(time, period) {
-    var rate = this.rateForPeriod(period);
-
-    //this.sourceNode.playbackRate.value = rate;
+    const rate = this.rateForPeriod(period);
     this.sourceNode.playbackRate.setValueAtTime(rate, time);
   }
 
   rateForPeriod(period) {
-    var freq = 8363 * Math.pow(2, (1152.0 - period) / 192.0);
+    const freq = 8363 * (2 ** ((1152.0 - period) / 192.0));
     if (isNaN(freq)) {
-      console.log("invalid period!", period);
+      console.log('invalid period!', period);
       return 0;
     }
-    var rate = freq / this.instrument.ctx.sampleRate;
+    const rate = freq / this.instrument.ctx.sampleRate;
     return rate;
   }
 
@@ -319,10 +314,10 @@ class PlayerInstrument {
     let loopLen = this.sample.loopEnd - this.sample.loopStart;
     let loopPoint = this.sample.loopEnd;
     if (this.sample.loopType === 2) {
-      loopPoint = this.sample.loopStart + (loopLen/2.0);
+      loopPoint = this.sample.loopStart + (loopLen / 2.0);
       loopLen /= 2.0;
     }
-    if(this.sample.loop && (offset > loopPoint)) {
+    if (this.sample.loop && (offset > loopPoint)) {
       let loopCount = 0;
       let loopOffset = offset;
       while (loopOffset > loopPoint) {
@@ -330,7 +325,7 @@ class PlayerInstrument {
         loopCount += 1;
       }
 
-      if (this.sample.loopType === 2 && (loopCount & 1) == 1) {
+      if (this.sample.loopType === 2 && (loopCount & 1) === 1) { // eslint-disable-line no-bitwise
         offset = loopPoint - (loopOffset - this.sample.loopStart);
       } else {
         offset = loopOffset;
@@ -361,45 +356,47 @@ class Instrument {
 
     // Build AudioBuffers from the sample data stored in the song
     if (this.inst.samples && this.inst.samples.length > 0) {
-      for(var i = 0; i < this.inst.samples.length; i += 1) {
+      for (let i = 0; i < this.inst.samples.length; i += 1) {
         let sample = {};
-        if(this.inst.samples[i].len > 0 ) {
+        if (this.inst.samples[i].len > 0) {
           let buflen = this.inst.samples[i].len;
-          if(this.inst.samples[i].type & 2) {
+          if (this.inst.samples[i].type & 2) { // eslint-disable-line no-bitwise
             buflen += this.inst.samples[i].looplen;
           }
           const buf = ctx.createBuffer(1, buflen, ctx.sampleRate);
-          let chan = buf.getChannelData(0);
+          const chan = buf.getChannelData(0);
           let loop = false;
           let loopType = 0;
           let loopStart = -1;
           let loopEnd = -1;
           try {
             // If pingpong loop, duplicate the loop section in reverse
-            if (this.inst.samples[i].type & 2) {
-              for(var s = 0; s < this.inst.samples[i].loop + this.inst.samples[i].looplen; s += 1) {
+            if (this.inst.samples[i].type & 2) { // eslint-disable-line no-bitwise
+              let s;
+              let t;
+              for (s = 0; s < this.inst.samples[i].loop + this.inst.samples[i].looplen; s += 1) {
                 chan[s] = this.inst.samples[i].sampledata.data[s];
               }
               // Duplicate loop section in reverse
-              for (var t = s - 1; t >= this.inst.samples[i].loop; t--, s++) {
+              for (t = s - 1; t >= this.inst.samples[i].loop; t -= 1, s += 1) {
                 chan[s] = this.inst.samples[i].sampledata.data[t];
               }
               loop = true;
               loopType = 2;
               loopStart = (buf.duration / buf.length) * this.inst.samples[i].loop;
-              loopEnd = loopStart + ((buf.duration / buf.length) * ( this.inst.samples[i].looplen * 2));
+              loopEnd = loopStart + ((buf.duration / buf.length) * (this.inst.samples[i].looplen * 2));
             } else {
-              for(var s = 0; s < this.inst.samples[0].len; s += 1) {
+              for (let s = 0; s < this.inst.samples[0].len; s += 1) {
                 chan[s] = this.inst.samples[i].sampledata.data[s];
               }
-              if ((this.inst.samples[i].type & 3) == 1 && this.inst.samples[i].looplen !== 0) {
+              if ((this.inst.samples[i].type & 3) === 1 && this.inst.samples[i].looplen !== 0) { // eslint-disable-line no-bitwise
                 loop = true;
                 loopType = 1;
                 loopStart = (buf.duration / buf.length) * this.inst.samples[i].loop;
                 loopEnd = loopStart + ((buf.duration / buf.length) * this.inst.samples[i].looplen);
               }
             }
-          } catch(e) {
+          } catch (e) {
             console.log(e);
           }
           sample = {
@@ -425,7 +422,7 @@ class Instrument {
 
   periodForNote(ch, note, fine) {
     const sampNote = this.inst.samples[this.inst.samplemap[Math.min(Math.max(note, 0), 95)]].note;
-    return 1920 - (note + sampNote)*16 - fine / 8.0;
+    return 1920 - ((note + sampNote) * 16) - (fine / 8.0);
   }
 
   refreshEnvelopeData() {
@@ -456,7 +453,7 @@ class Track {
     this.filterstate = new Float32Array(3);
     this.vol = 0;
     this.pan = 128;
-    this.period = 1920 - 48*16;
+    this.period = 1920 - (48 * 16);
     this.vL = 0;
     this.vR = 0;   // left right volume envelope followers (changes per sample)
     this.vLprev = 0;
@@ -492,64 +489,63 @@ class Track {
     this.analyser.getByteTimeDomainData(this.analyserScopeData);
   }
 
-  pushState(state) {
-    if ('properties' in state && 'gain' in state.properties) {
-      this.gainNode.gain.value = state.properties.gain; 
+  /* eslint-disable no-param-reassign */
+  pushState(trackState) {
+    if ('properties' in trackState && 'gain' in trackState.properties) {
+      this.gainNode.gain.value = trackState.properties.gain;
+    } else if ('properties' in trackState) {
+      trackState.properties.gain = this.gainNode.gain.value;
     } else {
-      if ('properties' in state) {
-        state.properties.gain = this.gainNode.gain.value;
-      } else {
-        state.properties = {
-          gain: this.gainNode.gain.value,
-        }
-      }
+      trackState.properties = {
+        gain: this.gainNode.gain.value,
+      };
     }
-    this.stateStack.push(state);
+    this.stateStack.push(trackState);
   }
+  /* eslint-enable no-param-reassign */
 
-  setState(state) {
-    if ('properties' in state && 'gain' in state.properties) {
-      this.gainNode.gain.value = state.properties.gain; 
+  /* eslint-disable no-param-reassign */
+  setState(trackState) {
+    if ('properties' in trackState && 'gain' in trackState.properties) {
+      this.gainNode.gain.value = trackState.properties.gain;
+    } else if ('properties' in trackState) {
+      trackState.properties.gain = this.gainNode.gain.value;
     } else {
-      if ('properties' in state) {
-        state.properties.gain = this.gainNode.gain.value;
-      } else {
-        state.properties = {
-          gain: this.gainNode.gain.value,
-        }
-      }
+      trackState.properties = {
+        gain: this.gainNode.gain.value,
+      };
     }
-    this.stateStack[this.stateStack.length - 1] = state;
+    this.stateStack[this.stateStack.length - 1] = trackState;
   }
+  /* eslint-enable no-param-reassign */
 
   popState() {
-    const state = this.stateStack.pop();
+    const trackState = this.stateStack.pop();
     this.gainNode.gain.value = this.getState().properties.gain;
-    return state;
+    return trackState;
   }
 
   getState() {
     if (this.stateStack.length > 0) {
       return this.stateStack[this.stateStack.length - 1];
-    } else {
-      return {
-        state: NORMAL,
-        properties: {
-          gain: 1,
-        },
-      };
     }
+    return {
+      state: NORMAL,
+      properties: {
+        gain: 1,
+      },
+    };
   }
 
   buildEffectChain(effects) {
     this.effectChain = [];
     this.gainNode.disconnect();
-    for(let i = 0; i < this.effectChain.length; i += 1) {
+    for (let i = 0; i < this.effectChain.length; i += 1) {
       this.effectChain[i].disconnect();
     }
     if (effects.length > 0) {
       for (let i = 0; i < effects.length; i += 1) {
-        let fx = new effectNodeConstructors[effects[i].type].Node(player.tuna, effects[i]);
+        const fx = new effectNodeConstructors[effects[i].type].Node(player.tuna, effects[i]);
         if (i > 0) {
           this.effectChain[i - 1].fx.connect(fx.fx);
         }
@@ -582,7 +578,8 @@ class Player {
     this.jump_row = undefined;
     this.cur_ticksamp = 0;
     this.cur_tick = 0;
-    this.globalVolume = this.max_global_volume = 128;
+    this.globalVolume = 128;
+    this.max_global_volume = this.globalVolume;
     this.masterVolume = undefined;
     this.speed = song.getSpeed();
 
@@ -661,11 +658,11 @@ class Player {
       this.eff_unimplemented,  // w
       this.eff_unimplemented,  // x
       this.eff_unimplemented,  // y
-      this.eff_unimplemented   // z
+      this.eff_unimplemented,  // z
     ];
 
-    var audioContext = window.AudioContext || window.webkitAudioContext;
-    this.audioctx = new audioContext();
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    this.audioctx = new AudioContext();
     this.tuna = new Tuna(this.audioctx);
 
     this.gainNode = this.audioctx.createGain();
@@ -685,19 +682,19 @@ class Player {
     this.XMView = new XMViewObject(this);
 
     this.timerWorker = new TimerWorker();
-    this.timerWorker.port.postMessage({"interval": this.lookahead});
+    this.timerWorker.port.postMessage({ interval: this.lookahead });
     this.timerWorker.port.onmessage = this.onTimerMessage.bind(this);
     this.timerWorker.port.start();
 
     this.interactiveTimerWorker = new TimerWorker();
-    this.interactiveTimerWorker.port.postMessage({"interval": this.interactiveLookahead});
+    this.interactiveTimerWorker.port.postMessage({ interval: this.interactiveLookahead });
     this.interactiveTimerWorker.port.onmessage = this.onInteractiveTimerMessage.bind(this);
     this.interactiveTimerWorker.port.start();
 
     this.playingInstruments = [];
 
-    this.tracksChanged = Signal.signal(false);
-    this.trackStateChanged = Signal.signal(false);
+    this.tracksChanged = signal(false);
+    this.trackStateChanged = signal(false);
 
     this.mediaStreamDest = this.audioctx.createMediaStreamDestination();
     this.mediaRecorder = new MediaRecorder(this.mediaStreamDest.stream, { mimeType: 'audio/webm; codecs=opus' });
@@ -708,43 +705,44 @@ class Player {
       this.mediaChunks.push(evt.data);
     };
 
-    this.mediaRecorder.onstop = (evt) => {
+    this.mediaRecorder.onstop = () => {
       // Make blob out of our blobs, and open it.
-      let blob = new Blob(this.mediaChunks, { 'type' : 'audio/webm; codecs=opus' });
-      let a = document.createElement("a");
+      const blob = new Blob(this.mediaChunks, { type: 'audio/webm; codecs=opus' });
+      const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      let name = state.song.get("name");
+      let name = state.song.get('name');
       name = name ? `${name.trim()}.webm` : 'wetracker-song.webm';
       a.download = name;
       a.click();
     };
 
-    Signal.connect(song, 'songChanged', this, 'onSongChanged');
-    Signal.connect(song, 'bpmChanged', this, 'onBpmChanged');
-    Signal.connect(song, 'speedChanged', this, 'onSpeedChanged');
-    Signal.connect(song, 'instrumentChanged', this, 'onInstrumentChanged');
-    Signal.connect(song, 'instrumentListChanged', this, 'onInstrumentListChanged');
-    Signal.connect(song, 'trackEffectChainChanged', this, 'onTrackEffectChainChanged');
-    Signal.connect(song, 'trackEffectChanged', this, 'onTrackEffectChanged');
-    Signal.connect(state, "cursorChanged", this, "onCursorChanged");
-    Signal.connect(state, "transportChanged", this, "onTransportChanged");
+    connect(song, 'songChanged', this, 'onSongChanged');
+    connect(song, 'bpmChanged', this, 'onBpmChanged');
+    connect(song, 'speedChanged', this, 'onSpeedChanged');
+    connect(song, 'instrumentChanged', this, 'onInstrumentChanged');
+    connect(song, 'instrumentListChanged', this, 'onInstrumentListChanged');
+    connect(song, 'trackEffectChainChanged', this, 'onTrackEffectChainChanged');
+    connect(song, 'trackEffectChanged', this, 'onTrackEffectChanged');
+    connect(state, 'cursorChanged', this, 'onCursorChanged');
+    connect(state, 'transportChanged', this, 'onTransportChanged');
   }
 
   onTimerMessage(e) {
-    if( e.data === "tick") {
+    if (e.data === 'tick') {
       this.scheduler();
     }
   }
 
   onInteractiveTimerMessage(e) {
-    if( e.data === "tick") {
-      var msPerTick = 2.5 / this.bpm;
-      while(this.nextInteractiveTickTime < (this.audioctx.currentTime + this.interactiveScheduleAheadTime)) {
+    if (e.data === 'tick') {
+      const msPerTick = 2.5 / this.bpm;
+      while (this.nextInteractiveTickTime < (this.audioctx.currentTime + this.interactiveScheduleAheadTime)) {
         let i = this.playingInstruments.length;
-        while (i--) {
+        while (i > 0) {
           if (this.playingInstruments[i].updateVolumeEnvelope(this.nextInteractiveTickTime)) {
             this.stopInteractiveInstrument(this.playingInstruments[i]);
           }
+          i -= 1;
         }
         this.nextInteractiveTickTime += msPerTick;
       }
@@ -755,20 +753,20 @@ class Player {
   }
 
   playNoteOnCurrentChannel(note, finished) {
-    const channel = this.tracks[state.cursor.get("track")];
-    const instrument = this.instruments[state.cursor.get("instrument")];
+    const channel = this.tracks[state.cursor.get('track')];
+    const instrument = this.instruments[state.cursor.get('instrument')];
     const time = this.audioctx.currentTime;
 
-    if(this.playingInstruments.length === 0) {
+    if (this.playingInstruments.length === 0) {
       this.nextInteractiveTickTime = this.audioctx.currentTime;
-      this.interactiveTimerWorker.port.postMessage("start");
+      this.interactiveTimerWorker.port.postMessage('start');
       this.XMView.start();
       this.playingInteractive = true;
     }
 
     // If any other instruments are still playing but have been released, stop them.
     for (let i = this.playingInstruments.length - 1; i >= 0; i -= 1) {
-      if(this.playingInstruments[i].release) {
+      if (this.playingInstruments[i].release) {
         this.playingInstruments[i].stop(time);
       }
     }
@@ -778,24 +776,24 @@ class Player {
       channel.pan = samp.pan;
       channel.vol = samp.vol;
       channel.fine = samp.fine;
-      const instr = instrument.playNoteOnChannel(channel, time, note, (instrument) => {
-        const index = this.playingInstruments.indexOf(instrument);
+      const instr = instrument.playNoteOnChannel(channel, time, note, (finInstr) => {
+        const index = this.playingInstruments.indexOf(finInstr);
         if (index !== -1) {
           this.playingInstruments.splice(index, 1);
-          if(this.playingInstruments.length === 0) {
-            this.interactiveTimerWorker.port.postMessage("stop");
+          if (this.playingInstruments.length === 0) {
+            this.interactiveTimerWorker.port.postMessage('stop');
             this.XMView.stop();
             this.playingInteractive = false;
           }
         }
         if (finished && typeof finished === 'function') {
-          finished(instrument);
+          finished(finInstr);
         }
       });
       instr.release = false;
       this.playingInstruments.push(instr);
       return instr;
-    } catch(e) {
+    } catch (e) {
       return undefined;
     }
   }
@@ -803,8 +801,7 @@ class Player {
   releaseInteractiveInstrument(playerInstrument) {
     const index = this.playingInstruments.indexOf(playerInstrument);
     if (index !== -1) {
-      const time = this.audioctx.currentTime;
-      playerInstrument.release = true;
+      playerInstrument.release = true; // eslint-disable-line no-param-reassign
     }
   }
 
@@ -817,32 +814,19 @@ class Player {
     return this.audioctx.currentTime;
   }
 
-  // Return 2-pole Butterworth lowpass filter coefficients for
-  // center frequncy f_c (relative to sampling frequency)
-  filterCoeffs(f_c) {
-    if (f_c > 0.5) {  // we can't lowpass above the nyquist frequency...
-      f_c = 0.5;
-    }
-    var wct = Math.sqrt(2) * Math.PI * f_c;
-    var e = Math.exp(-wct);
-    var c = e * Math.cos(wct);
-    var gain = (1 - 2*c + e*e) / 2;
-    return [gain, 2*c, -e*e];
-  }
-
   updateChannelPeriod(ch, period) {
-    var freq = 8363 * Math.pow(2, (1152.0 - period) / 192.0);
+    const freq = 8363 * (2 ** ((1152.0 - period) / 192.0));
     if (isNaN(freq)) {
-      console.log("invalid period!", period);
+      console.log('invalid period!', period);
       return;
     }
-    ch.doff = freq / this.f_smp;
-    ch.filter = this.filterCoeffs(ch.doff / 2);
+    ch.doff = freq / this.f_smp; // eslint-disable-line no-param-reassign
+    ch.filter = this.filterCoeffs(ch.doff / 2); // eslint-disable-line no-param-reassign
   }
 
 
   setCurrentPattern() {
-    var nextPat = song.getSequencePatternNumber(this.cur_songpos);
+    let nextPat = song.getSequencePatternNumber(this.cur_songpos);
 
     // check for out of range pattern index
     const maxpat = song.getNumPatterns();
@@ -850,7 +834,7 @@ class Player {
     while (nextPat >= maxpat) {
       if ((this.cur_songpos + 1) < maxseq) {
         // first try skipping the position
-        this.cur_songpos++;
+        this.cur_songpos += 1;
       } else if ((this.cur_songpos === song.getLoopPosition() && this.cur_songpos !== 0)
         || song.getLoopPosition() >= maxseq) {
         // if we allready tried song_looppos or if song_looppos
@@ -874,9 +858,9 @@ class Player {
         this.cur_row = 0;
       } else {
         this.cur_row = 0;
-        this.cur_songpos++;
+        this.cur_songpos += 1;
         if (this.cur_songpos >= song.getSequenceLength()) {
-          if (state.cursor.get("saveStream")) {
+          if (state.cursor.get('saveStream')) {
             this.stop();
             this.stopRecordingStream();
           } else {
@@ -894,17 +878,17 @@ class Player {
     this.jump_pat = undefined;
     this.jump_row = undefined;
     for (let trackindex = 0; trackindex < numtracks; trackindex += 1) {
-      let track = song.getTrackDataForPatternRow(this.cur_pat, this.cur_row, trackindex);
-      var ch = this.tracks[trackindex];
-      var inst = ch.inst;
+      const track = song.getTrackDataForPatternRow(this.cur_pat, this.cur_row, trackindex);
+      const ch = this.tracks[trackindex];
+      let inst = ch.inst;
       ch.triggernote = false;
-      var event = {};
-      if ("notedata" in track && track.notedata.length > 0) {
+      let event = {};
+      if ('notedata' in track && track.notedata.length > 0) {
         event = track.notedata[0];
       }
 
       // instrument trigger
-      if ("instrument" in event && event.instrument !== -1) {
+      if ('instrument' in event && event.instrument !== -1) {
         inst = this.instruments[event.instrument - 1];
         if (inst && inst.inst && inst.inst.samplemap) {
           ch.inst = inst;
@@ -917,7 +901,7 @@ class Player {
             ch.vol = samp.vol;
             ch.pan = samp.pan;
             ch.fine = samp.fine;
-            if(ch.currentlyPlaying) {
+            if (ch.currentlyPlaying) {
               ch.currentlyPlaying.resetEnvelopes();
             }
           }
@@ -925,15 +909,15 @@ class Player {
       }
 
       // note trigger
-      if ("note" in event && event.note != -1) {
-        if (event.note == 96) {
+      if ('note' in event && event.note !== -1) {
+        if (event.note === 96) {
           ch.release = 1;
           ch.triggernote = false;
         } else {
           if (inst && inst.inst && inst.inst.samplemap) {
-            var note = event.note;
+            const note = event.note;
             ch.note = note;
-            if ("instrument" in event && event.instrument !== -1) {
+            if ('instrument' in event && event.instrument !== -1) {
               const samp = inst.inst.samples[inst.inst.samplemap[note]];
               ch.pan = samp.pan;
               ch.vol = samp.vol;
@@ -945,68 +929,66 @@ class Player {
       }
 
       ch.voleffectfn = undefined;
-      if ("volume" in event && event.volume != -1) {  // volume column
-        var v = event.volume;
-        ch.voleffectdata = v & 0x0f;
+      if ('volume' in event && event.volume !== -1) {  // volume column
+        const v = event.volume;
+        ch.voleffectdata = v & 0x0f; // eslint-disable-line no-bitwise
         if (v < 0x10) {
           if (v !== 0) {
-            console.log("Track", trackindex, "invalid volume", event.volume.toString(16));
+            console.log('Track', trackindex, 'invalid volume', event.volume.toString(16));
           }
         } else if (v <= 0x50) {
           ch.vol = v - 0x10;
         } else if (v >= 0x60 && v < 0x70) {  // volume slide down
-          ch.voleffectfn = function(ch) {
-            ch.vol = Math.max(0, ch.vol - ch.voleffectdata);
+          ch.voleffectfn = (tr) => {
+            tr.vol = Math.max(0, tr.vol - tr.voleffectdata); // eslint-disable-line no-param-reassign
           };
         } else if (v >= 0x70 && v < 0x80) {  // volume slide up
-          ch.voleffectfn = function(ch) {
-            ch.vol = Math.min(64, ch.vol + ch.voleffectdata);
+          ch.voleffectfn = (tr) => {
+            tr.vol = Math.min(64, tr.vol + tr.voleffectdata); // eslint-disable-line no-param-reassign
           };
         } else if (v >= 0x80 && v < 0x90) {  // fine volume slide down
-          ch.vol = Math.max(0, ch.vol - (v & 0x0f));
+          ch.vol = Math.max(0, ch.vol - (v & 0x0f)); // eslint-disable-line no-bitwise
         } else if (v >= 0x90 && v < 0xa0) {  // fine volume slide up
-          ch.vol = Math.min(64, ch.vol + (v & 0x0f));
+          ch.vol = Math.min(64, ch.vol + (v & 0x0f)); // eslint-disable-line no-bitwise
         } else if (v >= 0xa0 && v < 0xb0) {  // vibrato speed
-          ch.vibratospeed = v & 0x0f;
+          ch.vibratospeed = v & 0x0f; // eslint-disable-line no-bitwise
         } else if (v >= 0xb0 && v < 0xc0) {  // vibrato w/ depth
-          ch.vibratodepth = v & 0x0f;
+          ch.vibratodepth = v & 0x0f; // eslint-disable-line no-bitwise
           ch.voleffectfn = this.effects_t1[4];  // use vibrato effect directly
-          var tempeffectfn = this.effects_t1[4];
-          if(tempeffectfn) tempeffectfn.bind(this)(ch);  // and also call it on tick 0
+          const tempeffectfn = this.effects_t1[4];
+          if (tempeffectfn) {
+            tempeffectfn.bind(this)(ch);  // and also call it on tick 0
+          }
         } else if (v >= 0xc0 && v < 0xd0) {  // set panning
-          ch.pan = (v & 0x0f) * 0x11;
+          ch.pan = (v & 0x0f) * 0x11; // eslint-disable-line no-bitwise
         } else if (v >= 0xf0 && v <= 0xff) {  // portamento
-          if (v & 0x0f) {
-            ch.portaspeed = (v & 0x0f) << 4;
+          if (v & 0x0f) { // eslint-disable-line no-bitwise
+            ch.portaspeed = (v & 0x0f) << 4; // eslint-disable-line no-bitwise
           }
           ch.voleffectfn = this.effects_t1[3].bind(this);  // just run 3x0
         } else {
-          console.log("Track", trackindex, "volume effect", v.toString(16));
+          console.log('Track', trackindex, 'volume effect', v.toString(16));
         }
       }
 
       ch.effectfn = undefined;
-      if(("fxtype" in event && "fxparam" in event) && (event.fxtype !== -1 || event.fxparam !== 0)) {
+      if (('fxtype' in event && 'fxparam' in event) && (event.fxtype !== -1 || event.fxparam !== 0)) {
         try {
           ch.effect = event.fxtype;
           ch.effectdata = event.fxparam;
           if (ch.effect < 36) {
             ch.effectfn = this.effects_t1[ch.effect];
-            var eff_t0 = this.effects_t0[ch.effect];
-            if (eff_t0 && eff_t0.bind(this)(ch, ch.effectdata)) {
+            const effT0 = this.effects_t0[ch.effect];
+            if (effT0 && effT0.bind(this)(ch, ch.effectdata)) {
               ch.triggernote = false;
             }
-            // If effect B or D, jump or pattern break, don't process any more columns.
-            if (ch.effect === 0xb || ch.effect === 0xd ) {
-              //return;
-            }
           } else {
-            console.log("Track", trackindex, "effect > 36", ch.effect);
+            console.log('Track', trackindex, 'effect > 36', ch.effect);
           }
 
           // special handling for portamentos: don't trigger the note
-          if (ch.effect == 3 || ch.effect == 5 || event.volume >= 0xf0) {
-            if (event.note != -1) {
+          if (ch.effect === 3 || ch.effect === 5 || event.volume >= 0xf0) {
+            if (event.note !== -1) {
               ch.periodtarget = ch.inst.periodForNote(ch, ch.note, ch.fine);
             }
             ch.triggernote = false;
@@ -1023,14 +1005,16 @@ class Player {
               }
             }
           }
-        } catch(e) {
+        } catch (e) {
           console.log(e);
         }
       }
 
       if (ch.triggernote) {
         // there's gotta be a less hacky way to handle offset commands...
-        if (ch.effect != 9) ch.off = 0;
+        if (ch.effect !== 9) {
+          ch.off = 0;
+        }
         ch.release = 0;
         ch.envtick = 0;
         if (ch.note) {
@@ -1046,19 +1030,18 @@ class Player {
 
 
   processTick() {
-    if(!this.playing) {
+    if (!this.playing) {
       return;
     }
-    if(this.audioctx.currentTime > this.nextTickTime) {
-      console.log("Lag!!!");
+    if (this.audioctx.currentTime > this.nextTickTime) {
+      console.log('Lag!!!');
     }
-    var j, ch;
-    for (j in this.tracks) {
+    for (let j = 0; j < this.tracks.length; j += 1) {
       this.tracks[j].periodoffset = 0;
     }
 
     if (this.cur_tick === 0) {
-      if(this.jump_row != null && this.jump_pat != null && this.jump_songpos != null) {
+      if (this.jump_row != null && this.jump_pat != null && this.jump_songpos != null) {
         this.cur_songpos = this.jump_songpos;
         this.cur_pat = this.jump_pat;
         this.cur_row = this.jump_row;
@@ -1066,33 +1049,33 @@ class Player {
       this.processRow();
     }
 
-    for (j = 0; j < this.tracks.length; j += 1) {
-      ch = this.tracks[j];
-      var inst = ch.inst;
-      if (this.cur_tick !== 0) {
-        if(ch.voleffectfn) ch.voleffectfn.bind(this)(ch);
-        if(ch.effectfn) ch.effectfn.bind(this)(ch);
-      }
-      if (isNaN(ch.period)) {
-        throw "NaN Period";
-      }
-      if (inst === undefined)
-        continue;
-      
-      if (ch.triggernote) {
-        if(ch.currentlyPlaying) {
-          ch.currentlyPlaying.stop(this.nextTickTime);
+    for (let j = 0; j < this.tracks.length; j += 1) {
+      const ch = this.tracks[j];
+      const inst = ch.inst;
+      if (inst !== undefined) {
+        if (this.cur_tick !== 0) {
+          if (ch.voleffectfn) ch.voleffectfn.bind(this)(ch);
+          if (ch.effectfn) ch.effectfn.bind(this)(ch);
         }
-        ch.currentlyPlaying = ch.inst.playNoteOnChannel(ch, this.nextTickTime, ch.note);
-        ch.triggernote = false;
-      }
-      if(ch.currentlyPlaying) {
-        ch.currentlyPlaying.release = ch.release;
-        if(ch.currentlyPlaying.updateVolumeEnvelope(this.nextTickTime)) {
-          ch.currentlyPlaying.stop(this.nextTickTime);
-          ch.currentlyPlaying = null;
-        } else {
-          ch.currentlyPlaying.updateChannelPeriod(this.nextTickTime, ch.period + ch.periodoffset);
+        if (isNaN(ch.period)) {
+          throw Error('NaN Period');
+        }
+
+        if (ch.triggernote) {
+          if (ch.currentlyPlaying) {
+            ch.currentlyPlaying.stop(this.nextTickTime);
+          }
+          ch.currentlyPlaying = ch.inst.playNoteOnChannel(ch, this.nextTickTime, ch.note);
+          ch.triggernote = false;
+        }
+        if (ch.currentlyPlaying) {
+          ch.currentlyPlaying.release = ch.release;
+          if (ch.currentlyPlaying.updateVolumeEnvelope(this.nextTickTime)) {
+            ch.currentlyPlaying.stop(this.nextTickTime);
+            ch.currentlyPlaying = null;
+          } else {
+            ch.currentlyPlaying.updateChannelPeriod(this.nextTickTime, ch.period + ch.periodoffset);
+          }
         }
       }
     }
@@ -1100,16 +1083,16 @@ class Player {
       t: this.nextTickTime,
       songpos: this.cur_songpos,
       pat: this.cur_pat,
-      row: this.cur_row
+      row: this.cur_row,
     });
   }
 
   scheduler() {
-    var msPerTick = 2.5 / this.bpm;
-    while(this.nextTickTime < (this.audioctx.currentTime + this.scheduleAheadTime)) {
+    const msPerTick = 2.5 / this.bpm;
+    while (this.nextTickTime < (this.audioctx.currentTime + this.scheduleAheadTime)) {
       this.processTick();
-      this.cur_tick++;
-      if(this.cur_tick >= this.speed) {
+      this.cur_tick += 1;
+      if (this.cur_tick >= this.speed) {
         this.cur_tick = 0;
         this.nextRow();
       }
@@ -1126,18 +1109,18 @@ class Player {
 
     state.set({
       cursor: {
-        pattern: pattern,
-        sequence: sequence,
+        pattern,
+        sequence,
         row: 0,
       },
     });
 
-    this._play();
+    this.startPlaying();
   }
 
   play() {
     this.cyclePattern = null;
-    this._play();
+    this.startPlaying();
   }
 
   toggleMuteTrack(index) {
@@ -1150,7 +1133,7 @@ class Player {
           state: MUTE,
           properties: {
             gain: 0,
-          }
+          },
         });
         this.tracks[index].gainNode.gain.value = 0;
       }
@@ -1170,7 +1153,7 @@ class Player {
     if (index < this.tracks.length) {
       const currentState = this.tracks[index].getState();
       if (currentState.state === SOLO) {
-        // If we've clicked on the solo'd track, just pop state back 
+        // If we've clicked on the solo'd track, just pop state back
         // to previous.
         for (let t = 0; t < this.tracks.length; t += 1) {
           this.tracks[t].popState();
@@ -1191,7 +1174,7 @@ class Player {
               state: SILENT,
               properties: {
                 gain: 0,
-              }
+              },
             });
           }
         }
@@ -1207,7 +1190,7 @@ class Player {
               state: SILENT,
               properties: {
                 gain: 0,
-              }
+              },
             });
           }
         }
@@ -1221,7 +1204,8 @@ class Player {
   startRecordingStream() {
     try {
       this.masterGain.disconnect(this.audioctx.destination);
-    } catch(e) {
+    } catch (e) {
+      console.log(e);
     }
     this.masterGain.connect(this.mediaStreamDest);
     this.mediaRecorder.start();
@@ -1231,7 +1215,8 @@ class Player {
     this.mediaRecorder.stop();
     try {
       this.masterGain.disconnect(this.mediaStreamDest);
-    } catch(e) {
+    } catch (e) {
+      console.log(e);
     }
     this.masterGain.connect(this.audioctx.destination);
 
@@ -1241,7 +1226,7 @@ class Player {
       },
     });
 
-    if(this.recordDoneResolve) {
+    if (this.recordDoneResolve) {
       this.recordDoneResolve();
       this.recordDoneResolve = undefined;
     }
@@ -1255,9 +1240,9 @@ class Player {
 
     this.startRecordingStream();
 
-    let promise = new Promise((resolve, reject) => {
+    const promise = new Promise((resolve) => {
       this.recordDoneResolve = resolve;
-      this.timerWorker.port.postMessage("start");
+      this.timerWorker.port.postMessage('start');
       this.playing = true;
     });
 
@@ -1265,13 +1250,13 @@ class Player {
   }
 
 
-  _play() {
+  startPlaying() {
     if (!this.playing) {
       // put paused events back into action, if any
       if (this.XMView.resume) this.XMView.resume();
       // start playing
       this.nextTickTime = this.audioctx.currentTime;
-      this.timerWorker.port.postMessage("start");
+      this.timerWorker.port.postMessage('start');
     }
     this.playing = true;
   }
@@ -1282,7 +1267,7 @@ class Player {
     }
     this.playing = false;
 
-    this.timerWorker.port.postMessage("stop");
+    this.timerWorker.port.postMessage('stop');
   }
 
   stop() {
@@ -1291,16 +1276,16 @@ class Player {
     }
     this.playing = false;
 
-    this.timerWorker.port.postMessage("stop");
+    this.timerWorker.port.postMessage('stop');
 
-    for(let i = 0; i < this.tracks.length; i += 1) {
-      if(this.tracks[i].currentlyPlaying) {
+    for (let i = 0; i < this.tracks.length; i += 1) {
+      if (this.tracks[i].currentlyPlaying) {
         this.tracks[i].currentlyPlaying.stop(this.audioctx.currentTime);
         this.tracks[i].currentlyPlaying = undefined;
       }
     }
 
-    for(let i = this.playingInstruments.length - 1; i >= 0; i -= 1) {
+    for (let i = this.playingInstruments.length - 1; i >= 0; i -= 1) {
       this.playingInstruments[i].stop(this.audioctx.currentTime);
       this.playingInstruments.splice(i, 1);
     }
@@ -1309,7 +1294,7 @@ class Player {
   }
 
   setMasterVolume(dB) {
-    let gain = Math.pow(10, dB/20);
+    const gain = 10 ** (dB / 20);
     this.masterGain.gain.value = gain;
   }
 
@@ -1320,7 +1305,7 @@ class Player {
     this.cur_ticksamp = 0;
     this.cur_tick = 0;
     this.speed = song.getSpeed();
-    this.bpm  = song.getBpm();
+    this.bpm = song.getBpm();
 
     state.set({
       cursor: {
@@ -1349,9 +1334,9 @@ class Player {
     // Initialise the channelinfo for each track.
     const numtracks = song.getNumTracks();
     for (let i = 0; i < numtracks; i += 1) {
-      var trackinfo = new Track(this.audioctx, this.masterGain);
+      const trackinfo = new Track(this.audioctx, this.masterGain);
       this.tracks.push(trackinfo);
-      let effects = song.getTrackEffects(i);
+      const effects = song.getTrackEffects(i);
       trackinfo.buildEffectChain(effects);
     }
 
@@ -1378,7 +1363,7 @@ class Player {
   onInstrumentChanged(instrumentIndex) {
     try {
       this.instruments[instrumentIndex] = new Instrument(instrumentIndex, this.audioctx);
-    } catch(e) {
+    } catch (e) {
       console.log(e);
     }
   }
@@ -1393,32 +1378,29 @@ class Player {
   }
 
   onCursorChanged() {
-    /*if (!this.playing && state.cursor.get("sequence") != this.cur_songpos) {
-      this.cur_songpos = state.cursor.get("sequence");
-    }*/
   }
 
   onTransportChanged() {
-    if (this.masterVolume !== state.transport.get("masterVolume")) {
-      this.masterVolume = state.transport.get("masterVolume");
-      this.setMasterVolume(state.transport.get("masterVolume"));
+    if (this.masterVolume !== state.transport.get('masterVolume')) {
+      this.masterVolume = state.transport.get('masterVolume');
+      this.setMasterVolume(state.transport.get('masterVolume'));
     }
   }
 
   onTrackEffectChainChanged(trackIndex) {
     try {
-      let effects = song.getTrackEffects(trackIndex);
+      const effects = song.getTrackEffects(trackIndex);
       this.tracks[trackIndex].buildEffectChain(effects);
-    } catch(e) {
+    } catch (e) {
       console.log(e);
     }
   }
 
   onTrackEffectChanged(track, index, effect) {
     try {
-      let fx = this.tracks[track].effectChain[index];
+      const fx = this.tracks[track].effectChain[index];
       fx.updateFromParameterObject(effect);
-    } catch(e) {
+    } catch (e) {
       console.log(e);
     }
   }
@@ -1429,28 +1411,28 @@ class Player {
     if (!file) {
       return;
     }
-    var reader = new FileReader();
+    const reader = new FileReader();
     reader.onload = (e) => {
       try {
-        var contents = e.target.result;
         this.audioctx.decodeAudioData(e.target.result, (data) => {
           const floatData = data.getChannelData(0);
           if (callback) {
             callback(data, floatData);
           }
         });
-      } catch(e) {
-        console.log(e);
+      } catch (error) {
+        console.log(error);
       }
     };
     reader.readAsArrayBuffer(file);
   }
 
 
+  /* eslint-disable camelcase, no-param-reassign, no-bitwise */
   eff_t1_0(ch) {  // arpeggio
     if (ch.effectdata !== 0 && ch.inst !== undefined) {
-      var arpeggio = [0, ch.effectdata>>4, ch.effectdata&15];
-      var note = ch.note + arpeggio[this.cur_tick % 3];
+      const arpeggio = [0, ch.effectdata >> 4, ch.effectdata & 15];
+      const note = ch.note + arpeggio[this.cur_tick % 3];
       ch.period = ch.inst.periodForNote(ch, note, ch.fine);
     }
   }
@@ -1510,7 +1492,7 @@ class Player {
   eff_t1_4(ch) {  // vibrato
     ch.periodoffset = this.getVibratoDelta(ch.vibratotype, ch.vibratopos) * ch.vibratodepth;
     if (isNaN(ch.periodoffset)) {
-      console.log("vibrato periodoffset NaN?",
+      console.log('vibrato periodoffset NaN?',
           ch.vibratopos, ch.vibratospeed, ch.vibratodepth);
       ch.periodoffset = 0;
     }
@@ -1522,10 +1504,10 @@ class Player {
   }
 
   getVibratoDelta(type, x) {
-    var delta = 0;
+    let delta = 0;
     switch (type & 0x03) {
       case 1: // sawtooth (ramp-down)
-        delta = ((1 + x * 2 / 64) % 2) - 1;
+        delta = ((1 + ((x * 2) / 64)) % 2) - 1;
         break;
       case 2: // square
       case 3: // random (in FT2 these two are the same)
@@ -1533,7 +1515,7 @@ class Player {
         break;
       case 0:
       default: // sine
-        delta = Math.sin(x * Math.PI / 32);
+        delta = Math.sin((x * Math.PI) / 32);
         break;
     }
     return delta;
@@ -1590,68 +1572,72 @@ class Player {
   eff_t0_d(ch, data) {  // pattern jump
     if (this.cyclePattern == null) {
       this.jump_songpos = this.cur_songpos + 1;
-      if (this.jump_songpos >= song.getSequenceLength())
+      if (this.jump_songpos >= song.getSequenceLength()) {
         this.jump_songpos = song.getLoopPosition();
+      }
       this.jump_pat = song.getSequencePatternNumber(this.jump_songpos);
     } else {
       this.jump_songpos = this.cur_songpos;
       this.jump_pat = this.cur_pat;
     }
-    this.jump_row = (data >> 4) * 10 + (data & 0x0f);
+    this.jump_row = ((data >> 4) * 10) + (data & 0x0f);
   }
 
   eff_t0_e(ch, data) {  // extended effects!
-    var eff = data >> 4;
-    data = data & 0x0f;
+    const eff = data >> 4;
+    let dataP = data & 0x0f;
     switch (eff) {
       case 1:  // fine porta up
-        ch.period -= data;
+        ch.period -= dataP;
         break;
       case 2:  // fine porta down
-        ch.period += data;
+        ch.period += dataP;
         break;
       case 4:  // set vibrato waveform
-        ch.vibratotype = data & 0x07;
+        ch.vibratotype = dataP & 0x07;
         break;
       case 5:  // finetune
-        ch.fine = (data<<4) + data - 128;
+        ch.fine = ((dataP << 4) + dataP) - 128;
         break;
       case 8:  // panning
-        ch.pan = data * 0x11;
+        ch.pan = dataP * 0x11;
         break;
       case 0x0a:  // fine vol slide up (with memory)
-        if (data === 0 && ch.finevolup !== undefined)
-          data = ch.finevolup;
-        ch.vol = Math.min(64, ch.vol + data);
-        ch.finevolup = data;
+        if (dataP === 0 && ch.finevolup !== undefined) {
+          dataP = ch.finevolup;
+        }
+        ch.vol = Math.min(64, ch.vol + dataP);
+        ch.finevolup = dataP;
         break;
       case 0x0b:  // fine vol slide down
-        if (data === 0 && ch.finevoldown !== undefined)
-          data = ch.finevoldown;
-        ch.vol = Math.max(0, ch.vol - data);
-        ch.finevoldown = data;
+        if (dataP === 0 && ch.finevoldown !== undefined) {
+          dataP = ch.finevoldown;
+        }
+        ch.vol = Math.max(0, ch.vol - dataP);
+        ch.finevoldown = dataP;
         break;
       case 0x0c:  // note cut handled in eff_t1_e
         break;
       default:
-        throw `Unimplemented extended effect E ${ch.effectdata.toString(16)}`;
-        break;
+        throw Error(`Unimplemented extended effect E ${ch.effectdata.toString(16)}`);
     }
   }
 
   eff_t1_e(ch) {  // note cut
     switch (ch.effectdata >> 4) {
       case 0x0c:
-        if (this.cur_tick == (ch.effectdata & 0x0f)) {
+        if (this.cur_tick === (ch.effectdata & 0x0f)) {
           ch.vol = 0;
         }
+        break;
+      default:
         break;
     }
   }
 
   eff_t0_f(ch, data) {  // set tempo
     if (data === 0) {
-      console.log("tempo 0?");
+      console.log('tempo 0?');
       return;
     } else if (data < 0x20) {
       this.speed = data;
@@ -1683,7 +1669,7 @@ class Player {
     }
   }
 
-  eff_t1_h(ch) {  // global volume slide
+  eff_t1_h() {  // global volume slide
     if (this.globalVolumeslide !== undefined) {
       this.globalVolume = Math.max(0, Math.min(this.max_global_volume,
         this.globalVolume + this.globalVolumeslide));
@@ -1710,6 +1696,7 @@ class Player {
       case 0x0d: ch.vol += 16; break;
       case 0x0e: ch.vol *= 3; ch.vol /= 2; break;
       case 0x0f: ch.vol *= 2; break;
+      default: break;
     }
     ch.vol = Math.min(64, Math.max(0, ch.vol));
   }
@@ -1722,8 +1709,9 @@ class Player {
 
   eff_unimplemented() {}
   eff_unimplemented_t0(ch, data) {
-    throw `Unimplemented effect ${ch.effect} ${data}`;
+    throw Error(`Unimplemented effect ${ch.effect} ${data}`);
   }
 }
+/* eslint-enable camelcase, no-param-reassign, no-bitwise */
 
-export let player = new Player();
+export const player = new Player();

@@ -16,6 +16,7 @@
   "license": "ISC",
   "devDependencies": {
     "babel-eslint": "^7.1.1",
+    "babel-plugin-transform-exponentiation-operator": "^6.22.0",
     "eslint": "^3.15.0",
     "eslint-config-airbnb-base": "^11.1.0",
     "eslint-import-resolver-webpack": "^0.8.1",
