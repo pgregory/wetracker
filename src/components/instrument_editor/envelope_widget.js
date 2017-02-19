@@ -1,9 +1,8 @@
 import $ from 'jquery';
 
-import Signal from '../../utils/signal';
+import { connect } from '../../utils/signal';
 import { state } from '../../state';
 import { song } from '../../utils/songmanager';
-import { player } from '../../audio/player';
 
 import envelopeTemplate from './templates/envelope.marko';
 
@@ -25,53 +24,52 @@ export default class EnvelopeWidget {
     this.instrument = undefined;
     this.envelope = undefined;
 
-    Signal.connect(state, "cursorChanged", this, "onCursorChanged");
-    Signal.connect(song, "songChanged", this, "onSongChanged");
-    Signal.connect(song, "instrumentChanged", this, "onInstrumentChanged");
+    connect(state, 'cursorChanged', this, 'onCursorChanged');
+    connect(song, 'songChanged', this, 'onSongChanged');
+    connect(song, 'instrumentChanged', this, 'onInstrumentChanged');
   }
 
   renderGridAndAxes() {
     const ctx = this.canvas.getContext('2d');
 
     const height = this.canvas.height;
-    const width = this.canvas.width;
 
     const internalHeight = height - this.bottom_margin - this.top_margin;
 
     let vcount = 64;
-    let vdelta = internalHeight/vcount;
-    while(vdelta <= 10 && vcount > 8) {
+    let vdelta = internalHeight / vcount;
+    while (vdelta <= 10 && vcount > 8) {
       vcount /= 2;
-      vdelta = internalHeight/vcount;
+      vdelta = internalHeight / vcount;
     }
     ctx.strokeStyle = '#AAA';
     ctx.beginPath();
     let y = internalHeight;
-    for(let i = 0; i < vcount; i += 1) {
+    for (let i = 0; i < vcount; i += 1) {
       ctx.moveTo(this.left_margin, y);
       ctx.lineTo(this.left_margin + 4, y);
       y -= vdelta;
-    } 
+    }
     ctx.stroke();
 
     // Grid
     let hcount = this.canvas.width / this.zoom;
     let hdelta = this.canvas.width / hcount;
-    while(hdelta < 50 && hcount > 10) {
+    while (hdelta < 50 && hcount > 10) {
       hcount /= 2;
       hdelta = this.canvas.width / hcount;
     }
     ctx.strokeStyle = '#00D';
     ctx.beginPath();
     let x = (hdelta + (this.offset % hdelta)) + this.left_margin;
-    for(let i = 0; i <= hcount; i += 1) {
+    for (let i = 0; i <= hcount; i += 1) {
       ctx.moveTo(x, 0);
       ctx.lineTo(x, this.canvas.height);
       x += hdelta;
-    } 
+    }
 
     y = this.canvas.height - this.bottom_margin;
-    for(let i = 0; i <= vcount/4; i += 1) {
+    for (let i = 0; i <= vcount / 4; i += 1) {
       ctx.moveTo(this.left_margin, y);
       ctx.lineTo(this.canvas.width, y);
       y -= (vdelta * 4);
@@ -104,7 +102,7 @@ export default class EnvelopeWidget {
       ctx.beginPath();
       for (let i = 0; i < len; i += 2) {
         const x = (points[i] * this.zoom) + this.offset + this.left_margin;
-        const y = (internalHeight - ((points[i+1] / 64) * internalHeight) + this.bottom_margin);
+        const y = (internalHeight - ((points[i + 1] / 64) * internalHeight)) + this.bottom_margin;
         if (i === 0) {
           ctx.moveTo(x, y);
         } else {
@@ -117,7 +115,7 @@ export default class EnvelopeWidget {
       for (let i = 0; i < len; i += 2) {
         const pos = this.curvePointToCanvas(i);
 
-        if ((i/2) === this.currentPoint) {
+        if ((i / 2) === this.currentPoint) {
           ctx.strokeStyle = '#F00';
         } else {
           ctx.strokeStyle = '#FFF';
@@ -149,7 +147,7 @@ export default class EnvelopeWidget {
   render() {
     $(this.target).addClass('instrument-editor');
 
-    $(this.target).append(envelopeTemplate.renderToString({instrument: this.instrument, envelope: this.envelope}));
+    $(this.target).append(envelopeTemplate.renderToString({ instrument: this.instrument, envelope: this.envelope }));
 
     const canvas = $(this.target).find('.envelope-editor .waveform canvas')[0];
     this.canvas = canvas;
@@ -160,15 +158,15 @@ export default class EnvelopeWidget {
     $(canvas).on('mouseup', this.onMouseUp.bind(this));
     $(canvas).on('mouseout', this.onMouseOut.bind(this));
 
-    $(this.target).find("input:checkbox").click((e) => {
+    $(this.target).find('input:checkbox').click(() => {
       this.changeOptions();
     });
-    $(this.target).find("input:text").change((e) => {
+    $(this.target).find('input:text').change(() => {
       this.changeOptions();
     });
 
-    $(this.target).find("#create-envelope").click((e) => {
-      this.createEnvelope(); 
+    $(this.target).find('#create-envelope').click(() => {
+      this.createEnvelope();
     });
 
     canvas.height = $(this.target).find('.envelope-editor .waveform').height();
@@ -184,28 +182,28 @@ export default class EnvelopeWidget {
 
   changeOptions() {
     if (this.envelope) {
-      const on = $(this.target).find("input:checkbox#on")[0].checked;
+      const on = $(this.target).find('input:checkbox#on')[0].checked;
 
-      this.envelope.type = this.envelope.type & 0xFE;
+      this.envelope.type = this.envelope.type & 0xFE; // eslint-disable-line no-bitwise
       if (on) {
-        this.envelope.type = this.envelope.type | 0x1;
+        this.envelope.type = this.envelope.type | 0x1; // eslint-disable-line no-bitwise
       }
 
-      const sustain = $(this.target).find("input:checkbox#sustain")[0].checked;
-      this.envelope.type = (this.envelope.type & 0xFD);
+      const sustain = $(this.target).find('input:checkbox#sustain')[0].checked;
+      this.envelope.type = (this.envelope.type & 0xFD); // eslint-disable-line no-bitwise
       if (sustain) {
-        this.envelope.type = this.envelope.type | 0x2;
+        this.envelope.type = this.envelope.type | 0x2; // eslint-disable-line no-bitwise
       }
-      const sustainPoint = parseInt($(this.target).find("input#sustain-point")[0].value);
+      const sustainPoint = parseInt($(this.target).find('input#sustain-point')[0].value, 10);
       this.envelope.sustain = sustainPoint;
 
-      const loop = $(this.target).find("input:checkbox#loop")[0].checked;
-      this.envelope.type = (this.envelope.type & 0xFB);
+      const loop = $(this.target).find('input:checkbox#loop')[0].checked;
+      this.envelope.type = (this.envelope.type & 0xFB); // eslint-disable-line no-bitwise
       if (loop) {
-        this.envelope.type = this.envelope.type | 0x4;
+        this.envelope.type = this.envelope.type | 0x4; // eslint-disable-line no-bitwise
       }
-      const loopStart = parseInt($(this.target).find("input#loop-start-point")[0].value);
-      const loopEnd = parseInt($(this.target).find("input#loop-end-point")[0].value);
+      const loopStart = parseInt($(this.target).find('input#loop-start-point')[0].value, 10);
+      const loopEnd = parseInt($(this.target).find('input#loop-end-point')[0].value, 10);
 
       this.envelope.loopstart = loopStart;
       this.envelope.loopend = loopEnd;
@@ -216,9 +214,8 @@ export default class EnvelopeWidget {
 
   onScroll(e) {
     if (this.envelope) {
-      const prevOffset = this.offset;
       if (Math.abs(e.originalEvent.deltaY) > Math.abs(e.originalEvent.deltaX)) {
-        this.zoom += (e.originalEvent.deltaY/10);
+        this.zoom += (e.originalEvent.deltaY / 10);
         this.zoom = Math.min(Math.max(this.zoom, 0.1), 100);
       } else {
         this.offset -= e.originalEvent.deltaX;
@@ -298,21 +295,21 @@ export default class EnvelopeWidget {
     this.dragging = true;
   }
 
-  onMouseUp(e) {
-    if(this.dragging) {
+  onMouseUp() {
+    if (this.dragging) {
       song.updateInstrument(this.instrumentIndex, this.instrument);
     }
     this.dragging = false;
   }
 
-  onMouseOut(e) {
+  onMouseOut() {
     this.curveX = undefined;
     window.requestAnimationFrame(() => this.redrawCurve());
   }
 
   deletePointFromCurve(point) {
     if (this.envelope) {
-      if ( (point*2) < this.envelope.points.length) {
+      if ((point * 2) < this.envelope.points.length) {
         this.envelope.points.splice((point * 2), 2);
       }
     }
@@ -322,10 +319,10 @@ export default class EnvelopeWidget {
 
   addPointToCurve(x, y) {
     if (this.envelope) {
-      let index = 0; 
-      while((index < this.envelope.points.length) && 
+      let index = 0;
+      while ((index < this.envelope.points.length) &&
             (this.envelope.points[index] < x)) {
-       index += 2;
+        index += 2;
       }
       if (index < this.envelope.points) {
         this.envelope.points.push(x, y);
@@ -355,7 +352,7 @@ export default class EnvelopeWidget {
     this.envelope.points[index * 2] = curveX;
     this.envelope.points[(index * 2) + 1] = y;
 
-    //song.updateInstrument(this.instrumentIndex, this.instrument);
+    // song.updateInstrument(this.instrumentIndex, this.instrument);
   }
 
   curvePointToCanvas(pointIndex) {
@@ -364,9 +361,9 @@ export default class EnvelopeWidget {
     const internalHeight = height - this.top_margin - this.bottom_margin;
 
     const px = (points[pointIndex] * this.zoom);
-    const py = (internalHeight - ((points[pointIndex+1] / 64) * internalHeight) + this.bottom_margin);
+    const py = (internalHeight - ((points[pointIndex + 1] / 64) * internalHeight)) + this.bottom_margin;
 
-    return {px, py};
+    return { px, py };
   }
 
   curveToCanvas(curvex, curvey) {
@@ -374,9 +371,9 @@ export default class EnvelopeWidget {
     const internalHeight = height - this.top_margin - this.bottom_margin;
 
     const px = (curvex * this.zoom);
-    const py = (internalHeight - ((curvey / 64) * internalHeight) + this.bottom_margin);
+    const py = (internalHeight - ((curvey / 64) * internalHeight)) + this.bottom_margin;
 
-    return {px, py};
+    return { px, py };
   }
 
   curvePointAtCanvas(x, y) {
@@ -385,9 +382,9 @@ export default class EnvelopeWidget {
     for (let i = 0; i < len; i += 2) {
       const p = this.curvePointToCanvas(i);
 
-      if((x > (p.px - 5)) && (x < (p.px + 5)) &&
-         (y > (p.py - 5)) && (y < (p.py + 5))) {
-        return i/2;
+      if ((x > (p.px - 5)) && (x < (p.px + 5)) &&
+          (y > (p.py - 5)) && (y < (p.py + 5))) {
+        return i / 2;
       }
     }
     return null;
@@ -395,9 +392,9 @@ export default class EnvelopeWidget {
 
   curveFromCanvas(xpos, ypos) {
     const xcurve = Math.round(xpos / this.zoom);
-    const ycurve = Math.round((this.canvas.height-ypos) * (64.0 / this.canvas.height));
+    const ycurve = Math.round((this.canvas.height - ypos) * (64.0 / this.canvas.height));
 
-    return {xcurve, ycurve};
+    return { xcurve, ycurve };
   }
 
   interpolateCurve(curveX) {
@@ -407,9 +404,9 @@ export default class EnvelopeWidget {
     let prevX = points[0];
     let prevY = points[1];
     let i = 2;
-    while(curveX > points[i] && i < len) {
+    while (curveX > points[i] && i < len) {
       prevX = points[i];
-      prevY = points[i+1];
+      prevY = points[i + 1];
       i += 2;
     }
     if (i >= len) {
@@ -417,7 +414,7 @@ export default class EnvelopeWidget {
     }
 
     const nextX = points[i];
-    const nextY = points[i+1];
+    const nextY = points[i + 1];
 
     const val = (((curveX - prevX) / (nextX - prevX)) * (nextY - prevY)) + prevY;
 
@@ -435,8 +432,8 @@ export default class EnvelopeWidget {
   }
 
   onCursorChanged() {
-    if (state.cursor.get("instrument") !== this.lastCursor.get("instrument")) {
-      this.setInstrument(state.cursor.get("instrument"));
+    if (state.cursor.get('instrument') !== this.lastCursor.get('instrument')) {
+      this.setInstrument(state.cursor.get('instrument'));
       this.target.empty();
       this.render();
       this.lastCursor = state.cursor;
@@ -444,7 +441,7 @@ export default class EnvelopeWidget {
   }
 
   onSongChanged() {
-    this.setInstrument(state.cursor.get("instrument"));
+    this.setInstrument(state.cursor.get('instrument'));
     this.refresh();
   }
 
