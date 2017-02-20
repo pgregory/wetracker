@@ -2,14 +2,14 @@ import $ from 'jquery';
 
 import '../../utils/inlineedit';
 
-import Signal from '../../utils/signal';
+import { connect } from '../../utils/signal';
 import { state } from '../../state';
 import { song } from '../../utils/songmanager';
 import { player } from '../../audio/player';
 
 import samplesTemplate from './templates/samples.marko';
 
-import styles from './styles.css';
+import './styles.css';
 
 export default class SampleList {
   constructor(target) {
@@ -19,9 +19,9 @@ export default class SampleList {
 
     this.updateSample();
 
-    Signal.connect(state, "cursorChanged", this, "onCursorChanged");
-    Signal.connect(song, "songChanged", this, "onSongChanged");
-    Signal.connect(song, "instrumentChanged", this, "onInstrumentChanged");
+    connect(state, 'cursorChanged', this, 'onCursorChanged');
+    connect(song, 'songChanged', this, 'onSongChanged');
+    connect(song, 'instrumentChanged', this, 'onInstrumentChanged');
   }
 
   render() {
@@ -29,17 +29,17 @@ export default class SampleList {
 
     target.addClass('sample-list');
 
-    target.append(samplesTemplate.renderToString({samples: this.instrument.samples, cursor: state.cursor.toJS()}));
+    target.append(samplesTemplate.renderToString({ samples: this.instrument.samples, cursor: state.cursor.toJS() }));
 
     if (this.instrument && this.instrument.samples && this.instrument.samples.length > 0) {
-      this.rowHeight = target.find(".samples-row")[0].clientHeight;
+      this.rowHeight = target.find('.samples-row')[0].clientHeight;
 
-      const containerHeight = target.find(".samples-list").height();
-      target.find(".samples-top-padding div").height(
-        (containerHeight-this.rowHeight)/2.0);
+      const containerHeight = target.find('.samples-list').height();
+      target.find('.samples-top-padding div').height(
+        (containerHeight - this.rowHeight) / 2.0);
 
-      target.find(".samples-bottom-padding div").height(
-        (containerHeight-this.rowHeight)/2.0);
+      target.find('.samples-bottom-padding div').height(
+        (containerHeight - this.rowHeight) / 2.0);
     }
     target.find('.samples').on('mousewheel', this.onScroll.bind(this));
 
@@ -52,47 +52,47 @@ export default class SampleList {
       });
     });
 
-    target.find('#add-sample').click((e) => {
-      const sampid = song.addSampleToInstrument(this.cur_instr)
+    target.find('#add-sample').click(() => {
+      const sampid = song.addSampleToInstrument(this.cur_instr);
       state.set({
         cursor: {
           sample: sampid,
-        }
+        },
       });
     });
 
 
-    target.find('#load-sample').click((e) => {
-      $( "#dialog" ).empty();
-      $( "#dialog" ).append($("<input type=\"file\" id=\"file-input\" />"));
-      $( "#dialog" ).dialog({
+    target.find('#load-sample').click(() => {
+      $('#dialog').empty();
+      $('#dialog').append($('<input type=\'file\' id=\'file-input\' />'));
+      $('#dialog').dialog({
         width: 500,
         modal: true,
         buttons: {
-          Ok: function() {
-            var files = $("#file-input")[0].files;
+          Ok: function ok() {
+            const files = $('#file-input')[0].files;
             if (files.length > 0) {
               player.loadSampleFromFile(files[0], (audioData, floatData) => {
-                const instrumentIndex = state.cursor.get("instrument");
-                const sampleIndex = state.cursor.get("sample");
+                const instrumentIndex = state.cursor.get('instrument');
+                const sampleIndex = state.cursor.get('sample');
                 song.setInstrumentSampleData(instrumentIndex, sampleIndex, floatData);
               });
             }
-            $( this ).dialog( "close" );
+            $(this).dialog('close');
           },
-          Cancel: function() {
-            $( this ).dialog( "close" );
+          Cancel: function cancel() {
+            $(this).dialog('close');
           },
-        }
+        },
       });
     });
 
-    const cur_sample = state.cursor.get("sample");
-    this.scrollToSample(cur_sample);
+    const currSample = state.cursor.get('sample');
+    this.scrollToSample(currSample);
 
-    var that = this;
+    const that = this;
     target.find('.samples-name div').inlineEdit({
-      accept: function(val) {
+      accept: function accept(val) {
         const row = $(this).parents('.samples-row');
         if (row) {
           const sampleindex = row.data('sampleindex');
@@ -111,15 +111,15 @@ export default class SampleList {
   }
 
   updateSample() {
-    this.cur_instr = state.cursor.get("instrument");
+    this.cur_instr = state.cursor.get('instrument');
     this.instrument = song.getInstrument(this.cur_instr);
   }
 
   scrollToSample(sample) {
     const target = $(this.target);
-    target.find(".current-sample").removeClass('current-sample');
-    target.find(".samples-row").eq(sample).addClass('current-sample');
-    target.find(".samples-list").scrollTop(sample*this.rowHeight);
+    target.find('.current-sample').removeClass('current-sample');
+    target.find('.samples-row').eq(sample).addClass('current-sample');
+    target.find('.samples-list').scrollTop(sample * this.rowHeight);
   }
 
   onSongChanged() {
@@ -128,35 +128,35 @@ export default class SampleList {
   }
 
   onInstrumentChanged(instrumentIndex) {
-    if(instrumentIndex == this.cur_instr) {
+    if (instrumentIndex === this.cur_instr) {
       this.updateSample();
       this.refresh();
     }
   }
 
   onCursorChanged() {
-    if (state.cursor.get("instrument") !== this.lastCursor.instrument) {
+    if (state.cursor.get('instrument') !== this.lastCursor.instrument) {
       this.refresh();
-    } else if (state.cursor.get("sample") !== this.lastCursor.sample) {
+    } else if (state.cursor.get('sample') !== this.lastCursor.sample) {
       this.updateSample();
 
-      const cur_sample = state.cursor.get("sample");
-      this.scrollToSample(cur_sample);
+      const currSample = state.cursor.get('sample');
+      this.scrollToSample(currSample);
     }
     this.lastCursor = state.cursor.toJS();
   }
 
   onScroll(e) {
     this.yoff += e.originalEvent.deltaY;
-    var row = Math.floor((this.yoff) / this.rowHeight);
-    var maxrow = this.instrument.samples.length;
+    let row = Math.floor((this.yoff) / this.rowHeight);
+    const maxrow = this.instrument.samples.length;
     row = ((row % maxrow) + maxrow) % maxrow;
 
-    if(row !== this.lastCursor.sample) {
+    if (row !== this.lastCursor.sample) {
       state.set({
         cursor: {
           sample: row,
-        }
+        },
       });
     }
 
