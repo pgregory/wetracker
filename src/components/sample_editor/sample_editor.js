@@ -162,7 +162,7 @@ export default class SampleEditor {
 
   updateControlPanel() {
     if (this.sample) {
-      $(this.target).find('input#basenote').val(this.noteName(this.sample.note));
+      $(this.target).find('input#basenote').val(this.displayNote(this.sample.note));
       $(this.target).find('input#finetune').val(this.sample.fine);
       $(this.target).find('select#loop').val(this.sample.type);
     } else {
@@ -172,7 +172,7 @@ export default class SampleEditor {
     }
   }
 
-  noteName(note) {
+  displayNote(note) {
     return this.noteName[(note + 48) % 12] + ~~((note + 48) / 12); // eslint-disable-line no-bitwise
   }
 
