@@ -2,10 +2,9 @@ import $ from 'jquery';
 import 'jquery-ui/widgets/slider';
 import 'jquery-ui/widgets/sortable';
 
-import Signal from '../../utils/signal';
+import { connect } from '../../utils/signal';
 import { state } from '../../state';
 import { song } from '../../utils/songmanager';
-import { player } from '../../audio/player';
 
 import template from './templates/effects_editor.marko';
 
@@ -19,7 +18,7 @@ import * as tremolo from './effects/tremolo';
 import * as wahwah from './effects/wahwah';
 import * as bitcrusher from './effects/bitcrusher';
 
-import styles from './styles.css';
+import './styles.css';
 
 export default class EffectsEditor {
   constructor(target) {
@@ -27,13 +26,13 @@ export default class EffectsEditor {
     this.lastCursor = state.cursor;
     this.track = undefined;
 
-    Signal.connect(state, "cursorChanged", this, "onCursorChanged");
-    Signal.connect(song, "songChanged", this, "onSongChanged");
-    Signal.connect(song, "trackEffectChainChanged", this, "onTrackEffectChainChanged");
+    connect(state, 'cursorChanged', this, 'onCursorChanged');
+    connect(song, 'songChanged', this, 'onSongChanged');
+    connect(song, 'trackEffectChainChanged', this, 'onTrackEffectChainChanged');
   }
 
   render() {
-    const cur_track = state.cursor.get("track");
+    const currTrack = state.cursor.get('track');
     const effects = [
       {
         name: chorus.NAME,
@@ -92,56 +91,55 @@ export default class EffectsEditor {
     ];
 
     try {
-      let trackname = song.getTrackName(cur_track);
-      $(this.target).append(template.renderToString({effects, trackname}));
-      let trackEffects = song.getTrackEffects(cur_track);
+      const trackname = song.getTrackName(currTrack);
+      $(this.target).append(template.renderToString({ effects, trackname }));
+      const trackEffects = song.getTrackEffects(currTrack);
       for (let i = 0; i < trackEffects.length; i += 1) {
-        let fxIndex = effects.findIndex((e) => e.type === trackEffects[i].type);
+        const fxIndex = effects.findIndex((e) => e.type === trackEffects[i].type);
         if (fxIndex !== -1) {
-          let fx = new effects[fxIndex].constructor($(this.target).find("#effects-chain"), trackEffects[i], { type: "track", track: cur_track, index: i });
-          Signal.connect(fx, "effectChanged", this, "onEffectInterfaceChanged");
+          const fx = new effects[fxIndex].constructor($(this.target).find('#effects-chain'), trackEffects[i], { type: 'track', track: currTrack, index: i });
+          connect(fx, 'effectChanged', this, 'onEffectInterfaceChanged');
           fx.render();
         }
       }
 
-      $(this.target).find("button.delete").click((e) => {
-        let index = $(e.target).parents(".effect-control-panel").data("chain-index");
-        song.deleteTrackEffectFromChain(cur_track, index);
+      $(this.target).find('button.delete').click((e) => {
+        const index = $(e.target).parents('.effect-control-panel').data('chain-index');
+        song.deleteTrackEffectFromChain(currTrack, index);
       });
 
-      $(this.target).find(".effect-name").dblclick((e) => {
-        let fxIndex = $(e.target).data("fxindex");
-        song.appendEffectToTrackChain(state.cursor.get("track"), effects[fxIndex].poConstructor());
+      $(this.target).find('.effect-name').dblclick((e) => {
+        const fxIndex = $(e.target).data('fxindex');
+        song.appendEffectToTrackChain(state.cursor.get('track'), effects[fxIndex].poConstructor());
       });
 
-      $(this.target).find("#effects-chain").sortable({
-        handle: ".effect-header",
-        axis: "x",
-        containment: "document",
-        placeholder: "sortable-placeholder",
+      $(this.target).find('#effects-chain').sortable({
+        handle: '.effect-header',
+        axis: 'x',
+        containment: 'document',
+        placeholder: 'sortable-placeholder',
         opacity: 0.5,
         forcePlaceholderSize: true,
         start: (e, ui) => {
-          $(ui.item).data("previndex", ui.item.index());
+          $(ui.item).data('previndex', ui.item.index());
         },
         update: (e, ui) => {
-          let newIndex = ui.item.index();
-          let oldIndex = $(ui.item).data("previndex");
-          $(ui.item).removeAttr("data-previndex");
-          console.log(newIndex, oldIndex);
-          song.moveTrackEffectInChain(state.cursor.get("track"), oldIndex, newIndex);
+          const newIndex = ui.item.index();
+          const oldIndex = $(ui.item).data('previndex');
+          $(ui.item).removeAttr('data-previndex');
+          song.moveTrackEffectInChain(state.cursor.get('track'), oldIndex, newIndex);
         },
       });
-    } catch(e) {
+    } catch (e) {
       console.log(e);
     }
   }
 
   onEffectInterfaceChanged(location, effect) {
-    if (location.type === "track" && "track" in location) {
+    if (location.type === 'track' && 'track' in location) {
       try {
         song.updateTrackEffect(location.track, location.index, effect);
-      } catch(e) {
+      } catch (e) {
         console.log(e);
       }
     }
@@ -153,7 +151,7 @@ export default class EffectsEditor {
   }
 
   onCursorChanged() {
-    if (state.cursor.get("track") !== this.lastCursor.get("track")) {
+    if (state.cursor.get('track') !== this.lastCursor.get('track')) {
       this.target.empty();
       this.render();
       this.lastCursor = state.cursor;
@@ -164,7 +162,7 @@ export default class EffectsEditor {
     this.refresh();
   }
 
-  onTrackEffectChainChanged(trackIndex) {
+  onTrackEffectChainChanged() {
     // TODO: Check if the changed track is currently displayed.
     this.refresh();
   }
