@@ -6,6 +6,8 @@ import { song } from '../../utils/songmanager';
 
 import envelopeTemplate from './templates/envelope.marko';
 
+import './styles.css';
+
 export default class EnvelopeWidget {
   constructor(target) {
     this.target = target;

@@ -1,25 +1,19 @@
-import Immutable from 'immutable';
-import $ from 'jquery';
-
-import Signal from '../../utils/signal';
 import { state } from '../../state';
 import { song } from '../../utils/songmanager';
 
 import EnvelopeWidget from './envelope_widget';
 
-import styles from './styles.css';
-
 export default class PanningEnvelope extends EnvelopeWidget {
   constructor(target) {
     super(target);
 
-    this.setInstrument(state.cursor.get("instrument"));
+    this.setInstrument(state.cursor.get('instrument'));
   }
 
   createEnvelope() {
-    if(this.instrument) {
+    if (this.instrument) {
       this.instrument.env_pan = {
-        points: [0, 32, 2, 32], 
+        points: [0, 32, 2, 32],
         type: 2,
         sustain: 0,
         loopstart: 0,

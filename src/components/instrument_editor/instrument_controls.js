@@ -1,12 +1,12 @@
 import $ from 'jquery';
 
-import Signal from '../../utils/signal';
+import { connect } from '../../utils/signal';
 import { state } from '../../state';
 import { song } from '../../utils/songmanager';
 
 import controlsTemplate from './templates/instrument_controls.marko';
 
-import styles from './styles.css';
+import './styles.css';
 
 export default class InstrumentControls {
   constructor(target) {
@@ -15,11 +15,11 @@ export default class InstrumentControls {
     this.instrumentIndex = undefined;
     this.instrument = undefined;
 
-    Signal.connect(state, "cursorChanged", this, "onCursorChanged");
+    connect(state, 'cursorChanged', this, 'onCursorChanged');
   }
 
   render() {
-    $(this.target).append(controlsTemplate.renderToString({instrument: this.instrument}));
+    $(this.target).append(controlsTemplate.renderToString({ instrument: this.instrument }));
   }
 
   refresh() {
@@ -33,8 +33,8 @@ export default class InstrumentControls {
   }
 
   onCursorChanged() {
-    if (state.cursor.get("instrument") !== this.lastCursor.get("instrument")) {
-      this.setInstrument(state.cursor.get("instrument"));
+    if (state.cursor.get('instrument') !== this.lastCursor.get('instrument')) {
+      this.setInstrument(state.cursor.get('instrument'));
       this.target.empty();
       this.render();
       this.lastCursor = state.cursor;
@@ -42,7 +42,7 @@ export default class InstrumentControls {
   }
 
   onSongChanged() {
-    this.setInstrument(state.cursor.get("instrument"));
+    this.setInstrument(state.cursor.get('instrument'));
     this.refresh();
   }
 }
