@@ -134,7 +134,7 @@ class XMLoader {
 
     console.log("songlen %d, %d channels, %d patterns, %d instruments", songlen, numTracks, npat, ninst);
     console.log("loop @%d", newSong.loopPosition);
-    console.log("flags=%d speed %d bpm %d", this.flags, newSong.speed, newSong.bpm);
+    console.log("flags=%d speed %d bpm %d", newSong.flags, newSong.speed, newSong.bpm);
 
     let maxPat = 0;
     for (i = 0; i < songlen; i++) {
