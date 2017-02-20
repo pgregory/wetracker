@@ -6,6 +6,8 @@ import { song } from '../../utils/songmanager';
 
 import browserTemplate from './templates/browser.marko';
 
+import './styles.css';
+
 /* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
 /* global __API__:false */
 
