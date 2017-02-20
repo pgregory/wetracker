@@ -296,7 +296,13 @@ class PlayerInstrument {
   }
 
   rateForPeriod(period) {
-    const freq = 8363 * (2 ** ((1152.0 - period) / 192.0));
+    let freq;
+
+    if(state.song.get("flags") & 0x1) {
+      freq = 8363 * Math.pow(2, (4608.0 - period) / 768.0);
+    } else {
+      freq = 8363 * 1712.0 / period;
+    }
     if (isNaN(freq)) {
       console.log('invalid period!', period);
       return 0;
@@ -423,7 +429,16 @@ class Instrument {
 
   periodForNote(ch, note, fine) {
     const sampNote = this.inst.samples[this.inst.samplemap[Math.min(Math.max(note, 0), 95)]].note;
-    return 1920 - ((note + sampNote) * 16) - (fine / 8.0);
+    if (state.song.get("flags") & 0x1) {
+      return 7680.0 - (note + sampNote)*64 - fine / 2.0;
+    }
+    let n2 = note + sampNote;
+    let ft = Math.floor(fine / 16.0);
+    let p1 = player.periodtable[ 8 + (n2 % 12) * 8 + ft];
+    let p2 = player.periodtable[ 8 + (n2 % 12) * 8 + ft + 1];
+    ft = (fine / 16.0) - ft;
+    let pv = ((1.0 - ft) * p1 + ft * p2) * (16.0 / Math.pow(2, Math.floor(n2 / 12) - 1));
+    return pv;
   }
 
   refreshEnvelopeData() {
@@ -454,7 +469,7 @@ class Track {
     this.filterstate = new Float32Array(3);
     this.vol = 0;
     this.pan = 128;
-    this.period = 1920 - (48 * 16);
+    this.period = 7680 - 48 * 64;
     this.vL = 0;
     this.vR = 0;   // left right volume envelope followers (changes per sample)
     this.vLprev = 0;
@@ -701,6 +716,24 @@ class Player {
     this.mediaRecorder = new MediaRecorder(this.mediaStreamDest.stream, { mimeType: 'audio/webm; codecs=opus' });
     this.mediaChunks = [];
 
+    // amiga period value table
+    this.periodtable=new Float32Array([
+      907.0, 900.0, 894.0, 887.0, 881.0, 875.0, 868.0, 862.0,
+      856.0, 850.0, 844.0, 838.0, 832.0, 826.0, 820.0, 814.0,
+      808.0, 802.0, 796.0, 791.0, 785.0, 779.0, 774.0, 768.0,
+      762.0, 757.0, 752.0, 746.0, 741.0, 736.0, 730.0, 725.0,
+      720.0, 715.0, 709.0, 704.0, 699.0, 694.0, 689.0, 684.0,
+      678.0, 675.0, 670.0, 665.0, 660.0, 655.0, 651.0, 646.0,
+      640.0, 636.0, 632.0, 628.0, 623.0, 619.0, 614.0, 610.0,
+      604.0, 601.0, 597.0, 592.0, 588.0, 584.0, 580.0, 575.0,
+      570.0, 567.0, 563.0, 559.0, 555.0, 551.0, 547.0, 543.0,
+      538.0, 535.0, 532.0, 528.0, 524.0, 520.0, 516.0, 513.0,
+      508.0, 505.0, 502.0, 498.0, 494.0, 491.0, 487.0, 484.0,
+      480.0, 477.0, 474.0, 470.0, 467.0, 463.0, 460.0, 457.0,
+      453.0, 450.0, 447.0, 445.0, 442.0, 439.0, 436.0, 433.0,
+      428.0,
+    ]);
+
     this.mediaRecorder.ondataavailable = (evt) => {
       // push each chunk (blobs) in an array
       this.mediaChunks.push(evt.data);
@@ -816,7 +849,7 @@ class Player {
   }
 
   updateChannelPeriod(ch, period) {
-    const freq = 8363 * (2 ** ((1152.0 - period) / 192.0));
+    var freq = 8363 * Math.pow(2, (4608.0 - period) / 768.0);
     if (isNaN(freq)) {
       console.log('invalid period!', period);
       return;
@@ -1440,7 +1473,7 @@ class Player {
 
   eff_t0_1(ch, data) {  // pitch slide up
     if (data !== 0) {
-      ch.slideupspeed = data;
+      ch.slideupspeed = data * 4;
     }
   }
 
@@ -1453,20 +1486,20 @@ class Player {
 
   eff_t0_2(ch, data) {  // pitch slide down
     if (data !== 0) {
-      ch.slidedownspeed = data;
+      ch.slidedownspeed = data * 4;
     }
   }
 
   eff_t1_2(ch) {  // pitch slide down
     if (ch.slidedownspeed !== undefined) {
-      // 1728 is the period for C-1
-      ch.period = Math.min(1728, ch.period + ch.slidedownspeed);
+      // 6912 is the period for C-1
+      ch.period = Math.min(6912, ch.period + ch.slidedownspeed);
     }
   }
 
   eff_t0_3(ch, data) {  // portamento
     if (data !== 0) {
-      ch.portaspeed = data;
+      ch.portaspeed = data * 4;
     }
   }
 
