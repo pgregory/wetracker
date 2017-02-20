@@ -298,10 +298,10 @@ class PlayerInstrument {
   rateForPeriod(period) {
     let freq;
 
-    if(state.song.get("flags") & 0x1) {
-      freq = 8363 * Math.pow(2, (4608.0 - period) / 768.0);
+    if (state.song.get('flags') & 0x1) { // eslint-disable-line no-bitwise
+      freq = 8363 * (2 ** ((4608.0 - period) / 768.0));
     } else {
-      freq = 8363 * 1712.0 / period;
+      freq = (8363 * 1712.0) / period;
     }
     if (isNaN(freq)) {
       console.log('invalid period!', period);
@@ -429,15 +429,15 @@ class Instrument {
 
   periodForNote(ch, note, fine) {
     const sampNote = this.inst.samples[this.inst.samplemap[Math.min(Math.max(note, 0), 95)]].note;
-    if (state.song.get("flags") & 0x1) {
-      return 7680.0 - (note + sampNote)*64 - fine / 2.0;
+    if (state.song.get('flags') & 0x1) { // eslint-disable-line no-bitwise
+      return 7680.0 - ((note + sampNote) * 64) - (fine / 2.0);
     }
-    let n2 = note + sampNote;
+    const n2 = note + sampNote;
     let ft = Math.floor(fine / 16.0);
-    let p1 = player.periodtable[ 8 + (n2 % 12) * 8 + ft];
-    let p2 = player.periodtable[ 8 + (n2 % 12) * 8 + ft + 1];
+    const p1 = player.periodtable[8 + ((n2 % 12) * 8) + ft];
+    const p2 = player.periodtable[8 + ((n2 % 12) * 8) + ft + 1];
     ft = (fine / 16.0) - ft;
-    let pv = ((1.0 - ft) * p1 + ft * p2) * (16.0 / Math.pow(2, Math.floor(n2 / 12) - 1));
+    const pv = (((1.0 - ft) * p1) + (ft * p2)) * (16.0 / (2 ** (Math.floor(n2 / 12) - 1)));
     return pv;
   }
 
@@ -469,7 +469,7 @@ class Track {
     this.filterstate = new Float32Array(3);
     this.vol = 0;
     this.pan = 128;
-    this.period = 7680 - 48 * 64;
+    this.period = 7680 - (48 * 64);
     this.vL = 0;
     this.vR = 0;   // left right volume envelope followers (changes per sample)
     this.vLprev = 0;
@@ -717,7 +717,7 @@ class Player {
     this.mediaChunks = [];
 
     // amiga period value table
-    this.periodtable=new Float32Array([
+    this.periodtable = new Float32Array([
       907.0, 900.0, 894.0, 887.0, 881.0, 875.0, 868.0, 862.0,
       856.0, 850.0, 844.0, 838.0, 832.0, 826.0, 820.0, 814.0,
       808.0, 802.0, 796.0, 791.0, 785.0, 779.0, 774.0, 768.0,
@@ -849,7 +849,7 @@ class Player {
   }
 
   updateChannelPeriod(ch, period) {
-    var freq = 8363 * Math.pow(2, (4608.0 - period) / 768.0);
+    const freq = 8363 * (2 ** ((4608.0 - period) / 768.0));
     if (isNaN(freq)) {
       console.log('invalid period!', period);
       return;
