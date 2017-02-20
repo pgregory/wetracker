@@ -1,34 +1,26 @@
 import $ from 'jquery';
 import 'jquery-ui/widgets/slider';
 
-import { EffectUIBase, EffectParameterObjectBase, EffectNodeBase } from './base';
+import { EffectUIBase, EffectNodeBase } from './base';
 
 import template from './templates/filter.marko';
 
-import Signal from '../../../utils/signal';
-
-
-export const NAME = "Filter";
-export const TYPE = "filter";
+export const NAME = 'Filter';
+export const TYPE = 'filter';
 
 class FilterEffectUI extends EffectUIBase {
-  constructor(target, effect, location) {
-    super(target, effect, location);
-  }
-
   render() {
     this.panel = $(template.renderToString({ location: this.location }));
     $(this.target).append(this.panel);
-    this.bindParameterToUI("#freq-slider", "#freq-value", 20, 22050, 1, "frequency");
-    this.bindParameterToUI("#Q-slider", "#Q-value", 0.001, 100, 0.001, "Q");
-    this.bindParameterToUI("#gain-slider", "#gain-value", -40, 40, 0.1, "gain");
-    this.panel.find("#filter-type").on("change", (e) => {
+    this.bindParameterToUI('#freq-slider', '#freq-value', 20, 22050, 1, 'frequency');
+    this.bindParameterToUI('#Q-slider', '#Q-value', 0.001, 100, 0.001, 'Q');
+    this.bindParameterToUI('#gain-slider', '#gain-value', -40, 40, 0.1, 'gain');
+    this.panel.find('#filter-type').on('change', (e) => {
       this.effect.parameters.filterType = $(e.target).val();
       this.effectChanged(this.location, this.effect);
     }).val(this.effect.parameters.filterType);
     this.bindBypass();
   }
-
 }
 
 function filterEffectParameterObject() {
@@ -39,7 +31,7 @@ function filterEffectParameterObject() {
       frequency: 440,
       Q: 1,
       gain: 0,
-      filterType: "lowpass",
+      filterType: 'lowpass',
     },
   };
 }
@@ -67,4 +59,4 @@ class FilterEffectNode extends EffectNodeBase {
   }
 }
 
-export { FilterEffectUI as UI, FilterEffectNode as Node, filterEffectParameterObject as parameterObject }
+export { FilterEffectUI as UI, FilterEffectNode as Node, filterEffectParameterObject as parameterObject };

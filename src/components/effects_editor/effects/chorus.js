@@ -1,29 +1,22 @@
 import $ from 'jquery';
 import 'jquery-ui/widgets/slider';
 
-import { EffectUIBase, EffectParameterObjectBase, EffectNodeBase } from './base';
+import { EffectUIBase, EffectNodeBase } from './base';
 
 import template from './templates/chorus.marko';
 
-import Signal from '../../../utils/signal';
-
-export const NAME = "Chorus";
-export const TYPE = "chorus";
+export const NAME = 'Chorus';
+export const TYPE = 'chorus';
 
 class ChorusEffectUI extends EffectUIBase {
-  constructor(target, effect, location) {
-    super(target, effect, location);
-  }
-
   render() {
-    this.panel = $(template.renderToString({location: this.location }));
+    this.panel = $(template.renderToString({ location: this.location }));
     $(this.target).append(this.panel);
-    this.bindParameterToUI("#rate-slider", "#rate-value", 0.01, 8, 0.01, "rate");
-    this.bindParameterToUI("#feedback-slider", "#feedback-value", 0, 1, 0.001, "feedback");
-    this.bindParameterToUI("#delay-slider", "#delay-value", 0, 1, 0.001, "delay");
+    this.bindParameterToUI('#rate-slider', '#rate-value', 0.01, 8, 0.01, 'rate');
+    this.bindParameterToUI('#feedback-slider', '#feedback-value', 0, 1, 0.001, 'feedback');
+    this.bindParameterToUI('#delay-slider', '#delay-value', 0, 1, 0.001, 'delay');
     this.bindBypass();
   }
-
 }
 
 function chorusEffectParameterObject() {
@@ -34,7 +27,7 @@ function chorusEffectParameterObject() {
       rate: 1.5,
       feedback: 0.2,
       delay: 0.0045,
-    }
+    },
   };
 }
 
@@ -58,4 +51,4 @@ class ChorusEffectNode extends EffectNodeBase {
   }
 }
 
-export { ChorusEffectUI as UI, ChorusEffectNode as Node, chorusEffectParameterObject as parameterObject }
+export { ChorusEffectUI as UI, ChorusEffectNode as Node, chorusEffectParameterObject as parameterObject };

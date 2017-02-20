@@ -1,26 +1,20 @@
 import $ from 'jquery';
 import 'jquery-ui/widgets/slider';
 
-import { EffectUIBase, EffectParameterObjectBase, EffectNodeBase } from './base';
+import { EffectUIBase, EffectNodeBase } from './base';
 
 import template from './templates/tremolo.marko';
 
-import Signal from '../../../utils/signal';
-
-export const NAME = "Tremolo";
-export const TYPE = "tremolo";
+export const NAME = 'Tremolo';
+export const TYPE = 'tremolo';
 
 class TremoloEffectUI extends EffectUIBase {
-  constructor(target, effect, location) {
-    super(target, effect, location);
-  }
-
   render() {
     this.panel = $(template.renderToString({ location: this.location }));
     $(this.target).append(this.panel);
-    this.bindParameterToUI("#intensity-slider", "#intensity-value", 0, 1, 0.01, "intensity");
-    this.bindParameterToUI("#rate-slider", "#rate-value", 0.001, 8, 0.001, "rate");
-    this.bindParameterToUI("#stereo-slider", "#stereo-value", 0, 180, 0.1, "stereoPhase");
+    this.bindParameterToUI('#intensity-slider', '#intensity-value', 0, 1, 0.01, 'intensity');
+    this.bindParameterToUI('#rate-slider', '#rate-value', 0.001, 8, 0.001, 'rate');
+    this.bindParameterToUI('#stereo-slider', '#stereo-value', 0, 180, 0.1, 'stereoPhase');
     this.bindBypass();
   }
 
@@ -58,4 +52,4 @@ class TremoloEffectNode extends EffectNodeBase {
   }
 }
 
-export { TremoloEffectUI as UI, TremoloEffectNode as Node, tremoloEffectParameterObject as parameterObject }
+export { TremoloEffectUI as UI, TremoloEffectNode as Node, tremoloEffectParameterObject as parameterObject };

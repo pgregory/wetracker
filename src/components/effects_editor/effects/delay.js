@@ -1,31 +1,24 @@
 import $ from 'jquery';
 import 'jquery-ui/widgets/slider';
 
-import { EffectUIBase, EffectParameterObjectBase, EffectNodeBase } from './base';
+import { EffectUIBase, EffectNodeBase } from './base';
 
 import template from './templates/delay.marko';
 
-import Signal from '../../../utils/signal';
-
-export const NAME = "Delay";
-export const TYPE = "delay";
+export const NAME = 'Delay';
+export const TYPE = 'delay';
 
 class DelayEffectUI extends EffectUIBase {
-  constructor(target, effect, location) {
-    super(target, effect, location);
-  }
-
   render() {
     this.panel = $(template.renderToString({ location: this.location }));
     $(this.target).append(this.panel);
-    this.bindParameterToUI("#delay-slider", "#delay-value", 1, 10000, 1, "delay");
-    this.bindParameterToUI("#feedback-slider", "#feedback-value", 0, 1, 0.001, "feedback");
-    this.bindParameterToUI("#wet-slider", "#wet-value", 0, 1, 0.001, "wet");
-    this.bindParameterToUI("#dry-slider", "#dry-value", 0, 1, 0.001, "dry");
-    this.bindParameterToUI("#cutoff-slider", "#cutoff-value", 20, 22050, 1, "cutoff");
+    this.bindParameterToUI('#delay-slider', '#delay-value', 1, 10000, 1, 'delay');
+    this.bindParameterToUI('#feedback-slider', '#feedback-value', 0, 1, 0.001, 'feedback');
+    this.bindParameterToUI('#wet-slider', '#wet-value', 0, 1, 0.001, 'wet');
+    this.bindParameterToUI('#dry-slider', '#dry-value', 0, 1, 0.001, 'dry');
+    this.bindParameterToUI('#cutoff-slider', '#cutoff-value', 20, 22050, 1, 'cutoff');
     this.bindBypass();
   }
-
 }
 
 function delayEffectParameterObject() {
@@ -67,4 +60,4 @@ class DelayEffectNode extends EffectNodeBase {
   }
 }
 
-export { DelayEffectUI as UI, DelayEffectNode as Node, delayEffectParameterObject as parameterObject }
+export { DelayEffectUI as UI, DelayEffectNode as Node, delayEffectParameterObject as parameterObject };

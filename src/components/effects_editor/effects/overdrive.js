@@ -1,28 +1,21 @@
 import $ from 'jquery';
 import 'jquery-ui/widgets/slider';
 
-import { EffectUIBase, EffectParameterObjectBase, EffectNodeBase } from './base';
+import { EffectUIBase, EffectNodeBase } from './base';
 
 import template from './templates/overdrive.marko';
 
-import Signal from '../../../utils/signal';
-
-
-export const NAME = "Overdrive";
-export const TYPE = "overdrive";
+export const NAME = 'Overdrive';
+export const TYPE = 'overdrive';
 
 class OverdriveEffectUI extends EffectUIBase {
-  constructor(target, effect, location) {
-    super(target, effect, location);
-  }
-
   render() {
     this.panel = $(template.renderToString({ location: this.location }));
     $(this.target).append(this.panel);
-    this.bindParameterToUI("#output-slider", "#output-value", 0, 1, 0.01, "outputGain");
-    this.bindParameterToUI("#drive-slider", "#drive-value", 0, 1, 0.001, "drive");
-    this.bindParameterToUI("#curve-slider", "#curve-value", 0, 1, 0.001, "curveAmount");
-    this.bindParameterToUI("#alg-slider", "#alg-value", 0, 5, 1, "algorithmIndex");
+    this.bindParameterToUI('#output-slider', '#output-value', 0, 1, 0.01, 'outputGain');
+    this.bindParameterToUI('#drive-slider', '#drive-value', 0, 1, 0.001, 'drive');
+    this.bindParameterToUI('#curve-slider', '#curve-value', 0, 1, 0.001, 'curveAmount');
+    this.bindParameterToUI('#alg-slider', '#alg-value', 0, 5, 1, 'algorithmIndex');
     this.bindBypass();
   }
 
@@ -64,4 +57,4 @@ class OverdriveEffectNode extends EffectNodeBase {
   }
 }
 
-export { OverdriveEffectUI as UI, OverdriveEffectNode as Node, overdriveEffectParameterObject as parameterObject }
+export { OverdriveEffectUI as UI, OverdriveEffectNode as Node, overdriveEffectParameterObject as parameterObject };
