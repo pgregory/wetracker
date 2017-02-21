@@ -1,9 +1,5 @@
 import $ from 'jquery';
 
-import Signal from '../../utils/signal';
-import { state } from '../../state';
-import { song } from '../../utils/songmanager';
-
 import PatternEditorCanvas from '../pattern_editor/pattern_editor_canvas';
 import Monitors from '../monitors/monitors';
 import SequenceEditor from '../sequence_editor/sequence_editor';
@@ -25,55 +21,55 @@ export default class Tabs {
     this.widgets = [];
 
     this.options = {
-        cellHeight: 40,
-        verticalMargin: 5,
-        resizable: {
-          handles: 'ne, se, sw, nw'
-        },
-        width: 50,
-        handleClass: 'widget-titlebar',
-        alwaysShowResizeHandle: true,
+      cellHeight: 40,
+      verticalMargin: 5,
+      resizable: {
+        handles: 'ne, se, sw, nw',
+      },
+      width: 50,
+      handleClass: 'widget-titlebar',
+      alwaysShowResizeHandle: true,
     };
 
     this.widgetTypes = {
-      'pattern-editor': (t) => { return new PatternEditorCanvas(t); },
-      'monitors': (t) => { return new Monitors(t); },
-      'sequence-editor': (t) => { return new SequenceEditor(t); },
-      'instrument-list': (t) => { return new InstrumentList(t) },
-      'sample-list': (t) => { return new SampleList(t) },
-      'sample-editor': (t) => { return new SampleEditor(t) },
-      'volume-envelope': (t) => { return new VolumeEnvelope(t) },
-      'panning-envelope': (t) => { return new PanningEnvelope(t) },
-      'instrument-controls': (t) => { return new InstrumentControls(t) },
-      'sample-mapper': (t) => { return new SampleMapper(t) },
-      'effects-editor': (t) => { return new EffectsEditor(t) },
-      'browser': (t) => { return new Browser(t) },
+      'pattern-editor': (t) => new PatternEditorCanvas(t),
+      monitors: (t) => new Monitors(t),
+      'sequence-editor': (t) => new SequenceEditor(t),
+      'instrument-list': (t) => new InstrumentList(t),
+      'sample-list': (t) => new SampleList(t),
+      'sample-editor': (t) => new SampleEditor(t),
+      'volume-envelope': (t) => new VolumeEnvelope(t),
+      'panning-envelope': (t) => new PanningEnvelope(t),
+      'instrument-controls': (t) => new InstrumentControls(t),
+      'sample-mapper': (t) => new SampleMapper(t),
+      'effects-editor': (t) => new EffectsEditor(t),
+      browser: (t) => new Browser(t),
     };
   }
 
   render() {
     $(this.target).append(tabsTemplate.renderToString());
- 
+
     $(this.target).find('.tablinks').click((e) => {
-      // Get all elements with class="tabcontent" and hide them
+      // Get all elements with class='tabcontent' and hide them
       $('.tabcontent').hide();
 
-      // Get all elements with class="tablinks" and remove the class "active"
+      // Get all elements with class='tablinks' and remove the class 'active'
       $('.tablinks').removeClass('active');
 
-      // Show the current tab, and add an "active" class to the link that opened the tab
+      // Show the current tab, and add an 'active' class to the link that opened the tab
       const tabname = $(e.target).data('tabname');
       $(`#container #${tabname}`).show();
 
       $(e.target).addClass('active');
 
-      for (var i = 0; i < this.widgets.length; i += 1) {
+      for (let i = 0; i < this.widgets.length; i += 1) {
         this.widgets[i].refresh();
       }
     });
 
-    $('.grid-stack').gridstack(this.options).on('resizestop', (event, ui) => {
-      for(let i = 0; i < this.widgets.length; i += 1) {
+    $('.grid-stack').gridstack(this.options).on('resizestop', () => {
+      for (let i = 0; i < this.widgets.length; i += 1) {
         this.widgets[i].refresh();
       }
     });
@@ -81,18 +77,18 @@ export default class Tabs {
     $('.widget').each((i, e) => {
       const widgetType = $(e).data('widget-type');
       if (widgetType in this.widgetTypes) {
-        this.widgets.push(this.widgetTypes[widgetType]($(e))); 
+        this.widgets.push(this.widgetTypes[widgetType]($(e)));
       }
     });
 
-    for (var i = 0; i < this.widgets.length; i += 1) {
+    for (let i = 0; i < this.widgets.length; i += 1) {
       this.widgets[i].render();
     }
 
     try {
       $('.tablinks.defaultTab')[0].click();
     } catch (t) {
-      console.log(e);
+      console.log(t);
     }
   }
 
