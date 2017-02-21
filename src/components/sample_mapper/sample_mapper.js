@@ -1,13 +1,13 @@
 import $ from 'jquery';
 
-import Signal from '../../utils/signal';
+import { connect } from '../../utils/signal';
 import { state } from '../../state';
 import { song } from '../../utils/songmanager';
 import { virtualKeyboard } from '../../utils/virtualkeyboard';
 
 import mapperTemplate from './templates/sample_mapper.marko';
 
-import styles from './styles.css';
+import './styles.css';
 
 export default class SampleMapper {
   constructor(target) {
@@ -22,19 +22,19 @@ export default class SampleMapper {
     this.instrument = undefined;
     this.selectedSegment = undefined;
     this.yoff = 0;
-    this.instrumentIndex = state.cursor.get("instrument");
+    this.instrumentIndex = state.cursor.get('instrument');
 
     this.playingNotes = [];
 
     this.segments = [];
 
-    Signal.connect(state, "cursorChanged", this, "onCursorChanged");
-    Signal.connect(song, "songChanged", this, "onSongChanged");
-    Signal.connect(song, "instrumentChanged", this, "onInstrumentChanged");
-    Signal.connect(virtualKeyboard, "noteDown", this, "onNoteDown");
-    Signal.connect(virtualKeyboard, "noteUp", this, "onNoteUp");
+    connect(state, 'cursorChanged', this, 'onCursorChanged');
+    connect(song, 'songChanged', this, 'onSongChanged');
+    connect(song, 'instrumentChanged', this, 'onInstrumentChanged');
+    connect(virtualKeyboard, 'noteDown', this, 'onNoteDown');
+    connect(virtualKeyboard, 'noteUp', this, 'onNoteUp');
 
-    this.setInstrument(state.cursor.get("instrument"));
+    this.setInstrument(state.cursor.get('instrument'));
     this.updateSegments();
   }
 
@@ -43,9 +43,9 @@ export default class SampleMapper {
 
     let vcount = 64;
     let vdelta = this.internalHeight / vcount;
-    while(vdelta <= 10 && vcount > 8) {
+    while (vdelta <= 10 && vcount > 8) {
       vcount /= 2;
-      vdelta = this.internalHeight/vcount;
+      vdelta = this.internalHeight / vcount;
     }
     // Grid
     ctx.beginPath();
@@ -61,17 +61,17 @@ export default class SampleMapper {
 
     let x = xstart + this.left_margin;
 
-    for(let i = notestart; i <= hcount; i += 1) {
-      if(((i % 12) !== 0) &&
+    for (let i = notestart; i <= hcount; i += 1) {
+      if (((i % 12) !== 0) &&
          (x < (this.canvas.width - this.right_margin))) {
         ctx.moveTo(x, this.top_margin);
         ctx.lineTo(x, this.canvas.height - this.bottom_margin);
-      } 
+      }
       x += this.notesize;
-    } 
+    }
 
     let y = this.canvas.height - this.bottom_margin;
-    for(let i = 0; i <= vcount; i += 1) {
+    for (let i = 0; i <= vcount; i += 1) {
       ctx.moveTo(this.left_margin, y);
       ctx.lineTo(this.canvas.width - this.right_margin, y);
       y -= vdelta;
@@ -83,69 +83,70 @@ export default class SampleMapper {
     ctx.lineWidth = 2;
 
     x = xstart + this.left_margin;
-    for(let i = notestart; i <= hcount; i += 1) {
-      if(((i % 12) === 0) &&
+    for (let i = notestart; i <= hcount; i += 1) {
+      if (((i % 12) === 0) &&
          (x < (this.canvas.width - this.right_margin))) {
         ctx.moveTo(x, 0);
         ctx.lineTo(x, this.canvas.height);
-      } 
+      }
       x += this.notesize;
-    } 
+    }
 
     ctx.stroke();
 
     ctx.fillStyle = '#FFF';
-    ctx.font = "12px monospace";
-    ctx.textAlign = "left";
-    ctx.textBaseline = "top";
+    ctx.font = '12px monospace';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
     x = this.offset;
-    for(let i = 0; i < 8; i += 1) {
+    for (let i = 0; i < 8; i += 1) {
       ctx.fillText(`${i}`, x + ((this.notesize * 12) / 2), this.canvas.height - this.bottom_margin, (this.notesize * 12));
       x += (this.notesize * 12);
     }
   }
 
 
+  /* eslint-disable no-param-reassign */
   drawSegment(ctx, x, w, sample, drawselected) {
     let visx = x;
     let visw = w;
 
-    if(x < this.left_margin) {
+    if (x < this.left_margin) {
       visw -= (this.left_margin - x);
       visx = this.left_margin;
     }
 
-    if((visx + visw) > (this.canvas.width - this.right_margin)) {
+    if ((visx + visw) > (this.canvas.width - this.right_margin)) {
       visw = (this.canvas.width - this.right_margin) - visx;
     }
 
-    if((visx < (this.canvas.width - this.right_margin)) &&
+    if ((visx < (this.canvas.width - this.right_margin)) &&
        ((visx + visw) > this.left_margin)) {
-
       ctx.save();
       ctx.globalAlpha = 0.2;
-      if(drawselected) {
+      if (drawselected) {
         ctx.fillRect(x, this.top_margin, w, this.internalHeight);
         ctx.globalAlpha = 1.0;
-        ctx.strokeStyle = "#000";
+        ctx.strokeStyle = '#000';
         ctx.setLineDash([4, 4]);
         ctx.strokeRect(x, this.top_margin, w, this.internalHeight);
       } else {
         ctx.fillRect(visx, this.top_margin, visw, this.internalHeight);
         ctx.globalAlpha = 1.0;
         ctx.strokeRect(visx, this.top_margin, visw, this.internalHeight);
-        ctx.fillStyle = "#0F0";
+        ctx.fillStyle = '#0F0';
       }
-      if(sample != null && visw > 16) {
+      if (sample != null && visw > 16) {
         ctx.globalAlpha = 1.0;
-        ctx.textBaseline = "middle";
-        ctx.textAlign = "center";
-        ctx.font = "16px monospace";
+        ctx.textBaseline = 'middle';
+        ctx.textAlign = 'center';
+        ctx.font = '16px monospace';
         ctx.fillText(`${sample}`, (visx + (visw / 2)), this.top_margin + (this.internalHeight / 2));
       }
       ctx.restore();
     }
   }
+  /* eslint-enable no-param-reassign */
 
   redrawGraph() {
     const ctx = this.canvas.getContext('2d');
@@ -159,35 +160,29 @@ export default class SampleMapper {
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, width, height);
 
-    let hcount = 96;
+    const hcount = 96;
     this.notesize = (this.internalWidth / hcount) * this.zoom;
 
     // Draw in axes
     this.renderGridAndAxes();
 
     // Now draw in boxes for each range
-    if(this.segments && this.segments.length > 0) {
+    if (this.segments && this.segments.length > 0) {
       ctx.save();
       ctx.fillStyle = '#090';
       ctx.strokeStyle = '#0F0';
       ctx.lineWidth = 2;
-      const height = this.canvas.height;
-      const width = this.canvas.width;
 
-      let x = this.offset + this.left_margin;
-      let w = 0;
-      let i = 0;
-
-      for(let i = 0; i < this.segments.length; i += 1) {
+      for (let i = 0; i < this.segments.length; i += 1) {
         const x = (this.segments[i].start * this.notesize) + this.offset + this.left_margin;
-        const w = (this.segments[i].end * this.notesize + this.offset + this.left_margin) - x;
+        const w = ((this.segments[i].end * this.notesize) + this.offset + this.left_margin) - x;
 
         this.drawSegment(ctx, x, w, this.segments[i].instrument);
       }
 
-      if(this.selectedSegment != null) {
-        let x = this.segments[this.selectedSegment].start * this.notesize + this.offset + this.left_margin;
-        let w = this.segments[this.selectedSegment].end * this.notesize + this.offset + this.left_margin - x;
+      if (this.selectedSegment != null) {
+        const x = (this.segments[this.selectedSegment].start * this.notesize) + this.offset + this.left_margin;
+        const w = ((this.segments[this.selectedSegment].end * this.notesize) + this.offset + this.left_margin) - x;
 
         this.drawSegment(ctx, x, w, null, true);
       }
@@ -197,14 +192,14 @@ export default class SampleMapper {
     for (let i = 0; i < this.playingNotes.length; i += 1) {
       const shiftedNotes = Math.floor(Math.abs(this.offset) / this.notesize);
       const offset = this.offset % this.notesize;
-      let x = this.left_margin + offset + ((this.playingNotes[i] - shiftedNotes) * this.notesize);
-      ctx.fillStyle = "#55ACFF";
+      const x = this.left_margin + offset + ((this.playingNotes[i] - shiftedNotes) * this.notesize);
+      ctx.fillStyle = '#55ACFF';
       ctx.fillRect(x, 0, this.notesize, this.top_margin);
     }
   }
 
   render() {
-    $(this.target).append(mapperTemplate.renderToString({instrument: this.instrument}));
+    $(this.target).append(mapperTemplate.renderToString({ instrument: this.instrument }));
 
     const canvas = $(this.target).find('.graph canvas')[0];
     this.canvas = canvas;
@@ -215,7 +210,7 @@ export default class SampleMapper {
     $(canvas).on('mouseup', this.onMouseUp.bind(this));
     $(canvas).on('mouseout', this.onMouseOut.bind(this));
 
-    $(this.target).find('#set-sample').click((e) => {
+    $(this.target).find('#set-sample').click(() => {
       this.setSegmentSample();
     });
 
@@ -227,13 +222,13 @@ export default class SampleMapper {
 
   updateSegments() {
     this.segments = [];
-    if(this.instrument && this.instrument.samplemap) { 
+    if (this.instrument && this.instrument.samplemap) {
       let b = 0;
       let w = 0;
       let i = 0;
-      while(i < 96) {
-        let s = this.instrument.samplemap[i];
-        while(i < 96 && s == this.instrument.samplemap[i]) {
+      while (i < 96) {
+        const s = this.instrument.samplemap[i];
+        while (i < 96 && s === this.instrument.samplemap[i]) {
           i += 1;
           w += 1;
         }
@@ -251,21 +246,20 @@ export default class SampleMapper {
   }
 
   saveSegments() {
-    if(this.instrument) {
+    if (this.instrument) {
       this.instrument.samplemap = new Uint8Array(96);
-      for(let i = 0; i < this.segments.length; i += 1) {
+      for (let i = 0; i < this.segments.length; i += 1) {
         this.instrument.samplemap.fill(this.segments[i].instrument, this.segments[i].start, this.segments[i].end);
       }
       song.updateInstrument(this.instrumentIndex, this.instrument);
     }
-  } 
+  }
 
   onScroll(e) {
-    const prevOffset = this.offset;
     if (Math.abs(e.originalEvent.deltaY) > Math.abs(e.originalEvent.deltaX)) {
       this.yoff += e.originalEvent.deltaY;
       if (Math.abs(this.yoff) > 10) {
-        this.zoom += (this.yoff/100.0);
+        this.zoom += (this.yoff / 100.0);
         this.yoff = (this.yoff % 10);
         this.zoom = Math.min(Math.max(this.zoom, 1), 5);
       }
@@ -275,7 +269,7 @@ export default class SampleMapper {
     const maxoffset = (this.notesize * 96) - (this.canvas.width - this.left_margin - this.right_margin);
     this.offset = Math.min(Math.max(this.offset, -maxoffset), 0);
 
-    //$(this.canvas).toggleClass('moveable', (((this.maxtick * 1.2) * this.zoom) > this.canvas.width));
+    // $(this.canvas).toggleClass('moveable', (((this.maxtick * 1.2) * this.zoom) > this.canvas.width));
 
     window.requestAnimationFrame(() => this.redrawGraph());
 
@@ -283,32 +277,29 @@ export default class SampleMapper {
   }
 
   onMouseMove(e) {
-    if(this.dragging) {
+    if (this.dragging) {
       const x = (e.offsetX - this.left_margin) - this.offset;
       const xnote = Math.round(x / this.notesize);
       const currSeg = this.segments[this.selectedSegment];
-      if(this.selectedEdge == 0 && this.selectedSegment > 0 && xnote > 0) {
+      if (this.selectedEdge === 0 && this.selectedSegment > 0 && xnote > 0) {
         currSeg.start = xnote;
         this.segments[this.selectedSegment - 1].end = xnote;
-      } else if(this.selectedEdge == 1 && this.selectedSegment < (this.segments.length - 1) && xnote < 96) {
+      } else if (this.selectedEdge === 1 && this.selectedSegment < (this.segments.length - 1) && xnote < 96) {
         currSeg.end = xnote;
         this.segments[this.selectedSegment + 1].start = xnote;
       }
-      //this.saveSegments();
+      // this.saveSegments();
       window.requestAnimationFrame(() => this.redrawGraph());
-    } else {
-      if(this.selectedSegment != null) {
-        const segx1 = this.segments[this.selectedSegment].start * this.notesize;
-        const segx2 = this.segments[this.selectedSegment].end * this.notesize;
-        const x = (e.offsetX - this.left_margin) - this.offset;
-        const y = e.offsetY;
+    } else if (this.selectedSegment != null) {
+      const segx1 = this.segments[this.selectedSegment].start * this.notesize;
+      const segx2 = this.segments[this.selectedSegment].end * this.notesize;
+      const x = (e.offsetX - this.left_margin) - this.offset;
 
-        if(((x > (segx1 - 5)) && (x < (segx1 + 5))) || 
-           ((x > (segx2 - 5)) && (x < (segx2 + 5)))) {
-          $(this.canvas).toggleClass('dragging', true);
-        } else {
-          $(this.canvas).toggleClass('dragging', false);
-        }
+      if (((x > (segx1 - 5)) && (x < (segx1 + 5))) ||
+         ((x > (segx2 - 5)) && (x < (segx2 + 5)))) {
+        $(this.canvas).toggleClass('dragging', true);
+      } else {
+        $(this.canvas).toggleClass('dragging', false);
       }
     }
   }
@@ -317,69 +308,68 @@ export default class SampleMapper {
     const x = (e.offsetX - this.left_margin) - this.offset;
     const y = e.offsetY;
 
-    if(!this.dragging) {
+    if (!this.dragging) {
       this.selectedSegment = this.findSegmentAtPosition(x, y);
     }
 
-    if(this.selectedSegment != null) {
+    if (this.selectedSegment != null) {
       const segx1 = this.segments[this.selectedSegment].start * this.notesize;
       const segx2 = this.segments[this.selectedSegment].end * this.notesize;
-      if((x > (segx1 - 5)) && (x < (segx1 + 5))) {
+      if ((x > (segx1 - 5)) && (x < (segx1 + 5))) {
         this.dragging = true;
         this.selectedEdge = 0;
-      } else if((x > (segx2 - 5)) && (x < (segx2 + 5))) {
+      } else if ((x > (segx2 - 5)) && (x < (segx2 + 5))) {
         this.dragging = true;
         this.selectedEdge = 1;
-      } else {
+      } else if (e.shiftKey) {
         // Shift click adds a new segment
-        if(e.shiftKey) {
-          this.splitSegmentAt(x);
-        } else if(e.altKey) {
-          this.deleteSegment(this.selectedSegment);
-        } 
+        this.splitSegmentAt(x);
+      } else if (e.altKey) {
+        this.deleteSegment(this.selectedSegment);
       }
-    } 
+    }
 
     this.redrawGraph();
   }
 
-  onMouseUp(e) {
+  onMouseUp() {
     this.saveSegments();
     this.dragging = false;
   }
 
-  onMouseOut(e) {
+  onMouseOut() {
   }
 
-  findSegmentAtPosition(x, y) {
-    for(let i = 0; i < this.segments.length; i += 1) {
+  findSegmentAtPosition(x) {
+    for (let i = 0; i < this.segments.length; i += 1) {
       const minx = this.segments[i].start * this.notesize;
       const maxx = this.segments[i].end * this.notesize;
 
-      if(x >= minx && x <= maxx) {
+      if (x >= minx && x <= maxx) {
         return i;
       }
     }
+    return null;
   }
 
   splitSegmentAt(x) {
-    if(this.selectedSegment != null) {
+    if (this.selectedSegment != null) {
       const xnote = Math.round(x / this.notesize);
       const currSeg = this.segments[this.selectedSegment];
       this.segments.splice(this.selectedSegment + 1, 0, {
-        instrument: this.segments.length, 
+        instrument: this.segments.length,
         start: xnote,
         end: currSeg.end,
       });
       currSeg.end = xnote;
       this.saveSegments();
       window.requestAnimationFrame(() => this.redrawGraph());
-    } 
+    }
   }
 
   deleteSegment(s) {
-    if(this.segments.length > 1) {
-      if(s < (this.segments.length - 1)) {
+    if (this.segments.length > 1) {
+      if (s < (this.segments.length - 1)) {
         this.segments[s + 1].start = this.segments[s].start;
       } else {
         this.segments[s - 1].end = this.segments[s].end;
@@ -392,9 +382,9 @@ export default class SampleMapper {
   }
 
   setSegmentSample() {
-    if(this.selectedSegment != null) {
+    if (this.selectedSegment != null) {
       const currSeg = this.segments[this.selectedSegment];
-      currSeg.instrument = state.cursor.get("sample");
+      currSeg.instrument = state.cursor.get('sample');
 
       this.saveSegments();
       window.requestAnimationFrame(() => this.redrawGraph());
@@ -414,8 +404,8 @@ export default class SampleMapper {
   }
 
   onCursorChanged() {
-    if (state.cursor.get("instrument") !== this.lastCursor.get("instrument")) {
-      this.setInstrument(state.cursor.get("instrument"));
+    if (state.cursor.get('instrument') !== this.lastCursor.get('instrument')) {
+      this.setInstrument(state.cursor.get('instrument'));
       this.selectedSegment = undefined;
       this.target.empty();
       this.render();
@@ -424,7 +414,7 @@ export default class SampleMapper {
   }
 
   onSongChanged() {
-    this.setInstrument(state.cursor.get("instrument"));
+    this.setInstrument(state.cursor.get('instrument'));
     this.refresh();
   }
 
@@ -436,12 +426,12 @@ export default class SampleMapper {
     }
   }
 
-  onNoteDown(note) { 
+  onNoteDown(note) {
     this.playingNotes.push(note);
     window.requestAnimationFrame(() => this.redrawGraph());
   }
 
-  onNoteUp(note) { 
+  onNoteUp(note) {
     const index = this.playingNotes.indexOf(note);
     if (index !== -1) {
       this.playingNotes.splice(index, 1);
