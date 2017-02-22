@@ -1,0 +1,8 @@
+runtime: nodejs
+env: flex
+skip_files:
+- ^node_modules/(.*/)?
+- ^docs/.*
+- ^bin/.*
+- ^\.git/.*
+- ^coverage/.*
