@@ -11,7 +11,7 @@
     "build:production": "NODE_ENV=production npm run build",
     "postinstall": "NODE_ENV=production npm run build",
     "start": "node server.js",
-    "lint": "npm run lint:js && npm run lint:css",
+    "lint": "npm run lint:js",
     "lint:eslint": "eslint --ignore-path .gitignore --ignore-pattern server.js --ignore-pattern webpack.config.js",
     "lint:js": "npm run lint:eslint -- . ",
     "lint:css": "stylelint ./src/**/*.css"
@@ -28,7 +28,7 @@
     "webpack-dev-server": "^1.16.2"
   },
   "pre-commit": [
-    "lint:eslint"
+    "lint"
   ],
   "dependencies": {
     "arraybuffer-loader": "^0.2.2",
