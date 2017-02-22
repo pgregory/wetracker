@@ -163,7 +163,8 @@ export default class PatternEditorCanvas {
     this.fontimg.src = fontimage;
 
     // canvas to render patterns onto
-    this.patternCanvas = document.createElement('canvas');
+    // this.patternCanvas = document.createElement('canvas');
+    this.patternCanvases = [];
 
     this.emptyEventCanvas = document.createElement('canvas');
     this.emptyEventCanvas.height = this.patternRowHeight;
@@ -194,6 +195,8 @@ export default class PatternEditorCanvas {
     connect(song, 'eventChanged', this, 'onEventChanged');
     connect(song, 'songChanged', this, 'onSongChanged');
     connect(song, 'patternChanged', this, 'onPatternChanged');
+    connect(song, 'sequenceChanged', this, 'onSequenceChanged');
+    connect(song, 'sequenceItemChanged', this, 'onSequenceItemChanged');
     connect(state, 'songChanged', this, 'onSongStateChanged');
     connect(player, 'trackStateChanged', this, 'onTrackStateChanged');
   }
@@ -260,7 +263,7 @@ export default class PatternEditorCanvas {
     ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx + cw + 2, 0, cw, 8);
     ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx + cw + 2 + cw, 0, cw, 8);
 
-    ctx = this.emptyPatternCanvas.getContext('2d');
+    ctx = this.emptyPatternCanvas.getContext('2d', { alpha: false });
     for (let r = 0; r < 256; r += 1) {
       const y = (r * this.patternRowHeight) + ((this.patternRowHeight - 8) / 2);
       for (let t = 0; t < 32; t += 1) {
@@ -365,19 +368,29 @@ export default class PatternEditorCanvas {
     ctx.drawImage(this.emptyEventCanvas, dx + this.eventLeftMargin, dy + ((this.patternRowHeight - 8) / 2));
   }
 
+  renderAllPatterns() {
+    const sequenceLength = song.getSequenceLength();
+    this.patternCanvases = [];
+    for(let s = 0; s < sequenceLength; s += 1) {
+      const patternIndex = song.getSequencePatternNumber(s);
+      this.patternCanvases[patternIndex] = this.renderPattern(patternIndex);
+    }
+  }
+
   renderPattern(index) {
     const rh = this.patternRowHeight;
 
     // a pattern consists of NxM cells which look like
     // N-O II VV EFF
     const cellwidth = this.patternCellWidth;
-    const ctx = this.patternCanvas.getContext('2d');
+    const patternCanvas = document.createElement('canvas');
+    const ctx = patternCanvas.getContext('2d', { alpha: false });
     ctx.imageSmoothingEnabled = false;
 
     const numtracks = song.getNumTracks();
     const numrows = song.getPatternRowCount(index);
-    this.patternCanvas.width = numtracks * cellwidth;
-    this.patternCanvas.height = numrows * rh;
+    patternCanvas.width = numtracks * cellwidth;
+    patternCanvas.height = numrows * rh;
 
     ctx.drawImage(this.emptyPatternCanvas, 0, 0);
 
@@ -399,15 +412,17 @@ export default class PatternEditorCanvas {
     }
     // Render beat rows in a separate loop to avoid thrashing state changes
     ctx.globalCompositeOperation = 'lighten';
+    ctx.fillStyle = '#333';
     for (let j = 0; j < numrows; j += 1) {
       const dy = j * rh;
       if (j % song.getSpeed() === 0) {
         // Render a beat marker
-        ctx.fillStyle = '#333';
-        ctx.fillRect(0, dy, this.patternCanvas.width, this.patternRowHeight);
+        ctx.fillRect(0, dy, patternCanvas.width, this.patternRowHeight);
       }
     }
     ctx.globalCompositeOperation = 'source-over';
+
+    return patternCanvas;
   }
 
   renderEventBeat(ctx, cursor, cx, cy) {
@@ -463,16 +478,19 @@ export default class PatternEditorCanvas {
 
     $(this.target).find('#add-track').click(() => {
       song.addTrack();
-      this.renderPattern(state.cursor.get('pattern'));
+      // this.patternCanvas = this.renderPattern(state.cursor.get('pattern'));
       this.refresh();
     });
 
     $(this.target).find('#remove-track').click(() => {
       song.removeTrack(song.getNumTracks() - 1);
-      this.renderPattern(state.cursor.get('pattern'));
+      // this.patternCanvas = this.renderPattern(state.cursor.get('pattern'));
       this.refresh();
     });
 
+    // this.patternCanvas = this.renderPattern(state.cursor.get('pattern'));
+    this.renderAllPatterns();
+    this.patternCanvas = this.patternCanvases[state.cursor.get('pattern')];
     this.redrawCanvas();
   }
 
@@ -519,7 +537,8 @@ export default class PatternEditorCanvas {
       window.requestAnimationFrame(() => this.redrawPatternAndCanvas(pattern));
       return;
     }
-    this.renderPattern(pattern);
+    //this.patternCanvas = this.renderPattern(pattern);
+    this.patternCanvas = this.patternCanvases[pattern];
     this.redrawCanvas();
   }
 
@@ -539,6 +558,34 @@ export default class PatternEditorCanvas {
     ctx.globalCompositeOperation = 'source-over';
     const y = Math.round((this.canvas.height / 2) - (this.patternRowHeight / 2) - (this.patternRowHeight * (state.cursor.get('row'))));
     ctx.drawImage(this.patternCanvas, 0, y);
+
+    let nextInSequence = state.cursor.get('sequence') + 1;
+    if (nextInSequence >= song.getSequenceLength()) {
+      nextInSequence = 0;
+    }
+    let prevInSequence = state.cursor.get('sequence') - 1;
+    if (prevInSequence < 0) {
+      prevInSequence = song.getSequenceLength() - 1;
+    }
+
+    const nextPatternCanvas = this.patternCanvases[song.getSequencePatternNumber(nextInSequence)];
+    const prevPatternCanvas = this.patternCanvases[song.getSequencePatternNumber(prevInSequence)];
+    if (nextPatternCanvas || prevPatternCanvas) {
+      ctx.save();
+      ctx.filter = 'grayscale(100%)';
+      if (prevPatternCanvas) {
+        ctx.drawImage(prevPatternCanvas, 0, y - prevPatternCanvas.height);
+      }
+      if (nextPatternCanvas) {
+        ctx.drawImage(nextPatternCanvas, 0, y + this.patternCanvas.height);
+      }
+      ctx.globalCompositeOperation = 'multiply';
+      //ctx.globalAlpha = 0.5;
+      ctx.fillStyle = '#888';
+      ctx.fillRect(0, y - prevPatternCanvas.height, prevPatternCanvas.width, prevPatternCanvas.height);
+      ctx.fillRect(0, y + this.patternCanvas.height, nextPatternCanvas.width, nextPatternCanvas.height);
+      ctx.restore();
+    }
 
     // Draw the timeline fixed to the left and right of the view.
     this.timelines.each((i, t) => {
@@ -692,7 +739,7 @@ export default class PatternEditorCanvas {
       }
       state.groupHistoryEnd();
 
-      this.renderPattern(state.cursor.get('pattern'));
+      this.patternCanvas = this.renderPattern(state.cursor.get('pattern'));
       this.redrawCanvas();
     }
   }
@@ -852,6 +899,15 @@ export default class PatternEditorCanvas {
 
   onPatternChanged() {
     this.redrawPatternAndCanvas(state.cursor.get('pattern'));
+  }
+
+  onSequenceChanged() {
+    this.renderAllPatterns();
+  }
+
+  onSequenceItemChanged(sequence) {
+    const patternIndex = song.getSequencePatternNumber(sequence);
+    this.patternCanvases[patternIndex] = this.renderPattern(patternIndex);
   }
 
   onSongChanged() {
