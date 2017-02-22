@@ -375,7 +375,7 @@ export default class PatternEditorCanvas {
   renderAllPatterns() {
     const sequenceLength = song.getSequenceLength();
     this.patternCanvases = [];
-    for(let s = 0; s < sequenceLength; s += 1) {
+    for (let s = 0; s < sequenceLength; s += 1) {
       const patternIndex = song.getSequencePatternNumber(s);
       this.patternCanvases[patternIndex] = this.renderPattern(patternIndex);
     }
@@ -577,7 +577,7 @@ export default class PatternEditorCanvas {
 
     // Draw previous and next patterns, in grayscale and faded.
     const nextPatternIndex = song.getSequencePatternNumber(nextInSequence);
-    const prevPatternIndex = song.getSequencePatternNumber(nextInSequence);
+    const prevPatternIndex = song.getSequencePatternNumber(prevInSequence);
     const nextPatternCanvas = this.getPatternCanvasForSequence(nextInSequence);
     const prevPatternCanvas = this.getPatternCanvasForSequence(prevInSequence);
     if (nextPatternCanvas || prevPatternCanvas) {
@@ -594,8 +594,9 @@ export default class PatternEditorCanvas {
         const tctx = t.getContext('2d');
         const tlw = this.timelineCanvas.width;
         const ntlh = this.patternRowHeight * song.getPatternRowCount(nextPatternIndex);
+        const ptlh = this.patternRowHeight * song.getPatternRowCount(prevPatternIndex);
         tctx.drawImage(this.timelineCanvas, 0, 0, tlw, ntlh, 0, y + tlh, tlw, ntlh);
-        tctx.drawImage(this.timelineCanvas, 0, 0, tlw, ntlh, 0, y - ntlh, tlw, ntlh);
+        tctx.drawImage(this.timelineCanvas, 0, 0, tlw, ptlh, 0, y - ptlh, tlw, ptlh);
       });
 
       ctx.globalCompositeOperation = 'multiply';
