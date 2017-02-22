@@ -10,7 +10,11 @@
     "build:dev": "NODE_ENV=dev npm run build",
     "build:production": "NODE_ENV=production npm run build",
     "postinstall": "NODE_ENV=production npm run build",
-    "start": "node server.js"
+    "start": "node server.js",
+    "lint": "npm run lint:js && npm run lint:css",
+    "lint:eslint": "eslint --ignore-path .gitignore --ignore-pattern server.js --ignore-pattern webpack.config.js",
+    "lint:js": "npm run lint:eslint -- . ",
+    "lint:css": "stylelint ./src/**/*.css"
   },
   "author": "",
   "license": "ISC",
