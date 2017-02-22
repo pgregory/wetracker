@@ -24,8 +24,12 @@
     "eslint-config-airbnb-base": "^11.1.0",
     "eslint-import-resolver-webpack": "^0.8.1",
     "eslint-plugin-import": "^2.2.0",
+    "pre-commit": "^1.2.2",
     "webpack-dev-server": "^1.16.2"
   },
+  "pre-commit": [
+    "lint:eslint"
+  ],
   "dependencies": {
     "arraybuffer-loader": "^0.2.2",
     "babel-core": "^6.18.2",
