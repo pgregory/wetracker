@@ -77,8 +77,6 @@ $(document).ready(() => {
     window.requestAnimationFrame(() => {
       transport.refresh();
       tabs.refresh();
-
-      state.songChanged();
     });
 
     song.newSong();

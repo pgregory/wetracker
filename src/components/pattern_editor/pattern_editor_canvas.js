@@ -158,6 +158,7 @@ export default class PatternEditorCanvas {
 
     // Load font (ripped from FastTracker 2)
     this.fontloaded = false;
+    this.onFontLoaded = [];
     this.fontimg = new window.Image();
     this.fontimg.onload = () => this.imageLoaded();
     this.fontimg.src = fontimage;
@@ -212,8 +213,6 @@ export default class PatternEditorCanvas {
   }
 
   imageLoaded() {
-    this.fontloaded = true;
-
     // Generate tinted version
     const rgbks = generateRGBKs(this.fontimg);
     const noteFont = generateTintImage(this.fontimg, rgbks, 255, 255, 255);
@@ -281,6 +280,11 @@ export default class PatternEditorCanvas {
       // render row number
       ctx.drawImage(this.fontimg, 8 * (j >> 4), 0, 8, 8, offset, dy, 8, 8); // eslint-disable-line no-bitwise
       ctx.drawImage(this.fontimg, 8 * (j & 15), 0, 8, 8, offset + 8, dy, 8, 8); // eslint-disable-line no-bitwise
+    }
+
+    this.fontloaded = true;
+    while (this.onFontLoaded.length > 0) {
+      (this.onFontLoaded.shift())();
     }
   }
 
@@ -490,8 +494,15 @@ export default class PatternEditorCanvas {
       this.refresh();
     });
 
-    this.renderAllPatterns();
-    this.redrawCanvas();
+    if (!this.fontloaded) {
+      this.onFontLoaded.push(() => {
+        this.renderAllPatterns();
+        this.redrawCanvas();
+      });
+    } else {
+      this.renderAllPatterns();
+      this.redrawCanvas();
+    }
   }
 
   normaliseSelectionCursors() {
@@ -534,7 +545,7 @@ export default class PatternEditorCanvas {
 
   redrawPatternAndCanvas(pattern) {
     if (!this.fontloaded) {
-      window.requestAnimationFrame(() => this.redrawPatternAndCanvas(pattern));
+      this.onFontLoaded.push(() => this.redrawPatternAndCanvas(pattern));
       return;
     }
     this.redrawCanvas();
@@ -956,7 +967,7 @@ export default class PatternEditorCanvas {
   onSongStateChanged() {
     // If this is the first song loaded, the font might not be ready.
     if (!this.fontloaded) {
-      window.requestAnimationFrame(() => this.onSongStateChanged());
+      this.onFontLoaded.push(() => this.onSongStateChanged());
       return;
     }
     this.refresh();
