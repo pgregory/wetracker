@@ -37,7 +37,8 @@
   cursor: -moz-grabbing;
 }
 
-.control-group.pointbuttons, .control-group.relnote-buttons {
+.control-group.pointbuttons,
+.control-group.relnote-buttons {
   flex-direction: row;
 }
 

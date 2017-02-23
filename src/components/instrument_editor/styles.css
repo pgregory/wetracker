@@ -1,4 +1,5 @@
-.envelope-editor, .instrument-editor {
+.envelope-editor,
+.instrument-editor {
   display: flex;
   flex-direction: row;
   overflow: auto;
@@ -9,7 +10,8 @@
   flex: 1 1 auto;
 }
 
-.envelope-editor .envelope-controls, .instrument-editor .instrument-controls {
+.envelope-editor .envelope-controls,
+.instrument-editor .instrument-controls {
   display: flex;
   flex-direction: column;
   overflow: auto;

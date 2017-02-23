@@ -19,12 +19,15 @@
   align-self: stretch;
 }
 
-.control-group.basenote, .control-group.finetune, .control-group.loop {
+.control-group.basenote,
+.control-group.finetune,
+.control-group.loop {
   flex-direction: row;
   overflow-y: auto;
 }
 
-.control-group.basenote input#basenote, .control-group.finetune input#finetune {
+.control-group.basenote input#basenote,
+.control-group.finetune input#finetune {
   width: 40px;
   text-align: center;
 }

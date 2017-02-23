@@ -31,7 +31,7 @@
 
 .samples .samples-row {
   display: flex;
-  border-left: 2px solid rgba(0,0,0,0);
+  border-left: 2px solid rgba(0, 0, 0, 0);
   padding: 2px;
   flex-shrink: 0;
   overflow-x: hidden;
@@ -74,7 +74,8 @@
   flex: 1 0 auto;
 }
 
-.samples .samples-top-padding, .sampless .samples-bottom-padding {
+.samples .samples-top-padding,
+.sampless .samples-bottom-padding {
   flex-shrink: 0;
 }
 

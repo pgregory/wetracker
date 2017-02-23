@@ -26,7 +26,7 @@
 
 .instruments .instrument-row {
   display: flex;
-  border-left: 2px solid rgba(0,0,0,0);
+  border-left: 2px solid rgba(0, 0, 0, 0);
   padding: 2px;
   flex-shrink: 0;
   overflow-x: hidden;
@@ -69,7 +69,8 @@
   flex: 1 0 auto;
 }
 
-.instruments .instrument-top-padding, .instruments .instrument-bottom-padding {
+.instruments .instrument-top-padding,
+.instruments .instrument-bottom-padding {
   flex-shrink: 0;
 }
 

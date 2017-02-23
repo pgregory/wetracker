@@ -11,7 +11,8 @@
     "build:production": "NODE_ENV=production npm run build",
     "postinstall": "NODE_ENV=production npm run build",
     "start": "node server.js",
-    "lint": "npm run lint:js",
+    "lint:staged": "lint-staged",
+    "lint": "npm run lint:js && npm run lint:css",
     "lint:eslint": "eslint --ignore-path .gitignore --ignore-pattern server.js --ignore-pattern webpack.config.js",
     "lint:js": "npm run lint:eslint -- . ",
     "lint:css": "stylelint ./src/**/*.css"
@@ -24,12 +25,17 @@
     "eslint-config-airbnb-base": "^11.1.0",
     "eslint-import-resolver-webpack": "^0.8.1",
     "eslint-plugin-import": "^2.2.0",
+    "lint-staged": "^3.3.1",
     "pre-commit": "^1.2.2",
+    "stylelint": "^7.9.0",
+    "stylelint-config-standard": "^16.0.0",
     "webpack-dev-server": "^1.16.2"
   },
-  "pre-commit": [
-    "lint"
-  ],
+  "lint-staged": {
+    "*.js": "lint:eslint",
+    "*.css": "stylelint"
+  },
+  "pre-commit": "lint:staged",
   "dependencies": {
     "arraybuffer-loader": "^0.2.2",
     "babel-core": "^6.18.2",
@@ -126,6 +132,31 @@
           "config": "./webpack.config.js"
         }
       }
+    }
+  },
+  "stylelint": {
+    "extends": "stylelint-config-standard",
+    "rules": {
+      "color-hex-case": "upper",
+      "string-quotes": "single",
+      "font-family-name-quotes": "always-where-recommended",
+      "selector-pseudo-class-no-unknown": [
+        true,
+        {
+          "ignorePseudoClasses": [
+            "global"
+          ]
+        }
+      ],
+      "property-no-unknown": [
+        true,
+        {
+          "ignoreProperties": [
+            "composes"
+          ]
+        }
+      ],
+      "indentation": 2
     }
   }
 }

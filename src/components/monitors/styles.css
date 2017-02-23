@@ -31,21 +31,21 @@
   position: absolute;
   left: 2px;
   top: 0;
-  font-size: 1.0em;
+  font-size: 1em;
   font-family: monospace;
   color: dimgrey;
 }
 
 .monitors .monitor-empty {
-  background: repeating-linear-gradient(
-    45deg,
-    #222,
-    #222 10px,
-    #111 10px,
-    #111 20px
-  )
+  background:
+    repeating-linear-gradient(
+      45deg,
+      #222,
+      #222 10px,
+      #111 10px,
+      #111 20px
+    );
 }
-
 
 .monitors .blank {
   flex: 1;

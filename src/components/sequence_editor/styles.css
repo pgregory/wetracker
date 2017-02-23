@@ -10,7 +10,7 @@
 
 .sequence .sequence-row {
   display: flex;
-  border-left: 2px solid rgba(0,0,0,0);
+  border-left: 2px solid rgba(0, 0, 0, 0);
   padding: 2px;
   overflow-x: hidden;
   justify-content: center;
@@ -21,7 +21,8 @@
   border-radius: 3px;
 }
 
-.sequence .sequence-index, .sequence .sequence-pattern {
+.sequence .sequence-index,
+.sequence .sequence-pattern {
   display: table-cell;
   text-align: center;
   min-width: 24px;
@@ -36,7 +37,8 @@
   background-color: #014D6E;
 }
 
-.sequence .sequence-index div, .sequence .sequence-pattern div {
+.sequence .sequence-index div,
+.sequence .sequence-pattern div {
   padding: 0 3px;
   border: 1px solid gray;
   border-radius: 3px;
@@ -50,7 +52,8 @@
   background: #090;
 }
 
-.sequence .sequence-top-padding, .sequence .sequence-bottom-padding {
+.sequence .sequence-top-padding,
+.sequence .sequence-bottom-padding {
   flex-shrink: 0;
 }
 

@@ -28,56 +28,55 @@
 }
 
 .hscroll .pattern {
-    display: flex;
-    flex-direction: row;
-    flex: 1 1 auto;
-    width: 100%;
+  display: flex;
+  flex-direction: row;
+  flex: 1 1 auto;
+  width: 100%;
 }
 
 .hscroll .pattern .patterndata {
-    border: 1px solid white;
-    flex: 1 1 auto;
-    overflow: hidden;
-    position: relative;
-    margin-bottom: 3px;
+  border: 1px solid white;
+  flex: 1 1 auto;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 3px;
 }
 
 .hscroll .pattern .patterndata::-webkit-scrollbar {
-    -webkit-appearance: none;
+  -webkit-appearance: none;
 }
 
 .hscroll .pattern .patterndata::-webkit-scrollbar:horizontal {
-    height: 11px;
+  height: 11px;
 }
 
 .hscroll .pattern .patterndata::-webkit-scrollbar-thumb {
-    border-radius: 2px;
-    border: 1px solid #93C3E9; /* should match background, can't be transparent */
-    background-color: #A0D4FD;
+  border-radius: 2px;
+  border: 1px solid #93C3E9; /* should match background, can't be transparent */
+  background-color: #A0D4FD;
 }
 
 .hscroll .pattern .patterndata::-webkit-scrollbar-track {
-    background-color: #333;
-    border-radius: 8px;
+  background-color: #333;
+  border-radius: 8px;
 }
 
-
 .hscroll .pattern .timeline {
-    border: 1px solid black;
+  border: 1px solid black;
 }
 
 .hscroll .track-names {
-    position: absolute;
-    display: flex;
-    flex-direction: row;
-    margin-top: 5px;
+  position: absolute;
+  display: flex;
+  flex-direction: row;
+  margin-top: 5px;
 }
 
 .hscroll .track-names .track-name {
-    color: white;
-    flex: 1 1 auto;
-    text-align: center;
-    font-family: monospace;
+  color: white;
+  flex: 1 1 auto;
+  text-align: center;
+  font-family: monospace;
 }
 
 .hscroll .track-names input.inline-editor {
