@@ -783,7 +783,8 @@ export default class PatternEditorCanvas {
       }
       state.groupHistoryEnd();
 
-      this.redrawCanvas();
+      this.renderSinglePattern(state.cursor.get('pattern'));
+      this.redrawPatternAndCanvas(state.cursor.get('pattern'));
     }
   }
 
