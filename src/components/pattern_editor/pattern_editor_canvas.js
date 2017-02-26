@@ -385,6 +385,10 @@ export default class PatternEditorCanvas {
     }
   }
 
+  renderSinglePattern(patternIndex) {
+    this.patternCanvases[patternIndex] = this.renderPattern(patternIndex);
+  }
+
   renderPattern(index) {
     const rh = this.patternRowHeight;
 
@@ -938,6 +942,7 @@ export default class PatternEditorCanvas {
   }
 
   onPatternChanged() {
+    this.renderSinglePattern(state.cursor.get('pattern'));
     this.redrawPatternAndCanvas(state.cursor.get('pattern'));
   }
 

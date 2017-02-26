@@ -50,7 +50,7 @@ export class CursorManager {
         if (e.ctrlKey || e.shiftKey || e.metaKey) {
           return;
         }
-        song.deleteRow(state.cursor.get('row') - 1);
+        song.deleteRowInTrack(state.cursor.get('row') - 1, state.cursor.get('track'));
         state.set({
           cursor: {
             row: state.cursor.get('row') - 1,
