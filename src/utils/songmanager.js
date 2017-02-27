@@ -175,6 +175,22 @@ export class SongManager {
     }
   }
 
+  deleteRowInTrack(row, track) {
+    if (row >= 0 && row < this.getPatternRowCount(state.cursor.get('pattern'))) {
+      const pattern = state.song.getIn(['patterns', state.cursor.get('pattern')]).toJS();
+      for (let r = row; r < (pattern.rows.length - 1); r += 1) {
+        pattern.rows[r][track] = pattern.rows[r + 1][track];
+      }
+      delete(pattern.rows[pattern.rows.length - 1][track]);
+      state.set({
+        song: {
+          patterns: state.song.get('patterns').set(state.cursor.get('pattern'), Immutable.fromJS(pattern)),
+        },
+      }, 'Delete row in track');
+      this.patternChanged();
+    }
+  }
+
   setHexValueAtCursor(cursor, value) {
     const eventItem = this.eventIndices[cursor.item].itemIndex;
     if (eventItem < this.eventEntries.length) {
