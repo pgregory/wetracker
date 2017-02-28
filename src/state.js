@@ -142,6 +142,7 @@ export class State {
       // Apply that historic state to the current state.
       try {
         this.updateState(future.snapshot);
+        this.songChanged();
         console.log(`Redo: ${future.annotation}`);
       } catch (e) {
         console.log(e);
