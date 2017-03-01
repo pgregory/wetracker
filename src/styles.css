@@ -22,13 +22,24 @@ body {
   flex-direction: row;
 }
 
-#tabs {
-  height: 20px;
-  width: 100%;
-  background: #333;
+#header2 {
+  display: flex;
+  flex-direction: row;
   margin-top: 30px;
+  background: #333;
+  height: 20px;
   position: fixed;
   z-index: 100;
+  width: 100%;
+}
+
+#tabs {
+  flex: 1;
+}
+
+#meter {
+  background: #300;
+  flex: 1;
 }
 
 #tabscontainer {

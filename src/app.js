@@ -15,6 +15,7 @@ import QueryString from 'query-string';
 
 import Transport from './components/transport/transport';
 import Tabs from './components/tabs/tabs';
+import Meter from './components/meter/meter';
 
 import gridTemplate from './templates/grid.marko';
 import instrumentsViewTemplate from './templates/instrumentsview.marko';
@@ -37,6 +38,7 @@ $(document).ready(() => {
   const showWeTrackerInterface = () => {
     const transport = new Transport('#transport');
     const tabs = new Tabs('#tabs');
+    const meter = new Meter('#meter');
     let curYPos;
     let curXPos;
     let curDown;
@@ -77,6 +79,7 @@ $(document).ready(() => {
     window.requestAnimationFrame(() => {
       transport.refresh();
       tabs.refresh();
+      meter.refresh();
     });
 
     song.newSong();
