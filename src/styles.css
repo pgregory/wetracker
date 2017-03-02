@@ -37,9 +37,11 @@ body {
   flex: 1;
 }
 
-#meter {
+#vumeters {
   background: #300;
   flex: 1;
+  margin: 2px;
+  border-left: 1px solid black;
 }
 
 #tabscontainer {

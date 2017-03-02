@@ -178,7 +178,10 @@ class XMViewObject {
         states,
       });
 
-      this.player.outputChanged({ volume: this.player.vuMeter.peak, clipping: this.player.vuMeter.checkClipping() });
+      this.player.outputChanged({ 
+        volume: this.player.vuMeter.peak,
+        clipping: this.player.vuMeter.checkClipping()
+      });
 
       const positions = [];
       for (let i = 0; i < this.player.playingInstruments.length; i += 1) {

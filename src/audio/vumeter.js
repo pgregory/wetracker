@@ -4,8 +4,8 @@ export default class AudioMeter {
     this.processor.onaudioprocess = this.volumeAudioProcess.bind(this);
     this.clipping = false;
     this.lastClip = 0;
-    this.volume = 0;
-    this.peak = 0;
+    this.volume = [0, 0];
+    this.peak = [0, 0];
     this.clipLevel = clipLevel || 0.98;
     this.averaging = averaging || 0.85;
     this.clipLag = clipLag || 750;
@@ -31,33 +31,35 @@ export default class AudioMeter {
   }
 
   volumeAudioProcess(event) {
-    let buf = event.inputBuffer.getChannelData(0);
-    let bufLength = buf.length;
-    let sum = 0;
+    let buf = event.inputBuffer;
     let x;
     let mx;
-    let peak = 0;
 
     // Do a root-mean-square on the samples: sum up the squares...
-    for (var i = 0; i < bufLength; i++) {
-      x = buf[i];
-      mx = Math.abs(x);
-      if (mx >= this.clipLevel) {
-        this.clipping = true;
-        this.lastClip = window.performance.now();
+    for (let b = 0; b < buf.numberOfChannels; b += 1) {
+      let inputData = buf.getChannelData(b);
+      let length = inputData.length;
+      let sum = 0;
+      let peak = 0;
+      for (let i = 0; i < length; i++) {
+        x = inputData[i];
+        mx = Math.abs(x);
+        if (mx >= this.clipLevel) {
+          this.clipping = true;
+          this.lastClip = window.performance.now();
+        }
+        peak = Math.max(peak, mx);
+        sum += x * x;
       }
-      peak = Math.max(peak, mx);
-      sum += x * x;
+      // ... then take the square root of the sum.
+      var rms =  Math.sqrt(sum / length);
+
+      // Now smooth this out with the averaging factor applied
+      // to the previous sample - take the max here because we
+      // want "fast attack, slow release."
+      this.volume[b] = Math.max(rms, this.volume[b] * this.averaging);
+      this.peak[b] = Math.max(peak, this.peak[b] * this.averaging);
     }
-
-    // ... then take the square root of the sum.
-    var rms =  Math.sqrt(sum / bufLength);
-
-    // Now smooth this out with the averaging factor applied
-    // to the previous sample - take the max here because we
-    // want "fast attack, slow release."
-    this.volume = Math.max(rms, this.volume * this.averaging);
-    this.peak = Math.max(peak, this.peak * this.averaging);
   }
 }
 

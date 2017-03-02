@@ -38,7 +38,7 @@ $(document).ready(() => {
   const showWeTrackerInterface = () => {
     const transport = new Transport('#transport');
     const tabs = new Tabs('#tabs');
-    const meter = new Meter('#meter');
+    const meter = new Meter('#vumeters');
     let curYPos;
     let curXPos;
     let curDown;
