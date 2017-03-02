@@ -9,6 +9,7 @@ import { state } from '../state';
 import { song } from '../utils/songmanager';
 import Envelope from './envelope';
 
+import AudioMeter from './vumeter';
 
 import * as chorus from '../components/effects_editor/effects/chorus';
 import * as delay from '../components/effects_editor/effects/delay';
@@ -681,11 +682,12 @@ class Player {
     this.audioctx = new AudioContext();
     this.tuna = new Tuna(this.audioctx);
 
-    this.gainNode = this.audioctx.createGain();
-    this.gainNode.gain.value = 0.5;  // master volume
-
     this.masterGain = this.audioctx.createGain();
+    this.vuMeter = new AudioMeter(this.audioctx);
+    this.masterGain.connect(this.vuMeter.processor);
     this.masterGain.connect(this.audioctx.destination);
+
+    connect(this.vuMeter, 'vuChanged', this, 'onVuChanged');
 
     this.playing = false;
     this.lookahead = 25;
@@ -710,6 +712,7 @@ class Player {
     this.playingInstruments = [];
 
     this.tracksChanged = signal(false);
+    this.outputChanged = signal(false);
     this.trackStateChanged = signal(false);
 
     this.mediaStreamDest = this.audioctx.createMediaStreamDestination();
@@ -816,7 +819,10 @@ class Player {
           this.playingInstruments.splice(index, 1);
           if (this.playingInstruments.length === 0) {
             this.interactiveTimerWorker.port.postMessage('stop');
-            this.XMView.stop();
+            // this.XMView.stop();
+            this.XMView.pushEvent({
+              t: -1,
+            });
             this.playingInteractive = false;
           }
         }
@@ -1437,6 +1443,13 @@ class Player {
     } catch (e) {
       console.log(e);
     }
+  }
+
+  onVuChanged() {
+    this.outputChanged({
+      volume: this.vuMeter.peak,
+      clipping: this.vuMeter.checkClipping(),
+    });
   }
 
   /* Load a local sound file using the player specific knowledge of formats

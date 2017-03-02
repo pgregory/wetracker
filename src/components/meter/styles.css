@@ -1,0 +1,19 @@
+.vumeter-container {
+  display: flex;
+  flex-direction: row;
+}
+
+canvas#meter {
+  vertical-align: top;
+  flex: 1;
+}
+
+.clipping {
+  width: 20px;
+  background: #000;
+  border: 3px solid #333;
+}
+
+.clipping.clipped {
+  background: #F00;
+}
