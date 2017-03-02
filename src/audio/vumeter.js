@@ -1,4 +1,4 @@
-import { signal } from '../utils/signal.js';
+import { signal } from '../utils/signal';
 
 export default class AudioMeter {
   constructor(audioContext, clipLevel, averaging, clipLag) {
@@ -22,10 +22,12 @@ export default class AudioMeter {
   }
 
   checkClipping() {
-    if (!this.clipping)
+    if (!this.clipping) {
       return false;
-    if ((this.lastClip + this.clipLag) < window.performance.now())
+    }
+    if ((this.lastClip + this.clipLag) < window.performance.now()) {
       this.clipping = false;
+    }
     return this.clipping;
   }
 
@@ -35,17 +37,17 @@ export default class AudioMeter {
   }
 
   volumeAudioProcess(event) {
-    let buf = event.inputBuffer;
+    const buf = event.inputBuffer;
     let x;
     let mx;
 
     // Do a root-mean-square on the samples: sum up the squares...
     for (let b = 0; b < buf.numberOfChannels; b += 1) {
-      let inputData = buf.getChannelData(b);
-      let length = inputData.length;
+      const inputData = buf.getChannelData(b);
+      const length = inputData.length;
       let sum = 0;
       let peak = 0;
-      for (let i = 0; i < length; i++) {
+      for (let i = 0; i < length; i += 1) {
         x = inputData[i];
         mx = Math.abs(x);
         if (mx >= this.clipLevel) {
@@ -56,7 +58,7 @@ export default class AudioMeter {
         sum += x * x;
       }
       // ... then take the square root of the sum.
-      var rms =  Math.sqrt(sum / length);
+      const rms = Math.sqrt(sum / length);
 
       // Now smooth this out with the averaging factor applied
       // to the previous sample - take the max here because we

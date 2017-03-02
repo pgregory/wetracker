@@ -687,7 +687,7 @@ class Player {
     this.masterGain.connect(this.vuMeter.processor);
     this.masterGain.connect(this.audioctx.destination);
 
-    connect(this.vuMeter, "vuChanged", this, "onVuChanged");
+    connect(this.vuMeter, 'vuChanged', this, 'onVuChanged');
 
     this.playing = false;
     this.lookahead = 25;
@@ -819,7 +819,7 @@ class Player {
           this.playingInstruments.splice(index, 1);
           if (this.playingInstruments.length === 0) {
             this.interactiveTimerWorker.port.postMessage('stop');
-            //this.XMView.stop();
+            // this.XMView.stop();
             this.XMView.pushEvent({
               t: -1,
             });
@@ -1446,9 +1446,9 @@ class Player {
   }
 
   onVuChanged() {
-    this.outputChanged({ 
+    this.outputChanged({
       volume: this.vuMeter.peak,
-      clipping: this.vuMeter.checkClipping()
+      clipping: this.vuMeter.checkClipping(),
     });
   }
 
