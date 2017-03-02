@@ -1,3 +1,5 @@
+import { signal } from '../utils/signal.js';
+
 export default class AudioMeter {
   constructor(audioContext, clipLevel, averaging, clipLag) {
     this.processor = audioContext.createScriptProcessor(512);
@@ -9,6 +11,8 @@ export default class AudioMeter {
     this.clipLevel = clipLevel || 0.98;
     this.averaging = averaging || 0.85;
     this.clipLag = clipLag || 750;
+
+    this.vuChanged = signal(false);
 
     this.processor.connect(audioContext.destination);
   }
@@ -59,6 +63,10 @@ export default class AudioMeter {
       // want "fast attack, slow release."
       this.volume[b] = Math.max(rms, this.volume[b] * this.averaging);
       this.peak[b] = Math.max(peak, this.peak[b] * this.averaging);
+
+      if (this.peak.every((a) => a > 0) || this.volume.every((a) => a > 0)) {
+        this.vuChanged();
+      }
     }
   }
 }

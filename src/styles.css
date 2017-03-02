@@ -38,7 +38,7 @@ body {
 }
 
 #vumeters {
-  background: #300;
+  background: #000;
   flex: 1;
   margin: 2px;
   border-left: 1px solid black;

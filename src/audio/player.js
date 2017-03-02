@@ -178,11 +178,6 @@ class XMViewObject {
         states,
       });
 
-      this.player.outputChanged({ 
-        volume: this.player.vuMeter.peak,
-        clipping: this.player.vuMeter.checkClipping()
-      });
-
       const positions = [];
       for (let i = 0; i < this.player.playingInstruments.length; i += 1) {
         const pInstr = this.player.playingInstruments[i];
@@ -692,6 +687,8 @@ class Player {
     this.masterGain.connect(this.vuMeter.processor);
     this.masterGain.connect(this.audioctx.destination);
 
+    connect(this.vuMeter, "vuChanged", this, "onVuChanged");
+
     this.playing = false;
     this.lookahead = 25;
     this.scheduleAheadTime = 0.3;
@@ -822,7 +819,10 @@ class Player {
           this.playingInstruments.splice(index, 1);
           if (this.playingInstruments.length === 0) {
             this.interactiveTimerWorker.port.postMessage('stop');
-            this.XMView.stop();
+            //this.XMView.stop();
+            this.XMView.pushEvent({
+              t: -1,
+            });
             this.playingInteractive = false;
           }
         }
@@ -1443,6 +1443,13 @@ class Player {
     } catch (e) {
       console.log(e);
     }
+  }
+
+  onVuChanged() {
+    this.outputChanged({ 
+      volume: this.vuMeter.peak,
+      clipping: this.vuMeter.checkClipping()
+    });
   }
 
   /* Load a local sound file using the player specific knowledge of formats

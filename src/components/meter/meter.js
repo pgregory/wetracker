@@ -63,10 +63,15 @@ export default class Tabs {
     let height = this.canvas.height;
 
     this.ctx.clearRect(0, 0, width, height);
-    this.ctx.drawImage(this.litCanvas, 0, 0, width * data.volume[0], height / 2.2, 0, 0, width * data.volume[0], height / 2.2);
-    this.ctx.drawImage(this.litCanvas, 0, height / 1.8, width * data.volume[1], height / 2.2, 0, height / 1.8, width * data.volume[1], height / 2.2);
-    this.ctx.drawImage(this.darkCanvas, width * data.volume[0], 0, width * (1 - data.volume[0]), height / 2.2, width * data.volume[0], 0, width * (1 - data.volume[0]), height / 2.2);
-    this.ctx.drawImage(this.darkCanvas, width * data.volume[1], height / 1.8, width * (1 - data.volume[1]), height / 2.2, width * data.volume[1], height / 1.8, width * (1 - data.volume[1]), height / 2.2);
+    const topMargin = height * 0.2;
+    const bottomMargin = height * 0.2;
+    const barHeight = height * 0.2;
+    const space = height * 0.2;
+    const nextBar = topMargin + space + barHeight;
+    this.ctx.drawImage(this.litCanvas, 0, topMargin, width * data.volume[0], barHeight, 0, topMargin, width * data.volume[0], barHeight);
+    this.ctx.drawImage(this.litCanvas, 0, nextBar, width * data.volume[1], barHeight, 0, nextBar, width * data.volume[1], barHeight);
+    this.ctx.drawImage(this.darkCanvas, width * data.volume[0], topMargin, width * (1 - data.volume[0]), barHeight, width * data.volume[0], topMargin, width * (1 - data.volume[0]), barHeight);
+    this.ctx.drawImage(this.darkCanvas, width * data.volume[1], nextBar, width * (1 - data.volume[1]), barHeight, width * data.volume[1], nextBar, width * (1 - data.volume[1]), barHeight);
   }
 
   refresh() {
