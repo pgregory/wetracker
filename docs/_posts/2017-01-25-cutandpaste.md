@@ -44,10 +44,8 @@ pattern.
 The screen capture below shows some of the features described above in action.
 Astute readers will also notice that undo works fine with cut&paste too.
 
-<video autoplay>
-  <source src="{{site.baseurl}}/images/cutandpaste.webm" type='video/webm;
-codecs="vp8"'/>
-  <img src="{{site.baseurl}}/images/cutandpaste.gif"/>
-</video>
+<iframe width="560" height="315"
+src="https://www.youtube.com/embed/ampsytIJFpM" frameborder="0"
+allowfullscreen></iframe>
 
 Onwards and upwards...

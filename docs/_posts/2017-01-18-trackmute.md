@@ -54,10 +54,8 @@ has been updated to fade out tracks that are muted or silent.
 See the screen capture below showing the features of the new system described
 above.
 
-<video autoplay>
-  <source src="{{site.baseurl}}/images/muting.webm" type='video/webm;
-codecs="vp8"'/>
-  <img src="{{site.baseurl}}/images/muting.gif"/>
-</video>
+<iframe width="560" height="315"
+src="https://www.youtube.com/embed/uSwTOquUy-o" frameborder="0"
+allowfullscreen></iframe>
 
 Onwards and upwards...
