@@ -1,11 +1,11 @@
 language: node_js
 
 node_js:
-  - 6
-  - 5
-  - 4
+  - node
 
-script: npm run build
+script: 
+  - npm run build
+  - npm test
 
 install:
   - npm i -g npm@latest
