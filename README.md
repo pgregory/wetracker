@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/pgregory/wetracker.svg?branch=master)](https://travis-ci.org/pgregory/wetracker)
 
 ![Screenshot](http://pgregory.github.io/wetracker/images/screenshot.png)
 
