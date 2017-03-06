@@ -66,11 +66,7 @@ function generateRGBKs(img) {
 
     colCtx.putImageData(to, 0, 0);
 
-    // image is _slightly_ faster then canvas for this, so convert
-    const imgComp = new Image();
-    imgComp.src = colCanvas.toDataURL();
-
-    rgbks.push(imgComp);
+    rgbks.push(colCanvas);
   }
 
   return rgbks;
