@@ -186,6 +186,11 @@ export default class PatternEditorCanvas {
       e.preventDefault();
     });
 
+    MouseTrap.bind('alt+r', () => {
+      this.renderAllPatterns();
+      this.redrawPatternAndCanvas(state.cursor.get('pattern'));
+    });
+
     connect(state, 'cursorChanged', this, 'onCursorChanged');
     connect(state, 'transportChanged', this, 'onTransportChanged');
     connect(song, 'eventChanged', this, 'onEventChanged');
