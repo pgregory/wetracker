@@ -34,7 +34,7 @@
     "webpack-dev-server": "^1.16.2"
   },
   "lint-staged": {
-    "*.js": "lint:eslint",
+    "*.js": "eslint",
     "*.css": "stylelint"
   },
   "pre-commit": "lint:staged",
