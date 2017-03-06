@@ -41,7 +41,7 @@ export default class SampleList {
       target.find('.samples-bottom-padding div').height(
         (containerHeight - this.rowHeight) / 2.0);
     }
-    target.find('.samples').on('mousewheel', this.onScroll.bind(this));
+    target.find('.samples').on('wheel', this.onScroll.bind(this));
 
     target.find('.samples-row').click((e) => {
       const sample = $(e.currentTarget).data('sampleindex');

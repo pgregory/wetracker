@@ -38,7 +38,7 @@ export default class SequenceEditor {
     target.find('.sequence-bottom-padding div').height(
       (target.height() - this.rowHeight) / 2.0);
 
-    target.find('.sequence').on('mousewheel', this.onScroll.bind(this));
+    target.find('.sequence').on('wheel', this.onScroll.bind(this));
 
     target.find('button#add-pattern').click(() => {
       song.addPattern(state.cursor.get('sequence'));

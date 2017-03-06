@@ -231,7 +231,7 @@ export default class SampleEditor {
     });
     $(this.canvas).on('mousemove', this.onMouseMove.bind(this));
 
-    $(this.canvas).on('mousewheel', this.onScroll.bind(this));
+    $(this.canvas).on('wheel', this.onScroll.bind(this));
 
     this.canvas.height = $('.sample-editor .waveform').height();
     this.canvas.width = $('.sample-editor .waveform').width();

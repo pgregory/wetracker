@@ -204,7 +204,7 @@ export default class SampleMapper {
     const canvas = $(this.target).find('.graph canvas')[0];
     this.canvas = canvas;
 
-    $(canvas).on('mousewheel', this.onScroll.bind(this));
+    $(canvas).on('wheel', this.onScroll.bind(this));
     $(canvas).on('mousemove', this.onMouseMove.bind(this));
     $(canvas).on('mousedown', this.onMouseDown.bind(this));
     $(canvas).on('mouseup', this.onMouseUp.bind(this));

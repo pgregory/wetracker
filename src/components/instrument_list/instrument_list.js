@@ -40,7 +40,7 @@ export default class InstrumentList {
     target.find('.instruments-bottom-padding div').height(
       (containerHeight - this.rowHeight) / 2.0);
 
-    target.find('.instruments').on('mousewheel', this.onScroll.bind(this));
+    target.find('.instruments').on('wheel', this.onScroll.bind(this));
 
     target.find('.instrument-row').click((e) => {
       const instrument = $(e.currentTarget).data('instrumentindex');

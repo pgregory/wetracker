@@ -464,7 +464,7 @@ export default class PatternEditorCanvas {
     this.hscroll = $(this.canvas).closest('.hscroll');
     this.patterndata = $(this.canvas).closest('.patterndata');
     this.initWidth();
-    $(this.patterndata).on('mousewheel', this.onScroll.bind(this));
+    $(this.patterndata).on('wheel', this.onScroll.bind(this));
     $(this.canvas).on('click', this.onClick.bind(this));
 
     $(this.target).find('input').bind('enterKey', (e) => {
