@@ -159,8 +159,10 @@ export default class SampleEditor {
       const ctx = this.canvas.getContext('2d');
       ctx.drawImage(this.wave_canvas, 0, 0);
       this.drawPositions();
-    } catch(e) {
-      console.log(e);
+    } catch (e) {
+      // It's ok, sometimes the wave_canvas is not visible, so has
+      // zero height, an exception is expected, we just need to capture
+      // it.
     }
   }
 
