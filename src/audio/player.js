@@ -715,9 +715,7 @@ class Player {
     this.outputChanged = signal(false);
     this.trackStateChanged = signal(false);
 
-    this.mediaStreamDest = this.audioctx.createMediaStreamDestination();
-    this.mediaRecorder = new MediaRecorder(this.mediaStreamDest.stream, { mimeType: 'audio/webm; codecs=opus' });
-    this.mediaChunks = [];
+    this.setupMediaRecorder();
 
     // amiga period value table
     this.periodtable = new Float32Array([
@@ -737,21 +735,6 @@ class Player {
       428.0,
     ]);
 
-    this.mediaRecorder.ondataavailable = (evt) => {
-      // push each chunk (blobs) in an array
-      this.mediaChunks.push(evt.data);
-    };
-
-    this.mediaRecorder.onstop = () => {
-      // Make blob out of our blobs, and open it.
-      const blob = new Blob(this.mediaChunks, { type: 'audio/webm; codecs=opus' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      let name = state.song.get('name');
-      name = name ? `${name.trim()}.webm` : 'wetracker-song.webm';
-      a.download = name;
-      a.click();
-    };
 
     connect(song, 'songChanged', this, 'onSongChanged');
     connect(song, 'bpmChanged', this, 'onBpmChanged');
@@ -762,6 +745,45 @@ class Player {
     connect(song, 'trackEffectChanged', this, 'onTrackEffectChanged');
     connect(state, 'cursorChanged', this, 'onCursorChanged');
     connect(state, 'transportChanged', this, 'onTransportChanged');
+  }
+
+  setupMediaRecorder() {
+    this.mediaRecorder = null;
+
+    const types = [
+      'audio/webm; codecs=opus',
+      'audio/webm',
+    ];
+
+    let type;
+    for (let i = 0; i < types.length; i += 1) {
+      if (MediaRecorder.isTypeSupported(types[i])) {
+        type = types[i];
+        break;
+      }
+    }
+
+    if (type) {
+      this.mediaStreamDest = this.audioctx.createMediaStreamDestination();
+      this.mediaRecorder = new MediaRecorder(this.mediaStreamDest.stream, { mimeType: type });
+      this.mediaChunks = [];
+
+      this.mediaRecorder.ondataavailable = (evt) => {
+        // push each chunk (blobs) in an array
+        this.mediaChunks.push(evt.data);
+      };
+
+      this.mediaRecorder.onstop = () => {
+        // Make blob out of our blobs, and open it.
+        const blob = new Blob(this.mediaChunks, { type: 'audio/webm; codecs=opus' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        let name = state.song.get('name');
+        name = name ? `${name.trim()}.webm` : 'wetracker-song.webm';
+        a.download = name;
+        a.click();
+      };
+    }
   }
 
   onTimerMessage(e) {
@@ -1242,6 +1264,9 @@ class Player {
   }
 
   startRecordingStream() {
+    if (this.mediaRecorder == null) {
+      return;
+    }
     try {
       this.masterGain.disconnect(this.audioctx.destination);
     } catch (e) {
@@ -1252,6 +1277,9 @@ class Player {
   }
 
   stopRecordingStream() {
+    if (this.mediaRecorder == null) {
+      return;
+    }
     this.mediaRecorder.stop();
     try {
       this.masterGain.disconnect(this.mediaStreamDest);
