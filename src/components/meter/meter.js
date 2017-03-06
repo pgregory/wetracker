@@ -67,10 +67,19 @@ export default class Tabs {
     const barHeight = height * 0.2;
     const space = height * 0.2;
     const nextBar = topMargin + space + barHeight;
-    this.ctx.drawImage(this.litCanvas, 0, topMargin, width * data.volume[0], barHeight, 0, topMargin, width * data.volume[0], barHeight);
-    this.ctx.drawImage(this.litCanvas, 0, nextBar, width * data.volume[1], barHeight, 0, nextBar, width * data.volume[1], barHeight);
-    this.ctx.drawImage(this.darkCanvas, width * data.volume[0], topMargin, width * (1 - data.volume[0]), barHeight, width * data.volume[0], topMargin, width * (1 - data.volume[0]), barHeight);
-    this.ctx.drawImage(this.darkCanvas, width * data.volume[1], nextBar, width * (1 - data.volume[1]), barHeight, width * data.volume[1], nextBar, width * (1 - data.volume[1]), barHeight);
+
+    if (data.volume[0] > 0) {
+      this.ctx.drawImage(this.litCanvas, 0, topMargin, width * data.volume[0], barHeight, 0, topMargin, width * data.volume[0], barHeight);
+    }
+    if (data.volume[1] > 0) {
+      this.ctx.drawImage(this.litCanvas, 0, nextBar, width * data.volume[1], barHeight, 0, nextBar, width * data.volume[1], barHeight);
+    }
+    if (data.volume[0] < 1.0) {
+      this.ctx.drawImage(this.darkCanvas, width * data.volume[0], topMargin, width * (1 - data.volume[0]), barHeight, width * data.volume[0], topMargin, width * (1 - data.volume[0]), barHeight);
+    }
+    if (data.volume[1] < 1.0) {
+      this.ctx.drawImage(this.darkCanvas, width * data.volume[1], nextBar, width * (1 - data.volume[1]), barHeight, width * data.volume[1], nextBar, width * (1 - data.volume[1]), barHeight);
+    }
 
     if (data.clipping) {
       $(this.target).find('.clipping').addClass('clipped');
