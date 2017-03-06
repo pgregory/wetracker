@@ -155,9 +155,13 @@ export default class SampleEditor {
   }
 
   updateDisplayPositions() {
-    const ctx = this.canvas.getContext('2d');
-    ctx.drawImage(this.wave_canvas, 0, 0);
-    this.drawPositions();
+    try {
+      const ctx = this.canvas.getContext('2d');
+      ctx.drawImage(this.wave_canvas, 0, 0);
+      this.drawPositions();
+    } catch(e) {
+      console.log(e);
+    }
   }
 
   updateControlPanel() {
