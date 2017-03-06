@@ -15,10 +15,11 @@
 .monitors .monitors-row {
   display: flex;
   flex-direction: row;
-  flex-grow: 1;
+  flex: 1;
   font-size: 0.75em;
   font-family: monospace;
   text-transform: uppercase;
+  min-height: 0;
 }
 
 .monitors .monitor {

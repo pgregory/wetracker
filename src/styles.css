@@ -125,10 +125,12 @@ ul.tab li a.active {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
+  min-height: 0;
 }
 
 .widget-with-controls {
   display: flex;
+  min-height: 0;
 }
 
 .widget-with-controls .widget-controls-horiz {
