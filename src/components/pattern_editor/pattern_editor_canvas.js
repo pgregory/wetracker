@@ -188,7 +188,7 @@ export default class PatternEditorCanvas {
 
     MouseTrap.bind('alt+r', () => {
       this.renderAllPatterns();
-      this.redrawPatternAndCanvas(state.cursor.get('pattern'));
+      this.redrawCanvas();
     });
 
     connect(state, 'cursorChanged', this, 'onCursorChanged');
@@ -501,11 +501,11 @@ export default class PatternEditorCanvas {
 
     if (!this.fontloaded) {
       this.onFontLoaded.push(() => {
-        this.renderAllPatterns();
+        // this.renderAllPatterns();
         this.redrawCanvas();
       });
     } else {
-      this.renderAllPatterns();
+      // this.renderAllPatterns();
       this.redrawCanvas();
     }
   }
@@ -548,14 +548,6 @@ export default class PatternEditorCanvas {
     return result;
   }
 
-  redrawPatternAndCanvas(pattern) {
-    if (!this.fontloaded) {
-      this.onFontLoaded.push(() => this.redrawPatternAndCanvas(pattern));
-      return;
-    }
-    this.redrawCanvas();
-  }
-
   redrawCanvas() {
     const ctx = this.canvas.getContext('2d');
 
@@ -572,7 +564,9 @@ export default class PatternEditorCanvas {
     ctx.globalCompositeOperation = 'source-over';
     const y = Math.round((this.canvas.height / 2) - (this.patternRowHeight / 2) - (this.patternRowHeight * (state.cursor.get('row'))));
     const patternCanvas = this.getPatternCanvasForSequence(state.cursor.get('sequence'));
-    ctx.drawImage(patternCanvas, 0, y);
+    if (patternCanvas) {
+      ctx.drawImage(patternCanvas, 0, y);
+    }
 
     let nextInSequence = state.cursor.get('sequence') + 1;
     if (nextInSequence >= song.getSequenceLength()) {
@@ -785,14 +779,14 @@ export default class PatternEditorCanvas {
       state.groupHistoryEnd();
 
       this.renderSinglePattern(state.cursor.get('pattern'));
-      this.redrawPatternAndCanvas(state.cursor.get('pattern'));
+      this.redrawCanvas();
     }
   }
 
   refresh() {
     $(this.target).empty();
     this.render();
-    this.redrawPatternAndCanvas(state.cursor.get('pattern'));
+    this.redrawCanvas();
   }
 
   onScroll(e) {
@@ -912,7 +906,7 @@ export default class PatternEditorCanvas {
       }
       if (this.lastCursor.get('pattern') !== state.cursor.get('pattern')) {
         $(this.target).find('#length').val(song.getPatternRowCount(state.cursor.get('pattern')));
-        window.requestAnimationFrame(() => this.redrawPatternAndCanvas(state.cursor.get('pattern')));
+        window.requestAnimationFrame(() => this.redrawCanvas());
         this.lastCursor = state.cursor;
         return;
       }
@@ -945,7 +939,7 @@ export default class PatternEditorCanvas {
 
   onPatternChanged() {
     this.renderSinglePattern(state.cursor.get('pattern'));
-    this.redrawPatternAndCanvas(state.cursor.get('pattern'));
+    this.redrawCanvas();
   }
 
   onSequenceChanged() {
@@ -958,17 +952,14 @@ export default class PatternEditorCanvas {
   }
 
   onSongChanged() {
+    // If this is the first song loaded, the font might not be ready.
+    if (!this.fontloaded) {
+      this.onFontLoaded.push(() => this.onSongChanged());
+      return;
+    }
     this.lastCursor = new Immutable.Map();
+    this.renderAllPatterns();
     this.refresh();
-    /* state.set({
-      cursor: {
-        pattern: this.cur_pat,
-        row: 0,
-        track: 0,
-        column: 0,
-        item: 0,
-      }
-    }); */
   }
 
   onSongStateChanged() {
@@ -977,6 +968,7 @@ export default class PatternEditorCanvas {
       this.onFontLoaded.push(() => this.onSongStateChanged());
       return;
     }
+    this.renderAllPatterns();
     this.refresh();
   }
 }

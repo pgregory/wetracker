@@ -80,9 +80,8 @@ $(document).ready(() => {
       transport.refresh();
       tabs.refresh();
       meter.refresh();
+      song.newSong();
     });
-
-    song.newSong();
 
     state.set({
       transport: {

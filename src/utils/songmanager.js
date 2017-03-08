@@ -181,7 +181,7 @@ export class SongManager {
       for (let r = row; r < (pattern.rows.length - 1); r += 1) {
         pattern.rows[r][track] = pattern.rows[r + 1][track];
       }
-      delete(pattern.rows[pattern.rows.length - 1][track]);
+      delete (pattern.rows[pattern.rows.length - 1][track]);
       state.set({
         song: {
           patterns: state.song.get('patterns').set(state.cursor.get('pattern'), Immutable.fromJS(pattern)),
@@ -915,7 +915,6 @@ export class SongManager {
     try {
       return state.song.get('sequence').map((a) => a.get('pattern')).toJS();
     } catch (e) {
-      console.log(e);
       return [];
     }
   }
