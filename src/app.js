@@ -76,12 +76,10 @@ $(document).ready(() => {
       state.redo();
     });
 
-    window.requestAnimationFrame(() => {
-      transport.refresh();
-      tabs.refresh();
-      meter.refresh();
-      song.newSong();
-    });
+    transport.refresh();
+    tabs.refresh();
+    meter.refresh();
+    song.newSong();
 
     state.set({
       transport: {
