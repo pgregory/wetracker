@@ -1,3 +1,4 @@
+/* eslint-disable */
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const webpack = require('webpack');
 const path = require('path');
@@ -45,9 +46,6 @@ module.exports = {
         ]
       }
     }, {
-      test: /\.json$/,
-      loader: 'json-loader',
-    }, {
       test: /\.css$/,
       loader: 'style-loader!css-loader',
     }, {
@@ -84,12 +82,22 @@ module.exports = {
     new webpack.DefinePlugin({
       __API__: apiHost,
     }),
+    new webpack.ProvidePlugin({
+      $: "jquery",
+      jQuery: "jquery"
+    }),
   ],
   // Emit a source map for easier debugging
   devtool: 'source-map',
   resolve: {
-      alias: {
-          'jquery-ui': 'jquery-ui/ui'
-      }
+    alias: {
+        'jquery-ui': 'jquery-ui/ui'
+    }
   },
+  resolveLoader: {
+    alias: {
+      'copy': 'file-loader?name=[path][name].[ext]&context=./src',
+    }
+  }
 };
+/* eslint-enable */

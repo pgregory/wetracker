@@ -1,6 +1,10 @@
 import $ from 'jquery';
-import 'jstree';
-import 'jstree/dist/themes/default-dark/style.css';
+import 'jquery-ui/core';
+import 'jquery-ui/effect';
+import 'jquery-ui/effects/effect-blind';
+
+import 'jquery.fancytree/dist/jquery.fancytree-all';
+import '../../ui.fancytree.css';
 
 import { song } from '../../utils/songmanager';
 
@@ -19,43 +23,72 @@ export default class Browser {
   render() {
     $(this.target).append(browserTemplate.renderToString());
 
-    $(this.target).find('.item-list').jstree({
-      core: {
-        themes: {
-          name: 'default-dark',
-          variant: 'small',
-        },
-        data: {
-          url: `${__API__}songs`,
-          type: 'GET',
-          dataFilter: (data) => {
-            const songs = JSON.parse(data);
-            const result = [];
-            for (let s = 0; s < songs.length; s += 1) {
-              result.push({ text: songs[s].name, _id: songs[s]._id });
-            }
-            return JSON.stringify({ text: 'Demo Songs', children: result });
-          },
-        },
+    const glyphOpts = {
+      map: {
+        doc: 'fa fa-file',
+        docOpen: 'fa fa-file',
+        checkboxSelected: 'fa fa-check',
+        checkboxUnknown: 'fa fa-share',
+        dragHelper: 'fa fa-play',
+        dropMarker: 'fa fa-arrow-right',
+        error: 'fa fa-warning-sign',
+        expanderClosed: 'fa fa-caret-right fa-lg',
+        expanderLazy: 'fa fa-caret-right fa-lg',  // fa-plus-sign
+        expanderOpen: 'fa fa-caret-down fa-lg',  // fa-collapse-down
+        folder: 'fa fa-folder-close',
+        folderOpen: 'fa fa-folder-open',
+        loading: 'fa fa-spinner fa-spin fa-pulse',
       },
-    }).on('dblclick', '.jstree-anchor', function dblclick() {
-      const instance = $.jstree.reference(this);
-      const node = instance.get_node(this);
-      const songfileURL = `${__API__}songs/${node.original._id}/file`;
+    };
 
-      try {
-        $('#dialog').empty();
-        $('#dialog').append($('<p>Loading Song</p>'));
-        const dialog = $('#dialog').dialog({
-          width: 500,
-          modal: true,
+    $(this.target).find('.item-list').fancytree({
+      extensions: ['glyph'],
+      glyph: glyphOpts,
+      icon: (event, data) => {
+        if (data.node.isFolder()) {
+          return 'fa fa-folder';
+        }
+        if ('_id' in data.node.data && data.node.data.type === 'song') {
+          return 'fa fa-music';
+        }
+        return false;
+      },
+      source: [
+        { title: 'Demo Songs', folder: true, key: 'demosongs', lazy: true },
+      ],
+      lazyLoad: (event, data) => {
+        const node = data.node;
+        data.result = { // eslint-disable-line no-param-reassign
+          url: `${__API__}${node.key}`,
+        };
+      },
+      postProcess: (event, data) => {
+        data.result = data.response.map((a) => { // eslint-disable-line no-param-reassign
+          const item = { title: a.name, _id: a._id, type: 'song' };
+          return item;
         });
-        song.downloadSong(songfileURL).then(() => {
-          dialog.dialog('close');
-        });
-      } catch (e) {
-        console.log(e);
-      }
+      },
+      dblclick: (event, data) => {
+        const node = data.node;
+
+        if ('_id' in node.data) {
+          const songfileURL = `${__API__}songs/${node.data._id}/file`;
+
+          try {
+            $('#dialog').empty();
+            $('#dialog').append($('<p>Loading Song</p>'));
+            const dialog = $('#dialog').dialog({
+              width: 500,
+              modal: true,
+            });
+            song.downloadSong(songfileURL).then(() => {
+              dialog.dialog('close');
+            });
+          } catch (e) {
+            console.log(e);
+          }
+        }
+      },
     });
   }
 
