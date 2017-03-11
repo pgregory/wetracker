@@ -37,7 +37,7 @@ export default class Browser {
         expanderOpen: 'fa fa-caret-down fa-lg',  // fa-collapse-down
         folder: 'fa fa-folder-close',
         folderOpen: 'fa fa-folder-open',
-        loading: 'fa fa-spinner fa-spin fa-pulse',
+        loading: 'fa fa-spinner fa-spin fa-pulse fa-lg',
       },
     };
 
