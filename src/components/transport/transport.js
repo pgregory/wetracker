@@ -1,3 +1,4 @@
+/* global gapi:false */
 import $ from 'jquery';
 import MouseTrap from 'mousetrap';
 import 'jquery-ui/widgets/slider';
@@ -159,6 +160,13 @@ export default class Transport {
       } catch (e) {
         console.log(e);
       }
+    });
+
+    $(this.target).find('#login').click(() => {
+      gapi.auth2.getAuthInstance().signIn();
+    });
+    $(this.target).find('#logout').click(() => {
+      gapi.auth2.getAuthInstance().signOut();
     });
   }
 

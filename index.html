@@ -10,6 +10,38 @@
     <!-- End Google Tag Manager -->
     <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="sanitize.css">
+    <script>
+      function updateSigninStatus(isSignedIn) {
+        if (isSignedIn) {
+          gapi.client.people.people.get({
+            resourceName: 'people/me'
+          }).then((response) => {
+            console.log(`Hello ${response.result.names[0].givenName}`);
+          }, (reason) => {
+            console.log(`Error: ${reason.result.error.message}`);
+          });
+        }
+      };
+
+      function start() {
+        gapi.client.init({
+          apiKey: 'AIzaSyALbx4_dafCGda6bZZ3SGt99yAeL58KJ-8',
+          discoveryDocs: ['https://people.googleapis.com/$discovery/rest?version=v1'],
+          clientId: '1059727763451-nh45bf0nv6hka9uknmjpudg17rs6fdu1.apps.googleusercontent.com',
+          scope: 'profile'
+        }).then(() => {
+          gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+          updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+        });
+      };
+
+      function loadClient() {
+        gapi.load('client:auth2', start);
+      }
+    </script>
+    <script async defer src="https://apis.google.com/js/api.js"
+      onload="this.onload=function(){};loadClient()"
+      onreadystatechange="if (this.readyState === 'complete') this.onload()"></script>
   </head>
   <body>
     <!-- Google Tag Manager (noscript) -->
