@@ -1,3 +1,4 @@
+/* global gapi:false */
 import LZ4 from 'lz4-asm';
 import textEncoding from 'text-encoding';
 
@@ -483,6 +484,32 @@ export class SongManager {
           }
         } else {
           console.log('Unable to load', uri);
+          reject();
+        }
+      };
+      xmReq.send(null);
+    });
+    return promise;
+  }
+
+  downloadSongFromGDrive(fileId) {
+    const promise = new Promise((resolve, reject) => {
+      const accessToken = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;// or this: gapi.auth.getToken().access_token;
+      const xmReq = new XMLHttpRequest();
+      xmReq.open('GET', `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, true);
+      xmReq.setRequestHeader('Authorization', `Bearer ${accessToken}`);
+      xmReq.responseType = 'arraybuffer';
+      xmReq.onload = () => {
+        const arrayBuffer = xmReq.response;
+        if (arrayBuffer) {
+          const filename = 'File from GDrive';
+          const newSong = this.loadSongFromArrayBuffer(arrayBuffer, filename);
+          if (newSong) {
+            song.setSong(newSong);
+            resolve();
+          }
+        } else {
+          console.log('Unable to load', fileId);
           reject();
         }
       };

@@ -20,18 +20,40 @@
           }, (reason) => {
             console.log(`Error: ${reason.result.error.message}`);
           });
+          listFiles();
         }
       };
 
       function start() {
         gapi.client.init({
           apiKey: 'AIzaSyALbx4_dafCGda6bZZ3SGt99yAeL58KJ-8',
-          discoveryDocs: ['https://people.googleapis.com/$discovery/rest?version=v1'],
+          discoveryDocs: [
+            'https://people.googleapis.com/$discovery/rest?version=v1',
+            'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest' ],
           clientId: '1059727763451-nh45bf0nv6hka9uknmjpudg17rs6fdu1.apps.googleusercontent.com',
-          scope: 'profile'
+          scope: 'profile https://www.googleapis.com/auth/drive'
         }).then(() => {
           gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
           updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+        });
+      };
+
+      function listFiles() {
+        gapi.client.drive.files.list({
+          q: 'mimeType="audio/x-mod"',
+          'pageSize': 10,
+          'fields': "nextPageToken, files(id, name)"
+        }).then(function(response) {
+          console.log('Files:');
+          var files = response.result.files;
+          if (files && files.length > 0) {
+            for (var i = 0; i < files.length; i++) {
+              var file = files[i];
+              console.log(file.name + ' (' + file.id + ')');
+            }
+          } else {
+            console.log('No files found.');
+          }
         });
       };
 

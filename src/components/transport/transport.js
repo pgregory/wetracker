@@ -164,6 +164,7 @@ export default class Transport {
 
     $(this.target).find('#login').click(() => {
       gapi.auth2.getAuthInstance().signIn();
+      song.downloadSongFromGDrive('0B1WNHlU9Fgw1VW1JcmVqNGo5TFE');
     });
     $(this.target).find('#logout').click(() => {
       gapi.auth2.getAuthInstance().signOut();
