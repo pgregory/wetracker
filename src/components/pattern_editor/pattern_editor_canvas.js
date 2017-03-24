@@ -212,7 +212,9 @@ export default class PatternEditorCanvas {
     });
 
     $(this.target).find('.track-names').width(this.canvas.width);
+    $(this.target).find('.track-controls').width(this.canvas.width);
     $(this.target).find('.track-name').width(this.patternCellWidth);
+    $(this.target).find('.track-control').outerWidth(this.patternCellWidth);
   }
 
   imageLoaded() {
@@ -526,6 +528,14 @@ export default class PatternEditorCanvas {
       this.refresh();
     });
 
+    $(this.target).find('.add-column').click((e) => {
+      const track = $(e.target).parents('.track-control').data('trackindex');
+      song.addColumnToTrack(track);
+      this.renderEmptyPatternCache();
+      this.renderAllPatterns();
+      this.refresh();
+    });
+
     if (!this.fontloaded) {
       this.onFontLoaded.push(() => {
         // this.renderAllPatterns();
@@ -749,6 +759,7 @@ export default class PatternEditorCanvas {
       const trackWidth = song.getTrackNumColumns(i) * this.patternCellWidth;
       // Resize the header div to match
       $(this.target).find(`.track-name[data-trackindex='${i}']`).width(trackWidth);
+      $(this.target).find(`.track-control[data-trackindex='${i}']`).outerWidth(trackWidth);
       dx += trackWidth;
     }
     ctx.stroke();

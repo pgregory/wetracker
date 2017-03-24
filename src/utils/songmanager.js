@@ -992,6 +992,7 @@ export class SongManager {
         })),
       },
     });
+    this.songChanged();
   }
 
   /**
