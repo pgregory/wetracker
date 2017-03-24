@@ -223,7 +223,7 @@ class PlayerInstrument {
     this.panningNode = instrument.ctx.createStereoPanner();
     this.gainNode.connect(this.panningNode);
     this.panningNode.connect(channel.gainNode);
-    this.period = instrument.periodForNote(channel, note, channel.fine);
+    this.period = instrument.periodForNote(note, channel.fine);
     this.rate = this.rateForPeriod(this.period);
     this.sourceNode.playbackRate.value = this.rate;
     this.sourceNode.connect(this.gainNode);
@@ -428,7 +428,7 @@ class Instrument {
     return null;
   }
 
-  periodForNote(ch, note, fine) {
+  periodForNote(note, fine) {
     const sampNote = this.inst.samples[this.inst.samplemap[Math.min(Math.max(note, 0), 95)]].note;
     if (state.song.get('flags') & 0x1) { // eslint-disable-line no-bitwise
       return 7680.0 - ((note + sampNote) * 64) - (fine / 2.0);
@@ -467,37 +467,45 @@ class Instrument {
 class Track {
   constructor(ctx, destination) {
     this.ctx = ctx;
-    this.filterstate = new Float32Array(3);
-    this.vol = 0;
-    this.pan = 128;
-    this.period = 7680 - (48 * 64);
-    this.vL = 0;
-    this.vR = 0;   // left right volume envelope followers (changes per sample)
-    this.vLprev = 0;
-    this.vRprev = 0;
+    this.analyser = this.ctx.createAnalyser();
+    this.gainNode = this.ctx.createGain();
+
+    this.analyser.fftSize = 256;
+    this.analyserBufferLength = this.analyser.frequencyBinCount;
+    this.analyserScopeData = new Uint8Array(this.analyserBufferLength);
+
+    this.gainNode.gain.value = 1.0;
     this.stateStack = [{
       state: NORMAL,
       properties: {
         gain: 1,
       },
     }];
-    this.volE = 0;
-    this.panE = 0;
-    this.retrig = 0;
-    this.vibratopos = 0;
-    this.vibratodepth = 1;
-    this.vibratospeed = 1;
-    this.vibratotype = 0;
-    this.gainNode = this.ctx.createGain();
-    this.analyser = this.ctx.createAnalyser();
-
-    this.analyser.fftSize = 256;
-    this.analyserBufferLength = this.analyser.frequencyBinCount;
-    this.analyserScopeData = new Uint8Array(this.analyserBufferLength);
 
     this.gainNode.connect(this.analyser);
     this.analyser.connect(destination);
-    this.gainNode.gain.value = 1.0;
+
+    this.column = {
+      filterstate: new Float32Array(3),
+      vol: 0,
+      pan: 128,
+      period: 7680 - (48 * 64),
+      vL: 0,
+      vR: 0,   // left right volume envelope followers (changes per sample)
+      vLprev: 0,
+      vRprev: 0,
+      volE: 0,
+      panE: 0,
+      retrig: 0,
+      vibratopos: 0,
+      vibratodepth: 1,
+      vibratospeed: 1,
+      vibratotype: 0,
+      gainNode: this.ctx.createGain(),
+    };
+
+    this.column.gainNode.gain.value = 1.0;
+    this.column.gainNode.connect(this.gainNode);
 
     this.effectChain = [];
   }
@@ -812,7 +820,8 @@ class Player {
   }
 
   playNoteOnCurrentChannel(note, finished) {
-    const channel = this.tracks[state.cursor.get('track')];
+    const track = this.tracks[state.cursor.get('track')];
+    const channel = track.column;
     const instrument = this.instruments[state.cursor.get('instrument')];
     const time = this.audioctx.currentTime;
 
@@ -941,7 +950,7 @@ class Player {
     this.jump_row = undefined;
     for (let trackindex = 0; trackindex < numtracks; trackindex += 1) {
       const track = song.getTrackDataForPatternRow(this.cur_pat, this.cur_row, trackindex);
-      const ch = this.tracks[trackindex];
+      const ch = this.tracks[trackindex].column;
       let inst = ch.inst;
       ch.triggernote = false;
       let event = {};
@@ -1051,7 +1060,7 @@ class Player {
           // special handling for portamentos: don't trigger the note
           if (ch.effect === 3 || ch.effect === 5 || event.volume >= 0xf0) {
             if (event.note !== -1) {
-              ch.periodtarget = ch.inst.periodForNote(ch, ch.note, ch.fine);
+              ch.periodtarget = ch.inst.periodForNote(ch.note, ch.fine);
             }
             ch.triggernote = false;
             if (inst && inst.inst && inst.inst.samplemap) {
@@ -1080,7 +1089,7 @@ class Player {
         ch.release = 0;
         ch.envtick = 0;
         if (ch.note) {
-          ch.period = ch.inst.periodForNote(ch, ch.note, ch.fine);
+          ch.period = ch.inst.periodForNote(ch.note, ch.fine);
         }
         // waveforms 0-3 are retriggered on new notes while 4-7 are continuous
         if (ch.vibratotype < 4) {
@@ -1099,7 +1108,7 @@ class Player {
       console.log('Lag!!!');
     }
     for (let j = 0; j < this.tracks.length; j += 1) {
-      this.tracks[j].periodoffset = 0;
+      this.tracks[j].column.periodoffset = 0;
     }
 
     if (this.cur_tick === 0) {
@@ -1112,7 +1121,8 @@ class Player {
     }
 
     for (let j = 0; j < this.tracks.length; j += 1) {
-      const ch = this.tracks[j];
+      const track = this.tracks[j];
+      const ch = track.column;
       const inst = ch.inst;
       if (inst !== undefined) {
         if (this.cur_tick !== 0) {
@@ -1347,9 +1357,9 @@ class Player {
     this.timerWorker.port.postMessage('stop');
 
     for (let i = 0; i < this.tracks.length; i += 1) {
-      if (this.tracks[i].currentlyPlaying) {
-        this.tracks[i].currentlyPlaying.stop(this.audioctx.currentTime);
-        this.tracks[i].currentlyPlaying = undefined;
+      if (this.tracks[i].column.currentlyPlaying) {
+        this.tracks[i].column.currentlyPlaying.stop(this.audioctx.currentTime);
+        this.tracks[i].column.currentlyPlaying = undefined;
       }
     }
 
@@ -1508,7 +1518,7 @@ class Player {
     if (ch.effectdata !== 0 && ch.inst !== undefined) {
       const arpeggio = [0, ch.effectdata >> 4, ch.effectdata & 15];
       const note = ch.note + arpeggio[this.cur_tick % 3];
-      ch.period = ch.inst.periodForNote(ch, note, ch.fine);
+      ch.period = ch.inst.periodForNote(note, ch.fine);
     }
   }
 

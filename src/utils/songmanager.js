@@ -458,6 +458,8 @@ export class SongManager {
       },
     });
 
+    this.addColumnToTrack(0);
+
     state.clearHistory();
     this.songChanged();
   }
@@ -980,6 +982,19 @@ export class SongManager {
   }
 
   /**
+   * Add a note column to the given track.
+   */
+  addColumnToTrack(track) {
+    state.set({
+      song: {
+        tracks: state.song.get('tracks').setIn([track, 'columns'], state.song.getIn(['tracks', track, 'columns']).push({
+          id: 'c2',
+        })),
+      },
+    });
+  }
+
+  /**
    * Get track effects
    */
   getTrackEffects(index) {
@@ -1067,6 +1082,10 @@ export class SongManager {
         console.log(e);
       }
     }
+  }
+
+  dumpSongToConsole() {
+    console.log(state.song.toJS());
   }
 }
 
