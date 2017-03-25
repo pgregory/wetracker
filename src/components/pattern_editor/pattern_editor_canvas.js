@@ -536,6 +536,14 @@ export default class PatternEditorCanvas {
       this.refresh();
     });
 
+    $(this.target).find('.remove-column').click((e) => {
+      const track = $(e.target).parents('.track-control').data('trackindex');
+      song.removeColumnFromTrack(track);
+      this.renderEmptyPatternCache();
+      this.renderAllPatterns();
+      this.refresh();
+    });
+
     if (!this.fontloaded) {
       this.onFontLoaded.push(() => {
         // this.renderAllPatterns();

@@ -996,6 +996,22 @@ export class SongManager {
   }
 
   /**
+   * Remove a note column from a track.
+   */
+  removeColumnFromTrack(track, column) {
+    let coli = column;
+    if (!coli) {
+      coli = song.getTrackNumColumns(track) - 1;
+    }
+    state.set({
+      song: {
+        tracks: state.song.get('tracks').setIn([track, 'columns'], state.song.getIn(['tracks', track, 'columns']).delete(coli)),
+      },
+    });
+    this.songChanged();
+  }
+
+  /**
    * Get track effects
    */
   getTrackEffects(index) {
