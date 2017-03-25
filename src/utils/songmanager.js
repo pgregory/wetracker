@@ -458,8 +458,6 @@ export class SongManager {
       },
     });
 
-    this.addColumnToTrack(0);
-
     state.clearHistory();
     this.songChanged();
   }
@@ -999,7 +997,7 @@ export class SongManager {
    * Remove a note column from a track.
    */
   removeColumnFromTrack(track, column) {
-    if (track < song.getNumTrack() && song.getTrackNumColumns(track) > 1) {
+    if (track < song.getNumTracks() && song.getTrackNumColumns(track) > 1) {
       let coli = column;
       if (!coli) {
         coli = song.getTrackNumColumns(track) - 1;
