@@ -37,8 +37,8 @@ navigation:
 
 social:
   - service: github
-    username: pgregory
-    link: https://github.com/pgregory
+    username: wetracker
+    link: https://github.com/pgregory/wetracker
   - service: twitter
     username: pcgregory
     link: https://twitter.com/pcgregory
