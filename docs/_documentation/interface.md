@@ -14,9 +14,9 @@ in the the interface is independently placed within a grid layout. You can
 reorganise the widgets in any way that suits your working preferences. Each
 widget has a border, in each corner you'll see a small arrow icon. Select and
 drag on any of these to resize the widget. 
-<a title="Drag widget" href="{{site.baseurl}}/images/dragwidget.png"><img
-style="float: right;" src="{{site.baseurl}}/images/dragwidget.png"
-width="200px"/></a>
+<a title="Drag widget" href="{{site.baseurl}}/images/dragwidget.png">
+  <img alt="Drag widget" style="float: right;" src="{{site.baseurl}}/images/dragwidget.png"/>
+</a>
 The neigbouring widgets will move to compensate for the change. Widgets cannot
 go beyond the bounds of the screen horizontally, but the space will grow
 vertically to accept the new layout.  Grabbing the header bar of the widget
@@ -44,7 +44,7 @@ See the subsequence sections for details of each widget type, it's elements and
 function.
 
 <a title="Tabs" href="{{site.baseurl}}/images/interface_tabs.png">
-  <img src="{{site.baseurl}}/images/interface_tabs.png" style="width: 100%; height: 100%; object-fit: contain;"/>
+  <img alt="Tabs" src="{{site.baseurl}}/images/interface_tabs.png" style="width: 100%; height: 100%; object-fit: contain;"/>
 </a>
 
 The main screen is split into three sections, the
