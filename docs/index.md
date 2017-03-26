@@ -17,12 +17,12 @@ of music trackers, such as [SoundTracker](http://www.soundtracker.org),
 <div style="display:flex;">
     <div style="margin: 3px;">
       <a title="Main screenshot" href="{{site.baseurl}}/images/screenshot.png">
-        <img src="{{site.baseurl}}/images/screenshot.png" width="100%"/>
+        <img alt="Main screenshot" src="{{site.baseurl}}/images/screenshot.png" style="width: 100%; height: 100%; object-fit: contain;"/>
       </a>
     </div>
     <div style="margin: 3px;">
       <a title="Instrument screenshot" href="{{site.baseurl}}/images/screenshot2.png">
-        <img src="{{site.baseurl}}/images/screenshot2.png" width="100%"/>
+        <img alt="Instrument screenshot" src="{{site.baseurl}}/images/screenshot2.png" style="width: 100%; height: 100%; object-fit: contain;"/>
       </a>
     </div>
 </div>
