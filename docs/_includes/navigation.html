@@ -1,7 +1,7 @@
 <div class="t-hackcss-navigation">
   <h2 class="t-hackcss-navigation-heading">Menu</h2>
 
-  <nav class="menu">
+  <nav class="menu" role="menu">
     {% assign url = page.url|remove:'index.html' %}
     {% for link in site.navigation %}
       <a class="menu-item {% if url == link.url %}active{% endif %}"
