@@ -24,8 +24,7 @@
             {% assign pages = site.documentation | sort:"index" %}
             {% for page in pages %} 
               <a class="menu-item {% if url == page.url %}active{% endif %} menu-indent-{{ page.indent }}" 
-                                   role="menuitem" href="{{ page.url | prepend:
-                                   site.baseurl }}" title="{{ page.title }}">
+                                   href="{{ page.url | prepend: site.baseurl }}" title="{{ page.title }}">
                 {{ page.title }} <div class="pull-right">»</div> 
               </a> 
             {% endfor %}
