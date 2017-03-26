@@ -42,6 +42,9 @@ social:
   - service: twitter
     username: pcgregory
     link: https://twitter.com/pcgregory
+  - service: facebook
+    username: wetracker
+    link: https://www.facebook.com/wetracker/
 
 # Plugins
 gems:
