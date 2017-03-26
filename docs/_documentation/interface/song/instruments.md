@@ -10,7 +10,8 @@ Instruments
 {:style="color: #FF3B3B"}
 
 <a href="{{site.baseurl}}/images/instruments.png" style="float: right; width:
-150px;"><img src="{{site.baseurl}}/images/instruments.png" width="100%"/></a>
+150px;"><img src="{{site.baseurl}}/images/instruments.png"  style="width: 100%;
+height: 100%; object-fit: contain;"/></a>
 This widget displays the list of instruments in the song, you can scroll
 through the list with the mouse wheel or other scroll gesture. The list is
 designed designed to keep the current instrument in the center of the list, the
@@ -25,7 +26,7 @@ instrument name.
 When editing, clicking somewhere else, or pressing enter will
 <a href="{{site.baseurl}}/images/editinstrumentname.png" style="float: right;
 width: 150px;"><img src="{{site.baseurl}}/images/editinstrumentname.png"
-width="100%"/></a>
+ style="width: 100%; height: 100%; object-fit: contain;"/></a>
 fix the changes, pressing escape will cancel. When in edit mode, the name field
 will turn green, to illustrate the change in mode.
 

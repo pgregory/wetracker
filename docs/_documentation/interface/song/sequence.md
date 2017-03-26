@@ -10,7 +10,7 @@ Sequence
 {:style="color: #5D56E9"}
 
 <a href="{{site.baseurl}}/images/sequence.png" style="float: right; width:
-150px;"><img src="{{site.baseurl}}/images/sequence.png" width="100%"/></a>
+150px;"><img src="{{site.baseurl}}/images/sequence.png" style="width: 100%; height: 100%; object-fit: contain;"/></a>
 This widget displays the sequence of patterns that form the song. Each pattern
 is a set of instruction rows (see [Pattern Editor]({{site.baseurl}}/documentation/interface/song/patterneditor){: style="color:#0AE200"}), the 
 sequence defines the order that these patterns are played in. 

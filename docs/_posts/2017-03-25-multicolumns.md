@@ -22,7 +22,7 @@ having them feed through a single track, and therefore a single effect chain.
 
 <figure style="float: right; width: 300px;">
   <a href="{{site.baseurl}}/images/multicolumn.png">
-    <img src="{{site.baseurl}}/images/multicolumn.png" width="100%"/>
+    <img src="{{site.baseurl}}/images/multicolumn.png" style="width: 100%; height: 100%; object-fit: contain;"/>
   </a>
   <figcaption>Fig1. - Multiple Columns</figcaption>
 </figure>

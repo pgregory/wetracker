@@ -44,7 +44,7 @@ See the subsequence sections for details of each widget type, it's elements and
 function.
 
 <a title="Tabs" href="{{site.baseurl}}/images/interface_tabs.png">
-  <img src="{{site.baseurl}}/images/interface_tabs.png" width="100%"/>
+  <img src="{{site.baseurl}}/images/interface_tabs.png" style="width: 100%; height: 100%; object-fit: contain;"/>
 </a>
 
 The main screen is split into three sections, the

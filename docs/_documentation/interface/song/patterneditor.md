@@ -11,7 +11,7 @@ Pattern Editor
 
 <figure style="float: right; width: 300px;">
   <a href="{{site.baseurl}}/images/patterneditor.png">
-    <img src="{{site.baseurl}}/images/patterneditor.png" width="100%"/>
+    <img src="{{site.baseurl}}/images/patterneditor.png" style="width: 100%; height: 100%; object-fit: contain;"/>
   </a>
   <figcaption>Fig1. - The Pattern Editor</figcaption>
 </figure>
@@ -24,7 +24,7 @@ separated column representing a track. Within the track are columns for the
 note data, instrument data, volume, and effect data, as shown in Fig2.
 <figure style="float: right;">
   <a href="{{site.baseurl}}/images/event.png">
-    <img src="{{site.baseurl}}/images/event.png" width="100%"/>
+    <img src="{{site.baseurl}}/images/event.png" style="width: 100%; height: 100%; object-fit: contain;"/>
   </a>
   <figcaption>Fig2. - Event elements</figcaption>
 </figure>
@@ -41,7 +41,7 @@ current row in the middle of the view at all times, the pattern will scroll
 through this marker as the cursor is moved up and down. 
 <figure style="float: left;">
   <a href="{{site.baseurl}}/images/patterncursor.png">
-    <img src="{{site.baseurl}}/images/patterncursor.png" width="100%"/>
+    <img src="{{site.baseurl}}/images/patterncursor.png" style="width: 100%; height: 100%; object-fit: contain;"/>
   </a>
   <figcaption>Fig3. - The pattern cursor</figcaption>
 </figure>
@@ -101,7 +101,7 @@ To select the area for copying, move the cursor to one corner of the data, and
 then, while holding shift, move to the cursor to the opposite corner.
 <figure style="float: right;">
   <a href="{{site.baseurl}}/images/copyregion.png">
-    <img src="{{site.baseurl}}/images/copyregion.png" width="100%"/>
+    <img src="{{site.baseurl}}/images/copyregion.png" style="width: 100%; height: 100%; object-fit: contain;"/>
   </a>
   <figcaption>Fig4. - Copy region</figcaption>
 </figure>
@@ -130,12 +130,12 @@ start row that you wish to copy to, and paste.
   <div style="display:flex;">
     <div style="margin: 3px;">
       <a href="{{site.baseurl}}/images/copydata.png">
-        <img src="{{site.baseurl}}/images/copydata.png" width="100%"/>
+        <img src="{{site.baseurl}}/images/copydata.png" style="width: 100%; height: 100%; object-fit: contain;"/>
       </a>
     </div>
     <div style="margin: 3px;">
       <a href="{{site.baseurl}}/images/pastedata.png">
-        <img src="{{site.baseurl}}/images/pastedata.png" width="100%"/>
+        <img src="{{site.baseurl}}/images/pastedata.png" style="width: 100%; height: 100%; object-fit: contain;"/>
       </a>
     </div>
   </div>

@@ -18,7 +18,7 @@
 
     <div class="container">
       <div class="grid">
-        <aside class="cell -3of12" role="navigation">
+        <aside class="cell -3of12">
           {% capture submenu %}
             {% assign url = page.url %}
             {% assign pages = site.documentation | sort:"index" %}
@@ -31,7 +31,6 @@
             {% endfor %}
           {% endcapture %}
           {% include navigation.html %}
-          </nav>
         </aside>
 
         <main class="cell -9of12">

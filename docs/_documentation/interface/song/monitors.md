@@ -15,7 +15,7 @@ Secondly, it provides a convenient user interface to control the playback of
 individual channels.
 
 <a href="{{site.baseurl}}/images/monitors.png"><img
-src="{{site.baseurl}}/images/monitors.png" width="100%"></a>
+src="{{site.baseurl}}/images/monitors.png" style="width: 100%; height: 100%; object-fit: contain;"></a>
 
 Each square section of the monitor widget represents a track in the pattern
 editor, identified by the name displayed in the top left corner. The graph
@@ -30,7 +30,7 @@ squares representing the tracks.
 
   <div style="width: 50%;">
     <a href="{{site.baseurl}}/images/monitors-mute.png">
-      <img src="{{site.baseurl}}/images/monitors-mute.png" width="100%">
+      <img src="{{site.baseurl}}/images/monitors-mute.png" style="width: 100%; height: 100%; object-fit: contain;">
     </a>
   </div>
 
@@ -38,7 +38,7 @@ squares representing the tracks.
 
   <div style="width: 50%;">
     <a href="{{site.baseurl}}/images/monitors-solo.png">
-      <img src="{{site.baseurl}}/images/monitors-solo.png" width="100%">
+      <img src="{{site.baseurl}}/images/monitors-solo.png" style="width: 100%; height: 100%; object-fit: contain;">
     </a>
   </div>
 
