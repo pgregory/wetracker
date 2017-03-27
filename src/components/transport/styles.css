@@ -72,3 +72,9 @@ input#songname {
   margin: 5px;
 }
 
+#load-from-google-drive {
+  background-image: url('../../../static/product48.png');
+  background-size: 20px 20px;
+  width: 22px;
+  height: 22px;
+}

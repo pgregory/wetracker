@@ -1,4 +1,4 @@
-/* global gapi:false */
+/* global gapi:false, google:false */
 import $ from 'jquery';
 import MouseTrap from 'mousetrap';
 import 'jquery-ui/widgets/slider';
@@ -164,10 +164,60 @@ export default class Transport {
 
     $(this.target).find('#login').click(() => {
       gapi.auth2.getAuthInstance().signIn();
-      song.downloadSongFromGDrive('0B1WNHlU9Fgw1VW1JcmVqNGo5TFE');
     });
     $(this.target).find('#logout').click(() => {
       gapi.auth2.getAuthInstance().signOut();
+    });
+
+    $(this.target).find('#load-from-google-drive').click(() => {
+      let pickerApiLoaded = false;
+      const accessToken = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
+
+      // Create and render a Picker object for searching images.
+      function createPicker() {
+        if (pickerApiLoaded && accessToken) {
+          const view = new google.picker.View(google.picker.ViewId.DOCS);
+          view.setMimeTypes('audio/x-mod');
+          const picker = new google.picker.PickerBuilder()
+              .enableFeature(google.picker.Feature.NAV_HIDDEN)
+              .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
+              .setAppId('1059727763451')
+              .setOAuthToken(accessToken)
+              .addView(view)
+              .addView(new google.picker.DocsUploadView())
+              .setDeveloperKey('AIzaSyALbx4_dafCGda6bZZ3SGt99yAeL58KJ-8')
+              .setCallback(pickerCallback)
+              .build();
+          picker.setVisible(true);
+        }
+      }
+
+      // A simple callback implementation.
+      function pickerCallback(data) {
+        if (data.action === google.picker.Action.PICKED) {
+          const fileId = data.docs[0].id;
+          try {
+            $('#dialog').empty();
+            $('#dialog').append($('<p>Loading Song</p>'));
+            const dialog = $('#dialog').dialog({
+              width: 500,
+              modal: true,
+            });
+            song.downloadSongFromGDrive(fileId).then(() => {
+              dialog.dialog('close');
+            });
+          } catch (e) {
+            console.log(e);
+          }
+        }
+      }
+
+      function onPickerApiLoad() {
+        pickerApiLoaded = true;
+        createPicker();
+      }
+
+      gapi.load('picker', { callback: onPickerApiLoad });
     });
   }
 
