@@ -65,18 +65,55 @@
   border: 1px solid black;
 }
 
-.hscroll .track-names {
+.hscroll .track-headers {
   position: absolute;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   margin-top: 5px;
 }
 
-.hscroll .track-names .track-name {
+.track-names {
+  display: flex;
+  flex-direction: row;
+}
+
+.track-names .track-name {
   color: white;
   flex: 1 1 auto;
   text-align: center;
   font-family: monospace;
+}
+
+.track-controls {
+  display: flex;
+  flex-direction: row;
+  height: 25px;
+}
+
+.track-controls .track-control {
+  color: white;
+  flex: 1 1 auto;
+  text-align: center;
+  font-family: monospace;
+  display: flex;
+  padding: 0 3px;
+}
+
+.track-control .panel {
+  flex: 1;
+  background: #444;
+  border-radius: 3px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0 2px;
+}
+
+.track-control .panel button {
+  font-size: 0.5em;
+  height: 14px;
+  width: 14px;
+  margin: 0 3px;
 }
 
 .hscroll .track-names input.inline-editor {

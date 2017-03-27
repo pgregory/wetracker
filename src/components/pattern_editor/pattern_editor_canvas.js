@@ -167,8 +167,6 @@ export default class PatternEditorCanvas {
     this.emptyEventCanvas.width = this.patternCellWidth;
 
     this.emptyPatternCanvas = document.createElement('canvas');
-    this.emptyPatternCanvas.height = this.patternRowHeight * 256;
-    this.emptyPatternCanvas.width = this.patternCellWidth * 32;
 
     this.timelineCanvas = document.createElement('canvas');
     this.timelineCanvas.height = this.patternRowHeight * 256;
@@ -204,13 +202,19 @@ export default class PatternEditorCanvas {
 
   initWidth() {
     const numtracks = song.getNumTracks();
-    this.canvas.width = this.patternCellWidth * numtracks;
+    let totalWidth = 0;
+    for (let tracki = 0; tracki < numtracks; tracki += 1) {
+      totalWidth += song.getTrackNumColumns(tracki) * this.patternCellWidth;
+    }
+    this.canvas.width = totalWidth;
     this.timelines.each((i, t) => {
       t.width = this.timelineCanvas.width + this.timelineRightMargin;
     });
 
     $(this.target).find('.track-names').width(this.canvas.width);
+    $(this.target).find('.track-controls').width(this.canvas.width);
     $(this.target).find('.track-name').width(this.patternCellWidth);
+    $(this.target).find('.track-control').outerWidth(this.patternCellWidth);
   }
 
   imageLoaded() {
@@ -249,6 +253,8 @@ export default class PatternEditorCanvas {
     const cw = this.patternCharacterWidth;
     const rh = this.patternRowHeight;
 
+    this.renderEmptyPatternCache();
+
     // render note
     ctx.drawImage(this.fontimg, 8 * 39, 0, 8, 8, dx, 0, this.patternNoteWidth, 8);
     dx += this.patternNoteWidth + this.patternSpacing;
@@ -261,15 +267,6 @@ export default class PatternEditorCanvas {
     ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx, 0, cw, 8);
     ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx + cw + 2, 0, cw, 8);
     ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx + cw + 2 + cw, 0, cw, 8);
-
-    ctx = this.emptyPatternCanvas.getContext('2d', { alpha: false });
-    for (let r = 0; r < 256; r += 1) {
-      const y = (r * this.patternRowHeight) + ((this.patternRowHeight - 8) / 2);
-      for (let t = 0; t < 32; t += 1) {
-        const x = (t * this.patternCellWidth) + this.eventLeftMargin;
-        ctx.drawImage(this.emptyEventCanvas, x, y);
-      }
-    }
 
     ctx = this.timelineCanvas.getContext('2d');
     ctx.fillStyle = '#000';
@@ -289,8 +286,34 @@ export default class PatternEditorCanvas {
     }
   }
 
+  renderEmptyPatternCache() {
+    let totalWidth = 0;
+    const numTracks = song.getNumTracks();
+    for (let tracki = 0; tracki < numTracks; tracki += 1) {
+      totalWidth += this.patternCellWidth * song.getTrackNumColumns(tracki);
+    }
+    this.emptyPatternCanvas.height = this.patternRowHeight * 256;
+    this.emptyPatternCanvas.width = totalWidth;
+
+    const ctx = this.emptyPatternCanvas.getContext('2d', { alpha: false });
+    for (let r = 0; r < 256; r += 1) {
+      const y = (r * this.patternRowHeight) + ((this.patternRowHeight - 8) / 2);
+      let x = this.eventLeftMargin;
+      for (let t = 0; t < numTracks; t += 1) {
+        for (let c = 0; c < song.getTrackNumColumns(t); c += 1) {
+          ctx.drawImage(this.emptyEventCanvas, x, y);
+          x += this.patternCellWidth;
+        }
+      }
+    }
+  }
+
   eventPositionInPatternCanvas(cursor) {
-    const cx = ((cursor.track + cursor.column) * this.patternCellWidth);
+    let cx = 0;
+    for (let t = 0; t < cursor.track; t += 1) {
+      cx += this.patternCellWidth * song.getTrackNumColumns(t);
+    }
+    cx += this.patternCellWidth * cursor.column;
     const cy = cursor.row * this.patternRowHeight;
     return {
       cx,
@@ -401,8 +424,12 @@ export default class PatternEditorCanvas {
     ctx.imageSmoothingEnabled = false;
 
     const numtracks = song.getNumTracks();
+    let totalWidth = 0;
+    for (let tracki = 0; tracki < numtracks; tracki += 1) {
+      totalWidth += cellwidth * song.getTrackNumColumns(tracki);
+    }
     const numrows = song.getPatternRowCount(index);
-    patternCanvas.width = numtracks * cellwidth;
+    patternCanvas.width = totalWidth;
     patternCanvas.height = numrows * rh;
 
     ctx.drawImage(this.emptyPatternCanvas, 0, 0);
@@ -414,10 +441,12 @@ export default class PatternEditorCanvas {
       for (let tracki = 0; tracki < numtracks; tracki += 1) {
         const track = song.getTrackDataForPatternRow(index, j, tracki);
         if (track && 'notedata' in track) {
-          const numcolumns = track.notedata.length;
+          const numcolumns = song.getTrackNumColumns(tracki);
           for (let coli = 0; coli < numcolumns; coli += 1) {
-            const dx = ((trackColumn + coli) * cellwidth) + this.eventLeftMargin;
-            this.renderEvent(ctx, track.notedata[coli], dx, dy);
+            if (coli < track.notedata.length && track.notedata[coli]) {
+              const dx = ((trackColumn + coli) * cellwidth) + this.eventLeftMargin;
+              this.renderEvent(ctx, track.notedata[coli], dx, dy);
+            }
           }
         }
         trackColumn += song.getTrackNumColumns(tracki);
@@ -496,6 +525,22 @@ export default class PatternEditorCanvas {
 
     $(this.target).find('#remove-track').click(() => {
       song.removeTrack(song.getNumTracks() - 1);
+      this.refresh();
+    });
+
+    $(this.target).find('.add-column').click((e) => {
+      const track = $(e.target).parents('.track-control').data('trackindex');
+      song.addColumnToTrack(track);
+      this.renderEmptyPatternCache();
+      this.renderAllPatterns();
+      this.refresh();
+    });
+
+    $(this.target).find('.remove-column').click((e) => {
+      const track = $(e.target).parents('.track-control').data('trackindex');
+      song.removeColumnFromTrack(track);
+      this.renderEmptyPatternCache();
+      this.renderAllPatterns();
       this.refresh();
     });
 
@@ -656,7 +701,18 @@ export default class PatternEditorCanvas {
     ctx.fillStyle = '#0F0';
     ctx.globalCompositeOperation = 'darken';
     let cx = this.eventLeftMargin;
-    cx += state.cursor.get('track') * this.patternCellWidth;
+    let t = 0;
+    while (t < state.cursor.get('track')) {
+      for (let c = 0; c < song.getTrackNumColumns(t); c += 1) {
+        cx += this.patternCellWidth;
+      }
+      t += 1;
+    }
+    let c = 0;
+    while (c < state.cursor.get('column')) {
+      cx += this.patternCellWidth;
+      c += 1;
+    }
     for (let i = 1; i <= state.cursor.get('item'); i += 1) {
       cx += this.cursorOffsets[i];
     }
@@ -699,14 +755,20 @@ export default class PatternEditorCanvas {
     }
     ctx.clearRect(0, 0, this.canvas.width, this.patternHeaderHeight);
 
+    /* Render the track grid */
     ctx.lineWidth = 2;
     ctx.strokeStyle = this.trackBorderColour;
     ctx.beginPath();
     const numtracks = song.getNumTracks();
+    let dx = 0;
     for (let i = 0; i <= numtracks; i += 1) {
-      const dx = i * this.patternCellWidth;
       ctx.moveTo(dx, 0);
       ctx.lineTo(dx, this.canvas.height);
+      const trackWidth = song.getTrackNumColumns(i) * this.patternCellWidth;
+      // Resize the header div to match
+      $(this.target).find(`.track-name[data-trackindex='${i}']`).width(trackWidth);
+      $(this.target).find(`.track-control[data-trackindex='${i}']`).outerWidth(trackWidth);
+      dx += trackWidth;
     }
     ctx.stroke();
   }
@@ -958,6 +1020,7 @@ export default class PatternEditorCanvas {
       return;
     }
     this.lastCursor = new Immutable.Map();
+    this.renderEmptyPatternCache();
     this.renderAllPatterns();
     this.refresh();
   }
@@ -968,6 +1031,7 @@ export default class PatternEditorCanvas {
       this.onFontLoaded.push(() => this.onSongStateChanged());
       return;
     }
+    this.renderEmptyPatternCache();
     this.renderAllPatterns();
     this.refresh();
   }

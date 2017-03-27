@@ -1007,6 +1007,38 @@ export class SongManager {
   }
 
   /**
+   * Add a note column to the given track.
+   */
+  addColumnToTrack(track) {
+    state.set({
+      song: {
+        tracks: state.song.get('tracks').setIn([track, 'columns'], state.song.getIn(['tracks', track, 'columns']).push({
+          id: 'c2',
+        })),
+      },
+    });
+    this.songChanged();
+  }
+
+  /**
+   * Remove a note column from a track.
+   */
+  removeColumnFromTrack(track, column) {
+    if (track < song.getNumTracks() && song.getTrackNumColumns(track) > 1) {
+      let coli = column;
+      if (!coli) {
+        coli = song.getTrackNumColumns(track) - 1;
+      }
+      state.set({
+        song: {
+          tracks: state.song.get('tracks').setIn([track, 'columns'], state.song.getIn(['tracks', track, 'columns']).delete(coli)),
+        },
+      });
+      this.songChanged();
+    }
+  }
+
+  /**
    * Get track effects
    */
   getTrackEffects(index) {
@@ -1094,6 +1126,10 @@ export class SongManager {
         console.log(e);
       }
     }
+  }
+
+  dumpSongToConsole() {
+    console.log(state.song.toJS());
   }
 }
 

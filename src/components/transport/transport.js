@@ -41,6 +41,10 @@ export default class Transport {
       e.preventDefault();
     });
 
+    MouseTrap.bind('ctrl+l', () => {
+      song.dumpSongToConsole();
+    });
+
     connect(state, 'transportChanged', this, 'onTransportChanged');
     connect(song, 'songChanged', this, 'onSongChanged');
     connect(state, 'cursorChanged', this, 'onCursorChanged');

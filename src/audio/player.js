@@ -223,7 +223,7 @@ class PlayerInstrument {
     this.panningNode = instrument.ctx.createStereoPanner();
     this.gainNode.connect(this.panningNode);
     this.panningNode.connect(channel.gainNode);
-    this.period = instrument.periodForNote(channel, note, channel.fine);
+    this.period = instrument.periodForNote(note, channel.fine);
     this.rate = this.rateForPeriod(this.period);
     this.sourceNode.playbackRate.value = this.rate;
     this.sourceNode.connect(this.gainNode);
@@ -428,7 +428,7 @@ class Instrument {
     return null;
   }
 
-  periodForNote(ch, note, fine) {
+  periodForNote(note, fine) {
     const sampNote = this.inst.samples[this.inst.samplemap[Math.min(Math.max(note, 0), 95)]].note;
     if (state.song.get('flags') & 0x1) { // eslint-disable-line no-bitwise
       return 7680.0 - ((note + sampNote) * 64) - (fine / 2.0);
@@ -465,39 +465,51 @@ class Instrument {
 }
 
 class Track {
-  constructor(ctx, destination) {
+  constructor(ctx, destination, songTrackIndex) {
     this.ctx = ctx;
-    this.filterstate = new Float32Array(3);
-    this.vol = 0;
-    this.pan = 128;
-    this.period = 7680 - (48 * 64);
-    this.vL = 0;
-    this.vR = 0;   // left right volume envelope followers (changes per sample)
-    this.vLprev = 0;
-    this.vRprev = 0;
+    this.analyser = this.ctx.createAnalyser();
+    this.gainNode = this.ctx.createGain();
+
+    this.analyser.fftSize = 256;
+    this.analyserBufferLength = this.analyser.frequencyBinCount;
+    this.analyserScopeData = new Uint8Array(this.analyserBufferLength);
+
+    this.gainNode.gain.value = 1.0;
     this.stateStack = [{
       state: NORMAL,
       properties: {
         gain: 1,
       },
     }];
-    this.volE = 0;
-    this.panE = 0;
-    this.retrig = 0;
-    this.vibratopos = 0;
-    this.vibratodepth = 1;
-    this.vibratospeed = 1;
-    this.vibratotype = 0;
-    this.gainNode = this.ctx.createGain();
-    this.analyser = this.ctx.createAnalyser();
-
-    this.analyser.fftSize = 256;
-    this.analyserBufferLength = this.analyser.frequencyBinCount;
-    this.analyserScopeData = new Uint8Array(this.analyserBufferLength);
 
     this.gainNode.connect(this.analyser);
     this.analyser.connect(destination);
-    this.gainNode.gain.value = 1.0;
+
+    this.columns = [];
+
+    for (let c = 0; c < song.getTrackNumColumns(songTrackIndex); c += 1) {
+      const newColumn = {
+        filterstate: new Float32Array(3),
+        vol: 0,
+        pan: 128,
+        period: 7680 - (48 * 64),
+        vL: 0,
+        vR: 0,   // left right volume envelope followers (changes per sample)
+        vLprev: 0,
+        vRprev: 0,
+        volE: 0,
+        panE: 0,
+        retrig: 0,
+        vibratopos: 0,
+        vibratodepth: 1,
+        vibratospeed: 1,
+        vibratotype: 0,
+        gainNode: this.ctx.createGain(),
+      };
+      newColumn.gainNode.gain.value = 1.0;
+      newColumn.gainNode.connect(this.gainNode);
+      this.columns.push(newColumn);
+    }
 
     this.effectChain = [];
   }
@@ -812,7 +824,8 @@ class Player {
   }
 
   playNoteOnCurrentChannel(note, finished) {
-    const channel = this.tracks[state.cursor.get('track')];
+    const track = this.tracks[state.cursor.get('track')];
+    const channel = track.columns[0];
     const instrument = this.instruments[state.cursor.get('instrument')];
     const time = this.audioctx.currentTime;
 
@@ -941,150 +954,153 @@ class Player {
     this.jump_row = undefined;
     for (let trackindex = 0; trackindex < numtracks; trackindex += 1) {
       const track = song.getTrackDataForPatternRow(this.cur_pat, this.cur_row, trackindex);
-      const ch = this.tracks[trackindex];
-      let inst = ch.inst;
-      ch.triggernote = false;
-      let event = {};
-      if ('notedata' in track && track.notedata.length > 0) {
-        event = track.notedata[0];
-      }
-
-      // instrument trigger
-      if ('instrument' in event && event.instrument !== -1) {
-        inst = this.instruments[event.instrument - 1];
-        if (inst && inst.inst && inst.inst.samplemap) {
-          ch.inst = inst;
-          // reset properties, but let the same instrument and note keep playing.
-          // note: it doesn't matter what the instrument number is, it just retriggers the
-          // properties of the currently playing instrument. Only if you specify a note AND
-          // instrument does it change the playing instrument.
-          if (ch.note && inst.inst.samplemap) {
-            const samp = inst.inst.samples[inst.inst.samplemap[ch.note]];
-            ch.vol = samp.vol;
-            ch.pan = samp.pan;
-            ch.fine = samp.fine;
-            if (ch.currentlyPlaying) {
-              ch.currentlyPlaying.resetEnvelopes();
-            }
-          }
+      const numcols = this.tracks[trackindex].columns.length;
+      for (let colindex = 0; colindex < numcols; colindex += 1) {
+        const ch = this.tracks[trackindex].columns[colindex];
+        let inst = ch.inst;
+        ch.triggernote = false;
+        let event = {};
+        if ('notedata' in track && colindex < track.notedata.length && track.notedata[colindex]) {
+          event = track.notedata[colindex];
         }
-      }
 
-      // note trigger
-      if ('note' in event && event.note !== -1) {
-        if (event.note === 96) {
-          ch.release = 1;
-          ch.triggernote = false;
-        } else {
+        // instrument trigger
+        if ('instrument' in event && event.instrument !== -1) {
+          inst = this.instruments[event.instrument - 1];
           if (inst && inst.inst && inst.inst.samplemap) {
-            const note = event.note;
-            ch.note = note;
-            if ('instrument' in event && event.instrument !== -1) {
-              const samp = inst.inst.samples[inst.inst.samplemap[note]];
-              ch.pan = samp.pan;
+            ch.inst = inst;
+            // reset properties, but let the same instrument and note keep playing.
+            // note: it doesn't matter what the instrument number is, it just retriggers the
+            // properties of the currently playing instrument. Only if you specify a note AND
+            // instrument does it change the playing instrument.
+            if (ch.note && inst.inst.samplemap) {
+              const samp = inst.inst.samples[inst.inst.samplemap[ch.note]];
               ch.vol = samp.vol;
+              ch.pan = samp.pan;
               ch.fine = samp.fine;
-            }
-          }
-          ch.triggernote = true;
-        }
-      }
-
-      ch.voleffectfn = undefined;
-      if ('volume' in event && event.volume !== -1) {  // volume column
-        const v = event.volume;
-        ch.voleffectdata = v & 0x0f; // eslint-disable-line no-bitwise
-        if (v < 0x10) {
-          if (v !== 0) {
-            console.log('Track', trackindex, 'invalid volume', event.volume.toString(16));
-          }
-        } else if (v <= 0x50) {
-          ch.vol = v - 0x10;
-        } else if (v >= 0x60 && v < 0x70) {  // volume slide down
-          ch.voleffectfn = (tr) => {
-            tr.vol = Math.max(0, tr.vol - tr.voleffectdata); // eslint-disable-line no-param-reassign
-          };
-        } else if (v >= 0x70 && v < 0x80) {  // volume slide up
-          ch.voleffectfn = (tr) => {
-            tr.vol = Math.min(64, tr.vol + tr.voleffectdata); // eslint-disable-line no-param-reassign
-          };
-        } else if (v >= 0x80 && v < 0x90) {  // fine volume slide down
-          ch.vol = Math.max(0, ch.vol - (v & 0x0f)); // eslint-disable-line no-bitwise
-        } else if (v >= 0x90 && v < 0xa0) {  // fine volume slide up
-          ch.vol = Math.min(64, ch.vol + (v & 0x0f)); // eslint-disable-line no-bitwise
-        } else if (v >= 0xa0 && v < 0xb0) {  // vibrato speed
-          ch.vibratospeed = v & 0x0f; // eslint-disable-line no-bitwise
-        } else if (v >= 0xb0 && v < 0xc0) {  // vibrato w/ depth
-          ch.vibratodepth = v & 0x0f; // eslint-disable-line no-bitwise
-          ch.voleffectfn = this.effects_t1[4];  // use vibrato effect directly
-          const tempeffectfn = this.effects_t1[4];
-          if (tempeffectfn) {
-            tempeffectfn.bind(this)(ch);  // and also call it on tick 0
-          }
-        } else if (v >= 0xc0 && v < 0xd0) {  // set panning
-          ch.pan = (v & 0x0f) * 0x11; // eslint-disable-line no-bitwise
-        } else if (v >= 0xf0 && v <= 0xff) {  // portamento
-          if (v & 0x0f) { // eslint-disable-line no-bitwise
-            ch.portaspeed = (v & 0x0f) << 4; // eslint-disable-line no-bitwise
-          }
-          ch.voleffectfn = this.effects_t1[3].bind(this);  // just run 3x0
-        } else {
-          console.log('Track', trackindex, 'volume effect', v.toString(16));
-        }
-      }
-
-      ch.effectfn = undefined;
-      if (('fxtype' in event && 'fxparam' in event) && (event.fxtype !== -1 || event.fxparam !== 0)) {
-        try {
-          ch.effect = event.fxtype;
-          ch.effectdata = event.fxparam;
-          if (ch.effect < 36) {
-            ch.effectfn = this.effects_t1[ch.effect];
-            const effT0 = this.effects_t0[ch.effect];
-            if (effT0 && effT0.bind(this)(ch, ch.effectdata)) {
-              ch.triggernote = false;
-            }
-          } else {
-            console.log('Track', trackindex, 'effect > 36', ch.effect);
-          }
-
-          // special handling for portamentos: don't trigger the note
-          if (ch.effect === 3 || ch.effect === 5 || event.volume >= 0xf0) {
-            if (event.note !== -1) {
-              ch.periodtarget = ch.inst.periodForNote(ch, ch.note, ch.fine);
-            }
-            ch.triggernote = false;
-            if (inst && inst.inst && inst.inst.samplemap) {
-              if (ch.currentlyPlaying == null) {
-                // note wasn't already playing; we basically have to ignore the
-                // portamento and just trigger
-                ch.triggernote = true;
-              } else if (ch.release) {
-                // reset envelopes if note was released but leave offset/pitch/etc
-                // alone
-                ch.envtick = 0;
-                ch.release = 0;
+              if (ch.currentlyPlaying) {
+                ch.currentlyPlaying.resetEnvelopes();
               }
             }
           }
-        } catch (e) {
-          console.log(e);
         }
-      }
 
-      if (ch.triggernote) {
-        // there's gotta be a less hacky way to handle offset commands...
-        if (ch.effect !== 9) {
-          ch.off = 0;
+        // note trigger
+        if ('note' in event && event.note !== -1) {
+          if (event.note === 96) {
+            ch.release = 1;
+            ch.triggernote = false;
+          } else {
+            if (inst && inst.inst && inst.inst.samplemap) {
+              const note = event.note;
+              ch.note = note;
+              if ('instrument' in event && event.instrument !== -1) {
+                const samp = inst.inst.samples[inst.inst.samplemap[note]];
+                ch.pan = samp.pan;
+                ch.vol = samp.vol;
+                ch.fine = samp.fine;
+              }
+            }
+            ch.triggernote = true;
+          }
         }
-        ch.release = 0;
-        ch.envtick = 0;
-        if (ch.note) {
-          ch.period = ch.inst.periodForNote(ch, ch.note, ch.fine);
+
+        ch.voleffectfn = undefined;
+        if ('volume' in event && event.volume !== -1) {  // volume column
+          const v = event.volume;
+          ch.voleffectdata = v & 0x0f; // eslint-disable-line no-bitwise
+          if (v < 0x10) {
+            if (v !== 0) {
+              console.log('Track', trackindex, 'invalid volume', event.volume.toString(16));
+            }
+          } else if (v <= 0x50) {
+            ch.vol = v - 0x10;
+          } else if (v >= 0x60 && v < 0x70) {  // volume slide down
+            ch.voleffectfn = (tr) => {
+              tr.vol = Math.max(0, tr.vol - tr.voleffectdata); // eslint-disable-line no-param-reassign
+            };
+          } else if (v >= 0x70 && v < 0x80) {  // volume slide up
+            ch.voleffectfn = (tr) => {
+              tr.vol = Math.min(64, tr.vol + tr.voleffectdata); // eslint-disable-line no-param-reassign
+            };
+          } else if (v >= 0x80 && v < 0x90) {  // fine volume slide down
+            ch.vol = Math.max(0, ch.vol - (v & 0x0f)); // eslint-disable-line no-bitwise
+          } else if (v >= 0x90 && v < 0xa0) {  // fine volume slide up
+            ch.vol = Math.min(64, ch.vol + (v & 0x0f)); // eslint-disable-line no-bitwise
+          } else if (v >= 0xa0 && v < 0xb0) {  // vibrato speed
+            ch.vibratospeed = v & 0x0f; // eslint-disable-line no-bitwise
+          } else if (v >= 0xb0 && v < 0xc0) {  // vibrato w/ depth
+            ch.vibratodepth = v & 0x0f; // eslint-disable-line no-bitwise
+            ch.voleffectfn = this.effects_t1[4];  // use vibrato effect directly
+            const tempeffectfn = this.effects_t1[4];
+            if (tempeffectfn) {
+              tempeffectfn.bind(this)(ch);  // and also call it on tick 0
+            }
+          } else if (v >= 0xc0 && v < 0xd0) {  // set panning
+            ch.pan = (v & 0x0f) * 0x11; // eslint-disable-line no-bitwise
+          } else if (v >= 0xf0 && v <= 0xff) {  // portamento
+            if (v & 0x0f) { // eslint-disable-line no-bitwise
+              ch.portaspeed = (v & 0x0f) << 4; // eslint-disable-line no-bitwise
+            }
+            ch.voleffectfn = this.effects_t1[3].bind(this);  // just run 3x0
+          } else {
+            console.log('Track', trackindex, 'volume effect', v.toString(16));
+          }
         }
-        // waveforms 0-3 are retriggered on new notes while 4-7 are continuous
-        if (ch.vibratotype < 4) {
-          ch.vibratopos = 0;
+
+        ch.effectfn = undefined;
+        if (('fxtype' in event && 'fxparam' in event) && (event.fxtype !== -1 || event.fxparam !== 0)) {
+          try {
+            ch.effect = event.fxtype;
+            ch.effectdata = event.fxparam;
+            if (ch.effect < 36) {
+              ch.effectfn = this.effects_t1[ch.effect];
+              const effT0 = this.effects_t0[ch.effect];
+              if (effT0 && effT0.bind(this)(ch, ch.effectdata)) {
+                ch.triggernote = false;
+              }
+            } else {
+              console.log('Track', trackindex, 'effect > 36', ch.effect);
+            }
+
+            // special handling for portamentos: don't trigger the note
+            if (ch.effect === 3 || ch.effect === 5 || event.volume >= 0xf0) {
+              if (event.note !== -1) {
+                ch.periodtarget = ch.inst.periodForNote(ch.note, ch.fine);
+              }
+              ch.triggernote = false;
+              if (inst && inst.inst && inst.inst.samplemap) {
+                if (ch.currentlyPlaying == null) {
+                  // note wasn't already playing; we basically have to ignore the
+                  // portamento and just trigger
+                  ch.triggernote = true;
+                } else if (ch.release) {
+                  // reset envelopes if note was released but leave offset/pitch/etc
+                  // alone
+                  ch.envtick = 0;
+                  ch.release = 0;
+                }
+              }
+            }
+          } catch (e) {
+            console.log(e);
+          }
+        }
+
+        if (ch.triggernote) {
+          // there's gotta be a less hacky way to handle offset commands...
+          if (ch.effect !== 9) {
+            ch.off = 0;
+          }
+          ch.release = 0;
+          ch.envtick = 0;
+          if (ch.note) {
+            ch.period = ch.inst.periodForNote(ch.note, ch.fine);
+          }
+          // waveforms 0-3 are retriggered on new notes while 4-7 are continuous
+          if (ch.vibratotype < 4) {
+            ch.vibratopos = 0;
+          }
         }
       }
     }
@@ -1099,7 +1115,9 @@ class Player {
       console.log('Lag!!!');
     }
     for (let j = 0; j < this.tracks.length; j += 1) {
-      this.tracks[j].periodoffset = 0;
+      for (let c = 0; c < this.tracks[j].columns.length; c += 1) {
+        this.tracks[j].columns[c].periodoffset = 0;
+      }
     }
 
     if (this.cur_tick === 0) {
@@ -1112,31 +1130,34 @@ class Player {
     }
 
     for (let j = 0; j < this.tracks.length; j += 1) {
-      const ch = this.tracks[j];
-      const inst = ch.inst;
-      if (inst !== undefined) {
-        if (this.cur_tick !== 0) {
-          if (ch.voleffectfn) ch.voleffectfn.bind(this)(ch);
-          if (ch.effectfn) ch.effectfn.bind(this)(ch);
-        }
-        if (isNaN(ch.period)) {
-          throw Error('NaN Period');
-        }
-
-        if (ch.triggernote) {
-          if (ch.currentlyPlaying) {
-            ch.currentlyPlaying.stop(this.nextTickTime);
+      const track = this.tracks[j];
+      for (let c = 0; c < track.columns.length; c += 1) {
+        const ch = track.columns[c];
+        const inst = ch.inst;
+        if (inst !== undefined) {
+          if (this.cur_tick !== 0) {
+            if (ch.voleffectfn) ch.voleffectfn.bind(this)(ch);
+            if (ch.effectfn) ch.effectfn.bind(this)(ch);
           }
-          ch.currentlyPlaying = ch.inst.playNoteOnChannel(ch, this.nextTickTime, ch.note);
-          ch.triggernote = false;
-        }
-        if (ch.currentlyPlaying) {
-          ch.currentlyPlaying.release = ch.release;
-          if (ch.currentlyPlaying.updateVolumeEnvelope(this.nextTickTime)) {
-            ch.currentlyPlaying.stop(this.nextTickTime);
-            ch.currentlyPlaying = null;
-          } else {
-            ch.currentlyPlaying.updateChannelPeriod(this.nextTickTime, ch.period + ch.periodoffset);
+          if (isNaN(ch.period)) {
+            throw Error('NaN Period');
+          }
+
+          if (ch.triggernote) {
+            if (ch.currentlyPlaying) {
+              ch.currentlyPlaying.stop(this.nextTickTime);
+            }
+            ch.currentlyPlaying = ch.inst.playNoteOnChannel(ch, this.nextTickTime, ch.note);
+            ch.triggernote = false;
+          }
+          if (ch.currentlyPlaying) {
+            ch.currentlyPlaying.release = ch.release;
+            if (ch.currentlyPlaying.updateVolumeEnvelope(this.nextTickTime)) {
+              ch.currentlyPlaying.stop(this.nextTickTime);
+              ch.currentlyPlaying = null;
+            } else {
+              ch.currentlyPlaying.updateChannelPeriod(this.nextTickTime, ch.period + ch.periodoffset);
+            }
           }
         }
       }
@@ -1347,9 +1368,12 @@ class Player {
     this.timerWorker.port.postMessage('stop');
 
     for (let i = 0; i < this.tracks.length; i += 1) {
-      if (this.tracks[i].currentlyPlaying) {
-        this.tracks[i].currentlyPlaying.stop(this.audioctx.currentTime);
-        this.tracks[i].currentlyPlaying = undefined;
+      const track = this.tracks[i];
+      for (let c = 0; c < track.columns.length; c += 1) {
+        if (track.columns[c].currentlyPlaying) {
+          track.columns[c].currentlyPlaying.stop(this.audioctx.currentTime);
+          track.columns[c].currentlyPlaying = undefined;
+        }
       }
     }
 
@@ -1402,7 +1426,7 @@ class Player {
     // Initialise the channelinfo for each track.
     const numtracks = song.getNumTracks();
     for (let i = 0; i < numtracks; i += 1) {
-      const trackinfo = new Track(this.audioctx, this.masterGain);
+      const trackinfo = new Track(this.audioctx, this.masterGain, i);
       this.tracks.push(trackinfo);
       const effects = song.getTrackEffects(i);
       trackinfo.buildEffectChain(effects);
@@ -1508,7 +1532,7 @@ class Player {
     if (ch.effectdata !== 0 && ch.inst !== undefined) {
       const arpeggio = [0, ch.effectdata >> 4, ch.effectdata & 15];
       const note = ch.note + arpeggio[this.cur_tick % 3];
-      ch.period = ch.inst.periodForNote(ch, note, ch.fine);
+      ch.period = ch.inst.periodForNote(note, ch.fine);
     }
   }
 
