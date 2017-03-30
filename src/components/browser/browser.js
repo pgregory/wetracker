@@ -83,6 +83,19 @@ export default class Browser {
             });
             song.downloadSong(songfileURL).then(() => {
               dialog.dialog('close');
+            }, (msg) => {
+              dialog.dialog('close');
+              $('#dialog').empty();
+              $('#dialog').append($(`<p>${msg}</p>`));
+              const errorDialog = $('#dialog').dialog({
+                width: 500,
+                modal: true,
+                buttons: {
+                  OK: () => {
+                    errorDialog.dialog('close');
+                  },
+                },
+              });
             });
           } catch (e) {
             console.log(e);

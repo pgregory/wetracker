@@ -11,8 +11,6 @@ import { player } from '../../audio/player';
 import transportTemplate from './templates/transport.marko';
 import recordTemplate from './templates/record.marko';
 
-import modfile from '../../../data/onward.xm';
-
 import './styles.css';
 
 export default class Transport {
@@ -119,11 +117,6 @@ export default class Transport {
             $(this).dialog('close');
           },
           Cancel: function cancel() {
-            $(this).dialog('close');
-          },
-          Demo: function demo() {
-            player.stop();
-            song.downloadSong(modfile);
             $(this).dialog('close');
           },
         },
