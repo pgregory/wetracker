@@ -64,6 +64,7 @@
     "marko": "^3.13.0",
     "marko-loader": "^1.0.0",
     "mousetrap": "^1.6.0",
+    "pixi.js": "^4.4.3",
     "query-string": "^4.2.3",
     "raw-loader": "^0.5.1",
     "shared-worker-loader": "^0.1.0",

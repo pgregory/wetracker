@@ -36,7 +36,7 @@
 
 .hscroll .pattern .patterndata {
   border: 1px solid white;
-  flex: 1 1 auto;
+  flex: 2 1 0;
   overflow: hidden;
   position: relative;
   margin-bottom: 3px;
@@ -63,6 +63,8 @@
 
 .hscroll .pattern .timeline {
   border: 1px solid black;
+  width: 40px;
+  flex: 0 0 0;
 }
 
 .hscroll .track-headers {

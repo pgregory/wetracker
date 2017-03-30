@@ -69,6 +69,9 @@ module.exports = {
     }, {
       test: /\.lz4$/,
       loader: "arraybuffer-loader"
+    }, {
+      test: /\.json$/,
+      loader: 'json'
     }]
   },
   node: {
