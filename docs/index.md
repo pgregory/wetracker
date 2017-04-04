@@ -49,7 +49,7 @@ The current development status is being deployed to a test server on Heroku.
 I'll update this periodically as new worthwhile functionality becomes
 available.
 
-[WeTracker Demo](https://wetracker.herokuapp.com/)
+[WeTracker Demo](https://app.wetracker.xyz/)
 
 Try loading some songs from 
 [Modland.com](http://modland.com/pub/modules/Fasttracker%202/) to test it out,
