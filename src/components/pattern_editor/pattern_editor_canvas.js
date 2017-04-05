@@ -595,16 +595,16 @@ export default class PatternEditorCanvas {
 
   redrawCanvas() {
     const ctx = this.canvas.getContext('2d');
-
     const h = $(this.target).find('.patterndata').height();
+
     this.canvas.height = h;
-    this.timelines.each((i, t) => {
-      t.height = h;
-    });
+    for (let tl = 0, tle = this.timelines.length; tl < tle; tl += 1) {
+      this.timelines[tl].height = h;
+    }
 
     ctx.imageSmoothingEnabled = false;
     ctx.fillStyle = '#000';
-    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    // ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
     ctx.globalCompositeOperation = 'source-over';
     const y = Math.round((this.canvas.height / 2) - (this.patternRowHeight / 2) - (this.patternRowHeight * (state.cursor.get('row'))));
@@ -622,14 +622,6 @@ export default class PatternEditorCanvas {
       prevInSequence = song.getSequenceLength() - 1;
     }
 
-    // Draw the timeline fixed to the left and right of the view.
-    const tlh = this.patternRowHeight * song.getPatternRowCount(state.cursor.get('pattern'));
-    this.timelines.each((i, t) => {
-      const tctx = t.getContext('2d');
-      const tlw = this.timelineCanvas.width;
-      tctx.drawImage(this.timelineCanvas, 0, 0, tlw, tlh, 0, y, tlw, tlh);
-    });
-
     // Draw previous and next patterns, in grayscale and faded.
     const nextPatternIndex = song.getSequencePatternNumber(nextInSequence);
     const prevPatternIndex = song.getSequencePatternNumber(prevInSequence);
@@ -645,22 +637,22 @@ export default class PatternEditorCanvas {
         ctx.drawImage(nextPatternCanvas, 0, y + patternCanvas.height);
       }
 
-      this.timelines.each((i, t) => {
-        const tctx = t.getContext('2d');
+      for (let tl = 0, tle = this.timelines.length; tl < tle; tl += 1) {
+        const tctx = this.timelines[tl].getContext('2d');
         const tlw = this.timelineCanvas.width;
         const ntlh = this.patternRowHeight * song.getPatternRowCount(nextPatternIndex);
         const ptlh = this.patternRowHeight * song.getPatternRowCount(prevPatternIndex);
         tctx.drawImage(this.timelineCanvas, 0, 0, tlw, ntlh, 0, y + tlh, tlw, ntlh);
         tctx.drawImage(this.timelineCanvas, 0, 0, tlw, ptlh, 0, y - ptlh, tlw, ptlh);
-      });
+      }
 
       ctx.globalCompositeOperation = 'multiply';
       ctx.fillStyle = '#888';
       ctx.fillRect(0, y - prevPatternCanvas.height, prevPatternCanvas.width, prevPatternCanvas.height);
       ctx.fillRect(0, y + patternCanvas.height, nextPatternCanvas.width, nextPatternCanvas.height);
 
-      this.timelines.each((i, t) => {
-        const tctx = t.getContext('2d');
+      for (let tl = 0, tle = this.timelines.length; tl < tle; tl += 1) {
+        const tctx = this.timelines[tl].getContext('2d');
         tctx.save();
         tctx.globalCompositeOperation = 'multiply';
         tctx.fillStyle = '#888';
@@ -669,16 +661,19 @@ export default class PatternEditorCanvas {
         tctx.fillRect(0, y + tlh, tlw, ntlh);
         tctx.fillRect(0, y - ntlh, tlw, ntlh);
         tctx.restore();
-      });
+      }
 
       ctx.restore();
     }
 
-    // Clear header section of timelines.
-    this.timelines.each((i, t) => {
-      const tctx = t.getContext('2d');
+    // Draw the timeline fixed to the left and right of the view.
+    const tlh = this.patternRowHeight * song.getPatternRowCount(state.cursor.get('pattern'));
+    for (let tl = 0, tle = this.timelines.length; tl < tle; tl += 1) {
+      const tctx = this.timelines[tl].getContext('2d');
+      const tlw = this.timelineCanvas.width;
+      tctx.drawImage(this.timelineCanvas, 0, 0, tlw, tlh, 0, y, tlw, tlh);
       tctx.fillRect(0, 0, this.timelineCanvas.width, this.patternHeaderHeight);
-    });
+    }
 
     // Draw the cursor row.
     const cy = Math.round((this.canvas.height / 2) - (this.patternRowHeight / 2));
