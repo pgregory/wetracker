@@ -62,10 +62,11 @@ difficult to achieve in a standard tracker.
 Demo
 ----
 
-Go an play, it runs well in the latest Chrome and Firefox, you can load songs
-in FastTracker 2 .xm format, or if you're musically minded, start from scratch
-and load your own instrument samples into the instrument editor in .wav or .mp3
-format and start writing your own music.
+Don't take my word for it, try it for yourself, it runs well in the latest
+Chrome and Firefox, you can load songs in FastTracker 2 .xm format, or if
+you're musically minded, start from scratch and load your own instrument
+samples into the instrument editor in .wav or .mp3 format and start writing
+your own music, and let me know how you get on.
 
 [WeTracker Demo](http://app.wetracker.xyz/)
 
