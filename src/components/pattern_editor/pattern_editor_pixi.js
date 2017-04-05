@@ -158,21 +158,34 @@ export default class PatternEditorPixi {
     this.fontloaded = false;
     this.onFontLoaded = [];
     this.fontimg = new window.Image();
-    //this.fontimg.onload = () => this.imageLoaded();
+    this.fontimg.onload = () => this.imageLoaded();
     this.fontimg.src = fontimage;
 
+    // canvas to render patterns onto
+    this.patternCanvases = [];
+
+    this.emptyEventCanvas = document.createElement('canvas');
+    this.emptyEventCanvas.height = this.patternRowHeight;
+    this.emptyEventCanvas.width = this.patternCellWidth;
+
+    this.emptyPatternCanvas = document.createElement('canvas');
+
+    this.timelineCanvas = document.createElement('canvas');
+    this.timelineCanvas.height = this.patternRowHeight * 256;
+    this.timelineCanvas.width = 30;
     this.trackBorderColour = '#666';
 
     // Initialise PIXI canvas
     this.renderer = PIXI.autoDetectRenderer($(this.target).width(), $(this.target).height());
     this.stage = new PIXI.Container();
 
+    this.testTexture = null;
+
     PIXI.loader.add(fontimage).load(() => {
       this.fontSprite = new PIXI.Sprite(PIXI.loader.resources[fontimage].texture);
       this.stage.addChild(this.fontSprite);
       this.renderer.render(this.stage);
     });
-
 
     MouseTrap.bind('mod+c', (e) => {
       this.copyRegion();
@@ -207,9 +220,6 @@ export default class PatternEditorPixi {
       totalWidth += song.getTrackNumColumns(tracki) * this.patternCellWidth;
     }
     this.renderer.view.width = totalWidth;
-    this.timelines.each((i, t) => {
-      t.width = this.timelineCanvas.width + this.timelineRightMargin;
-    });
 
     $(this.target).find('.track-names').width(this.renderer.view.width);
     $(this.target).find('.track-controls').width(this.renderer.view.width);
@@ -253,8 +263,6 @@ export default class PatternEditorPixi {
     const cw = this.patternCharacterWidth;
     const rh = this.patternRowHeight;
 
-    this.renderEmptyPatternCache();
-
     // render note
     ctx.drawImage(this.fontimg, 8 * 39, 0, 8, 8, dx, 0, this.patternNoteWidth, 8);
     dx += this.patternNoteWidth + this.patternSpacing;
@@ -268,6 +276,8 @@ export default class PatternEditorPixi {
     ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx + cw + 2, 0, cw, 8);
     ctx.drawImage(this.fontimg, 312, 0, 8, 8, dx + cw + 2 + cw, 0, cw, 8);
 
+    this.renderEmptyPatternCache();
+
     ctx = this.timelineCanvas.getContext('2d');
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, this.timelineCanvas.width, this.timelineCanvas.height);
@@ -279,6 +289,11 @@ export default class PatternEditorPixi {
       ctx.drawImage(this.fontimg, 8 * (j >> 4), 0, 8, 8, offset, dy, 8, 8); // eslint-disable-line no-bitwise
       ctx.drawImage(this.fontimg, 8 * (j & 15), 0, 8, 8, offset + 8, dy, 8, 8); // eslint-disable-line no-bitwise
     }
+
+    //this.testTexture = PIXI.Texture.fromCanvas(this.emptyPatternCanvas);
+    //this.testSprite = new PIXI.Sprite(this.testTexture);
+    //this.stage.addChild(this.testSprite);
+    //this.renderer.render(this.stage);
 
     this.fontloaded = true;
     while (this.onFontLoaded.length > 0) {
@@ -295,7 +310,9 @@ export default class PatternEditorPixi {
     this.emptyPatternCanvas.height = this.patternRowHeight * 256;
     this.emptyPatternCanvas.width = totalWidth;
 
-    const ctx = this.emptyPatternCanvas.getContext('2d', { alpha: false });
+    const ctx = this.emptyPatternCanvas.getContext('2d');
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, this.emptyPatternCanvas.width, this.emptyPatternCanvas.height);
     for (let r = 0; r < 256; r += 1) {
       const y = (r * this.patternRowHeight) + ((this.patternRowHeight - 8) / 2);
       let x = this.eventLeftMargin;
@@ -401,11 +418,13 @@ export default class PatternEditorPixi {
   }
 
   renderAllPatterns() {
+    console.log("Render all patterns");
     const sequenceLength = song.getSequenceLength();
     this.patternCanvases = [];
     for (let s = 0; s < sequenceLength; s += 1) {
       const patternIndex = song.getSequencePatternNumber(s);
-      this.patternCanvases[patternIndex] = this.renderPattern(patternIndex);
+      let texture = PIXI.Texture.fromCanvas(this.renderPattern(patternIndex));
+      this.patternCanvases[patternIndex] = new PIXI.Sprite(texture);
     }
   }
 
@@ -489,16 +508,13 @@ export default class PatternEditorPixi {
     }));
     $(this.target).find('#gfxpattern').append(this.renderer.view);
 
-    return;
+    this.hscroll = $(this.target).find('.hscroll');
+    this.patterndata = $(this.target).find('.patterndata');
 
-    this.canvas = $(this.target).find('canvas#gfxpattern')[0];
-    this.timelines = $(this.target).find('canvas.timelinecanvas');
 
-    this.hscroll = $(this.canvas).closest('.hscroll');
-    this.patterndata = $(this.canvas).closest('.patterndata');
     this.initWidth();
     $(this.patterndata).on('wheel', this.onScroll.bind(this));
-    $(this.canvas).on('click', this.onClick.bind(this));
+    //$(this.canvas).on('click', this.onClick.bind(this));
 
     $(this.target).find('input').bind('enterKey', (e) => {
       state.set({
@@ -551,11 +567,11 @@ export default class PatternEditorPixi {
     if (!this.fontloaded) {
       this.onFontLoaded.push(() => {
         // this.renderAllPatterns();
-        this.redrawCanvas();
+        //this.redrawCanvas();
       });
     } else {
       // this.renderAllPatterns();
-      this.redrawCanvas();
+      //this.redrawCanvas();
     }
   }
 
@@ -598,7 +614,21 @@ export default class PatternEditorPixi {
   }
 
   redrawCanvas() {
+    const y = Math.round((this.renderer.height / 2) - (this.patternRowHeight / 2) - (this.patternRowHeight * (state.cursor.get('row'))));
+    const patternCanvas = this.getPatternCanvasForSequence(state.cursor.get('sequence'));
+    this.stage.removeChildren();
+    if(patternCanvas) {
+      this.stage.addChild(patternCanvas);
+      patternCanvas.y = y;
+    }
+    this.renderer.render(this.stage);
+    //const patternCanvas = this.getPatternCanvasForSequence(state.cursor.get('sequence'));
+    //if (patternCanvas) {
+    //  ctx.drawImage(patternCanvas, 0, y);
+    //}
     return;
+
+
     const ctx = this.canvas.getContext('2d');
 
     const h = $(this.target).find('.patterndata').height();
@@ -612,8 +642,8 @@ export default class PatternEditorPixi {
     ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
     ctx.globalCompositeOperation = 'source-over';
-    const y = Math.round((this.canvas.height / 2) - (this.patternRowHeight / 2) - (this.patternRowHeight * (state.cursor.get('row'))));
-    const patternCanvas = this.getPatternCanvasForSequence(state.cursor.get('sequence'));
+    //const y = Math.round((this.canvas.height / 2) - (this.patternRowHeight / 2) - (this.patternRowHeight * (state.cursor.get('row'))));
+    //const patternCanvas = this.getPatternCanvasForSequence(state.cursor.get('sequence'));
     if (patternCanvas) {
       ctx.drawImage(patternCanvas, 0, y);
     }
