@@ -17,12 +17,18 @@ of music trackers, such as [SoundTracker](http://www.soundtracker.org),
 <div style="display:flex;">
     <div style="margin: 3px;">
       <a title="Main screenshot" href="{{site.baseurl}}/images/screenshot.png">
-        <img alt="Main screenshot" src="{{site.baseurl}}/images/screenshot.png" style="width: 100%; height: 100%; object-fit: contain;"/>
+        <figure style="width: 200px;">
+          <img alt="Main screenshot" src="{{site.baseurl}}/images/screenshot.png" style="width: 100%; height: 100%; object-fit: contain;"/>
+          <figcaption>Fig1. - The Song Tab</figcaption>
+        </figure>
       </a>
     </div>
     <div style="margin: 3px;">
       <a title="Instrument screenshot" href="{{site.baseurl}}/images/screenshot2.png">
-        <img alt="Instrument screenshot" src="{{site.baseurl}}/images/screenshot2.png" style="width: 100%; height: 100%; object-fit: contain;"/>
+        <figure style="width: 200px;">
+          <img alt="Instrument screenshot" src="{{site.baseurl}}/images/screenshot2.png" style="width: 100%; height: 100%; object-fit: contain;"/>
+          <figcaption>Fig2. - The Instrument Tab</figcaption>
+        </figure>
       </a>
     </div>
 </div>
@@ -49,7 +55,7 @@ The current development status is being deployed to a test server on Heroku.
 I'll update this periodically as new worthwhile functionality becomes
 available.
 
-[WeTracker Demo](https://app.wetracker.xyz/)
+[WeTracker Demo](http://app.wetracker.xyz/)
 
 Try loading some songs from 
 [Modland.com](http://modland.com/pub/modules/Fasttracker%202/) to test it out,
