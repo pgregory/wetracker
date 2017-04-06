@@ -67,12 +67,21 @@
   flex: 0 0 0;
 }
 
-.hscroll .track-headers {
-  position: absolute;
+.track-headers {
+  display: flex;
+  flex-direction: row;
+}
+
+.track-headers-container {
   display: flex;
   flex-direction: column;
   margin-top: 5px;
   overflow: hidden;
+}
+
+.track-headers-spacer {
+  width: 30px;
+  flex: 0 0 30px;
 }
 
 .track-names {

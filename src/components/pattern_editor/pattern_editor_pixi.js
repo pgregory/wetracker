@@ -182,6 +182,18 @@ export default class PatternEditorPixi {
     this.renderer = PIXI.autoDetectRenderer($(this.target).width(), $(this.target).height());
     this.stage = new PIXI.Container();
     this.patternContainer = new PIXI.Container();
+    this.patternMask = new PIXI.Graphics();
+    //this.stage.addChild(this.patternMask);
+    this.patternMask.beginFill(0x8bc5ff, 0.4);
+    this.patternMask.moveTo(30, 0);
+    this.patternMask.lineTo(this.renderer.view.width-30, 0);
+    this.patternMask.lineTo(this.renderer.view.width-30, this.renderer.view.height);
+    this.patternMask.lineTo(30, this.renderer.view.height);
+    this.patternMask.endFill();
+    this.patternContainer.mask = this.patternMask;
+    this.trackContainer = new PIXI.Container();
+    this.patternContainer.addChild(this.trackContainer);
+    this.patternContainer.x = 30; 
     this.stage.addChild(this.patternContainer);
 
     this.testTexture = null;
@@ -212,8 +224,6 @@ export default class PatternEditorPixi {
       this.renderer.render(emptyNoteSprite, this.emptyEventTexture);
 
       this.emptyEventSprite = new PIXI.Sprite(this.emptyEventTexture);
-      this.stage.addChild(this.emptyEventSprite);
-      this.renderer.render(this.stage);
     });
 
     MouseTrap.bind('mod+c', (e) => {
@@ -320,11 +330,6 @@ export default class PatternEditorPixi {
       ctx.drawImage(this.fontimg, 8 * (j >> 4), 0, 8, 8, offset, dy, 8, 8); // eslint-disable-line no-bitwise
       ctx.drawImage(this.fontimg, 8 * (j & 15), 0, 8, 8, offset + 8, dy, 8, 8); // eslint-disable-line no-bitwise
     }
-
-    //this.testTexture = PIXI.Texture.fromCanvas(this.emptyPatternCanvas);
-    //this.testSprite = new PIXI.Sprite(this.testTexture);
-    //this.stage.addChild(this.testSprite);
-    //this.renderer.render(this.stage);
 
     this.fontloaded = true;
     while (this.onFontLoaded.length > 0) {
@@ -694,13 +699,14 @@ export default class PatternEditorPixi {
   }
 
   redrawCanvas() {
-    const y = Math.round((this.renderer.height / 2) - (this.patternRowHeight / 2) - (this.patternRowHeight * (state.cursor.get('row'))));
+    //const y = Math.round((this.renderer.height / 2) - (this.patternRowHeight / 2) - (this.patternRowHeight * (state.cursor.get('row'))));
+    const y = 0;
     let x = 0;
     const patternSprites = this.getPatternSpritesForSequence(state.cursor.get('sequence'));
-    this.patternContainer.removeChildren();
+    this.trackContainer.removeChildren();
     if(patternSprites) {
       for (let t = 0; t < patternSprites.length; t += 1) {
-        this.patternContainer.addChild(patternSprites[t]);
+        this.trackContainer.addChild(patternSprites[t]);
         patternSprites[t].x = x;
         patternSprites[t].y = y;
         x += patternSprites[t].width;
@@ -712,7 +718,7 @@ export default class PatternEditorPixi {
     for (let i = 0; i <= numtracks; i += 1) {
       const trackWidth = song.getTrackNumColumns(i) * this.patternCellWidth;
       // Resize the header div to match
-      $(this.target).find(`.track-name[data-trackindex='${i}']`).width(trackWidth);
+      $(this.target).find(`.track-name[data-trackindex='${i}']`).outerWidth(trackWidth);
       $(this.target).find(`.track-control[data-trackindex='${i}']`).outerWidth(trackWidth);
       dx += trackWidth;
     }
@@ -991,11 +997,10 @@ export default class PatternEditorPixi {
         this.yoff -= (rowIncr * this.patternRowHeight);
       }
     } else {
-      let th = $(this.target).find('.track-headers');
+      let th = $(this.target).find('.track-headers-container');
       th.scrollLeft(th.scrollLeft() + e.originalEvent.deltaX);
-      this.patternContainer.x = -th.scrollLeft();
-      //this.patterndata.scrollLeft(this.patterndata.scrollLeft() + e.originalEvent.deltaX);
-      this.redrawCanvas();
+      this.trackContainer.x = -th.scrollLeft();
+      this.renderer.render(this.stage);
     }
     e.preventDefault();
   }
@@ -1096,7 +1101,10 @@ export default class PatternEditorPixi {
       if (this.lastCursor.get('pattern') !== state.cursor.get('pattern')) {
         $(this.target).find('#length').val(song.getPatternRowCount(state.cursor.get('pattern')));
       }
-      window.requestAnimationFrame(() => this.redrawCanvas());
+      //window.requestAnimationFrame(() => this.redrawCanvas());
+      const y = Math.round((this.renderer.height / 2) - (this.patternRowHeight / 2) - (this.patternRowHeight * (state.cursor.get('row'))));
+      this.stage.y = y;
+      this.renderer.render(this.stage);
       this.lastCursor = state.cursor;
     }
   }
@@ -1122,7 +1130,7 @@ export default class PatternEditorPixi {
     this.renderEvent(ctx, event, pos.cx + this.eventLeftMargin, pos.cy + ((this.patternRowHeight - 8) / 2));
     this.renderEventBeat(ctx, cursor, pos.cx, pos.cy);
     this.patternSprites[cursor.pattern][cursor.track].texture.update();
-    this.redrawCanvas();
+    this.renderer.render(this.stage);
   }
 
   onPatternChanged() {
