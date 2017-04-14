@@ -48,10 +48,16 @@ export default class Transport {
     connect(state, 'transportChanged', this, 'onTransportChanged');
     connect(song, 'songChanged', this, 'onSongChanged');
     connect(state, 'cursorChanged', this, 'onCursorChanged');
+    connect(state, 'userChanged', this, 'onUserChanged');
   }
 
   render() {
-    $(this.target).append(transportTemplate.renderToString({ transport: state.transport.toJS(), songname: song.getSongName() }));
+    console.log(state.user.toJS());
+    $(this.target).append(transportTemplate.renderToString({
+      transport: state.transport.toJS(),
+      songname: song.getSongName(),
+      user: state.user.toJS(),
+    }));
 
     $(this.target).find('#master-volume').slider({
       max: 3.0,
@@ -166,10 +172,10 @@ export default class Transport {
       }
     });
 
-    $(this.target).find('#login').click(() => {
+    $(this.target).find('#login_button').click(() => {
       gapi.auth2.getAuthInstance().signIn();
     });
-    $(this.target).find('#logout').click(() => {
+    $(this.target).find('#logout_button').click(() => {
       gapi.auth2.getAuthInstance().signOut();
     });
 
@@ -252,5 +258,9 @@ export default class Transport {
       $('#record-progress').val(sequence);
       $('#record-seq').text(`${sequence}/${song.getSequenceLength()}`);
     }
+  }
+
+  onUserChanged() {
+    this.refresh();
   }
 }

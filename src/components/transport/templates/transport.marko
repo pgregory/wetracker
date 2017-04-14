@@ -1,14 +1,16 @@
 <div class="transport">
-  <div class="item"><button id="new" class="fa fa-file-text-o"></button></div>
-  <div class="item"><button id="save" class="fa fa-floppy-o"></button></div>
-  <div class="item"><button id="load" class="fa fa-file-o"></button></div>
-  <div class="item"><button id="load-from-google-drive"></button></div>
-  <div class="item"><button id="play" class="fa fa-play"></button></div>
-  <div class="item"><button id="play-pattern" class="fa fa-play-circle"></button></div>
-  <div class="item"><button id="pause" class="fa fa-pause"></button></div>
-  <div class="item"><button id="stop" class="fa fa-stop"></button></div>
-  <div class="item"><button id="reset" class="fa fa-step-backward"></button></div>
-  <div class="item"><button id="record" class="fa fa-file-audio-o"></button></div>
+  <div class="tools">
+    <div class="item"><button id="new" class="fa fa-file-text-o"></button></div>
+    <div class="item"><button id="save" class="fa fa-floppy-o"></button></div>
+    <div class="item"><button id="load" class="fa fa-file-o"></button></div>
+    <div if(data.user.loggedIn) class="item"><button id="load-from-google-drive"></button></div>
+    <div class="item"><button id="play" class="fa fa-play"></button></div>
+    <div class="item"><button id="play-pattern" class="fa fa-play-circle"></button></div>
+    <div class="item"><button id="pause" class="fa fa-pause"></button></div>
+    <div class="item"><button id="stop" class="fa fa-stop"></button></div>
+    <div class="item"><button id="reset" class="fa fa-step-backward"></button></div>
+    <div class="item"><button id="record" class="fa fa-file-audio-o"></button></div>
+  </div>
   <div class="item">
     <div class="control range">
       <label for="octave">
@@ -63,7 +65,12 @@
       />
     </div>
   </div>
-  <div class="item"><button id="login">Login</button></div>
-  <div class="item"><button id="logout">Logout</button></div>
+  <div if(data.user.loggedIn) id="logout">
+    <div class="username">${data.user.givenName}</div>
+    <div class="item"><button id="logout_button">Logout</button></div>
+  </div>
+  <div else id="login">
+    <div class="item"><button id="login_button">Login</button></div>
+  </div>
 </div>
 

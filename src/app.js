@@ -1,3 +1,4 @@
+/* global gapi:false */
 import 'babel-polyfill';
 import $ from 'jquery';
 import 'gridstack';
@@ -139,4 +140,46 @@ $(document).ready(() => {
 
   router.init();
 });
+
+export function gapiLoaded() {
+  gapi.client.init({
+    apiKey: 'AIzaSyALbx4_dafCGda6bZZ3SGt99yAeL58KJ-8',
+    discoveryDocs: [
+      'https://people.googleapis.com/$discovery/rest?version=v1',
+      'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
+    clientId: '1059727763451-nh45bf0nv6hka9uknmjpudg17rs6fdu1.apps.googleusercontent.com',
+    scope: 'profile https://www.googleapis.com/auth/drive',
+  }).then(() => {
+    gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+    updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+  });
+}
+
+function updateSigninStatus(isSignedIn) {
+  console.log(isSignedIn);
+  if (isSignedIn) {
+    gapi.client.people.people.get({
+      resourceName: 'people/me',
+    }).then((response) => {
+      console.log(`Hello ${response.result.names[0].givenName}`);
+      state.set({
+        user: {
+          loggedIn: true,
+          givenName: response.result.names[0].givenName,
+        },
+      });
+    }, (reason) => {
+      console.log(`Error: ${reason.result.error.message}`);
+    });
+  } else {
+    state.set({
+      user: {
+        loggedIn: false,
+        givenName: '',
+      },
+    });
+  }
+}
+
+window.gapiLoaded = gapiLoaded;
 

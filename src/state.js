@@ -47,10 +47,16 @@ export class State {
     this.historyGrouping = false;
     this.historyGroupAnnotation = '';
 
+    this.user = new Immutable.Map({
+      loggedIn: false,
+      givenName: '',
+    });
+
     this.cursorChanged = signal(true);
     this.transportChanged = signal(true);
     this.playingInstrumentsChanged = signal(true);
     this.songChanged = signal(true);
+    this.userChanged = signal(true);
   }
 
   recordCurrentState(annotation) {
@@ -93,6 +99,11 @@ export class State {
 
     if ('song' in state) {
       this.song = this.song.merge(state.song);
+    }
+
+    if ('user' in state) {
+      this.user = this.user.merge(state.user);
+      this.userChanged();
     }
   }
 

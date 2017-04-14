@@ -12,6 +12,11 @@
   flex-direction: row;
   background: #333;
   padding: 2px 0;
+  justify-content: space-between;
+}
+
+.transport .tools {
+  display: flex;
 }
 
 .transport .item {
@@ -77,4 +82,14 @@ input#songname {
   background-size: 20px 20px;
   width: 22px;
   height: 22px;
+}
+
+#logout,
+#login {
+  display: flex;
+  align-self: right;
+}
+
+.username {
+  color: #888;
 }
