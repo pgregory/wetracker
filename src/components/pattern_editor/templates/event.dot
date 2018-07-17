@@ -1,0 +1,68 @@
+{{ 
+  var toHex = function(v,s) {
+    return ("0000" + v.toString(16).toUpperCase()).substr(-s);
+  };
+  var note_names = [
+    "C-", "C#", "D-", "D#", "E-", "F-",
+    "F#", "G-", "G#", "A-", "A#", "B-"
+  ];
+  var toNote = function(n) {
+    if (n < 0) return "---";
+    if (n == 96) return "^^^";
+    return note_names[n%12] + ~~(n/12);
+  }; 
+}}
+<div class="note-column" data-columnid="c1">
+{{? it }}
+  {{ var displayNote = it.note ? ( it.note.length === 2 ? it.note.slice(0,1) + '-' + it.note.slice(1) : it.note ) : '---'; }}
+  <div class="item note">
+    {{? "note" in it }}
+      {{=toNote(it.note)}}
+    {{??}}
+      ---
+    {{?}}
+  </div>
+  <div class="item instrument">
+    {{? "instrument" in it && it.instrument >= 0 }}
+      {{=toHex(it.instrument,2)}}
+    {{??}}
+      --
+    {{?}}
+  </div>
+  <div class="item volume">
+    {{? "volume" in it && it.volume >= 0 }}
+      {{=toHex(it.volume,2)}}
+    {{??}}
+      --
+    {{?}}
+  </div>
+  <div class="item panning">
+    {{? "panning" in it && it.panning >= 0 }}
+      {{=toHex(it.panning,2)}}
+    {{??}}
+      --
+    {{?}}
+  </div>
+  <div class="item delay">
+    {{? "delay" in it && it.delay >= 0 }}
+      {{=toHex(it.delay,2)}}
+    {{??}}
+      --
+    {{?}}
+  </div>
+  <div class="item fx">
+    {{? it.fxtype }}
+      {{=toHex(it.fxtype || 0,2) + toHex(it.fxparam || 0, 2)}}
+    {{??}}
+      ----
+    {{?}}
+  </div>
+{{?? }}
+  <div class="item note">---</div>
+  <div class="item instrument">--</div>
+  <div class="item volume">--</div>
+  <div class="item panning">--</div>
+  <div class="item delay">--</div>
+  <div class="item fx">----</div>
+{{? }}
+</div>
