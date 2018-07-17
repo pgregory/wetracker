@@ -468,23 +468,30 @@ export class SongManager {
       xmReq.open('GET', uri, true);
       xmReq.responseType = 'arraybuffer';
       xmReq.onload = () => {
-        const arrayBuffer = xmReq.response;
-        if (arrayBuffer) {
-          // Remove anchor
-          let filename = uri.substring(0, (uri.indexOf('#') === -1) ? uri.length : uri.indexOf('#'));
-          // Remove query
-          filename = filename.substring(0, (filename.indexOf('?') === -1) ? filename.length : filename.indexOf('?'));
-          // Remove everything prior to final name
-          filename = filename.substring(filename.lastIndexOf('/') + 1, filename.length);
-          const newSong = this.loadSongFromArrayBuffer(arrayBuffer, filename);
-          if (newSong) {
-            song.setSong(newSong);
-            resolve();
+        if (xmReq.status === 200 || xmReq.status === 304) {
+          const arrayBuffer = xmReq.response;
+          if (arrayBuffer) {
+            // Remove anchor
+            let filename = uri.substring(0, (uri.indexOf('#') === -1) ? uri.length : uri.indexOf('#'));
+            // Remove query
+            filename = filename.substring(0, (filename.indexOf('?') === -1) ? filename.length : filename.indexOf('?'));
+            // Remove everything prior to final name
+            filename = filename.substring(filename.lastIndexOf('/') + 1, filename.length);
+            const newSong = this.loadSongFromArrayBuffer(arrayBuffer, filename);
+            if (newSong) {
+              song.setSong(newSong);
+              resolve();
+            }
+          } else {
+            console.log('Unable to load', uri);
+            reject('Cannot load song file');
           }
         } else {
-          console.log('Unable to load', uri);
-          reject();
+          reject(xmReq.statusText);
         }
+      };
+      xmReq.onerror = () => {
+        reject(`Network error fetching file: ${uri}`);
       };
       xmReq.send(null);
     });

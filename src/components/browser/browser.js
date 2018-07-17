@@ -3,7 +3,8 @@ import 'jquery-ui/core';
 import 'jquery-ui/effect';
 import 'jquery-ui/effects/effect-blind';
 
-import 'jquery.fancytree/dist/jquery.fancytree-all';
+import 'jquery.fancytree';
+import 'jquery.fancytree/dist/modules/jquery.fancytree.glyph';
 import '../../ui.fancytree.css';
 
 import { song } from '../../utils/songmanager';
@@ -83,6 +84,19 @@ export default class Browser {
             });
             song.downloadSong(songfileURL).then(() => {
               dialog.dialog('close');
+            }, (msg) => {
+              dialog.dialog('close');
+              $('#dialog').empty();
+              $('#dialog').append($(`<p>${msg}</p>`));
+              const errorDialog = $('#dialog').dialog({
+                width: 500,
+                modal: true,
+                buttons: {
+                  OK: () => {
+                    errorDialog.dialog('close');
+                  },
+                },
+              });
             });
           } catch (e) {
             console.log(e);
