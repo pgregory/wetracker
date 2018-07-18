@@ -3,7 +3,7 @@ import 'jquery-ui/core';
 import 'jquery-ui/effect';
 import 'jquery-ui/effects/effect-blind';
 
-import 'jquery.fancytree';
+import {createTree} from 'jquery.fancytree';
 import 'jquery.fancytree/dist/modules/jquery.fancytree.glyph';
 import '../../ui.fancytree.css';
 

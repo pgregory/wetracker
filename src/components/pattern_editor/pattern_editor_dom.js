@@ -1,10 +1,13 @@
 import $ from 'jquery';
 
+import styles_dom from './styles_dom.css';
 import styles from './styles.css';
 
 import { connect } from '../../utils/signal';
 import { state } from '../../state';
 import { song } from '../../utils/songmanager';
+import { player, MUTE, SILENT } from '../../audio/player';
+import Immutable from 'immutable';
 
 import patternEditorMarko from './templates/patterneditor_dom.marko';
 import eventTemplate from './templates/event.dot';
@@ -33,13 +36,39 @@ export default class PatternEditorDOM {
     this.patternRows = null;
     this.timelineRows = null;
 
+    this.target = target;
+
     connect(state, "cursorChanged", this, "onCursorChanged");
     connect(song, "eventChanged", this, "onEventChanged");
+    connect(state, 'transportChanged', this, 'onTransportChanged');
+    connect(song, 'songChanged', this, 'onSongChanged');
+    connect(song, 'patternChanged', this, 'onPatternChanged');
+    connect(song, 'sequenceChanged', this, 'onSequenceChanged');
+    connect(song, 'sequenceItemChanged', this, 'onSequenceItemChanged');
+    connect(state, 'songChanged', this, 'onSongStateChanged');
+    connect(player, 'trackStateChanged', this, 'onTrackStateChanged');
 
-    console.log(state.song);
+    window.requestAnimationFrame(this.updateCursor.bind(this));
+  }
+
+  refresh() {
+    $(this.target).empty();
+    this.render();
+  }
+
+  render() {
+    var pattern = state.song.getIn(['patterns', state.cursor.get('pattern')]);
+    var tracknames = song.getTrackNames();
+    var rows = state.song.getIn(['patterns', state.cursor.get('pattern'), 'rows']) || new Immutable.Map();
+
+    console.log(rows);
 
     try {
-      $(target).html(patternEditorMarko.renderToString({ song: state.song, cursor: state.cursor.toJS() }));
+      $(this.target).html(patternEditorMarko.renderToString({ 
+        pattern, 
+        tracknames, 
+        rows,
+        cursor: state.cursor.toJS() }));
     } catch(e) {
       console.log(e);
     }
@@ -105,13 +134,6 @@ export default class PatternEditorDOM {
     this.xscroll = $(".xscroll")[0];
 
     $('.sideTable').on('mousewheel', this.onScroll.bind(this));
-
-    this.target = target;
-
-    window.requestAnimationFrame(this.updateCursor.bind(this));
-  }
-
-  render(target) {
   }
 
   onScroll(e) {
@@ -159,8 +181,8 @@ export default class PatternEditorDOM {
     }
     var rowOffset = state.cursor.get("row") * 15.0;
 
-    this.timeline.scrollTop = rowOffset;
-    this.events.scrollTop = rowOffset;
+    //this.timeline.scrollTop = rowOffset;
+    //this.events.scrollTop = rowOffset;
 
     $('tr.pattern-cursor-row').removeClass('pattern-cursor-row');
     $('.event-cursor').removeClass('event-cursor');
@@ -174,7 +196,7 @@ export default class PatternEditorDOM {
     /* If the cursor has moved to a different track, column or item,
      * check if it's still visible and scroll into view if not.
      */
-    if ((this.lastCursor.item !== state.cursor.get("item")) ||
+    /*if ((this.lastCursor.item !== state.cursor.get("item")) ||
         (this.lastCursor.track !== state.cursor.get("track")) ||
         (this.lastCursor.column !== state.cursor.get("column"))) {
       const item = itemCursor[0].parentElement;
@@ -190,7 +212,7 @@ export default class PatternEditorDOM {
       } else if (offset < this.xscroll.scrollLeft) {
         this.scrollHorizTo(this.xscroll, offset - 6, 100);
       }
-    }
+    }*/
     this.lastCursor = state.cursor.toJS();
   }
 
@@ -198,9 +220,61 @@ export default class PatternEditorDOM {
     window.requestAnimationFrame(this.updateCursor.bind(this));
   }
 
+  onTransportChanged() {
+    /*if (this.lastTransport !== state.transport) {
+      $(this.target).find('#step').val(state.transport.get('step'));
+
+      this.lastTransport = state.transport;
+    }*/
+  }
+
+  onTrackStateChanged() {
+    //this.redrawCanvas();
+  }
+
+  onEventChanged(cursor, event) {
+    /*const pos = this.eventPositionInPatternCanvas(cursor);
+    const patternCanvas = this.getPatternCanvasForSequence(state.cursor.get('sequence'));
+    const ctx = patternCanvas.getContext('2d');
+    this.clearEvent(ctx, pos.cx, pos.cy);
+    this.renderEvent(ctx, event, pos.cx + this.eventLeftMargin, pos.cy + ((this.patternRowHeight - 8) / 2));
+    this.renderEventBeat(ctx, cursor, pos.cx, pos.cy);
+    this.redrawCanvas();*/
+  }
+
+  onPatternChanged() {
+    //this.renderSinglePattern(state.cursor.get('pattern'));
+    //this.redrawCanvas();
+    this.refresh();
+  }
+
+  onSequenceChanged() {
+    //this.renderAllPatterns();
+    this.refresh();
+  }
+
+  onSequenceItemChanged(sequence) {
+    //const patternIndex = song.getSequencePatternNumber(sequence);
+    //this.patternCanvases[patternIndex] = this.renderPattern(patternIndex);
+    this.refresh();
+  }
+
+  onSongChanged() {
+    //this.lastCursor = new Immutable.Map();
+    //this.renderEmptyPatternCache();
+    //this.renderAllPatterns();
+    this.refresh();
+  }
+
+  onSongStateChanged() {
+    //this.renderEmptyPatternCache();
+    //this.renderAllPatterns();
+    this.refresh();
+  }
+
   redrawAllRows() {
     const curr_pattern_id = state.cursor.get('pattern');
-    const curr_pattern = song.song.patterns[curr_pattern_id];
+    const curr_pattern = state.song.getIn('patterns', curr_pattern_id);
 
     for(var rowi = 0, rowe = this.row_cache.length; rowi < rowe; rowi += 1) {
       const display_row = this.row_cache[rowi];

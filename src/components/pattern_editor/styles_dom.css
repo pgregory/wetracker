@@ -1,0 +1,182 @@
+/*.trackview {
+  background: #000;
+}*/
+
+/*.track-header, .timeline-header {
+  box-sizing: border-box;
+  background: #222;
+  border-bottom: 1px solid gray;
+}*/
+
+/*#timeline-header {
+  background: #222;
+  border-right: 1px solid gray;
+}*/
+
+/*.track-header span {
+  width: 100%;
+  text-align: center;
+}*/
+
+/*.track-controls {
+  display: flex;
+  flex-direction: row;
+  padding: 3px;
+}*/
+
+.row .tick, .ghost-row .tick {
+  color: #999;
+  font-family: monospace;
+  width: 40px;
+  line-height: 1;
+}
+
+.pattern-cursor-row .tick {
+  color: #FFF;
+}
+
+.beat-row, .ghost-beat-row {
+  background: #333;
+}
+
+.pattern-cursor-row {
+  background: rgb(10, 50, 10);
+}
+
+.pattern-play-cursor-row {
+  background: rgb(10, 80, 80);
+}
+
+.note-column {
+  display: flex;
+}
+
+.line, .ghost-line {
+  font-family: monospace;
+  line-height: 1;
+  display: flex;
+}
+
+.line .item,
+.ghost-line .item {
+  margin-right: 2px;
+  display: inline-block;
+}
+
+.line .note {
+  color: #669;
+  width: 25px;
+  margin-left: 5px;
+}
+
+.pattern-cursor-row .line .note {
+  color: #CCF;
+}
+
+.pattern-cursor-row .line .note.event-cursor {
+  color: #113;
+}
+
+.line .instrument {
+  color: #966;
+  width: 18px;
+}
+
+.pattern-cursor-row .line .instrument {
+  color: #FCC;
+}
+
+.pattern-cursor-row .line .instrument.event-cursor {
+  color: #311;
+}
+
+.line .volume, .ghost-line .volume {
+  color: #666;
+  width: 18px;
+}
+
+.pattern-cursor-row .line .volume {
+  color: #CCC;
+}
+
+.pattern-cursor-row .line .volume.event-cursor {
+  color: #111;
+}
+
+.line .panning, .ghost-line .panning {
+  color: #969;
+  width: 18px;
+}
+
+.pattern-cursor-row .line .panning {
+  color: #FCF;
+}
+
+.pattern-cursor-row .line .panning.event-cursor {
+  color: #313;
+}
+
+.line .delay {
+  color: #996;
+  width: 18px;
+}
+
+.pattern-cursor-row .line .delay {
+  color: #FFC;
+}
+
+.pattern-cursor-row .line .delay.event-cursor {
+  color: #331;
+}
+
+.line .fx {
+  color: #888;
+  width: 36px;
+}
+
+.pattern-cursor-row .line .fx {
+  color: #FFF;
+  box-sizing: border-box;
+}
+
+.pattern-cursor-row .line .fx.event-cursor {
+  color: #333;
+}
+
+.ghost-line .item {
+  color: #444;
+}
+
+
+/*.xscroll .leftSideTable,
+.xscroll .sideTable {
+  width: 930px;
+  overflow: auto;
+}*/
+
+/*.xscroll {
+  overflow: auto;
+  float: left;
+}*/
+
+#timeline {
+  overflow: hidden;
+}
+
+.track-color {
+  width: 90%;
+  margin-left: 5%;
+  height: 8px;
+  border-radius: 2px;
+}
+
+.event-cursor {
+  background: rgb(0, 150, 0);
+}
+
+.chrome {
+  border: 4px solid dimgray;
+  padding: 5px;
+  border-radius: 2px;
+}
+
