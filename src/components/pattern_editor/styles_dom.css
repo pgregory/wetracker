@@ -1,28 +1,45 @@
-/*.trackview {
-  background: #000;
-}*/
-
-/*.track-header, .timeline-header {
-  box-sizing: border-box;
-  background: #222;
-  border-bottom: 1px solid gray;
-}*/
-
-/*#timeline-header {
-  background: #222;
-  border-right: 1px solid gray;
-}*/
-
-/*.track-header span {
-  width: 100%;
-  text-align: center;
-}*/
-
-/*.track-controls {
+.trackview {
   display: flex;
   flex-direction: row;
-  padding: 3px;
-}*/
+}
+
+.track {
+  min-width: 150px;
+}
+
+.track-name {
+  color: white;
+  flex: 1 1 auto;
+  text-align: center;
+  font-family: monospace;
+}
+
+.track-control {
+  color: white;
+  flex: 1 1 auto;
+  text-align: center;
+  font-family: monospace;
+  display: flex;
+  padding: 3px 3px;
+}
+
+.track-control .panel {
+  flex: 1;
+  background: #444;
+  border-radius: 3px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 5px 2px;
+  min-width: 150px;
+}
+
+.track-control .panel button {
+  font-size: 0.5em;
+  height: 14px;
+  width: 14px;
+  margin: 0 3px;
+}
 
 .row .tick, .ghost-row .tick {
   color: #999;

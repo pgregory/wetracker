@@ -31,16 +31,13 @@
       </div>
     </div>
     <div class="sideTable">
-      <div id="trackview">
-        <!--
-        <for(i from 0 to data.tracknames.length - 1)>
-          <td><div class="topPadding"></div></td>
-        </for>
-        -->
-        <for(row from 0 to data.rows.size - 1)>
-          <tr class={row: true, 'beat-row': row % 4 == 0}>
-            <for(track in data.tracknames)>
-              <td class="trackrow">
+      <div class="trackview">
+        <div class="rows">
+          <for(track in data.tracknames | status-var=loop)>
+          <div class="track">
+            <for(row from 0 to 63)>
+            <div class={row: true, 'beat-row': row % 4 == 0}>
+              <div class="trackrow">
                 <div class="line">
                   <!--
                   <for(notecol in track.columns)>
@@ -54,13 +51,12 @@
                   -->
                   <event({})/>
                 </div>
-              </td>
+              </div>
+            </div>
             </for>
-          </tr>
-        </for>
-        <for(i from 0 to data.tracknames.length - 1)>
-          <td><div class="topPadding"></div></td>
-        </for>
+          </div>
+          </for>
+        </div>
       </div>
     </div>
   </div>
