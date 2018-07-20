@@ -133,7 +133,7 @@ export default class PatternEditorDOM {
     this.timeline = $("#timeline")[0];
     this.xscroll = $(".xscroll")[0];
 
-    $('.sideTable').on('mousewheel', this.onScroll.bind(this));
+    //$('.sideTable').on('mousewheel', this.onScroll.bind(this));
   }
 
   onScroll(e) {

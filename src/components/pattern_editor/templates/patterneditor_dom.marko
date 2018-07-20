@@ -13,7 +13,7 @@
 </macro>
 <div class="pattern-editor">
   <div class="xscroll">
-    <div id="trackheader" class="leftSideTable">
+    <div class="trackheader">
       <div class="track-headers">
         <div class="track-names">
           <div class="track-name" data-trackindex="${loop.getIndex()}" for(i in data.tracknames | status-var=loop)>
@@ -30,33 +30,31 @@
         </div> 
       </div>
     </div>
-    <div class="sideTable">
-      <div class="trackview">
-        <div class="rows">
-          <for(track in data.tracknames | status-var=loop)>
-          <div class="track">
-            <for(row from 0 to 63)>
-            <div class={row: true, 'beat-row': row % 4 == 0}>
-              <div class="trackrow">
-                <div class="line">
-                  <!--
-                  <for(notecol in track.columns)>
-                    <event(data.song.patterns[data.cursor.pattern].rows[row][track.id].notedata[notecol.id])
-                      if(data.song.patterns[data.cursor.pattern].rows.length > row &&
-                         track.id in data.song.patterns[data.cursor.pattern].rows[row] && 
-                         "notedata" in data.song.patterns[data.cursor.pattern].rows[row][track.id] &&
-                         notecol.id in data.song.patterns[data.cursor.pattern].rows[row][track.id].notedata)/>
-                    <event({}) else/>
-                  </for>
-                  -->
-                  <event({})/>
-                </div>
+    <div class="trackview">
+      <div class="rows">
+        <for(track in data.tracknames | status-var=loop)>
+        <div class="track">
+          <for(row from 0 to 63)>
+          <div class={row: true, 'beat-row': row % 4 == 0}>
+            <div class="trackrow">
+              <div class="line">
+                <!--
+                <for(notecol in track.columns)>
+                  <event(data.song.patterns[data.cursor.pattern].rows[row][track.id].notedata[notecol.id])
+                    if(data.song.patterns[data.cursor.pattern].rows.length > row &&
+                       track.id in data.song.patterns[data.cursor.pattern].rows[row] && 
+                       "notedata" in data.song.patterns[data.cursor.pattern].rows[row][track.id] &&
+                       notecol.id in data.song.patterns[data.cursor.pattern].rows[row][track.id].notedata)/>
+                  <event({}) else/>
+                </for>
+                -->
+                <event({})/>
               </div>
             </div>
-            </for>
           </div>
           </for>
         </div>
+        </for>
       </div>
     </div>
   </div>
