@@ -1,7 +1,14 @@
+.pattern-editor {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
 .xscroll {
   height: 100%;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .trackheader {
