@@ -468,7 +468,9 @@ export class SongManager {
       xmReq.open('GET', uri, true);
       xmReq.responseType = 'arraybuffer';
       xmReq.onload = () => {
+        console.log(`xmReq.onload: ${xmReq.status}`);
         if (xmReq.status === 200 || xmReq.status === 304) {
+          console
           const arrayBuffer = xmReq.response;
           if (arrayBuffer) {
             // Remove anchor
