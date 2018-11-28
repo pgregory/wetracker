@@ -491,7 +491,7 @@ export class SongManager {
         }
       };
       xmReq.onerror = (e) => {
-        reject(`Network error fetching file: ${uri} ${e}`);
+        reject(`Network error fetching file: ${uri} ${xmReq.statusText}`);
       };
       xmReq.send(null);
     });
