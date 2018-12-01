@@ -1,8 +1,8 @@
 import $ from 'jquery';
 import 'jquery-ui/widgets/slider';
 
-import { state } from '../../../state';
-import { signal } from '../../../utils/signal';
+import { state } from '../../state';
+import { signal } from '../../utils/signal';
 
 export class EffectUIBase {
   constructor(target, effect, location) {
@@ -44,11 +44,4 @@ export class EffectUIBase {
       this.effectChanged(this.location, this.effect);
     }).prop('checked', !this.effect.bypass);
   }
-}
-
-export class EffectParameterObjectBase {
-}
-
-
-export class EffectNodeBase {
 }

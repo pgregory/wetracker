@@ -1,6 +1,6 @@
 /* global MediaRecorder:false */
 // eslint-disable-next-line import/no-webpack-loader-syntax
-import TimerWorker from 'shared-worker!./timerworker';
+import TimerWorker from 'shared-worker-loader!./timerworker.js';
 import Tuna from 'tunajs';
 
 import { signal, connect } from '../utils/signal';
@@ -11,15 +11,15 @@ import Envelope from './envelope';
 
 import AudioMeter from './vumeter';
 
-import * as chorus from '../components/effects_editor/effects/chorus';
-import * as delay from '../components/effects_editor/effects/delay';
-import * as phaser from '../components/effects_editor/effects/phaser';
-import * as overdrive from '../components/effects_editor/effects/overdrive';
-import * as compressor from '../components/effects_editor/effects/compressor';
-import * as filter from '../components/effects_editor/effects/filter';
-import * as tremolo from '../components/effects_editor/effects/tremolo';
-import * as wahwah from '../components/effects_editor/effects/wahwah';
-import * as bitcrusher from '../components/effects_editor/effects/bitcrusher';
+import * as chorus from './effects/chorus';
+import * as delay from './effects/delay';
+import * as phaser from './effects/phaser';
+import * as overdrive from './effects/overdrive';
+import * as compressor from './effects/compressor';
+import * as filter from './effects/filter';
+import * as tremolo from './effects/tremolo';
+import * as wahwah from './effects/wahwah';
+import * as bitcrusher from './effects/bitcrusher';
 
 const effectNodeConstructors = {
   chorus,
@@ -171,11 +171,19 @@ class XMViewObject {
 
         states.push(ch.getState());
       }
+
+      this.player.updateMasterAnalyserScopeData();
+      const masterScope = {
+        scopeData: this.player.masterAnalyserScopeData,
+        bufferLength: this.player.masterAnalyserBufferLength,
+      };
+
       this.player.tracksChanged({
         t: e.t,
         vu: e.vu,
         scopes,
         states,
+        masterScope,
       });
 
       const positions = [];
@@ -698,6 +706,13 @@ class Player {
     this.vuMeter = new AudioMeter(this.audioctx);
     this.masterGain.connect(this.vuMeter.processor);
     this.masterGain.connect(this.audioctx.destination);
+
+    this.masterAnalyser = this.audioctx.createAnalyser();
+
+    this.masterAnalyser.fftSize = 256;
+    this.masterAnalyserBufferLength = this.masterAnalyser.frequencyBinCount;
+    this.masterAnalyserScopeData = new Uint8Array(this.masterAnalyserBufferLength);
+    this.masterGain.connect(this.masterAnalyser)
 
     connect(this.vuMeter, 'vuChanged', this, 'onVuChanged');
 
@@ -1526,6 +1541,9 @@ class Player {
     reader.readAsArrayBuffer(file);
   }
 
+  updateMasterAnalyserScopeData() {
+    this.masterAnalyser.getByteTimeDomainData(this.masterAnalyserScopeData);
+  }
 
   /* eslint-disable camelcase, no-param-reassign, no-bitwise */
   eff_t1_0(ch) {  // arpeggio

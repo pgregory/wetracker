@@ -1,12 +1,9 @@
 import $ from 'jquery';
 import 'jquery-ui/widgets/slider';
 
-import { EffectUIBase, EffectNodeBase } from './base';
+import { EffectUIBase } from './base';
 
 import template from './templates/filter.marko';
-
-export const NAME = 'Filter';
-export const TYPE = 'filter';
 
 class FilterEffectUI extends EffectUIBase {
   render() {
@@ -23,40 +20,4 @@ class FilterEffectUI extends EffectUIBase {
   }
 }
 
-function filterEffectParameterObject() {
-  return {
-    type: TYPE,
-    bypass: false,
-    parameters: {
-      frequency: 440,
-      Q: 1,
-      gain: 0,
-      filterType: 'lowpass',
-    },
-  };
-}
-
-
-class FilterEffectNode extends EffectNodeBase {
-  constructor(tuna, po) {
-    super(tuna, po);
-
-    this.fx = new tuna.Filter({
-      frequency: po.parameters.frequency,
-      Q: po.parameters.Q,
-      gain: po.parameters.gain,
-      filterType: po.parameters.filterType,
-      bypass: po.bypass,
-    });
-  }
-
-  updateFromParameterObject(po) {
-    this.fx.bypass = po.bypass;
-    this.fx.frequency = po.parameters.frequency;
-    this.fx.Q = po.parameters.Q;
-    this.fx.gain = po.parameters.gain;
-    this.fx.filterType = po.parameters.filterType;
-  }
-}
-
-export { FilterEffectUI as UI, FilterEffectNode as Node, filterEffectParameterObject as parameterObject };
+export { FilterEffectUI as UI };
