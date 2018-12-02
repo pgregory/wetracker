@@ -1,6 +1,6 @@
 /* global MediaRecorder:false */
 // eslint-disable-next-line import/no-webpack-loader-syntax
-import TimerWorker from 'shared-worker-loader!./timerworker.js';
+// import TimerWorker from 'shared-worker-loader!./timerworker.js';
 import Tuna from 'tunajs';
 
 import { signal, connect } from '../utils/signal';
@@ -726,12 +726,12 @@ class Player {
 
     this.XMView = new XMViewObject(this);
 
-    this.timerWorker = new TimerWorker();
+    this.timerWorker = new SharedWorker('static/timerworker.js');
     this.timerWorker.port.postMessage({ interval: this.lookahead });
     this.timerWorker.port.onmessage = this.onTimerMessage.bind(this);
     this.timerWorker.port.start();
 
-    this.interactiveTimerWorker = new TimerWorker();
+    this.interactiveTimerWorker = new SharedWorker('static/timerworker.js');
     this.interactiveTimerWorker.port.postMessage({ interval: this.interactiveLookahead });
     this.interactiveTimerWorker.port.onmessage = this.onInteractiveTimerMessage.bind(this);
     this.interactiveTimerWorker.port.start();
