@@ -726,7 +726,7 @@ class Player {
 
     this.XMView = new XMViewObject(this);
 
-    this.timerWorker = new SharedWorker('static/timerworker.js');
+    this.timerWorker = new SharedWorker('/static/timerworker.js');
     this.timerWorker.port.postMessage({ interval: this.lookahead });
     this.timerWorker.port.onmessage = this.onTimerMessage.bind(this);
     this.timerWorker.port.start();
