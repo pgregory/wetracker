@@ -20,13 +20,19 @@ var setupAPI=function() {
 setupAPI();
 
 module.exports = {
-  entry: [
-    'babel-polyfill',
-    './src/app.js',
-  ],
+  entry: {
+    app: [
+      'babel-polyfill',
+      './src/app.js',
+    ],
+    embedded: [
+      'babel-polyfill',
+      './src/embedded.js',
+    ]
+  },
   output: {
     path: path.join(__dirname, '/bin/'),
-    filename: 'app.bundle.js',
+    filename: '[name].bundle.js',
     publicPath: '/bin/',
   },
   devServer: {
