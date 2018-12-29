@@ -166,6 +166,7 @@ class XMViewObject {
         ch.updateAnalyserScopeData();
         scopes.push({
           scopeData: ch.analyserScopeData,
+          freqData: ch.analyserScopeData,
           bufferLength: ch.analyserBufferLength,
         });
 
@@ -175,6 +176,7 @@ class XMViewObject {
       this.player.updateMasterAnalyserScopeData();
       const masterScope = {
         scopeData: this.player.masterAnalyserScopeData,
+        freqData: this.player.masterAnalyserFreqData,
         bufferLength: this.player.masterAnalyserBufferLength,
       };
 
@@ -481,6 +483,7 @@ class Track {
     this.analyser.fftSize = 256;
     this.analyserBufferLength = this.analyser.frequencyBinCount;
     this.analyserScopeData = new Uint8Array(this.analyserBufferLength);
+    this.analyserFreqData = new Uint8Array(this.analyserBufferLength);
 
     this.gainNode.gain.value = 1.0;
     this.stateStack = [{
@@ -524,6 +527,7 @@ class Track {
 
   updateAnalyserScopeData() {
     this.analyser.getByteTimeDomainData(this.analyserScopeData);
+    this.analyser.getByteFrequencyData(this.analyserFreqData);
   }
 
   /* eslint-disable no-param-reassign */
@@ -709,9 +713,10 @@ class Player {
 
     this.masterAnalyser = this.audioctx.createAnalyser();
 
-    this.masterAnalyser.fftSize = 256;
+    this.masterAnalyser.fftSize = 64;
     this.masterAnalyserBufferLength = this.masterAnalyser.frequencyBinCount;
     this.masterAnalyserScopeData = new Uint8Array(this.masterAnalyserBufferLength);
+    this.masterAnalyserFreqData = new Uint8Array(this.masterAnalyserBufferLength);
     this.masterGain.connect(this.masterAnalyser)
 
     connect(this.vuMeter, 'vuChanged', this, 'onVuChanged');
@@ -1543,6 +1548,7 @@ class Player {
 
   updateMasterAnalyserScopeData() {
     this.masterAnalyser.getByteTimeDomainData(this.masterAnalyserScopeData);
+    this.masterAnalyser.getByteFrequencyData(this.masterAnalyserFreqData);
   }
 
   /* eslint-disable camelcase, no-param-reassign, no-bitwise */
