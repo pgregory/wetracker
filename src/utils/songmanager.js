@@ -479,10 +479,15 @@ export class SongManager {
             filename = filename.substring(0, (filename.indexOf('?') === -1) ? filename.length : filename.indexOf('?'));
             // Remove everything prior to final name
             filename = filename.substring(filename.lastIndexOf('/') + 1, filename.length);
-            const newSong = this.loadSongFromArrayBuffer(arrayBuffer, filename);
-            if (newSong) {
-              song.setSong(newSong);
-              resolve();
+            try {
+              const newSong = this.loadSongFromArrayBuffer(arrayBuffer, filename);
+              if (newSong) {
+                song.setSong(newSong);
+                resolve();
+              }
+            } catch(error) {
+              console.log(`Error loading song: ${error}`);
+              reject(`Invalid song file ${error}`);
             }
           } else {
             console.log('Unable to load', uri);
