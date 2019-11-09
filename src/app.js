@@ -1,8 +1,12 @@
-import 'babel-polyfill';
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
 import $ from 'jquery';
 import 'gridstack';
 import 'gridstack/dist/gridstack.css';
-import 'font-awesome-webpack';
+import '@fortawesome/fontawesome-free/js/fontawesome';
+import '@fortawesome/fontawesome-free/js/solid';
+import '@fortawesome/fontawesome-free/js/regular';
+import '@fortawesome/fontawesome-free/js/brands';
 import 'jquery-ui/widgets/dialog';
 import 'jquery-ui/../themes/base/base.css';
 import 'jquery-ui/../themes/base/core.css';
@@ -10,7 +14,7 @@ import 'jquery-ui/../themes/base/theme.css';
 import 'jquery-ui/../themes/base/dialog.css';
 import 'jquery-ui/../themes/base/resizable.css';
 import MouseTrap from 'mousetrap';
-import Director from 'director';
+import { Router } from 'director/build/director';
 import QueryString from 'query-string';
 
 import Transport from './components/transport/transport';
@@ -146,10 +150,9 @@ $(document).ready(() => {
     '/loadsong': loadSong,
   };
 
-  const router = Director.Router(routes);
+  const router = Router(routes);
 
   showWeTrackerInterface();
 
   router.init();
 });
-

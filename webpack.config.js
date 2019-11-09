@@ -22,7 +22,6 @@ setupAPI();
 module.exports = [
 	{
 		entry: [
-			'@babel/polyfill',
 			'./src/app.js',
 		],
 		output: {
@@ -50,6 +49,15 @@ module.exports = [
 				test: /\.css$/,
 				loader: 'style-loader!css-loader',
 			}, {
+        test: /\.(scss)$/,
+        use: [
+          {
+            loader: 'css-loader',
+          }, {
+            loader: 'sass-loader',
+          }
+        ]
+      }, {
 				test: /\.dot$/,
 				loader: 'raw-loader',
 			},{
@@ -105,7 +113,6 @@ module.exports = [
 		devtool: 'source-map',
 		target: 'webworker',
 		entry: [
-			'@babel/polyfill',
 			'./src/audio/timerworker.js',
 		],
 		output: {
