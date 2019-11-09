@@ -731,12 +731,15 @@ class Player {
 
     this.XMView = new XMViewObject(this);
 
-    this.timerWorker = new SharedWorker('/static/timerworker.js');
+    this.timerWorker = new SharedWorker('sharedworker.bundle.js');
     this.timerWorker.port.postMessage({ interval: this.lookahead });
     this.timerWorker.port.onmessage = this.onTimerMessage.bind(this);
+		this.timerWorker.onerror = function(e) {
+			throw new Error(event.message + " (" + event.filename + ":" + event.lineno + ")");
+		}
     this.timerWorker.port.start();
 
-    this.interactiveTimerWorker = new SharedWorker('static/timerworker.js');
+    this.interactiveTimerWorker = new SharedWorker('sharedworker.bundle.js');
     this.interactiveTimerWorker.port.postMessage({ interval: this.interactiveLookahead });
     this.interactiveTimerWorker.port.onmessage = this.onInteractiveTimerMessage.bind(this);
     this.interactiveTimerWorker.port.start();

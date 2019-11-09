@@ -1,8 +1,8 @@
 import $ from 'jquery';
 import 'jquery-ui/widgets/slider';
 
-import { state } from '../../state';
-import { signal } from '../../utils/signal';
+import { state } from '../../../state';
+import { signal } from '../../../utils/signal';
 
 export class EffectUIBase {
   constructor(target, effect, location) {
