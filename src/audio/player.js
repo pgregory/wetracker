@@ -1,6 +1,6 @@
 /* global MediaRecorder:false */
 // eslint-disable-next-line import/no-webpack-loader-syntax
-import TimerWorker from 'shared-worker!./timerworker';
+// import TimerWorker from 'shared-worker-loader!./timerworker.js';
 import Tuna from 'tunajs';
 
 import { signal, connect } from '../utils/signal';
@@ -11,15 +11,15 @@ import Envelope from './envelope';
 
 import AudioMeter from './vumeter';
 
-import * as chorus from '../components/effects_editor/effects/chorus';
-import * as delay from '../components/effects_editor/effects/delay';
-import * as phaser from '../components/effects_editor/effects/phaser';
-import * as overdrive from '../components/effects_editor/effects/overdrive';
-import * as compressor from '../components/effects_editor/effects/compressor';
-import * as filter from '../components/effects_editor/effects/filter';
-import * as tremolo from '../components/effects_editor/effects/tremolo';
-import * as wahwah from '../components/effects_editor/effects/wahwah';
-import * as bitcrusher from '../components/effects_editor/effects/bitcrusher';
+import * as chorus from './effects/chorus';
+import * as delay from './effects/delay';
+import * as phaser from './effects/phaser';
+import * as overdrive from './effects/overdrive';
+import * as compressor from './effects/compressor';
+import * as filter from './effects/filter';
+import * as tremolo from './effects/tremolo';
+import * as wahwah from './effects/wahwah';
+import * as bitcrusher from './effects/bitcrusher';
 
 const effectNodeConstructors = {
   chorus,
@@ -166,16 +166,26 @@ class XMViewObject {
         ch.updateAnalyserScopeData();
         scopes.push({
           scopeData: ch.analyserScopeData,
+          freqData: ch.analyserScopeData,
           bufferLength: ch.analyserBufferLength,
         });
 
         states.push(ch.getState());
       }
+
+      this.player.updateMasterAnalyserScopeData();
+      const masterScope = {
+        scopeData: this.player.masterAnalyserScopeData,
+        freqData: this.player.masterAnalyserFreqData,
+        bufferLength: this.player.masterAnalyserBufferLength,
+      };
+
       this.player.tracksChanged({
         t: e.t,
         vu: e.vu,
         scopes,
         states,
+        masterScope,
       });
 
       const positions = [];
@@ -473,6 +483,7 @@ class Track {
     this.analyser.fftSize = 256;
     this.analyserBufferLength = this.analyser.frequencyBinCount;
     this.analyserScopeData = new Uint8Array(this.analyserBufferLength);
+    this.analyserFreqData = new Uint8Array(this.analyserBufferLength);
 
     this.gainNode.gain.value = 1.0;
     this.stateStack = [{
@@ -516,6 +527,7 @@ class Track {
 
   updateAnalyserScopeData() {
     this.analyser.getByteTimeDomainData(this.analyserScopeData);
+    this.analyser.getByteFrequencyData(this.analyserFreqData);
   }
 
   /* eslint-disable no-param-reassign */
@@ -699,6 +711,14 @@ class Player {
     this.masterGain.connect(this.vuMeter.processor);
     this.masterGain.connect(this.audioctx.destination);
 
+    this.masterAnalyser = this.audioctx.createAnalyser();
+
+    this.masterAnalyser.fftSize = 64;
+    this.masterAnalyserBufferLength = this.masterAnalyser.frequencyBinCount;
+    this.masterAnalyserScopeData = new Uint8Array(this.masterAnalyserBufferLength);
+    this.masterAnalyserFreqData = new Uint8Array(this.masterAnalyserBufferLength);
+    this.masterGain.connect(this.masterAnalyser)
+
     connect(this.vuMeter, 'vuChanged', this, 'onVuChanged');
 
     this.playing = false;
@@ -711,12 +731,15 @@ class Player {
 
     this.XMView = new XMViewObject(this);
 
-    this.timerWorker = new TimerWorker();
+    this.timerWorker = new SharedWorker('sharedworker.bundle.js');
     this.timerWorker.port.postMessage({ interval: this.lookahead });
     this.timerWorker.port.onmessage = this.onTimerMessage.bind(this);
+		this.timerWorker.onerror = function(e) {
+			throw new Error(event.message + " (" + event.filename + ":" + event.lineno + ")");
+		}
     this.timerWorker.port.start();
 
-    this.interactiveTimerWorker = new TimerWorker();
+    this.interactiveTimerWorker = new SharedWorker('sharedworker.bundle.js');
     this.interactiveTimerWorker.port.postMessage({ interval: this.interactiveLookahead });
     this.interactiveTimerWorker.port.onmessage = this.onInteractiveTimerMessage.bind(this);
     this.interactiveTimerWorker.port.start();
@@ -1526,6 +1549,10 @@ class Player {
     reader.readAsArrayBuffer(file);
   }
 
+  updateMasterAnalyserScopeData() {
+    this.masterAnalyser.getByteTimeDomainData(this.masterAnalyserScopeData);
+    this.masterAnalyser.getByteFrequencyData(this.masterAnalyserFreqData);
+  }
 
   /* eslint-disable camelcase, no-param-reassign, no-bitwise */
   eff_t1_0(ch) {  // arpeggio

@@ -468,7 +468,9 @@ export class SongManager {
       xmReq.open('GET', uri, true);
       xmReq.responseType = 'arraybuffer';
       xmReq.onload = () => {
+        console.log(`xmReq.onload: ${xmReq.status}`);
         if (xmReq.status === 200 || xmReq.status === 304) {
+          console
           const arrayBuffer = xmReq.response;
           if (arrayBuffer) {
             // Remove anchor
@@ -477,10 +479,15 @@ export class SongManager {
             filename = filename.substring(0, (filename.indexOf('?') === -1) ? filename.length : filename.indexOf('?'));
             // Remove everything prior to final name
             filename = filename.substring(filename.lastIndexOf('/') + 1, filename.length);
-            const newSong = this.loadSongFromArrayBuffer(arrayBuffer, filename);
-            if (newSong) {
-              song.setSong(newSong);
-              resolve();
+            try {
+              const newSong = this.loadSongFromArrayBuffer(arrayBuffer, filename);
+              if (newSong) {
+                song.setSong(newSong);
+                resolve();
+              }
+            } catch(error) {
+              console.log(`Error loading song: ${error}`);
+              reject(`Invalid song file ${error}`);
             }
           } else {
             console.log('Unable to load', uri);
@@ -490,8 +497,8 @@ export class SongManager {
           reject(xmReq.statusText);
         }
       };
-      xmReq.onerror = () => {
-        reject(`Network error fetching file: ${uri}`);
+      xmReq.onerror = (e) => {
+        reject(`Network error fetching file: ${uri} ${e.target.status}`);
       };
       xmReq.send(null);
     });

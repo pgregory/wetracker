@@ -45,10 +45,3 @@ export class EffectUIBase {
     }).prop('checked', !this.effect.bypass);
   }
 }
-
-export class EffectParameterObjectBase {
-}
-
-
-export class EffectNodeBase {
-}
