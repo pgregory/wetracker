@@ -46,10 +46,6 @@
   -webkit-appearance: none;
 }
 
-.hscroll .pattern .patterndata::-webkit-scrollbar:horizontal {
-  height: 11px;
-}
-
 .hscroll .pattern .patterndata::-webkit-scrollbar-thumb {
   border-radius: 2px;
   border: 1px solid #93C3E9; /* should match background, can't be transparent */
@@ -59,6 +55,10 @@
 .hscroll .pattern .patterndata::-webkit-scrollbar-track {
   background-color: #333;
   border-radius: 8px;
+}
+
+.hscroll .pattern .patterndata::-webkit-scrollbar:horizontal {
+  height: 11px;
 }
 
 .hscroll .pattern .timeline {
@@ -109,8 +109,14 @@
   padding: 0 2px;
 }
 
+.track-control .panel button div {
+  position: relative;
+  left: -5px;
+  top: -2px;
+}
+
 .track-control .panel button {
-  font-size: 0.5em;
+  font-size: 0.7em;
   height: 14px;
   width: 14px;
   margin: 0 3px;
@@ -127,4 +133,3 @@
   color: white;
   padding: 0;
 }
-
