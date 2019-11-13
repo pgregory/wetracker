@@ -44,7 +44,7 @@
       <div class="rows">
         <for|trackname, trackIndex| of=data.tracknames>
         <div class="track">
-          <for(row from 0 to 30)>
+          <for|row| from=0 to=data.rows.size step=1>
           <div class={row: true, 'beat-row': row % 4 == 0}>
             <div class="trackrow">
               <div class="line">
