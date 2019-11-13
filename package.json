@@ -104,7 +104,11 @@
         "error",
         "always"
       ],
-      "no-restricted-globals": [ "error", "event", "fdescribe" ],
+      "no-restricted-globals": [
+        "error",
+        "event",
+        "fdescribe"
+      ],
       "arrow-body-style": [
         2,
         "as-needed"
