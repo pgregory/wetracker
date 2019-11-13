@@ -1,14 +1,24 @@
 <script marko-init>
   var utils = require('./utils');
 </script>
-<macro event(event)>
+<macro|{eventData}| name="event">
   <div class="note-column" data-columnid="c1">
-    <div class="item note">${utils.toNote(event.note)}</div>
-    <div class="item instrument">${utils.toInstrument(event.instrument)}</div>
-    <div class="item volume">${utils.toVolume(event.volume)}</div>
-    <div class="item panning">${utils.toPanning(event.panning)}</div>
-    <div class="item delay">${utils.toDelay(event.delay)}</div>
-    <div class="item fx">${utils.toFX(event.fxtyp, event.fxparam)}</div>
+    <div class="item note">${utils.toNote(eventData.get('note'))}</div>
+    <div class="item instrument">${utils.toInstrument(eventData.get('instrument'))}</div>
+    <div class="item volume">${utils.toVolume(eventData.get('volume'))}</div>
+    <div class="item panning">${utils.toPanning(eventData.get('panning'))}</div>
+    <div class="item delay">${utils.toDelay(eventData.get('fxtype'))}</div>
+    <div class="item fx">${utils.toFX(eventData.get('fxtype'), eventData.get('fxparam'))}</div>
+  </div>
+</macro>
+<macro name="emptyEvent">
+  <div class="note-column" data-columnid="c1">
+    <div class="item note">${utils.toNote()}</div>
+    <div class="item instrument">${utils.toInstrument()}</div>
+    <div class="item volume">${utils.toVolume()}</div>
+    <div class="item panning">${utils.toPanning()}</div>
+    <div class="item delay">${utils.toDelay()}</div>
+    <div class="item fx">${utils.toFX()}</div>
   </div>
 </macro>
 <div class="pattern-editor">
@@ -32,13 +42,13 @@
     </div>
     <div class="trackview">
       <div class="rows">
-        <for(track in data.tracknames | status-var=loop)>
+        <for|trackname, trackIndex| of=data.tracknames>
         <div class="track">
-          <for(row from 0 to 63)>
+          <for(row from 0 to 30)>
           <div class={row: true, 'beat-row': row % 4 == 0}>
             <div class="trackrow">
               <div class="line">
-                <!--
+              <!--
                 <for(notecol in track.columns)>
                   <event(data.song.patterns[data.cursor.pattern].rows[row][track.id].notedata[notecol.id])
                     if(data.song.patterns[data.cursor.pattern].rows.length > row &&
@@ -48,7 +58,12 @@
                   <event({}) else/>
                 </for>
                 -->
-                <event({})/>
+                <if(data.rows.getIn([row, trackIndex, 'notedata', 0]))>
+                  <event eventData=data.rows.getIn([row, trackIndex, 'notedata', 0])/>
+                </if>
+                <else>
+                  <emptyEvent/>
+                </else>
               </div>
             </div>
           </div>

@@ -61,7 +61,7 @@ export default class PatternEditorDOM {
     var tracknames = song.getTrackNames();
     var rows = state.song.getIn(['patterns', state.cursor.get('pattern'), 'rows']) || new Immutable.Map();
 
-    console.log(rows);
+    console.log(rows.getIn([state.cursor.row, state.cursor.track, 'notedata']));
 
     try {
       $(this.target).html(patternEditorMarko.renderToString({ 
