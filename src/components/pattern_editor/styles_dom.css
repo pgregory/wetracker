@@ -8,11 +8,13 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: scroll;
+  position: relative;
 }
 
-.trackheader {
-  flex: none;
+.track-header {
+  position: absolute;
+  background: black;
 }
 
 .trackview {
@@ -20,6 +22,7 @@
   flex-direction: row;
   flex: auto;
   overflow-y: scroll;
+  overflow-x: scroll;
 }
 
 .track {
@@ -62,7 +65,8 @@
 
 .rows {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+  padding-top: 50px;
 }
 
 .rows .track .row {

@@ -73,6 +73,11 @@ export default class PatternEditorDOM {
       console.log(e);
     }
 
+    $(".track-header").each( (i, v) => {
+      $(v).data('initialLeft', $(v).position().left);
+    });
+    $(".trackview").on('scroll', this.onScroll.bind(this));
+
     // Cache node references for all note data to enable quick pattern refresh.
 
     this.row_cache = [];
@@ -107,36 +112,13 @@ export default class PatternEditorDOM {
       this.row_cache.push(row);
     });
     //this.redrawAllRows();
-    console.log(this.row_cache);
-
-    $('.sideTable').width($('#trackview').width());
-    $('.leftSideTable').width($('#trackview').width());
-    $('.timeline-header').height($('.track-header').height());
-    $('.sideTable').height($('.xscroll').height() - $('#trackheader').height());
-    $('#timeline').height($('.xscroll').height() - $('#trackheader').height());
-
-    $('.track-header').each( (i,v) => {
-      $(v).width($(`#trackview td[data-trackid="${$(v).data('trackid')}"]`).width());
-    });
-
-    var visibleRows = Math.floor(($('.xscroll').height() - $('#trackheader').height()) / 15.0);
-    var topPadding = Math.floor(visibleRows/2.0);
-    var bottomPadding = Math.ceil(visibleRows/2.0);
-
-    $('.topPadding').height(topPadding*15.0);
-    $('.bottomPadding').height(bottomPadding*15.0);
-
-    this.patternRows = $('#trackview tr');
-    this.timelineRows = $('#timeline tr');
-
-    this.events = $(".sideTable")[0];
-    this.timeline = $("#timeline")[0];
-    this.xscroll = $(".xscroll")[0];
-
-    //$('.sideTable').on('mousewheel', this.onScroll.bind(this));
   }
 
   onScroll(e) {
+    $(".track-header").each( (i, v) => {
+      $(v).css({left: $(v).data('initialLeft') - $(".trackview").scrollLeft()});
+    });
+    /*
     if (Math.abs(e.originalEvent.deltaY) > Math.abs(e.originalEvent.deltaX)) {
       this.yoff += e.originalEvent.deltaY;
       if (this.yoff < 0) {
@@ -154,6 +136,7 @@ export default class PatternEditorDOM {
       this.xscroll.scrollLeft += e.originalEvent.deltaX;
     }
     e.preventDefault();
+    */
   }
 
   /* eslint no-param-reassign: ["error", { "props": false }]*/

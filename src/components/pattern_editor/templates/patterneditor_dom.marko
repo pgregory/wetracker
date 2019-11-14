@@ -23,27 +23,21 @@
 </macro>
 <div class="pattern-editor">
   <div class="xscroll">
-    <div class="trackheader">
-      <div class="track-headers">
-        <div class="track-names">
-          <div class="track-name" data-trackindex="${loop.getIndex()}" for(i in data.tracknames | status-var=loop)>
-            <div>${i}</div>
-          </div>
-        </div> 
-        <div class="track-controls">
-          <div class="track-control" data-trackindex="${loop.getIndex()}" for(i in data.tracknames | status-var=loop)>
-            <div class="panel">
-              <button class="add-column fa fa-plus"></button>
-              <button class="remove-column fa fa-minus"></button>
-            </div>
-          </div>
-        </div> 
-      </div>
-    </div>
     <div class="trackview">
-      <div class="rows">
-        <for|trackname, trackIndex| of=data.tracknames>
-        <div class="track">
+      <for|trackName, trackIndex| of=data.tracknames>
+      <div class="track" data-trackindex="${trackIndex}">
+        <div class="track-header" data-trackindex="${trackIndex}">
+          <div class="track-name">
+            <div>${trackName}</div>
+          </div> 
+          <div class="track-control" data-trackindex="${trackIndex}">
+            <div class="panel">
+              <button class="add-column"><span class="fa fa-plus"></span></button>
+              <button class="remove-column"><span class="fa fa-minus"></span></button>
+            </div>
+          </div> 
+        </div>
+        <div class="rows">
           <for|row| from=0 to=data.rows.size step=1>
           <div class={row: true, 'beat-row': row % 4 == 0}>
             <div class="trackrow">
@@ -69,8 +63,8 @@
           </div>
           </for>
         </div>
-        </for>
       </div>
+      </for>
     </div>
   </div>
 </div>
