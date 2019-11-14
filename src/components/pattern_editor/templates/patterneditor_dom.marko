@@ -22,6 +22,8 @@
   </div>
 </macro>
 <div class="pattern-editor">
+	<div class="row-marker"/>
+	<div class="row-numbers-track-header left"/>
 	<div class="row-numbers left">
 		<for|row| from=0 to=data.rows.size step=1>
 			<div class="row-number">${row}</div>
@@ -72,6 +74,7 @@
       </for>
     </div>
   </div>
+	<div class="row-numbers-track-header right"/>
 	<div class="row-numbers right">
 		<for|row| from=0 to=data.rows.size step=1>
 			<div class="row-number">${row}</div>
