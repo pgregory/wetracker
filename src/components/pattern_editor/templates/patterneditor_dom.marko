@@ -22,6 +22,11 @@
   </div>
 </macro>
 <div class="pattern-editor">
+	<div class="row-numbers left">
+		<for|row| from=0 to=data.rows.size step=1>
+			<div class="row-number">${row}</div>
+		</for>
+	</div>
   <div class="xscroll">
     <div class="trackview">
       <for|trackName, trackIndex| of=data.tracknames>
@@ -67,4 +72,9 @@
       </for>
     </div>
   </div>
+	<div class="row-numbers right">
+		<for|row| from=0 to=data.rows.size step=1>
+			<div class="row-number">${row}</div>
+		</for>
+	</div>
 </div>

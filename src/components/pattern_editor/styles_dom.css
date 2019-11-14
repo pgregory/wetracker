@@ -1,14 +1,14 @@
 .pattern-editor {
   overflow: hidden;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
 }
 
 .xscroll {
   height: 100%;
   display: flex;
   flex-direction: column;
-  overflow: scroll;
+  overflow: hidden;
   position: relative;
 }
 
@@ -22,7 +22,8 @@
   flex-direction: row;
   flex: auto;
   overflow-y: scroll;
-  overflow-x: scroll;
+  overflow-x: hidden;
+	scrollbar-width: none;
 }
 
 .track {
@@ -66,7 +67,8 @@
 .rows {
   display: flex;
   flex-direction: column;
-  padding-top: 50px;
+  padding-top: 167px;
+	padding-bottom: 1000px;
 }
 
 .rows .track .row {
@@ -218,3 +220,24 @@
   border-radius: 2px;
 }
 
+.row-numbers {
+	padding-top: 167px;
+	overflow-y: visible;
+	position: relative;
+	top: 0px;
+}
+
+.row-numbers.left {
+	padding-right: 10px;
+	text-align: right;
+}
+
+.row-numbers.right {
+	padding-left: 10px;
+}
+
+.row-number {
+	color: #999;
+	line-height: 1;
+  font-family: monospace;
+}

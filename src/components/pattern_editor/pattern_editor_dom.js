@@ -29,12 +29,14 @@ function easeInOutQuad(tc, b, c, d) {
 export default class PatternEditorDOM {
   constructor(target) {
     this.yoff = 0;
+    this.xoff = 0;
     this.lastCursor = state.cursor;
     this.events = null;
     this.timeline = null;
     this.xscroll = null;
     this.patternRows = null;
     this.timelineRows = null;
+		this.patternRowHeight = 13;
 
     this.target = target;
 
@@ -76,7 +78,7 @@ export default class PatternEditorDOM {
     $(".track-header").each( (i, v) => {
       $(v).data('initialLeft', $(v).position().left);
     });
-    $(".trackview").on('scroll', this.onScroll.bind(this));
+    $(".trackview").on('wheel', this.onScroll.bind(this));
 
     // Cache node references for all note data to enable quick pattern refresh.
 
@@ -115,28 +117,33 @@ export default class PatternEditorDOM {
   }
 
   onScroll(e) {
-    $(".track-header").each( (i, v) => {
-      $(v).css({left: $(v).data('initialLeft') - $(".trackview").scrollLeft()});
-    });
-    /*
     if (Math.abs(e.originalEvent.deltaY) > Math.abs(e.originalEvent.deltaX)) {
       this.yoff += e.originalEvent.deltaY;
-      if (this.yoff < 0) {
-        this.yoff = (this.events.scrollHeight - this.events.clientHeight) - 8;
-      } else if (this.yoff >= ((this.events.scrollHeight - this.events.clientHeight) - 8)) {
-        this.yoff = 0;
+      if (Math.abs(this.yoff) >= this.patternRowHeight) {
+        const rowIncr = Math.floor(this.yoff / this.patternRowHeight);
+        let row = state.cursor.get('row') + rowIncr;
+        const maxrow = song.getPatternRowCount(state.cursor.get('pattern'));
+        row = ((row % maxrow) + maxrow) % maxrow;
+        //row = Math.max(0, Math.min(row, maxrow));
+        state.set({
+          cursor: {
+            row,
+          },
+        });
+        this.yoff -= (rowIncr * this.patternRowHeight);
+				$(".trackview").scrollTop(row * this.patternRowHeight);
+				$(".row-numbers").each( (i, v) => {
+					$(v).css({top: -(row * this.patternRowHeight)});
+				});
       }
-      var row = Math.floor((this.yoff) / 15.0);
-      state.set({
-        cursor: {
-          row
-        }
-      });
     } else {
-      this.xscroll.scrollLeft += e.originalEvent.deltaX;
-    }
-    e.preventDefault();
-    */
+			let xoff = $(".trackview").scrollLeft() + e.originalEvent.deltaX;
+			$(".trackview").scrollLeft(xoff);
+			$(".track-header").each( (i, v) => {
+				$(v).css({left: $(v).data('initialLeft') - $(".trackview").scrollLeft()});
+			});
+		}
+		e.preventDefault();
   }
 
   /* eslint no-param-reassign: ["error", { "props": false }]*/
@@ -170,11 +177,11 @@ export default class PatternEditorDOM {
     $('tr.pattern-cursor-row').removeClass('pattern-cursor-row');
     $('.event-cursor').removeClass('event-cursor');
 
-    this.timelineRows.eq(state.cursor.get("row") + 1).addClass('pattern-cursor-row');
-    this.patternRows.eq(state.cursor.get("row") + 1).addClass('pattern-cursor-row');
+    //this.timelineRows.eq(state.cursor.get("row") + 1).addClass('pattern-cursor-row');
+    //this.patternRows.eq(state.cursor.get("row") + 1).addClass('pattern-cursor-row');
 
-    var itemCursor = this.patternRows.eq(state.cursor.get("row") + 1).find(`.line:eq(${state.cursor.get("track")}) .note-column:eq(${state.cursor.get("column")}) .item:eq(${state.cursor.get("item")})`);
-    itemCursor.addClass('event-cursor');
+    //var itemCursor = this.patternRows.eq(state.cursor.get("row") + 1).find(`.line:eq(${state.cursor.get("track")}) .note-column:eq(${state.cursor.get("column")}) .item:eq(${state.cursor.get("item")})`);
+    //itemCursor.addClass('event-cursor');
 
     /* If the cursor has moved to a different track, column or item,
      * check if it's still visible and scroll into view if not.
