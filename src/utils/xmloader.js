@@ -293,7 +293,7 @@ class XMLoader {
         // var keymap = getarray(dv, idx+0x21);
         const samphdrsiz = dv.getUint32(idx + 0x1d, true);
         console.log("hdrsiz %d; instrument %s: '%s' %d samples, samphdrsiz %d",
-            hdrsiz, (i + 1).toString(16), instname, nsamp, samphdrsiz);
+          hdrsiz, (i + 1).toString(16), instname, nsamp, samphdrsiz);
         idx += hdrsiz;
         let totalsamples = 0;
         const samps = [];
@@ -312,14 +312,14 @@ class XMLoader {
             samptype &= ~3;
           }
           console.log("sample %d: len %d name '%s' loop %d/%d vol %d offset %s",
-              j, samplen, sampname, samploop, samplooplen, sampvol, sampleoffset.toString(16));
+            j, samplen, sampname, samploop, samplooplen, sampvol, sampleoffset.toString(16));
           console.log('           type %d note %s(%d) finetune %d pan %d',
-              samptype, this.prettifyNote(sampnote + (12 * 4)), sampnote, sampfinetune, samppan);
+            samptype, this.prettifyNote(sampnote + (12 * 4)), sampnote, sampfinetune, samppan);
           console.log('           vol env', envVol, envVolSustain,
-              envVolLoopStart, envVolLoopEnd, 'type', envVolType,
-              'fadeout', volFadeout);
+            envVolLoopStart, envVolLoopEnd, 'type', envVolType,
+            'fadeout', volFadeout);
           console.log('           pan env', envPan, envPanSustain,
-              envPanLoopStart, envPanLoopEnd, 'type', envPanType);
+            envPanLoopStart, envPanLoopEnd, 'type', envPanType);
           const samp = {
             len: samplen,
             loop: samploop,
@@ -340,7 +340,8 @@ class XMLoader {
         for (let j = 0; j < nsamp; j += 1) {
           const samp = samps[j];
           samp.sampledata = this.ConvertSample(
-              new Uint8Array(arrayBuf, idx + samp.fileoffset, samp.len), samp.type & 16);
+            new Uint8Array(arrayBuf, idx + samp.fileoffset, samp.len), samp.type & 16
+          );
           if (samp.type & 16) {
             samp.len /= 2;
             samp.loop /= 2;

@@ -59,8 +59,8 @@ export default class Tabs {
   }
 
   drawMeter(data) {
-    const width = this.canvas.width;
-    const height = this.canvas.height;
+    const { width } = this.canvas;
+    const { height } = this.canvas;
 
     this.ctx.clearRect(0, 0, width, height);
     const topMargin = height * 0.2;

@@ -14,7 +14,6 @@ class TremoloEffectUI extends EffectUIBase {
     this.bindParameterToUI('#stereo-slider', '#stereo-value', 0, 180, 0.1, 'stereoPhase');
     this.bindBypass();
   }
-
 }
 
 export { TremoloEffectUI as UI };

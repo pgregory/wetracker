@@ -107,8 +107,8 @@ export default class Monitors {
         let pixelSize = 48;
         ctx.font = `${pixelSize}px monospace`;
         let size = ctx.measureText(text);
-        while ((size.width > (canvas.width * 0.75)) &&
-               (pixelSize > 8)) {
+        while ((size.width > (canvas.width * 0.75))
+               && (pixelSize > 8)) {
           pixelSize -= 1;
           ctx.font = `${pixelSize}px monospace`;
           size = ctx.measureText(text);
@@ -129,8 +129,8 @@ export default class Monitors {
         const cho2 = canvas.height / 2;
 
         if ('scopes' in e && j < e.scopes.length && 'scopeData' in e.scopes[j]) {
-          const scopeData = e.scopes[j].scopeData;
-          const bufferLength = e.scopes[j].bufferLength;
+          const { scopeData } = e.scopes[j];
+          const { bufferLength } = e.scopes[j];
 
           const sliceWidth = canvas.width * (1.0 / (bufferLength - 1));
           let x = 0;

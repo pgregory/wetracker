@@ -140,12 +140,12 @@ export default class PatternEditorCanvas {
       this.patternCharacterWidth,                          // FX Param2
     ];
     // N-O II VV EFF
-    this.patternCellWidth = this.eventLeftMargin +
-                            (this.patternNoteWidth + this.elementSpacing) +
-                            (this.patternInstWidth + this.elementSpacing) +
-                            (this.patternVolumeWidth + this.elementSpacing) +
-                            (this.patternEffectWidth + this.elementSpacing) +
-                            this.eventRightMargin;
+    this.patternCellWidth = this.eventLeftMargin
+                            + (this.patternNoteWidth + this.elementSpacing)
+                            + (this.patternInstWidth + this.elementSpacing)
+                            + (this.patternVolumeWidth + this.elementSpacing)
+                            + (this.patternEffectWidth + this.elementSpacing)
+                            + this.eventRightMargin;
 
     this.noteNames = [
       [96, 288], [96, 296], [104, 288], [104, 296], [112, 288], [120, 288],
@@ -325,7 +325,7 @@ export default class PatternEditorCanvas {
     let ddx = dx;
     const cw = this.patternCharacterWidth;
     // render note
-    const note = col.note;
+    const { note } = col;
     if (note == null || note === -1) {
       // no note = ...
       ctx.drawImage(this.mixedFont, 8 * 39, 0, 8, 8, dx, dy, this.patternNoteWidth, 8);
@@ -887,8 +887,8 @@ export default class PatternEditorCanvas {
     let item = 0;
     let cursorItemPos = this.cursorOffsets[item];
     let cursorItemSize = this.cursorSizes[item];
-    while (((itemOffset < cursorItemPos) ||
-           (itemOffset > (cursorItemPos + cursorItemSize)))) {
+    while (((itemOffset < cursorItemPos)
+           || (itemOffset > (cursorItemPos + cursorItemSize)))) {
       item += 1;
       if (item >= this.cursorOffsets.length) {
         return null;
@@ -915,7 +915,7 @@ export default class PatternEditorCanvas {
     };
   }
 
-  /* eslint no-param-reassign: ['error', { 'props': false }]*/
+  /* eslint no-param-reassign: ['error', { 'props': false }] */
   scrollHorizTo(element, to, duration) {
     const start = element.scrollLeft();
     const change = to - start;
@@ -940,9 +940,9 @@ export default class PatternEditorCanvas {
     }
 
     if (this.lastCursor !== state.cursor) {
-      if ((this.lastCursor.get('item') !== state.cursor.get('item')) ||
-          (this.lastCursor.get('track') !== state.cursor.get('track')) ||
-          (this.lastCursor.get('column') !== state.cursor.get('column'))) {
+      if ((this.lastCursor.get('item') !== state.cursor.get('item'))
+          || (this.lastCursor.get('track') !== state.cursor.get('track'))
+          || (this.lastCursor.get('column') !== state.cursor.get('column'))) {
         /* If the cursor has moved to a different track, column or item,
          * check if it's still visible and scroll into view if not.
          */
@@ -954,7 +954,7 @@ export default class PatternEditorCanvas {
           // scrollHorizTo will take care of redrawCanvas calls, no need to do that here.
           this.lastCursor = state.cursor;
           return;
-        } else if ((pos.cx - this.patterndata.scrollLeft()) < minpos) {
+        } if ((pos.cx - this.patterndata.scrollLeft()) < minpos) {
           this.scrollHorizTo(this.patterndata, pos.cx - 6, 100);
           // scrollHorizTo will take care of redrawCanvas calls, no need to do that here.
           this.lastCursor = state.cursor;
@@ -1031,4 +1031,3 @@ export default class PatternEditorCanvas {
     this.refresh();
   }
 }
-

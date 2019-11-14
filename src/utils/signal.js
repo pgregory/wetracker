@@ -10,7 +10,7 @@
  * stateful - if the calling scope should be
  *    passed on to
  *    underlying dispatches.
- **/
+ * */
 export function signal(stateful) {
   const slots = [];
   /**
@@ -19,7 +19,7 @@ export function signal(stateful) {
    * functions connected to it,
    * passing along the arguments it was
    * invoked with
-   **/
+   * */
   const _signal = function _signal(...args) {
     let arglist = [];
     if (stateful) {
@@ -64,8 +64,8 @@ export function signal(stateful) {
     for (let i = 0; i < slots.length; i += 1) {
       if (shift) {
         slots[i - 1] = slots[i];
-      } else if (scope === slots[i][0] &&
-              fun === slots[i][1]) {
+      } else if (scope === slots[i][0]
+              && fun === slots[i][1]) {
         shift = true;
       }
     }

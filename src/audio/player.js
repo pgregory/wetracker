@@ -144,8 +144,8 @@ class XMViewObject {
 
     if (!state.cursor.get('saveStream')) {
       if ('row' in e && 'pat' in e) {
-        if (e.row !== this.shownRow ||
-           e.pat !== this.shownPat) {
+        if (e.row !== this.shownRow
+           || e.pat !== this.shownPat) {
           state.set({
             cursor: {
               row: e.row,
@@ -461,7 +461,8 @@ class Instrument {
         this.inst.env_vol.type,
         this.inst.env_vol.sustain,
         this.inst.env_vol.loopstart,
-        this.inst.env_vol.loopend);
+        this.inst.env_vol.loopend
+      );
     }
     if (this.inst.env_pan) {
       this.envelopes.panning = new Envelope(
@@ -469,7 +470,8 @@ class Instrument {
         this.inst.env_pan.type,
         this.inst.env_pan.sustain,
         this.inst.env_pan.loopstart,
-        this.inst.env_pan.loopend);
+        this.inst.env_pan.loopend
+      );
     }
   }
 }
@@ -717,7 +719,7 @@ class Player {
     this.masterAnalyserBufferLength = this.masterAnalyser.frequencyBinCount;
     this.masterAnalyserScopeData = new Uint8Array(this.masterAnalyserBufferLength);
     this.masterAnalyserFreqData = new Uint8Array(this.masterAnalyserBufferLength);
-    this.masterGain.connect(this.masterAnalyser)
+    this.masterGain.connect(this.masterAnalyser);
 
     connect(this.vuMeter, 'vuChanged', this, 'onVuChanged');
 
@@ -734,9 +736,9 @@ class Player {
     this.timerWorker = new SharedWorker('sharedworker.bundle.js');
     this.timerWorker.port.postMessage({ interval: this.lookahead });
     this.timerWorker.port.onmessage = this.onTimerMessage.bind(this);
-		this.timerWorker.onerror = function(e) {
-			throw new Error(event.message + " (" + event.filename + ":" + event.lineno + ")");
-		}
+    this.timerWorker.onerror = function (e) {
+      throw new Error(`${event.message} (${event.filename}:${event.lineno})`);
+    };
     this.timerWorker.port.start();
 
     this.interactiveTimerWorker = new SharedWorker('sharedworker.bundle.js');
@@ -980,7 +982,7 @@ class Player {
       const numcols = this.tracks[trackindex].columns.length;
       for (let colindex = 0; colindex < numcols; colindex += 1) {
         const ch = this.tracks[trackindex].columns[colindex];
-        let inst = ch.inst;
+        let { inst } = ch;
         ch.triggernote = false;
         let event = {};
         if ('notedata' in track && colindex < track.notedata.length && track.notedata[colindex]) {
@@ -1015,7 +1017,7 @@ class Player {
             ch.triggernote = false;
           } else {
             if (inst && inst.inst && inst.inst.samplemap) {
-              const note = event.note;
+              const { note } = event;
               ch.note = note;
               if ('instrument' in event && event.instrument !== -1) {
                 const samp = inst.inst.samples[inst.inst.samplemap[note]];
@@ -1156,7 +1158,7 @@ class Player {
       const track = this.tracks[j];
       for (let c = 0; c < track.columns.length; c += 1) {
         const ch = track.columns[c];
-        const inst = ch.inst;
+        const { inst } = ch;
         if (inst !== undefined) {
           if (this.cur_tick !== 0) {
             if (ch.voleffectfn) ch.voleffectfn.bind(this)(ch);
@@ -1619,7 +1621,7 @@ class Player {
     ch.periodoffset = this.getVibratoDelta(ch.vibratotype, ch.vibratopos) * ch.vibratodepth;
     if (isNaN(ch.periodoffset)) {
       console.log('vibrato periodoffset NaN?',
-          ch.vibratopos, ch.vibratospeed, ch.vibratodepth);
+        ch.vibratopos, ch.vibratospeed, ch.vibratodepth);
       ch.periodoffset = 0;
     }
     // only updates on non-first ticks
@@ -1765,7 +1767,7 @@ class Player {
     if (data === 0) {
       console.log('tempo 0?');
       return;
-    } else if (data < 0x20) {
+    } if (data < 0x20) {
       this.speed = data;
     } else {
       this.bpm = data;
@@ -1834,6 +1836,7 @@ class Player {
   }
 
   eff_unimplemented() {}
+
   eff_unimplemented_t0(ch, data) {
     throw Error(`Unimplemented effect ${ch.effect} ${data}`);
   }

@@ -6,7 +6,7 @@ import Immutable from 'immutable';
 
 import defsong from '../../data/defaultsong.lz4';
 
-import { signal, connect } from '../utils/signal';
+import { signal, connect } from './signal';
 import { xmloader } from './xmloader';
 import { state } from '../state';
 
@@ -80,10 +80,10 @@ export class SongManager {
   }
 
   updateEventAtCursor(cursor, event, annotation) {
-    if (cursor.pattern > this.getNumPatterns() ||
-        cursor.row > this.getPatternRowCount(cursor.pattern) ||
-        cursor.track > this.getNumTracks() ||
-        cursor.column > this.getTrackNumColumns(cursor.track)) {
+    if (cursor.pattern > this.getNumPatterns()
+        || cursor.row > this.getPatternRowCount(cursor.pattern)
+        || cursor.track > this.getNumTracks()
+        || cursor.column > this.getTrackNumColumns(cursor.track)) {
       throw new Error(`Attempt to set data at invalid place in song: ${cursor}`);
     }
     if (state.song.hasIn(['patterns', cursor.pattern, 'rows', cursor.row, cursor.track, 'notedata'])) {
@@ -92,8 +92,8 @@ export class SongManager {
           patterns: state.song.get('patterns').setIn([cursor.pattern, 'rows', cursor.row, cursor.track, 'notedata', cursor.column], event),
         },
       }, annotation);
-    } else if ((state.song.hasIn(['patterns', cursor.pattern, 'rows', cursor.row])) &&
-               (state.song.getIn(['patterns', cursor.pattern, 'rows', cursor.row]) != null)) {
+    } else if ((state.song.hasIn(['patterns', cursor.pattern, 'rows', cursor.row]))
+               && (state.song.getIn(['patterns', cursor.pattern, 'rows', cursor.row]) != null)) {
       const newTrack = {
         notedata: [],
         trackindex: cursor.track,
@@ -104,8 +104,8 @@ export class SongManager {
           patterns: state.song.get('patterns').setIn([cursor.pattern, 'rows', cursor.row, cursor.track], Immutable.fromJS(newTrack)),
         },
       }, annotation);
-    } else if ((state.song.hasIn(['patterns', cursor.pattern])) &&
-               (state.song.getIn(['patterns', cursor.pattern]) != null)) {
+    } else if ((state.song.hasIn(['patterns', cursor.pattern]))
+               && (state.song.getIn(['patterns', cursor.pattern]) != null)) {
       const newTrack = {
         notedata: [],
         trackindex: cursor.track,
@@ -195,8 +195,8 @@ export class SongManager {
     const eventItem = this.eventIndices[cursor.item].itemIndex;
     if (eventItem < this.eventEntries.length) {
       const entry = this.eventEntries[eventItem];
-      const mask = this.eventIndices[cursor.item].mask;
-      const shift = this.eventIndices[cursor.item].shift;
+      const { mask } = this.eventIndices[cursor.item];
+      const { shift } = this.eventIndices[cursor.item];
       const vald = value << shift;  // eslint-disable-line no-bitwise
 
       let notecol = this.findEventAtCursor(cursor);
@@ -470,7 +470,7 @@ export class SongManager {
       xmReq.onload = () => {
         console.log(`xmReq.onload: ${xmReq.status}`);
         if (xmReq.status === 200 || xmReq.status === 304) {
-          console
+          console;
           const arrayBuffer = xmReq.response;
           if (arrayBuffer) {
             // Remove anchor
@@ -485,7 +485,7 @@ export class SongManager {
                 song.setSong(newSong);
                 resolve();
               }
-            } catch(error) {
+            } catch (error) {
               console.log(`Error loading song: ${error}`);
               reject(`Invalid song file ${error}`);
             }
@@ -625,8 +625,7 @@ export class SongManager {
               sampledata: {
                 data: sampledata,
               },
-            }),
-          ),
+            }),),
         },
       }, 'Set sample data');
 
@@ -956,7 +955,9 @@ export class SongManager {
    * @param event {Object} the event data to set at that song position.
    */
   setEventAtPattarnRowTrackColumn(patternIndex, rowNumber, trackIndex, columnIndex, event) {
-    this.updateEventAtCursor({ pattern: patternIndex, row: rowNumber, track: trackIndex, column: columnIndex }, Immutable.fromJS(event));
+    this.updateEventAtCursor({
+      pattern: patternIndex, row: rowNumber, track: trackIndex, column: columnIndex,
+    }, Immutable.fromJS(event));
   }
 
   /**

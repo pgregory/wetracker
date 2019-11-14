@@ -62,8 +62,8 @@ export default class SampleMapper {
     let x = xstart + this.left_margin;
 
     for (let i = notestart; i <= hcount; i += 1) {
-      if (((i % 12) !== 0) &&
-         (x < (this.canvas.width - this.right_margin))) {
+      if (((i % 12) !== 0)
+         && (x < (this.canvas.width - this.right_margin))) {
         ctx.moveTo(x, this.top_margin);
         ctx.lineTo(x, this.canvas.height - this.bottom_margin);
       }
@@ -84,8 +84,8 @@ export default class SampleMapper {
 
     x = xstart + this.left_margin;
     for (let i = notestart; i <= hcount; i += 1) {
-      if (((i % 12) === 0) &&
-         (x < (this.canvas.width - this.right_margin))) {
+      if (((i % 12) === 0)
+         && (x < (this.canvas.width - this.right_margin))) {
         ctx.moveTo(x, 0);
         ctx.lineTo(x, this.canvas.height);
       }
@@ -120,8 +120,8 @@ export default class SampleMapper {
       visw = (this.canvas.width - this.right_margin) - visx;
     }
 
-    if ((visx < (this.canvas.width - this.right_margin)) &&
-       ((visx + visw) > this.left_margin)) {
+    if ((visx < (this.canvas.width - this.right_margin))
+       && ((visx + visw) > this.left_margin)) {
       ctx.save();
       ctx.globalAlpha = 0.2;
       if (drawselected) {
@@ -151,8 +151,8 @@ export default class SampleMapper {
   redrawGraph() {
     const ctx = this.canvas.getContext('2d');
 
-    const height = this.canvas.height;
-    const width = this.canvas.width;
+    const { height } = this.canvas;
+    const { width } = this.canvas;
 
     this.internalHeight = height - this.bottom_margin - this.top_margin;
     this.internalWidth = width - this.left_margin - this.right_margin;
@@ -295,8 +295,8 @@ export default class SampleMapper {
       const segx2 = this.segments[this.selectedSegment].end * this.notesize;
       const x = (e.offsetX - this.left_margin) - this.offset;
 
-      if (((x > (segx1 - 5)) && (x < (segx1 + 5))) ||
-         ((x > (segx2 - 5)) && (x < (segx2 + 5)))) {
+      if (((x > (segx1 - 5)) && (x < (segx1 + 5)))
+         || ((x > (segx2 - 5)) && (x < (segx2 + 5)))) {
         $(this.canvas).toggleClass('dragging', true);
       } else {
         $(this.canvas).toggleClass('dragging', false);

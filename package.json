@@ -15,7 +15,8 @@
     "lint": "npm run lint:js && npm run lint:css",
     "lint:eslint": "eslint --ignore-path .gitignore --ignore-pattern server.js --ignore-pattern webpack.config.js",
     "lint:js": "npm run lint:eslint -- . ",
-    "lint:css": "stylelint ./src/**/*.css"
+    "lint:css": "stylelint ./src/**/*.css",
+    "lint:fix": "npm run lint:eslint -- --fix ."
   },
   "author": "",
   "license": "ISC",
@@ -108,6 +109,10 @@
         "error",
         "event",
         "fdescribe"
+      ],
+      "no-multi-spaces": [
+        2,
+        { "ignoreEOLComments": true }
       ],
       "arrow-body-style": [
         2,

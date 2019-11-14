@@ -44,7 +44,7 @@ export default class AudioMeter {
     // Do a root-mean-square on the samples: sum up the squares...
     for (let b = 0; b < buf.numberOfChannels; b += 1) {
       const inputData = buf.getChannelData(b);
-      const length = inputData.length;
+      const { length } = inputData;
       let sum = 0;
       let peak = 0;
       for (let i = 0; i < length; i += 1) {
@@ -72,4 +72,3 @@ export default class AudioMeter {
     }
   }
 }
-

@@ -21,8 +21,8 @@ export default class Transport {
     MouseTrap.bind(['{', '}'], (e) => {
       state.set({
         transport: {
-          step: e.key === '{' ? Math.max(0, state.transport.get('step') - 1) :
-                               state.transport.get('step') + 1,
+          step: e.key === '{' ? Math.max(0, state.transport.get('step') - 1)
+            : state.transport.get('step') + 1,
         },
       });
       e.preventDefault();
@@ -31,8 +31,8 @@ export default class Transport {
     MouseTrap.bind(['\'', '|'], (e) => {
       state.set({
         transport: {
-          octave: e.key === '\'' ? Math.max(0, state.transport.get('octave') - 1) :
-                                  state.transport.get('octave') + 1,
+          octave: e.key === '\'' ? Math.max(0, state.transport.get('octave') - 1)
+            : state.transport.get('octave') + 1,
         },
       });
       e.preventDefault();
@@ -108,7 +108,7 @@ export default class Transport {
         modal: true,
         buttons: {
           Ok: function ok() {
-            const files = $('#file-input')[0].files;
+            const { files } = $('#file-input')[0];
             if (files.length > 0) {
               song.loadSongFromFile(files[0], (result) => {
                 song.setSong(result);

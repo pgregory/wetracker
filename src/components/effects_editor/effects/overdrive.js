@@ -15,7 +15,6 @@ class OverdriveEffectUI extends EffectUIBase {
     this.bindParameterToUI('#alg-slider', '#alg-value', 0, 5, 1, 'algorithmIndex');
     this.bindBypass();
   }
-
 }
 
 export { OverdriveEffectUI as UI };

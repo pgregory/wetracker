@@ -36,10 +36,12 @@ export default class SampleList {
 
       const containerHeight = target.find('.samples-list').height();
       target.find('.samples-top-padding div').height(
-        (containerHeight - this.rowHeight) / 2.0);
+        (containerHeight - this.rowHeight) / 2.0
+      );
 
       target.find('.samples-bottom-padding div').height(
-        (containerHeight - this.rowHeight) / 2.0);
+        (containerHeight - this.rowHeight) / 2.0
+      );
     }
     target.find('.samples').on('wheel', this.onScroll.bind(this));
 
@@ -70,7 +72,7 @@ export default class SampleList {
         modal: true,
         buttons: {
           Ok: function ok() {
-            const files = $('#file-input')[0].files;
+            const { files } = $('#file-input')[0];
             if (files.length > 0) {
               player.loadSampleFromFile(files[0], (audioData, floatData) => {
                 const instrumentIndex = state.cursor.get('instrument');

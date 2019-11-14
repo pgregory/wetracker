@@ -1,6 +1,6 @@
 import { song } from './songmanager';
 import { state } from '../state';
-import { cursor } from '../utils/cursor';
+import { cursor } from './cursor';
 
 export class FXInput {
   constructor() {

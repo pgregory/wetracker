@@ -21,7 +21,6 @@ class CompressorEffectUI extends EffectUIBase {
     }).prop('checked', this.effect.parameters.automakeup);
     this.bindBypass();
   }
-
 }
 
 export { CompressorEffectUI as UI };

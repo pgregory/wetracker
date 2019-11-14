@@ -44,7 +44,7 @@ export default class SampleEditor {
       this.instrument = song.getInstrument(this.instrumentIndex);
       this.sample = this.instrument.samples[this.sampleIndex];
       // Set default zoom to fill the window.
-      const len = this.sample.len;
+      const { len } = this.sample;
       if (len > 0) {
         this.zoom = this.canvas.width / len;
         this.minzoom = this.zoom;
@@ -63,14 +63,14 @@ export default class SampleEditor {
     this.wave_canvas.height = $('.sample-editor .waveform').height();
     this.wave_canvas.width = $('.sample-editor .waveform').width();
 
-    const width = this.wave_canvas.width;
-    const height = this.wave_canvas.height;
+    const { width } = this.wave_canvas;
+    const { height } = this.wave_canvas;
     const ctx = this.wave_canvas.getContext('2d');
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, width, height);
 
     if (this.sample) {
-      const len = this.sample.len;
+      const { len } = this.sample;
       const samples = this.sample.sampledata.data;
 
       if (this.zoom == null) {
@@ -244,12 +244,12 @@ export default class SampleEditor {
 
   onMouseDown(e) {
     const clickX = e.offsetX;
-    if ((clickX > (this.loopStartMarker - 5)) &&
-        (clickX < (this.loopStartMarker + 5))) {
+    if ((clickX > (this.loopStartMarker - 5))
+        && (clickX < (this.loopStartMarker + 5))) {
       this.dragging = true;
       this.dragMarker = 0;
-    } else if ((clickX > (this.loopEndMarker - 5)) &&
-        (clickX < (this.loopEndMarker + 5))) {
+    } else if ((clickX > (this.loopEndMarker - 5))
+        && (clickX < (this.loopEndMarker + 5))) {
       this.dragging = true;
       this.dragMarker = 1;
     } else {
@@ -308,8 +308,8 @@ export default class SampleEditor {
   }
 
   onCursorChanged() {
-    if ((state.cursor.get('instrument') !== this.lastCursor.get('instrument')) ||
-        (state.cursor.get('sample') !== this.lastCursor.get('sample'))) {
+    if ((state.cursor.get('instrument') !== this.lastCursor.get('instrument'))
+        || (state.cursor.get('sample') !== this.lastCursor.get('sample'))) {
       this.updateSample();
 
       try {
@@ -337,8 +337,8 @@ export default class SampleEditor {
   }
 
   onSampleChanged(instrumentIndex, sampleIndex) {
-    if (((this.instrumentIndex != null) && (instrumentIndex === this.instrumentIndex)) &&
-       ((this.sampleIndex != null) && (sampleIndex === this.sampleIndex))) {
+    if (((this.instrumentIndex != null) && (instrumentIndex === this.instrumentIndex))
+       && ((this.sampleIndex != null) && (sampleIndex === this.sampleIndex))) {
       this.updateSample();
       this.updateDisplay();
       this.updateControlPanel();

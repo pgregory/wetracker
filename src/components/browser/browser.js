@@ -3,7 +3,7 @@ import 'jquery-ui/core';
 import 'jquery-ui/effect';
 import 'jquery-ui/effects/effect-blind';
 
-import {createTree} from 'jquery.fancytree';
+import { createTree } from 'jquery.fancytree';
 import 'jquery.fancytree/dist/modules/jquery.fancytree.glyph';
 import '../../ui.fancytree.css';
 
@@ -55,10 +55,12 @@ export default class Browser {
         return false;
       },
       source: [
-        { title: 'Demo Songs', folder: true, key: 'demosongs', lazy: true },
+        {
+          title: 'Demo Songs', folder: true, key: 'demosongs', lazy: true,
+        },
       ],
       lazyLoad: (event, data) => {
-        const node = data.node;
+        const { node } = data;
         data.result = { // eslint-disable-line no-param-reassign
           url: `${__API__}${node.key}`,
         };
@@ -70,7 +72,7 @@ export default class Browser {
         });
       },
       dblclick: (event, data) => {
-        const node = data.node;
+        const { node } = data;
 
         if ('_id' in node.data) {
           const songfileURL = `${__API__}songs/${node.data._id}/file`;

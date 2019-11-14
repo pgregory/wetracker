@@ -38,7 +38,8 @@ export default class InstrumentList {
     target.find('.instruments-top-padding div').height((containerHeight - this.rowHeight) / 2.0);
 
     target.find('.instruments-bottom-padding div').height(
-      (containerHeight - this.rowHeight) / 2.0);
+      (containerHeight - this.rowHeight) / 2.0
+    );
 
     target.find('.instruments').on('wheel', this.onScroll.bind(this));
 

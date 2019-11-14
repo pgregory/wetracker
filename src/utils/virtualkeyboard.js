@@ -1,10 +1,10 @@
 import $ from 'jquery';
-import { signal } from '../utils/signal';
+import { signal } from './signal';
 
 import { song } from './songmanager';
 import { state } from '../state';
 import { player } from '../audio/player';
-import { cursor } from '../utils/cursor';
+import { cursor } from './cursor';
 
 class VirtualKeyboard {
   constructor() {

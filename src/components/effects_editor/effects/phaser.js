@@ -16,7 +16,6 @@ class PhaserEffectUI extends EffectUIBase {
     this.bindParameterToUI('#base-slider', '#base-value', 500, 1500, 1, 'baseModulationFrequency');
     this.bindBypass();
   }
-
 }
 
 export { PhaserEffectUI as UI };
