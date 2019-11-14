@@ -54,6 +54,14 @@
   border-radius: 2px;
 }
 
+.samples .samples-name div {
+  padding-left: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1 0 auto;
+}
+
 .samples .samples-row.current-sample .samples-index div {
   background: #090;
 }
@@ -64,14 +72,6 @@
   flex: 1 0 auto;
   text-align: left;
   overflow: hidden;
-}
-
-.samples .samples-name div {
-  padding-left: 3px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex: 1 0 auto;
 }
 
 .samples .samples-top-padding,

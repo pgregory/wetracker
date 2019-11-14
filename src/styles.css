@@ -141,15 +141,15 @@ ul.tab li a.active {
   flex-direction: column;
 }
 
-.widget-with-controls .widget-controls {
-  background: #444;
-  border-radius: 3px;
-}
-
 .widget-controls {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+}
+
+.widget-with-controls .widget-controls {
+  background: #444;
+  border-radius: 3px;
 }
 
 .widget-titlebar {

@@ -42,7 +42,7 @@ export class CursorManager {
           return;
         }
         song.deleteItemAtCursor(state.cursor.toJS());
-        event.preventDefault();
+        e.preventDefault();
       }
     });
     MouseTrap.bind('backspace', (e) => {
@@ -56,7 +56,7 @@ export class CursorManager {
             row: state.cursor.get('row') - 1,
           },
         });
-        event.preventDefault();
+        e.preventDefault();
       }
     });
   }

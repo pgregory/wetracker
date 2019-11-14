@@ -1,16 +1,15 @@
 import $ from 'jquery';
 
 import Immutable from 'immutable';
-import styles_dom from './styles_dom.css';
-import styles from './styles.css';
+import './styles_dom.css';
+import './styles.css';
 
 import { connect } from '../../utils/signal';
 import { state } from '../../state';
 import { song } from '../../utils/songmanager';
-import { player, MUTE, SILENT } from '../../audio/player';
+import { player } from '../../audio/player';
 
 import patternEditorMarko from './templates/patterneditor_dom.marko';
-import eventTemplate from './templates/event.dot';
 
 import {
   toNote, toInstrument, toVolume, toPanning, toDelay, toFX,
@@ -166,13 +165,13 @@ export default class PatternEditorDOM {
     animateScroll();
   }
 
-  updateCursor(timestamp) {
+  updateCursor(/* timestamp */) {
     if (state.cursor.get('pattern') !== this.lastCursor.pattern) {
       this.redrawAllRows();
       // $(this.target).empty();
       // this.render(this.target);
     }
-    const rowOffset = state.cursor.get('row') * 15.0;
+    // const rowOffset = state.cursor.get('row') * 15.0;
 
     // this.timeline.scrollTop = rowOffset;
     // this.events.scrollTop = rowOffset;
@@ -209,7 +208,7 @@ export default class PatternEditorDOM {
     this.lastCursor = state.cursor.toJS();
   }
 
-  onCursorChanged(state) {
+  onCursorChanged(/* state */) {
     window.requestAnimationFrame(this.updateCursor.bind(this));
   }
 
@@ -225,7 +224,7 @@ export default class PatternEditorDOM {
     // this.redrawCanvas();
   }
 
-  onEventChanged(cursor, event) {
+  onEventChanged(/* cursor, event */) {
     /* const pos = this.eventPositionInPatternCanvas(cursor);
     const patternCanvas = this.getPatternCanvasForSequence(state.cursor.get('sequence'));
     const ctx = patternCanvas.getContext('2d');
@@ -246,7 +245,7 @@ export default class PatternEditorDOM {
     this.refresh();
   }
 
-  onSequenceItemChanged(sequence) {
+  onSequenceItemChanged(/* sequence */) {
     // const patternIndex = song.getSequencePatternNumber(sequence);
     // this.patternCanvases[patternIndex] = this.renderPattern(patternIndex);
     this.refresh();
@@ -266,52 +265,51 @@ export default class PatternEditorDOM {
   }
 
   redrawAllRows() {
-    const curr_pattern_id = state.cursor.get('pattern');
-    const curr_pattern = state.song.getIn('patterns', curr_pattern_id);
+    const currPatternId = state.cursor.get('pattern');
+    const currPattern = state.song.getIn('patterns', currPatternId);
 
     for (let rowi = 0, rowe = this.row_cache.length; rowi < rowe; rowi += 1) {
-      const display_row = this.row_cache[rowi];
-      const curr_row = curr_pattern.rows[rowi];
-      for (let tracki = 0, tracke = display_row.length; tracki < tracke; tracki += 1) {
-        const display_track = display_row[tracki];
-        const curr_track = curr_row[display_track.id];
-        for (let notecoli = 0, notecole = display_track.columns.length; notecoli < notecole; notecoli += 1) {
-          const display_notecol = display_track.columns[notecoli];
-          const curr_notecol = curr_track.notedata[song.song.tracks[tracki].columns[notecoli].id];
+      const displayRow = this.row_cache[rowi];
+      const currRow = currPattern.rows[rowi];
+      for (let tracki = 0, tracke = displayRow.length; tracki < tracke; tracki += 1) {
+        const displayTrack = displayRow[tracki];
+        const currTrack = currRow[displayTrack.id];
+        for (let notecoli = 0, notecole = displayTrack.columns.length; notecoli < notecole; notecoli += 1) {
+          const displayNotecol = displayTrack.columns[notecoli];
+          const currNotecol = currTrack.notedata[song.song.tracks[tracki].columns[notecoli].id];
           // If there is data in the new pattern, check if we need to render it.
-          if (curr_notecol) {
-            const diff = (curr_notecol.note !== display_notecol.eventdata.note)
-                         || (curr_notecol.instrument !== display_notecol.eventdata.instrument)
-                         || (curr_notecol.volume !== display_notecol.eventdata.volume)
-                         || (curr_notecol.panning !== display_notecol.eventdata.panning)
-                         || (curr_notecol.delay !== display_notecol.eventdata.delay)
-                         || (curr_notecol.fxtype !== display_notecol.eventdata.fxtype)
-                         || (curr_notecol.fxparam !== display_notecol.eventdata.fxparam);
+          if (currNotecol) {
+            const diff = (currNotecol.note !== displayNotecol.eventdata.note)
+                         || (currNotecol.instrument !== displayNotecol.eventdata.instrument)
+                         || (currNotecol.volume !== displayNotecol.eventdata.volume)
+                         || (currNotecol.panning !== displayNotecol.eventdata.panning)
+                         || (currNotecol.delay !== displayNotecol.eventdata.delay)
+                         || (currNotecol.fxtype !== displayNotecol.eventdata.fxtype)
+                         || (currNotecol.fxparam !== displayNotecol.eventdata.fxparam);
             if (diff) {
-              display_notecol.note[0].innerHTML = toNote(curr_notecol.note);
-              display_notecol.instrument[0].innerHTML = toInstrument(curr_notecol.instrument);
-              display_notecol.volume[0].innerHTML = toVolume(curr_notecol.volume);
-              display_notecol.panning[0].innerHTML = toPanning(curr_notecol.panning);
-              display_notecol.delay[0].innerHTML = toDelay(curr_notecol.delay);
-              display_notecol.fx[0].innerHTML = toFX(curr_notecol.fxtype, curr_notecol.fxparam);
+              displayNotecol.note[0].innerHTML = toNote(currNotecol.note);
+              displayNotecol.instrument[0].innerHTML = toInstrument(currNotecol.instrument);
+              displayNotecol.volume[0].innerHTML = toVolume(currNotecol.volume);
+              displayNotecol.panning[0].innerHTML = toPanning(currNotecol.panning);
+              displayNotecol.delay[0].innerHTML = toDelay(currNotecol.delay);
+              displayNotecol.fx[0].innerHTML = toFX(currNotecol.fxtype, currNotecol.fxparam);
             }
-          } else {
+          } else if (displayNotecol.notedata) {
             // If the new pattern is empty in this event, but the previous wasn't, empty it.
-            if (display_notecol.notedata) {
-              display_notecol.note[0].innerHTML = toNote(undefined);
-              display_notecol.instrument[0].innerHTML = toInstrument(undefined);
-              display_notecol.volume[0].innerHTML = toVolume(undefined);
-              display_notecol.panning[0].innerHTML = toPanning(undefined);
-              display_notecol.delay[0].innerHTML = toDelay(undefined);
-              display_notecol.fx[0].innerHTML = toFX(undefined, undefined);
-            }
+            displayNotecol.note[0].innerHTML = toNote(undefined);
+            displayNotecol.instrument[0].innerHTML = toInstrument(undefined);
+            displayNotecol.volume[0].innerHTML = toVolume(undefined);
+            displayNotecol.panning[0].innerHTML = toPanning(undefined);
+            displayNotecol.delay[0].innerHTML = toDelay(undefined);
+            displayNotecol.fx[0].innerHTML = toFX(undefined, undefined);
           }
         }
       }
     }
   }
 
-  redrawRow(row) {
+  redrawRow(/* row */) {
+    /*
     for (const track in song.song.tracks) {
       for (const column in song.song.tracks[track].columns) {
         const rowcursor = state.cursor.merge({
@@ -322,11 +320,14 @@ export default class PatternEditorDOM {
         this.onEventChanged(rowcursor.toJS());
       }
     }
+    */
   }
 
+  /*
   onEventChanged(cursor) {
     const eventCursor = this.patternRows.eq(cursor.row + 1).find(`.line:eq(${cursor.track}) .note-column:eq(${cursor.column})`);
     const newEvent = song.findEventAtCursor(cursor);
     $(eventCursor).replaceWith(this.eventPartial(newEvent));
   }
+  */
 }

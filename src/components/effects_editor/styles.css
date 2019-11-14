@@ -26,6 +26,10 @@
   overflow: auto;
 }
 
+.effect-control-panel:last-child {
+  border-right: 2px solid black;
+}
+
 .effects-editor .effects-chain .effect-control-panel {
   background-color: dimgrey;
   border-radius: 3px;
@@ -34,10 +38,6 @@
   border-top: 2px solid black;
   border-bottom: 2px solid black;
   border-left: 2px solid black;
-}
-
-.effect-control-panel:last-child {
-  border-right: 2px solid black;
 }
 
 .effect-control-panel .effect-header {

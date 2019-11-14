@@ -186,7 +186,7 @@ export default class SampleEditor {
     const target = $(this.target);
     target.append(sampleTemplate.renderToString({ sample: this.sample }));
 
-    this.canvas = $(this.target).find('.sample-editor .waveform canvas')[0];
+    [this.canvas] = $(this.target).find('.sample-editor .waveform canvas');
 
     target.find('button#note-down').click(() => {
       this.sample.note = Math.max(-48, this.sample.note - 1);

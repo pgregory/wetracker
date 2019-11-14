@@ -49,6 +49,14 @@
   border-radius: 2px;
 }
 
+.instruments .instrument-name div {
+  padding-left: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1 0 auto;
+}
+
 .instruments .instrument-row.current-instrument .instrument-index div {
   background: #090;
 }
@@ -59,14 +67,6 @@
   flex: 1 0 auto;
   text-align: left;
   overflow: hidden;
-}
-
-.instruments .instrument-name div {
-  padding-left: 3px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex: 1 0 auto;
 }
 
 .instruments .instrument-top-padding,

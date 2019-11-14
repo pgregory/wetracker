@@ -2,7 +2,7 @@
   overflow: hidden;
   display: flex;
   flex-direction: row;
-	position: relative;
+  position: relative;
 }
 
 .xscroll {
@@ -15,7 +15,7 @@
 
 .track-header {
   position: absolute;
-  background: rgb(128,128,128);
+  background: rgb(128, 128, 128);
 }
 
 .trackview {
@@ -24,7 +24,7 @@
   flex: auto;
   overflow-y: scroll;
   overflow-x: hidden;
-	scrollbar-width: none;
+  scrollbar-width: none;
   z-index: 40;
 }
 
@@ -70,14 +70,15 @@
   display: flex;
   flex-direction: column;
   padding-top: 167px;
-	padding-bottom: 1000px;
+  padding-bottom: 1000px;
 }
 
 .rows .track .row {
   min-width: 150px;
 }
 
-.row .tick, .ghost-row .tick {
+.row .tick,
+.ghost-row .tick {
   color: #999;
   font-family: monospace;
   width: 40px;
@@ -88,7 +89,8 @@
   color: #FFF;
 }
 
-.beat-row, .ghost-beat-row {
+.beat-row,
+.ghost-beat-row {
   background: #333;
 }
 
@@ -104,7 +106,8 @@
   display: flex;
 }
 
-.line, .ghost-line {
+.line,
+.ghost-line {
   font-family: monospace;
   line-height: 1;
   display: flex;
@@ -143,7 +146,8 @@
   color: #311;
 }
 
-.line .volume, .ghost-line .volume {
+.line .volume,
+.ghost-line .volume {
   color: #666;
   width: 18px;
 }
@@ -156,7 +160,8 @@
   color: #111;
 }
 
-.line .panning, .ghost-line .panning {
+.line .panning,
+.ghost-line .panning {
   color: #969;
   width: 18px;
 }
@@ -200,7 +205,6 @@
   color: #444;
 }
 
-
 #timeline {
   overflow: hidden;
 }
@@ -223,47 +227,44 @@
 }
 
 .row-numbers {
-	padding-top: 167px;
-	overflow-y: visible;
-	position: relative;
-	top: 0px;
+  padding-top: 167px;
+  overflow-y: visible;
+  position: relative;
+  top: 0;
 }
 
 .row-numbers-track-header {
-	width: 100%;
-	height: 49px;
-	position: absolute;
+  width: 100%;
+  height: 49px;
+  position: absolute;
   background: black;
-	z-index: 10;
-}
-
-.row-numbers-track-header.left {
+  z-index: 10;
 }
 
 .row-numbers-track-header.right {
-	right: 25px;
+  right: 25px;
 }
 
 .row-numbers.left {
-	padding-right: 10px;
-	text-align: right;
+  padding-right: 10px;
+  text-align: right;
 }
 
 .row-numbers.right {
-	padding-left: 10px;
+  padding-left: 10px;
 }
 
 .row-number {
-	color: #999;
-	line-height: 1;
+  color: #999;
+  line-height: 1;
   font-family: monospace;
 }
 
 .row-marker {
-	position: absolute;
-	top: 165px;
-	width: 100%;
-	height: 17px;
-	border: 2px solid rgba(255,255,255,0.8);
-	z-index: 99;
+  position: absolute;
+  top: 165px;
+  width: 100%;
+  height: 17px;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  z-index: 99;
 }

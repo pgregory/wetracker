@@ -487,7 +487,7 @@ export default class PatternEditorCanvas {
       tracknames: song.getTrackNames(),
       numrows,
     }));
-    this.canvas = $(this.target).find('canvas#gfxpattern')[0];
+    this.canvas = $(this.target).find('canvas#gfxpattern')[0]; // eslint-disable-line prefer-destructuring
     this.timelines = $(this.target).find('canvas.timelinecanvas');
 
     this.hscroll = $(this.canvas).closest('.hscroll');

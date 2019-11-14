@@ -470,7 +470,6 @@ export class SongManager {
       xmReq.onload = () => {
         console.log(`xmReq.onload: ${xmReq.status}`);
         if (xmReq.status === 200 || xmReq.status === 304) {
-          console;
           const arrayBuffer = xmReq.response;
           if (arrayBuffer) {
             // Remove anchor
@@ -487,18 +486,18 @@ export class SongManager {
               }
             } catch (error) {
               console.log(`Error loading song: ${error}`);
-              reject(`Invalid song file ${error}`);
+              reject(new Error(`Invalid song file ${error}`));
             }
           } else {
             console.log('Unable to load', uri);
-            reject('Cannot load song file');
+            reject(new Error('Cannot load song file'));
           }
         } else {
           reject(xmReq.statusText);
         }
       };
       xmReq.onerror = (e) => {
-        reject(`Network error fetching file: ${uri} ${e.target.status}`);
+        reject(new Error(`Network error fetching file: ${uri} ${e.target.status}`));
       };
       xmReq.send(null);
     });
@@ -514,7 +513,7 @@ export class SongManager {
       a.click();
     }
 
-    const input = new Buffer(JSON.stringify(state.song.toJS(), (k, v) => {
+    const input = Buffer.alloc(JSON.stringify(state.song.toJS(), (k, v) => {
       // Deal with sampledata differently, as we encode the binary data for
       // efficient serialisation.
       if (k === 'sampledata') {

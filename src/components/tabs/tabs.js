@@ -1,6 +1,6 @@
 import $ from 'jquery';
 
-import PatternEditorCanvas from '../pattern_editor/pattern_editor_canvas';
+// import PatternEditorCanvas from '../pattern_editor/pattern_editor_canvas';
 import PatternEditorDOM from '../pattern_editor/pattern_editor_dom';
 import Monitors from '../monitors/monitors';
 import SequenceEditor from '../sequence_editor/sequence_editor';

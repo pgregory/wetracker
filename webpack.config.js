@@ -108,17 +108,6 @@ module.exports = [
 				'copy': 'file-loader?name=[path][name].[ext]&context=./src',
 			}
 		}
-	},
-	{
-		devtool: 'source-map',
-		target: 'webworker',
-		entry: [
-			'./src/audio/timerworker.js',
-		],
-		output: {
-			filename: 'sharedworker.bundle.js',
-			path: __dirname,
-		}
 	}
 ]
 /* eslint-enable */
