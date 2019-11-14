@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  </head>
+  <body>
+    <div id="controls">
+      <button type="button" id="load-song">Load</button>
+      <button type="button" id="play-song">Play</button>
+      <button type="button" id="pause-song">Pause</button>
+      <button type="button" id="stop-song">Stop</button>
+      <button type="button" id="reset-song">Reset</button>
+    </div>
+    <script src="bin/embedded.bundle.js" charset="utf-8"></script>
+    <script>
+      document.getElementById('load-song').onclick = function() {
+        window.modPlayer.loadSong("http://localhost:8000/data/onward.xm");
+      };
+      document.getElementById('play-song').onclick = function() {
+        window.modPlayer.playSong();
+      };
+      document.getElementById('pause-song').onclick = function() {
+        window.modPlayer.pauseSong();
+      };
+      document.getElementById('stop-song').onclick = function() {
+        window.modPlayer.stopSong();
+      };
+      document.getElementById('reset-song').onclick = function() {
+        window.modPlayer.resetSong();
+      };
+    </script>
+  </body>
+</html>
