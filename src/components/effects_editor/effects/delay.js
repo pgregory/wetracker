@@ -2,6 +2,7 @@ import $ from 'jquery';
 import 'jquery-ui/widgets/slider';
 
 import { EffectUIBase } from './base';
+import * as fx from '../../../audio/effects/delay';
 
 import template from './templates/delay.marko';
 
@@ -18,4 +19,4 @@ class DelayEffectUI extends EffectUIBase {
   }
 }
 
-export { DelayEffectUI as UI };
+export { DelayEffectUI as UI, fx };

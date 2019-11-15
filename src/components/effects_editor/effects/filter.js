@@ -2,6 +2,7 @@ import $ from 'jquery';
 import 'jquery-ui/widgets/slider';
 
 import { EffectUIBase } from './base';
+import * as fx from '../../../audio/effects/filter';
 
 import template from './templates/filter.marko';
 
@@ -20,4 +21,4 @@ class FilterEffectUI extends EffectUIBase {
   }
 }
 
-export { FilterEffectUI as UI };
+export { FilterEffectUI as UI, fx };

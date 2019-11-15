@@ -2,6 +2,7 @@ import $ from 'jquery';
 import 'jquery-ui/widgets/slider';
 
 import { EffectUIBase } from './base';
+import * as fx from '../../../audio/effects/bitcrusher';
 
 import template from './templates/bitcrusher.marko';
 
@@ -16,4 +17,4 @@ class BitCrusherEffectUI extends EffectUIBase {
   }
 }
 
-export { BitCrusherEffectUI as UI };
+export { BitCrusherEffectUI as UI, fx };

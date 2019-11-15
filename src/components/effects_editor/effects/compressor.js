@@ -2,6 +2,7 @@ import $ from 'jquery';
 import 'jquery-ui/widgets/slider';
 
 import { EffectUIBase } from './base';
+import * as fx from '../../../audio/effects/compressor';
 
 import template from './templates/compressor.marko';
 
@@ -23,4 +24,4 @@ class CompressorEffectUI extends EffectUIBase {
   }
 }
 
-export { CompressorEffectUI as UI };
+export { CompressorEffectUI as UI, fx };

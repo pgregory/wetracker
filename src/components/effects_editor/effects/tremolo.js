@@ -2,6 +2,7 @@ import $ from 'jquery';
 import 'jquery-ui/widgets/slider';
 
 import { EffectUIBase } from './base';
+import * as fx from '../../../audio/effects/tremolo';
 
 import template from './templates/tremolo.marko';
 
@@ -16,4 +17,4 @@ class TremoloEffectUI extends EffectUIBase {
   }
 }
 
-export { TremoloEffectUI as UI };
+export { TremoloEffectUI as UI, fx };

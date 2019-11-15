@@ -2,6 +2,7 @@ import $ from 'jquery';
 import 'jquery-ui/widgets/slider';
 
 import { EffectUIBase } from './base';
+import * as fx from '../../../audio/effects/filter';
 
 import template from './templates/overdrive.marko';
 
@@ -17,4 +18,4 @@ class OverdriveEffectUI extends EffectUIBase {
   }
 }
 
-export { OverdriveEffectUI as UI };
+export { OverdriveEffectUI as UI, fx };

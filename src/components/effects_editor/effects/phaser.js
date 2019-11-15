@@ -2,6 +2,7 @@ import $ from 'jquery';
 import 'jquery-ui/widgets/slider';
 
 import { EffectUIBase } from './base';
+import * as fx from '../../../audio/effects/phaser';
 
 import template from './templates/phaser.marko';
 
@@ -18,4 +19,4 @@ class PhaserEffectUI extends EffectUIBase {
   }
 }
 
-export { PhaserEffectUI as UI };
+export { PhaserEffectUI as UI, fx };

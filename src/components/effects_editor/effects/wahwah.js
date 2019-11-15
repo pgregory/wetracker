@@ -2,6 +2,7 @@ import $ from 'jquery';
 import 'jquery-ui/widgets/slider';
 
 import { EffectUIBase } from './base';
+import * as fx from '../../../audio/effects/wahwah';
 
 import template from './templates/wahwah.marko';
 
@@ -22,4 +23,4 @@ class WahWahEffectUI extends EffectUIBase {
   }
 }
 
-export { WahWahEffectUI as UI };
+export { WahWahEffectUI as UI, fx };

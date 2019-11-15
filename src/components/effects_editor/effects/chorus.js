@@ -2,6 +2,7 @@ import $ from 'jquery';
 import 'jquery-ui/widgets/slider';
 
 import { EffectUIBase } from './base';
+import * as fx from '../../../audio/effects/chorus';
 
 import template from './templates/chorus.marko';
 
@@ -16,4 +17,4 @@ class ChorusEffectUI extends EffectUIBase {
   }
 }
 
-export { ChorusEffectUI as UI };
+export { ChorusEffectUI as UI, fx };
