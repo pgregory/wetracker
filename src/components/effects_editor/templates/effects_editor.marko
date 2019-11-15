@@ -1,6 +1,8 @@
 <div class="effects-editor">
   <div class="effects-list">
-    <div class="effect-name" data-fxindex="${loop.getIndex()}" for(effect in data.effects | status-var=loop)>${effect.name}</div>
+		<for|effect, index| of=data.effects>
+			<div class="effect-name" data-fxindex=`${index}`>${effect.name}</div>
+		</for>
   </div>
   <div id="effects-location" class="effects-location">
     <div class="location-name">${data.trackname}</div>

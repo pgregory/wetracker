@@ -4,10 +4,12 @@
       <div class="sequence-top-padding">
         <div></div>
       </div>
-      <div class={"sequence-row": true, "current-pattern": data.cursor.sequence === loop.getIndex()} data-sequenceindex="${loop.getIndex()}" for(p in data.sequence | status-var=loop)>
-        <div class="sequence-index"><div>${loop.getIndex()}</div></div>
-        <div class="sequence-pattern"><div>${p}</div></div>
-      </div>
+			<for|p, index| in=data.sequence>
+				<div class={"sequence-row": true, "current-pattern": data.cursor.sequence === index} data-sequenceindex=`${index}`>
+					<div class="sequence-index"><div>${index}</div></div>
+					<div class="sequence-pattern"><div>${p}</div></div>
+				</div>
+			</for>
       <div class="sequence-bottom-padding">
         <div></div>
       </div>

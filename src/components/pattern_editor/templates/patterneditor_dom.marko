@@ -1,6 +1,5 @@
-<script marko-init>
-  var utils = require('./utils');
-</script>
+static var utils = require('./utils');
+
 <macro|{eventData}| name="event">
   <div class="note-column" data-columnid="c1">
     <div class="item note">${utils.toNote(eventData.get('note'))}</div>
@@ -32,12 +31,12 @@
   <div class="xscroll">
     <div class="trackview">
       <for|trackName, trackIndex| of=data.tracknames>
-      <div class="track" data-trackindex="${trackIndex}">
-        <div class="track-header" data-trackindex="${trackIndex}">
+      <div class="track" data-trackindex=`${trackIndex}`>
+        <div class="track-header" data-trackindex=`${trackIndex}`>
           <div class="track-name">
             <div>${trackName}</div>
           </div> 
-          <div class="track-control" data-trackindex="${trackIndex}">
+          <div class="track-control" data-trackindex=`${trackIndex}`>
             <div class="panel">
               <button class="add-column"><span class="fa fa-plus"></span></button>
               <button class="remove-column"><span class="fa fa-minus"></span></button>
