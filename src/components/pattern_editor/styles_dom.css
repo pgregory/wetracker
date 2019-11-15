@@ -28,10 +28,6 @@
   z-index: 40;
 }
 
-.track {
-  min-width: 150px;
-}
-
 .track-name {
   color: white;
   flex: 1 1 auto;
@@ -46,7 +42,6 @@
   font-family: monospace;
   display: flex;
   padding: 3px 3px;
-  min-width: 150px;
 }
 
 .track-control .panel {
@@ -73,15 +68,10 @@
   padding-bottom: 1000px;
 }
 
-.rows .track .row {
-  min-width: 150px;
-}
-
 .row .tick,
 .ghost-row .tick {
   color: #999;
   font-family: monospace;
-  width: 40px;
   line-height: 1;
 }
 
@@ -109,8 +99,11 @@
 .line,
 .ghost-line {
   font-family: monospace;
+  font-size: 16px;
   line-height: 1;
   display: flex;
+  margin-bottom: 2px;
+  margin-top: 2px;
 }
 
 .line .item,
@@ -121,8 +114,11 @@
 
 .line .note {
   color: #669;
-  width: 25px;
   margin-left: 5px;
+}
+
+.line .note.empty {
+  color: #222;
 }
 
 .pattern-cursor-row .line .note {
@@ -135,7 +131,10 @@
 
 .line .instrument {
   color: #966;
-  width: 18px;
+}
+
+.line .instrument.empty {
+  color: #222;
 }
 
 .pattern-cursor-row .line .instrument {
@@ -149,7 +148,11 @@
 .line .volume,
 .ghost-line .volume {
   color: #666;
-  width: 18px;
+}
+
+.line .volume.empty,
+.ghost-line .volume.empty {
+  color: #222;
 }
 
 .pattern-cursor-row .line .volume {
@@ -163,7 +166,11 @@
 .line .panning,
 .ghost-line .panning {
   color: #969;
-  width: 18px;
+}
+
+.line .panning.empty,
+.ghost-line .panning.empty {
+  color: #222;
 }
 
 .pattern-cursor-row .line .panning {
@@ -176,7 +183,10 @@
 
 .line .delay {
   color: #996;
-  width: 18px;
+}
+
+.line .delay.empty {
+  color: #222;
 }
 
 .pattern-cursor-row .line .delay {
@@ -189,7 +199,10 @@
 
 .line .fx {
   color: #888;
-  width: 36px;
+}
+
+.line .fx.empty {
+  color: #222;
 }
 
 .pattern-cursor-row .line .fx {
@@ -258,6 +271,9 @@
   color: #999;
   line-height: 1;
   font-family: monospace;
+  font-size: 16px;
+  padding-bottom: 2px;
+  padding-top: 2px;
 }
 
 .row-marker {

@@ -2,30 +2,39 @@ static var utils = require('./utils');
 
 <macro|{eventData}| name="event">
   <div class="note-column" data-columnid="c1">
-    <div class="item note">${utils.toNote(eventData.get('note'))}</div>
-    <div class="item instrument">${utils.toInstrument(eventData.get('instrument'))}</div>
-    <div class="item volume">${utils.toVolume(eventData.get('volume'))}</div>
-    <div class="item panning">${utils.toPanning(eventData.get('panning'))}</div>
-    <div class="item delay">${utils.toDelay(eventData.get('fxtype'))}</div>
-    <div class="item fx">${utils.toFX(eventData.get('fxtype'), eventData.get('fxparam'))}</div>
+$ {
+	var note = utils.toNote(eventData.get('note'));
+	console.log(note);
+	var instrument = utils.toInstrument(eventData.get('instrument'));
+	var volume = utils.toVolume(eventData.get('volume'));
+	var panning = utils.toPanning(eventData.get('panning'));
+	var delay = utils.toDelay(eventData.get('delay'));
+	var fx = utils.toFX(eventData.get('fxtype'), eventData.get('fxparam'));
+}
+    <div class={item: true, note: true, empty: note[1]}>${note[0]}</div>
+    <div class={item: true, instrument: true, empty: instrument[1]}>${instrument[0]}</div>
+    <div class={item: true, volume: true, empty: volume[1]}>${volume[0]}</div>
+    <div class={item: true, panning: true, empty: panning[1]}>${panning[0]}</div>
+    <div class={item: true, delay: true, empty: delay[1]}>${delay[0]}</div>
+    <div class={item: true, fx: true, empty: fx[1]}>${fx[0]}</div>
   </div>
 </macro>
 <macro name="emptyEvent">
   <div class="note-column" data-columnid="c1">
-    <div class="item note">${utils.toNote()}</div>
-    <div class="item instrument">${utils.toInstrument()}</div>
-    <div class="item volume">${utils.toVolume()}</div>
-    <div class="item panning">${utils.toPanning()}</div>
-    <div class="item delay">${utils.toDelay()}</div>
-    <div class="item fx">${utils.toFX()}</div>
+    <div class="item note empty">${utils.toNote()[0]}</div>
+    <div class="item instrument empty">${utils.toInstrument()[0]}</div>
+    <div class="item volume empty">${utils.toVolume()[0]}</div>
+    <div class="item panning empty">${utils.toPanning()[0]}</div>
+    <div class="item delay empty">${utils.toDelay()[0]}</div>
+    <div class="item fx empty">${utils.toFX()[0]}</div>
   </div>
 </macro>
 <div class="pattern-editor">
 	<div class="row-marker"/>
 	<div class="row-numbers-track-header left"/>
 	<div class="row-numbers left">
-		<for|row| from=0 to=data.rows.size step=1>
-			<div class="row-number">${row}</div>
+		<for|row, index| of=data.rows>
+			<div class="row-number">${index}</div>
 		</for>
 	</div>
   <div class="xscroll">
@@ -44,8 +53,8 @@ static var utils = require('./utils');
           </div> 
         </div>
         <div class="rows">
-          <for|row| from=0 to=data.rows.size step=1>
-          <div class={row: true, 'beat-row': row % 4 == 0}>
+          <for|row, index| of=data.rows>
+          <div class={row: true, 'beat-row': index % 4 == 0}>
             <div class="trackrow">
               <div class="line">
               <!--
@@ -58,8 +67,8 @@ static var utils = require('./utils');
                   <event({}) else/>
                 </for>
                 -->
-                <if(data.rows.getIn([row, trackIndex, 'notedata', 0]))>
-                  <event eventData=data.rows.getIn([row, trackIndex, 'notedata', 0])/>
+                <if(row.getIn([trackIndex, 'notedata', 0]))>
+                  <event eventData=row.getIn([trackIndex, 'notedata', 0])/>
                 </if>
                 <else>
                   <emptyEvent/>
@@ -75,8 +84,8 @@ static var utils = require('./utils');
   </div>
 	<div class="row-numbers-track-header right"/>
 	<div class="row-numbers right">
-		<for|row| from=0 to=data.rows.size step=1>
-			<div class="row-number">${row}</div>
+		<for|row, index| of=data.rows>
+			<div class="row-number">${index}</div>
 		</for>
 	</div>
 </div>

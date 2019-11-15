@@ -79,9 +79,15 @@ export default class PatternEditorDOM {
 
     $('.track-header').each((i, v) => {
       $(v).data('initialLeft', $(v).position().left);
+      $(v).css({ width: $(v).parent('.track').width() });
     });
     $('.trackview').on('wheel', this.onScroll.bind(this));
 
+    this.patternRowHeight = $('.row').first().height();
+    $('.row-marker').css({ height: this.patternRowHeight + 4 });
+    $('.row-marker').css({ top: 50 + (9 * this.patternRowHeight) - 2 });
+    $('.rows').css({ 'padding-top': 50 + (9 * this.patternRowHeight) });
+    $('.row-numbers').css({ 'padding-top': 50 + (9 * this.patternRowHeight) });
     // Cache node references for all note data to enable quick pattern refresh.
 
     this.row_cache = [];
@@ -168,11 +174,15 @@ export default class PatternEditorDOM {
   updateCursor(/* timestamp */) {
     if (state.cursor.get('pattern') !== this.lastCursor.pattern) {
       this.redrawAllRows();
-      // $(this.target).empty();
-      // this.render(this.target);
+      $(this.target).empty();
+      this.render();
     }
-    // const rowOffset = state.cursor.get('row') * 15.0;
+    const row = state.cursor.get('row');
 
+    $('.trackview').scrollTop(row * this.patternRowHeight);
+    $('.row-numbers').each((i, v) => {
+      $(v).css({ top: -(row * this.patternRowHeight) });
+    });
     // this.timeline.scrollTop = rowOffset;
     // this.events.scrollTop = rowOffset;
 
