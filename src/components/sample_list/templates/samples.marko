@@ -15,12 +15,14 @@
     <div class="samples-top-padding">
       <div></div>
     </div>
-		<for|i, index| of=data.samples>
-			<div class={"samples-row": true, "current-sample": data.cursor.sample === index} data-sampleindex=`${index}`>
-				<div class="samples-index"><div>${index}</div></div>
-				<div class="samples-name"><div>${i.name}</div></div>
-			</div>
-		</for>
+    <if(data.samples)>
+      <for|i, index| of=data.samples>
+        <div class={"samples-row": true, "current-sample": data.cursor.sample === index} data-sampleindex=`${index}`>
+          <div class="samples-index"><div>${index}</div></div>
+          <div class="samples-name"><div>${i.name}</div></div>
+        </div>
+      </for>
+    </if>
     <div class="samples-bottom-padding">
       <div></div>
     </div>

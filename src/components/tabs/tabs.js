@@ -1,7 +1,6 @@
 import $ from 'jquery';
 
-// import PatternEditorCanvas from '../pattern_editor/pattern_editor_canvas';
-import PatternEditorDOM from '../pattern_editor/pattern_editor_dom';
+import PatternEditorCanvas from '../pattern_editor/pattern_editor_canvas';
 import Monitors from '../monitors/monitors';
 import SequenceEditor from '../sequence_editor/sequence_editor';
 import InstrumentList from '../instrument_list/instrument_list';
@@ -33,7 +32,7 @@ export default class Tabs {
     };
 
     this.widgetTypes = {
-      'pattern-editor': (t) => new PatternEditorDOM(t),
+      'pattern-editor': (t) => new PatternEditorCanvas(t),
       monitors: (t) => new Monitors(t),
       'sequence-editor': (t) => new SequenceEditor(t),
       'instrument-list': (t) => new InstrumentList(t),

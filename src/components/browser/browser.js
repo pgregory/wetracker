@@ -25,20 +25,21 @@ export default class Browser {
     $(this.target).append(browserTemplate.renderToString());
 
     const glyphOpts = {
+      preset: 'awesome5',
       map: {
-        doc: 'fa fa-file',
-        docOpen: 'fa fa-file',
-        checkboxSelected: 'fa fa-check',
-        checkboxUnknown: 'fa fa-share',
-        dragHelper: 'fa fa-play',
-        dropMarker: 'fa fa-arrow-right',
-        error: 'fa fa-warning-sign',
-        expanderClosed: 'fa fa-caret-right fa-lg',
-        expanderLazy: 'fa fa-caret-right fa-lg',  // fa-plus-sign
-        expanderOpen: 'fa fa-caret-down fa-lg',  // fa-collapse-down
-        folder: 'fa fa-folder-close',
-        folderOpen: 'fa fa-folder-open',
-        loading: 'fa fa-spinner fa-spin fa-pulse fa-lg',
+        doc: 'fas fa-file',
+        docOpen: 'fas fa-file',
+        checkboxSelected: 'fas fa-check',
+        checkboxUnknown: 'fas fa-share',
+        dragHelper: 'fas fa-play',
+        dropMarker: 'fas fa-arrow-right',
+        error: 'fas fa-warning-sign',
+        expanderClosed: 'fas fa-caret-right fa-lg',
+        expanderLazy: 'fas fa-caret-right fa-lg',  // fa-plus-sign
+        expanderOpen: 'fas fa-caret-down fa-lg',  // fa-collapse-down
+        folder: 'fas fa-folder-close',
+        folderOpen: 'fas fa-folder-open',
+        loading: 'fas fa-spinner fa-spin fa-pulse fa-lg',
       },
     };
 
@@ -46,11 +47,12 @@ export default class Browser {
       extensions: ['glyph'],
       glyph: glyphOpts,
       icon: (event, data) => {
+        console.log(data.node);
         if (data.node.isFolder()) {
-          return 'fa fa-folder';
+          return 'fas fa-folder';
         }
         if ('_id' in data.node.data && data.node.data.type === 'song') {
-          return 'fa fa-music';
+          return 'fas fa-music';
         }
         return false;
       },

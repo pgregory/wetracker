@@ -26,12 +26,14 @@
 <else>
   <div class="monitors">
     <div class="monitors-row">
-      <for|c| from=0 to=(data.numtracks - 1)>
-        <div class="monitor">
-          <canvas id=`vu${c}` data-trackindex=`${c}` style="width:100%;height:100%;" class="monitor-canvas"></canvas>
-          <span class="track-name">${data.tracknames[c]}</span>
-        </div>
-      </for>
+      <if(data.numtracks > 0)>
+        <for|c| from=0 to=(data.numtracks - 1)>
+          <div class="monitor">
+            <canvas id=`vu${c}` data-trackindex=`${c}` style="width:100%;height:100%;" class="monitor-canvas"></canvas>
+            <span class="track-name">${data.tracknames[c]}</span>
+          </div>
+        </for>
+      </if>
     </div>
   </div>
 </else>
