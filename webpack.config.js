@@ -72,7 +72,7 @@ module.exports = [
 				loader: "file-loader"
 			}, {
 				test: /\.xm$/,
-				loader: "file-loader"
+				loader: "arraybuffer-loader"
 			}, {
 				test: /\.marko$/,
 				loader: "marko-loader"

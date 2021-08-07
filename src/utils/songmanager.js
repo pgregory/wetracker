@@ -226,7 +226,7 @@ export class SongManager {
   }
 
   newSong() {
-    const newSong = this.loadSongFromArrayBuffer(defsong, 'DefaultSong.lz4');
+    const newSong = this.loadSongFromArrayBuffer(defsong, 'claustrophobia.xm');
     if (newSong) {
       this.setSong(newSong);
     }

@@ -7,6 +7,10 @@ import 'jquery-ui/effects/effect-blind';
 import 'jquery.fancytree/dist/modules/jquery.fancytree.glyph';
 import '../../ui.fancytree.css';
 
+import claustrophobia from '../../../data/claustrophobia.xm';
+import onward from '../../../data/onward.xm';
+import virtualDream from '../../../data/virtual dream.xm';
+
 import { song } from '../../utils/songmanager';
 
 import browserTemplate from './templates/browser.marko';
@@ -47,7 +51,6 @@ export default class Browser {
       extensions: ['glyph'],
       glyph: glyphOpts,
       icon: (event, data) => {
-        console.log(data.node);
         if (data.node.isFolder()) {
           return 'fas fa-folder';
         }
@@ -58,21 +61,22 @@ export default class Browser {
       },
       source: [
         {
-          title: 'Demo Songs', folder: true, key: 'demosongs', lazy: true,
+          title: 'Demo Songs',
+          folder: true,
+          key: 'demosongs',
+          children: [
+            {
+              title: 'Claustrophobia', key: 'claustrophobia.xm', fileArrayBuffer: claustrophobia,
+            },
+            {
+              title: 'Onward', key: 'onward.xm', fileArrayBuffer: onward,
+            },
+            {
+              title: 'Virtual Dream', key: 'virtual dream.xm', fileArrayBuffer: virtualDream,
+            },
+          ],
         },
       ],
-      lazyLoad: (event, data) => {
-        const { node } = data;
-        data.result = { // eslint-disable-line no-param-reassign
-          url: `${__API__}${node.key}`,
-        };
-      },
-      postProcess: (event, data) => {
-        data.result = data.response.map((a) => { // eslint-disable-line no-param-reassign
-          const item = { title: a.name, _id: a._id, type: 'song' };
-          return item;
-        });
-      },
       dblclick: (event, data) => {
         const { node } = data;
 
@@ -104,6 +108,11 @@ export default class Browser {
             });
           } catch (e) {
             console.log(e);
+          }
+        } else if ('fileArrayBuffer' in node.data) {
+          const newSong = song.loadSongFromArrayBuffer(node.data.fileArrayBuffer);
+          if (newSong) {
+            song.setSong(newSong);
           }
         }
       },

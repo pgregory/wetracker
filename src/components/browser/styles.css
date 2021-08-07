@@ -20,3 +20,7 @@
 .browser .item-row .item-name {
   color: white;
 }
+
+.browser span.fancytree-title {
+  color: white;
+}
