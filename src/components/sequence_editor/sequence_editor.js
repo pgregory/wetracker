@@ -102,29 +102,26 @@ export default class SequenceEditor {
   }
 
   onScroll(e) {
-    this.yoff += e.originalEvent.deltaY;
-    if (Math.abs(this.yoff) >= this.rowHeight) {
-      const rowIncr = Math.floor(this.yoff / this.rowHeight);
-      let row = state.cursor.get('sequence') + rowIncr;
-      const maxrow = song.getSequenceLength() - 1;
-      row = Math.min(Math.max(row, 0), maxrow);
+    let row = this.lastCursor.sequence + Math.sign(e.originalEvent.deltaY);
+    // this.yoff += e.originalEvent.deltaY;
+    // let row = Math.floor((this.yoff) / this.rowHeight);
+    const maxrow = song.getSequenceLength();
+    row = ((row % maxrow) + maxrow) % maxrow;
 
-      if (row !== this.lastCursor.sequence) {
-        const pattern = song.getSequencePatternNumber(row);
+    if (row !== this.lastCursor.sequence) {
+      const pattern = song.getSequencePatternNumber(row);
 
-        let patrow = state.cursor.get('row');
-        const maxpatrow = song.getPatternRowCount(pattern);
-        patrow = ((patrow % maxpatrow) + maxpatrow) % maxpatrow;
+      let patrow = state.cursor.get('row');
+      const maxpatrow = song.getPatternRowCount(pattern);
+      patrow = ((patrow % maxpatrow) + maxpatrow) % maxpatrow;
 
-        state.set({
-          cursor: {
-            row: patrow,
-            sequence: row,
-            pattern,
-          },
-        });
-      }
-      this.yoff -= (rowIncr * this.rowHeight);
+      state.set({
+        cursor: {
+          row: patrow,
+          sequence: row,
+          pattern,
+        },
+      });
     }
     e.preventDefault();
   }

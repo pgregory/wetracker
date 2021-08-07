@@ -387,7 +387,6 @@ export default class PatternEditorCanvas {
     }
   }
 
-
   clearEvent(ctx, dx, dy) {
     ctx.globalCompositeOperation = 'source-over';
     ctx.fillStyle = '#000';
@@ -803,7 +802,6 @@ export default class PatternEditorCanvas {
     }
   }
 
-
   pasteRegion() {
     if (state.cursor.get('record') && this.copybuffer && this.copybuffer.length > 0) {
       const pattern = state.cursor.get('pattern');
@@ -848,19 +846,15 @@ export default class PatternEditorCanvas {
 
   onScroll(e) {
     if (Math.abs(e.originalEvent.deltaY) > Math.abs(e.originalEvent.deltaX)) {
-      this.yoff += e.originalEvent.deltaY;
-      if (Math.abs(this.yoff) >= this.patternRowHeight) {
-        const rowIncr = Math.floor(this.yoff / this.patternRowHeight);
-        let row = state.cursor.get('row') + rowIncr;
-        const maxrow = song.getPatternRowCount(state.cursor.get('pattern'));
-        row = ((row % maxrow) + maxrow) % maxrow;
-        state.set({
-          cursor: {
-            row,
-          },
-        });
-        this.yoff -= (rowIncr * this.patternRowHeight);
-      }
+      let row = state.cursor.get('row') + Math.sign(e.originalEvent.deltaY);
+      const maxrow = song.getPatternRowCount(state.cursor.get('pattern'));
+      row = ((row % maxrow) + maxrow) % maxrow;
+
+      state.set({
+        cursor: {
+          row,
+        },
+      });
     } else {
       this.patterndata.scrollLeft(this.patterndata.scrollLeft() + e.originalEvent.deltaX);
       this.redrawCanvas();

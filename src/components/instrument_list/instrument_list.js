@@ -105,8 +105,9 @@ export default class InstrumentList {
   }
 
   onScroll(e) {
-    this.yoff += e.originalEvent.deltaY;
-    let row = Math.floor((this.yoff) / this.rowHeight);
+    let row = this.lastCursor.instrument + Math.sign(e.originalEvent.deltaY);
+    // this.yoff += e.originalEvent.deltaY;
+    // let row = Math.floor((this.yoff) / this.rowHeight);
     const maxrow = song.getNumInstruments();
     row = ((row % maxrow) + maxrow) % maxrow;
 
