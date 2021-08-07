@@ -3,6 +3,7 @@ import 'regenerator-runtime/runtime';
 import $ from 'jquery';
 import 'gridstack';
 import 'gridstack/dist/gridstack.css';
+import 'gridstack/dist/h5/gridstack-dd-native';
 import '@fortawesome/fontawesome-free/js/fontawesome';
 import '@fortawesome/fontawesome-free/js/solid';
 import '@fortawesome/fontawesome-free/js/regular';

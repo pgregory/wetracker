@@ -1,5 +1,6 @@
 import $ from 'jquery';
 
+import { GridStack } from 'gridstack';
 import PatternEditorCanvas from '../pattern_editor/pattern_editor_canvas';
 import Monitors from '../monitors/monitors';
 import SequenceEditor from '../sequence_editor/sequence_editor';
@@ -21,12 +22,12 @@ export default class Tabs {
     this.widgets = [];
 
     this.options = {
-      cellHeight: 40,
-      verticalMargin: 5,
+      cellHeight: 'auto',
+      margin: 5,
       resizable: {
         handles: 'ne, se, sw, nw',
       },
-      width: 50,
+      // column: 20,
       handleClass: 'widget-titlebar',
       alwaysShowResizeHandle: true,
     };
@@ -68,11 +69,19 @@ export default class Tabs {
       }
     });
 
-    $('.grid-stack').gridstack(this.options).on('resizestop', () => {
+    const grids = GridStack.initAll(this.options);
+    grids.forEach((grid) => {
+      grid.on('resizestop', () => {
+        for (let i = 0; i < this.widgets.length; i += 1) {
+          this.widgets[i].refresh();
+        }
+      });
+    });
+    /* $('.grid-stack').gridstack(this.options).on('resizestop', () => {
       for (let i = 0; i < this.widgets.length; i += 1) {
         this.widgets[i].refresh();
       }
-    });
+    }); */
 
     $('.widget').each((i, e) => {
       const widgetType = $(e).data('widget-type');

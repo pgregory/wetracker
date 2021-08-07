@@ -12,7 +12,7 @@
     <div class="instruments-top-padding">
       <div></div>
     </div>
-		<for|i, index| in=data.instrumentnames>
+		<for|i, index| of=data.instrumentnames>
 			<div class={"instrument-row": true, "current-instrument": data.cursor.instrument === index} data-instrumentindex=`${index}`>
 				<div class="instrument-index"><div>${index}</div></div>
 				<div class="instrument-name"><div>${i}</div></div>

@@ -59,7 +59,7 @@
     "express": "^4.17.1",
     "font-awesome": "^4.7.0",
     "font-awesome-webpack": "0.0.4",
-    "gridstack": "^0.5.1",
+    "gridstack": "^4.2.6",
     "immutable": "^3.8.2",
     "jquery": "^3.4.1",
     "jquery-ui": "^1.12.1",
