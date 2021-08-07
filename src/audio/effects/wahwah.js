@@ -18,7 +18,6 @@ function wahWahEffectParameterObject() {
   };
 }
 
-
 class WahWahEffectNode extends EffectNodeBase {
   constructor(tuna, po) {
     super(tuna, po);

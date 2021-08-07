@@ -106,7 +106,6 @@ class XMLoader {
     return `${n} ${i} ${v} ${f}`;
   }
 
-
   load(arrayBuf, filename = '') {
     const dv = new DataView(arrayBuf);
     const newSong = {};

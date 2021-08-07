@@ -63,7 +63,6 @@ export default class SampleList {
       });
     });
 
-
     target.find('#load-sample').click(() => {
       $('#dialog').empty();
       $('#dialog').append($('<input type=\'file\' id=\'file-input\' />'));

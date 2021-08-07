@@ -16,7 +16,6 @@ function filterEffectParameterObject() {
   };
 }
 
-
 class FilterEffectNode extends EffectNodeBase {
   constructor(tuna, po) {
     super(tuna, po);

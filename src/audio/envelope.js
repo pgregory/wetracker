@@ -1,4 +1,3 @@
-
 export default class Envelope {
   constructor(points, type, sustain, loopstart, loopend) {
     this.points = points;

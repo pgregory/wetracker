@@ -19,7 +19,6 @@ function compressorEffectParameterObject() {
   };
 }
 
-
 class CompressorEffectNode extends EffectNodeBase {
   constructor(tuna, po) {
     super(tuna, po);

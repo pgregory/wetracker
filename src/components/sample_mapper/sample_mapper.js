@@ -105,7 +105,6 @@ export default class SampleMapper {
     }
   }
 
-
   /* eslint-disable no-param-reassign */
   drawSegment(ctx, x, w, sample, drawselected) {
     let visx = x;
@@ -260,7 +259,7 @@ export default class SampleMapper {
       this.yoff += e.originalEvent.deltaY;
       if (Math.abs(this.yoff) > 10) {
         this.zoom += (this.yoff / 100.0);
-        this.yoff = (this.yoff % 10);
+        this.yoff %= 10;
         this.zoom = Math.min(Math.max(this.zoom, 1), 5);
       }
     } else {

@@ -320,7 +320,6 @@ class Player {
     ch.filter = this.filterCoeffs(ch.doff / 2); // eslint-disable-line no-param-reassign
   }
 
-
   setCurrentPattern() {
     let nextPat = song.getSequencePatternNumber(this.cur_songpos);
 
@@ -528,7 +527,6 @@ class Player {
       }
     }
   }
-
 
   processTick() {
     if (!this.playing) {
@@ -760,7 +758,6 @@ class Player {
 
     return promise;
   }
-
 
   startPlaying() {
     if (!this.playing) {

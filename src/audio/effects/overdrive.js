@@ -16,7 +16,6 @@ function overdriveEffectParameterObject() {
   };
 }
 
-
 class OverdriveEffectNode extends EffectNodeBase {
   constructor(tuna, po) {
     super(tuna, po);

@@ -14,6 +14,8 @@ import SampleMapper from '../sample_mapper/sample_mapper';
 import EffectsEditor from '../effects_editor/effects_editor';
 import Browser from '../browser/browser';
 
+import './styles.css';
+
 import tabsTemplate from './templates/tabs.marko';
 
 export default class Tabs {
@@ -21,13 +23,14 @@ export default class Tabs {
     this.target = target;
     this.widgets = [];
 
+    this.totalHeight = (window.innerHeight - 1) - 50;
+
     this.options = {
-      cellHeight: 'auto',
-      margin: 5,
+      cellHeight: (this.totalHeight - (5 * 2)) / 8,
+      margin: 2,
       resizable: {
         handles: 'ne, se, sw, nw',
       },
-      // column: 20,
       handleClass: 'widget-titlebar',
       alwaysShowResizeHandle: true,
     };
@@ -46,6 +49,14 @@ export default class Tabs {
       'effects-editor': (t) => new EffectsEditor(t),
       browser: (t) => new Browser(t),
     };
+
+    window.addEventListener('resize', () => {
+      this.totalHeight = (window.innerHeight - 1) - 50;
+      const cellHeight = (this.totalHeight - (5 * 2)) / 8;
+      this.grids.forEach((grid) => {
+        grid.cellHeight(cellHeight);
+      });
+    });
   }
 
   render() {
@@ -69,19 +80,14 @@ export default class Tabs {
       }
     });
 
-    const grids = GridStack.initAll(this.options);
-    grids.forEach((grid) => {
+    this.grids = GridStack.initAll(this.options);
+    this.grids.forEach((grid) => {
       grid.on('resizestop', () => {
         for (let i = 0; i < this.widgets.length; i += 1) {
           this.widgets[i].refresh();
         }
       });
     });
-    /* $('.grid-stack').gridstack(this.options).on('resizestop', () => {
-      for (let i = 0; i < this.widgets.length; i += 1) {
-        this.widgets[i].refresh();
-      }
-    }); */
 
     $('.widget').each((i, e) => {
       const widgetType = $(e).data('widget-type');

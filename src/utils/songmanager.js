@@ -44,7 +44,6 @@ export class SongManager {
       fxparam: 0,
     };
 
-
     this.eventIndices = [
       { itemIndex: 0, mask: 0, shift: 0 },   // Note
       { itemIndex: 1, mask: 0x0F, shift: 4 }, // Instrument H

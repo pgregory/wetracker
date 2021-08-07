@@ -186,23 +186,23 @@ export default class EnvelopeWidget {
     if (this.envelope) {
       const on = $(this.target).find('input:checkbox#on')[0].checked;
 
-      this.envelope.type = this.envelope.type & 0xFE; // eslint-disable-line no-bitwise
+      this.envelope.type &= 0xFE; // eslint-disable-line no-bitwise
       if (on) {
-        this.envelope.type = this.envelope.type | 0x1; // eslint-disable-line no-bitwise
+        this.envelope.type |= 0x1; // eslint-disable-line no-bitwise
       }
 
       const sustain = $(this.target).find('input:checkbox#sustain')[0].checked;
-      this.envelope.type = (this.envelope.type & 0xFD); // eslint-disable-line no-bitwise
+      this.envelope.type &= 0xFD; // eslint-disable-line no-bitwise
       if (sustain) {
-        this.envelope.type = this.envelope.type | 0x2; // eslint-disable-line no-bitwise
+        this.envelope.type |= 0x2; // eslint-disable-line no-bitwise
       }
       const sustainPoint = parseInt($(this.target).find('input#sustain-point')[0].value, 10);
       this.envelope.sustain = sustainPoint;
 
       const loop = $(this.target).find('input:checkbox#loop')[0].checked;
-      this.envelope.type = (this.envelope.type & 0xFB); // eslint-disable-line no-bitwise
+      this.envelope.type &= 0xFB; // eslint-disable-line no-bitwise
       if (loop) {
-        this.envelope.type = this.envelope.type | 0x4; // eslint-disable-line no-bitwise
+        this.envelope.type |= 0x4; // eslint-disable-line no-bitwise
       }
       const loopStart = parseInt($(this.target).find('input#loop-start-point')[0].value, 10);
       const loopEnd = parseInt($(this.target).find('input#loop-end-point')[0].value, 10);

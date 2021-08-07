@@ -17,7 +17,6 @@ function delayEffectParameterObject() {
   };
 }
 
-
 class DelayEffectNode extends EffectNodeBase {
   constructor(tuna, po) {
     super(tuna, po);
