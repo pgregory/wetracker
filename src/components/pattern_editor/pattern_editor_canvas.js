@@ -594,7 +594,7 @@ export default class PatternEditorCanvas {
 
   redrawCanvas() {
     const ctx = this.canvas.getContext('2d');
-    const h = $(this.target).find('.patterndata').height();
+    const h = $(this.target).find('.patterndata')[0].clientHeight;
 
     this.canvas.height = h;
     for (let tl = 0, tle = this.timelines.length; tl < tle; tl += 1) {

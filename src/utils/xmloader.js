@@ -107,7 +107,6 @@ class XMLoader {
   }
 
   load(arrayBuf, filename = '') {
-    console.log(arrayBuf);
     const dv = new DataView(arrayBuf);
     const newSong = {};
 

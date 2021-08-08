@@ -37,7 +37,8 @@
 .hscroll .pattern .patterndata {
   border: 1px solid white;
   flex: 1 1 auto;
-  overflow: hidden;
+  overflow-x: scroll;
+  overflow-y: hidden;
   position: relative;
   margin-bottom: 3px;
 }
