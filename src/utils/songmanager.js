@@ -966,7 +966,7 @@ export class SongManager {
       song: {
         tracks: state.song.get('tracks').push(Immutable.fromJS({
           fxcolumns: 1,
-          name: `Track ${this.getNumTracks()}`,
+          name: `Track ${this.getNumTracks() + 1}`,
           type: 'play',
           color: '#999999',
           columns: [
