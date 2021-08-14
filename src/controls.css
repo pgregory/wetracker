@@ -42,8 +42,9 @@
 }
 
 button { /* stylelint-disable */
-  border: 1px solid #222;
-  border-radius: 3px;
+  border: 3px solid #222;
+  border-style: groove;
+  border-radius: 5px;
   background: #444;
   color: #888;
   padding: 0;
