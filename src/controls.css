@@ -3,15 +3,20 @@
   flex-direction: column;
   flex-grow: 1;
   justify-content: flex-start;
+  padding: 5px;
+  gap: 5px;
+  border-radius: 3px;
+  background-color: #333;
 }
 
 .control-group {
   display: flex;
   flex-direction: column;
-  border: 1px solid #333;
-  margin: 3px;
-  justify-content: space-between;
+  border: 1px solid #555;
+  border-radius: 3px;
+  justify-content: center;
   flex-shrink: 0;
+  padding: 2px;
 }
 
 .control-group.horizontal {
@@ -37,9 +42,11 @@
 }
 
 button { /* stylelint-disable */
-  border: 1px solid black;
+  border: 1px solid #222;
+  border-radius: 3px;
   background: #444;
   color: #888;
+  padding: 0;
 }
 
 button.sm {

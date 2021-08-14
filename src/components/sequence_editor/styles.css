@@ -60,3 +60,8 @@
 .sequence-controls .control-panel {
   justify-content: center;
 }
+
+.sequence-controls .control-panel button {
+  width: 22px;
+  height: 22px;
+}

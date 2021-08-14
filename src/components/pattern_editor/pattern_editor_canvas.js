@@ -845,21 +845,23 @@ export default class PatternEditorCanvas {
   }
 
   onScroll(e) {
-    if (Math.abs(e.originalEvent.deltaY) > Math.abs(e.originalEvent.deltaX)) {
-      let row = state.cursor.get('row') + Math.sign(e.originalEvent.deltaY);
-      const maxrow = song.getPatternRowCount(state.cursor.get('pattern'));
-      row = ((row % maxrow) + maxrow) % maxrow;
+    if (!e.altKey) {
+      if (Math.abs(e.originalEvent.deltaY) > Math.abs(e.originalEvent.deltaX)) {
+        let row = state.cursor.get('row') + Math.sign(e.originalEvent.deltaY);
+        const maxrow = song.getPatternRowCount(state.cursor.get('pattern'));
+        row = ((row % maxrow) + maxrow) % maxrow;
 
-      state.set({
-        cursor: {
-          row,
-        },
-      });
-    } else {
-      this.patterndata.scrollLeft(this.patterndata.scrollLeft() + e.originalEvent.deltaX);
-      this.redrawCanvas();
+        state.set({
+          cursor: {
+            row,
+          },
+        });
+      } else {
+        this.patterndata.scrollLeft(this.patterndata.scrollLeft() + e.originalEvent.deltaX);
+        this.redrawCanvas();
+      }
+      e.preventDefault();
     }
-    e.preventDefault();
   }
 
   onClick(e) {

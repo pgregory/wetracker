@@ -2,7 +2,7 @@
   position: fixed;
   top: 0;
   background: #333;
-  height: 30px;
+  height: 36px;
   width: 100%;
   z-index: 100;
 }
@@ -17,6 +17,11 @@
 .transport .item {
   display: flex;
   margin: 0 5px;
+}
+
+.transport .item button {
+  width: 32px;
+  height: 32px;
 }
 
 #master-volume {

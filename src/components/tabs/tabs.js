@@ -23,7 +23,7 @@ export default class Tabs {
     this.target = target;
     this.widgets = [];
 
-    this.totalHeight = (window.innerHeight - 1) - 50;
+    this.totalHeight = (window.innerHeight - 1) - 62;
 
     this.options = {
       cellHeight: (this.totalHeight - (5 * 2)) / 8,
@@ -51,7 +51,7 @@ export default class Tabs {
     };
 
     window.addEventListener('resize', () => {
-      this.totalHeight = (window.innerHeight - 1) - 50;
+      this.totalHeight = (window.innerHeight - 1) - 62;
       const cellHeight = (this.totalHeight - (5 * 2)) / 8;
       this.grids.forEach((grid) => {
         grid.cellHeight(cellHeight);

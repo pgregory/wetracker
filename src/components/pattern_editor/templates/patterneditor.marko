@@ -13,8 +13,10 @@
         <div class="track-controls">
           <div class="track-control" data-trackindex="${loop.getIndex()}" for(i in data.tracknames | status-var=loop)>
             <div class="panel">
-              <button class="add-column"><div><i class="fas fa-plus-square"></i></div></button>
-              <button class="remove-column"><div><i class="fas fa-minus-square"></i></div></button>
+              <div class="control-group horizontal-buttons">
+                <button class="add-column"><div><i class="fas fa-plus-square"></i></div></button>
+                <button class="remove-column"><div><i class="fas fa-minus-square"></i></div></button>
+              </div>
             </div>
           </div>
         </div> 
@@ -26,6 +28,7 @@
     </div>
   </div>
 </div>
+<!--<div style="height: 34px"></div> -->
 <div class="controls">
   <div class="control-panel">
     <div class="control-group">
@@ -55,8 +58,8 @@
       </div>
     </div>
     <div class="control-group horizontal-buttons">
-      <button id="add-track"><i class="far fa-plus-square"></i></button>
-      <button id="remove-track"><i class="far fa-minus-square"></i></button>
+      <button id="add-track"><i class="fas fa-plus-square"></i></button>
+      <button id="remove-track"><i class="fas fa-minus-square"></i></button>
     </div>
   </div>
 </div>
