@@ -129,3 +129,38 @@ input.inline-editor:focus {
   outline: none;
 }
 
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #444;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  padding: 5px;
+  border: 2px solid black;
+  border-style: groove;
+}
+
+.dropdown-content a {
+  color: white;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown-content.show {
+  display: block;
+}
+
+.background-overlay {
+  background-color: rgba(0,0,0,0.5);
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: none;
+}
+
+.background-overlay.show {
+  display: block;
+}

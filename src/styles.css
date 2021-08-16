@@ -39,6 +39,7 @@ body {
 
 #tabheader {
   flex: 1;
+  height: 100%;
 }
 
 #vumeters {
@@ -64,57 +65,6 @@ body {
 
 .sidebar.right {
   background-image: url('../static/rail-r.png');
-}
-
-ul.tabs {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  background-color: #333;
-  height: 100%;
-}
-
-/* Float the list items side by side */
-ul.tabs li {
-  float: left;
-  line-height: 1;
-  height: 100%;
-}
-
-/* Style the links inside the list items */
-ul.tabs li a {
-  display: inline-block;
-  color: dimgray;
-  text-align: center;
-  text-decoration: none;
-  padding-left: 5px;
-  padding-right: 5px;
-  padding-top: 3px;
-  transition: 0.3s;
-  font-size: 12px;
-  border-color: dimgray;
-  border-top: 1px solid;
-  border-left: 1px solid;
-  border-right: 1px solid;
-  margin-right: 5px;
-  border-radius: 5px 5px 0 0;
-  height: 100%;
-}
-
-ul.tabs li:first-of-type a {
-  margin-left: 5px;
-}
-
-/* Change background color of links on hover */
-ul.tabs li a:hover {
-  background-color: #333;
-}
-
-/* Create an active/current tablink class */
-ul.tabs li a.active {
-  background-color: #555;
-  color: white;
 }
 
 .chrome {

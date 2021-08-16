@@ -21,6 +21,8 @@ import tabTemplate from './templates/tab.marko';
 import widgetTemplate from './templates/widget.marko';
 import tabHeaderTemplate from './templates/tab_header.marko';
 
+import defaultLayout from '../../default_layout.json';
+
 export default class Tabs {
   constructor(target) {
     this.target = target;
@@ -67,7 +69,24 @@ export default class Tabs {
     $(this.target).append(tabsTemplate.renderToString());
 
     $(this.target).find('#tab-menu').on('click', () => {
+      $('#tab-menu-content').toggleClass('show');
+      $('#tab-menu .background-overlay').toggleClass('show');
+    });
+
+    $(this.target).find('#save-layout').on('click', (e) => {
+      $('#tab-menu-content').removeClass('show');
+      $('#tab-menu .background-overlay').removeClass('show');
       this.saveLayout();
+      e.preventDefault();
+      e.stopPropagation();
+    });
+
+    $(this.target).find('#default-layout').on('click', (e) => {
+      $('#tab-menu-content').removeClass('show');
+      $('#tab-menu .background-overlay').removeClass('show');
+      this.loadDefaultLayout();
+      e.preventDefault();
+      e.stopPropagation();
     });
 
     $(this.target).find('.tablinks').on('click', (e) => {
@@ -114,6 +133,9 @@ export default class Tabs {
 
   loadLayout(layout) {
     this.tabs = [];
+    // Remove existing tabs
+    $(this.target).find('#tabs').empty();
+    $('#tabscontainer').empty();
     layout.forEach((tab) => {
       console.log(`Creating tab ${tab.tabName}`);
 
@@ -164,5 +186,9 @@ export default class Tabs {
       });
     });
     $('#tabscontainer .grid-stack').first().show();
+  }
+
+  loadDefaultLayout() {
+    this.loadLayout(defaultLayout);
   }
 }

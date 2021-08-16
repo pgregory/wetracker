@@ -22,8 +22,6 @@ import Transport from './components/transport/transport';
 import Tabs from './components/tabs/tabs';
 import Meter from './components/meter/meter';
 
-import defaultLayout from './default_layout.json';
-
 import './controls.css';
 
 import { song } from './utils/songmanager';
@@ -83,7 +81,7 @@ $(document).ready(() => {
     transport.refresh();
 
     tabs.refresh();
-    tabs.loadLayout(defaultLayout);
+    tabs.loadDefaultLayout();
 
     meter.refresh();
 
