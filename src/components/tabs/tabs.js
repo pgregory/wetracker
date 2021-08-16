@@ -17,11 +17,15 @@ import Browser from '../browser/browser';
 import './styles.css';
 
 import tabsTemplate from './templates/tabs.marko';
+import tabTemplate from './templates/tab.marko';
+import widgetTemplate from './templates/widget.marko';
+import tabHeaderTemplate from './templates/tab_header.marko';
 
 export default class Tabs {
   constructor(target) {
     this.target = target;
     this.widgets = [];
+    this.tabs = [];
 
     this.totalHeight = (window.innerHeight - 1) - 62;
 
@@ -53,8 +57,8 @@ export default class Tabs {
     window.addEventListener('resize', () => {
       this.totalHeight = (window.innerHeight - 1) - 62;
       const cellHeight = (this.totalHeight - (5 * 2)) / 8;
-      this.grids.forEach((grid) => {
-        grid.cellHeight(cellHeight);
+      this.tabs.forEach((tab) => {
+        tab.grid.cellHeight(cellHeight);
       });
     });
   }
@@ -62,53 +66,103 @@ export default class Tabs {
   render() {
     $(this.target).append(tabsTemplate.renderToString());
 
-    $(this.target).find('.tablinks').click((e) => {
-      // Get all elements with class='tabcontent' and hide them
-      $('.tabcontent').hide();
+    $(this.target).find('#tab-menu').on('click', () => {
+      this.saveLayout();
+    });
 
+    $(this.target).find('.tablinks').on('click', (e) => {
       // Get all elements with class='tablinks' and remove the class 'active'
       $('.tablinks').removeClass('active');
 
-      // Show the current tab, and add an 'active' class to the link that opened the tab
-      const tabname = $(e.target).data('tabname');
-      $(`#container #${tabname}`).show();
-
       $(e.target).addClass('active');
+
+      // Get all elements with class='tabcontent' and hide them
+      $('.tabcontent').hide();
+      const tabName = $(e.target).data('tabname');
+      $(`#tabscontainer #${tabName}`).show();
 
       for (let i = 0; i < this.widgets.length; i += 1) {
         this.widgets[i].refresh();
       }
     });
-
-    this.grids = GridStack.initAll(this.options);
-    this.grids.forEach((grid) => {
-      grid.on('resizestop', () => {
-        for (let i = 0; i < this.widgets.length; i += 1) {
-          this.widgets[i].refresh();
-        }
-      });
-    });
-
-    $('.widget').each((i, e) => {
-      const widgetType = $(e).data('widget-type');
-      if (widgetType in this.widgetTypes) {
-        this.widgets.push(this.widgetTypes[widgetType]($(e)));
-      }
-    });
-
-    for (let i = 0; i < this.widgets.length; i += 1) {
-      this.widgets[i].render();
-    }
-
-    try {
-      $('.tablinks.defaultTab')[0].click();
-    } catch (t) {
-      console.log(t);
-    }
   }
 
   refresh() {
     $(this.target).empty();
     this.render();
+  }
+
+  saveLayout() {
+    const result = [];
+    this.tabs.forEach((tab) => {
+      const gridItems = tab.grid.getGridItems();
+      const widgets = gridItems.map((item) => ({
+        x: item.gridstackNode.x,
+        y: item.gridstackNode.y,
+        w: item.gridstackNode.w,
+        h: item.gridstackNode.h,
+        type: $(item.gridstackNode.el).find('.widget').data('widgetType'),
+      }));
+      const tabData = {
+        tabName: tab.tabName,
+        widgets,
+      };
+      result.push(tabData);
+    });
+    console.log(JSON.stringify(result));
+  }
+
+  loadLayout(layout) {
+    this.tabs = [];
+    layout.forEach((tab) => {
+      console.log(`Creating tab ${tab.tabName}`);
+
+      const tabHeader = tabHeaderTemplate.renderSync({ title: tab.title, tabName: tab.tabName });
+      $(tabHeader.getNode().querySelector(`#${tab.tabName}-header`)).on('click', (e) => {
+        // Get all elements with class='tablinks' and remove the class 'active'
+        $('.tablinks').removeClass('active');
+        $(e.target).addClass('active');
+
+        // Get all elements with class='tabcontent' and hide them
+        $('.tabcontent').hide();
+        $(`#tabscontainer #${tab.tabName}`).show();
+
+        for (let i = 0; i < this.widgets.length; i += 1) {
+          this.widgets[i].refresh();
+        }
+      });
+      tabHeader.appendTo($('#tabs')[0]);
+
+      const tabContent = tabTemplate.renderSync({});
+      tabContent.getNode().querySelector('.grid-stack').id = tab.tabName;
+      tabContent.appendTo($('#tabscontainer')[0]);
+      const tabContainer = $('#tabscontainer .grid-stack').last();
+      tabContainer.hide();
+      const grid = GridStack.init(this.options, tabContainer[0]);
+
+      tab.widgets.forEach((w) => {
+        const widget = widgetTemplate.renderToString({
+          title: w.title,
+          type: w.type,
+        });
+        grid.addWidget({
+          x: w.x, y: w.y, w: w.w, h: w.h, content: widget,
+        });
+        const widgetContainer = tabContainer.find('.widget').last();
+        const widgetContent = this.widgetTypes[w.type]($(widgetContainer));
+        grid.on('resizestop', () => {
+          widgetContent.refresh();
+        });
+        widgetContent.refresh();
+        this.widgets.push(widgetContent);
+      });
+
+      this.tabs.push({
+        tabName: tab.tabName,
+        contents: tabContainer,
+        grid,
+      });
+    });
+    $('#tabscontainer .grid-stack').first().show();
   }
 }

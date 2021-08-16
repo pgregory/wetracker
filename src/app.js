@@ -22,8 +22,7 @@ import Transport from './components/transport/transport';
 import Tabs from './components/tabs/tabs';
 import Meter from './components/meter/meter';
 
-import gridTemplate from './templates/grid.marko';
-import instrumentsViewTemplate from './templates/instrumentsview.marko';
+import defaultLayout from './default_layout.json';
 
 import './controls.css';
 
@@ -42,14 +41,14 @@ import './styles.css';
 $(document).ready(() => {
   const showWeTrackerInterface = () => {
     const transport = new Transport('#transport');
-    const tabs = new Tabs('#tabs');
+    const tabs = new Tabs('#tabheader');
     const meter = new Meter('#vumeters');
     let curYPos;
     let curXPos;
     let curDown;
 
-    $('#song-view').append($(gridTemplate.renderToString()));
-    $('#instruments-view').append($(instrumentsViewTemplate.renderToString()));
+    // $('#song-view').append($(gridTemplate.renderToString()));
+    // $('#instruments-view').append($(instrumentsViewTemplate.renderToString()));
 
     MouseTrap.bind('space', (e) => {
       if (player.playing) {
@@ -82,8 +81,12 @@ $(document).ready(() => {
     });
 
     transport.refresh();
+
     tabs.refresh();
+    tabs.loadLayout(defaultLayout);
+
     meter.refresh();
+
     song.newSong();
 
     state.set({

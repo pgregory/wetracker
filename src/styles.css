@@ -37,7 +37,7 @@ body {
   width: 100%;
 }
 
-#tabs {
+#tabheader {
   flex: 1;
 }
 
@@ -66,7 +66,7 @@ body {
   background-image: url('../static/rail-r.png');
 }
 
-ul.tab {
+ul.tabs {
   list-style-type: none;
   margin: 0;
   padding: 0;
@@ -76,14 +76,14 @@ ul.tab {
 }
 
 /* Float the list items side by side */
-ul.tab li {
+ul.tabs li {
   float: left;
   line-height: 1;
   height: 100%;
 }
 
 /* Style the links inside the list items */
-ul.tab li a {
+ul.tabs li a {
   display: inline-block;
   color: dimgray;
   text-align: center;
@@ -102,17 +102,17 @@ ul.tab li a {
   height: 100%;
 }
 
-ul.tab li:first-of-type a {
+ul.tabs li:first-of-type a {
   margin-left: 5px;
 }
 
 /* Change background color of links on hover */
-ul.tab li a:hover {
+ul.tabs li a:hover {
   background-color: #333;
 }
 
 /* Create an active/current tablink class */
-ul.tab li a.active {
+ul.tabs li a.active {
   background-color: #555;
   color: white;
 }
@@ -124,6 +124,7 @@ ul.tab li a.active {
   display: flex;
   flex-direction: column;
   gap: 3px;
+  height: 100%;
 }
 
 .widget {
@@ -168,7 +169,7 @@ ul.tab li a.active {
   padding-left: 3px;
 }
 
-.grid-stack > .grid-stack-item > .grid-stack-item-content.chrome {
+.grid-stack > .grid-stack-item > .grid-stack-item-content {
   /* left: 2.5px;
   right: 2.5px; */
   background: black;

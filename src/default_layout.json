@@ -1,0 +1,126 @@
+[
+  {
+    "title": "Song",
+    "tabName": "song-view",
+    "widgets": [
+      {
+        "x": 0,
+        "y": 0,
+        "w": 10,
+        "h": 2,
+        "type": "monitors",
+        "title": "Monitors"
+      },
+      {
+        "x": 2,
+        "y": 2,
+        "w": 8,
+        "h": 4,
+        "type": "pattern-editor",
+        "title": "Pattern Editor"
+      },
+      {
+        "x": 10,
+        "y": 0,
+        "w": 2,
+        "h": 4,
+        "type": "instrument-list",
+        "title": "Instruments"
+      },
+      {
+        "x": 10,
+        "y": 4,
+        "w": 2,
+        "h": 4,
+        "type": "browser",
+        "title": "Browser"
+      },
+      {
+        "x": 0,
+        "y": 2,
+        "w": 2,
+        "h": 4,
+        "type": "sequence-editor",
+        "title": "Sequence"
+      },
+      {
+        "x": 0,
+        "y": 6,
+        "w": 10,
+        "h": 2,
+        "type": "effects-editor",
+        "title": "Effects"
+      }
+    ]
+  },
+  {
+    "title": "Instruments",
+    "tabName": "instruments-view",
+    "widgets": [
+      {
+        "x": 0,
+        "y": 0,
+        "w": 3,
+        "h": 2,
+        "type": "instrument-list",
+        "title": "Instruments"
+      },
+      {
+        "x": 3,
+        "y": 0,
+        "w": 3,
+        "h": 2,
+        "type": "instrument-controls",
+        "title": "Instrument Controls"
+      },
+      {
+        "x": 6,
+        "y": 0,
+        "w": 3,
+        "h": 2,
+        "type": "sample-list",
+        "title": "Samples"
+      },
+      {
+        "x": 9,
+        "y": 0,
+        "w": 3,
+        "h": 2,
+        "type": "browser",
+        "title": "Browser"
+      },
+      {
+        "x": 0,
+        "y": 2,
+        "w": 6,
+        "h": 2,
+        "type": "volume-envelope",
+        "title": "Volume Envelope"
+      },
+      {
+        "x": 6,
+        "y": 2,
+        "w": 6,
+        "h": 2,
+        "type": "panning-envelope",
+        "title": "Panning Envelope"
+      },
+      {
+        "x": 0,
+        "y": 6,
+        "w": 12,
+        "h": 2,
+        "type": "sample-mapper",
+        "title": "Sample Map"
+      },
+      {
+        "x": 0,
+        "y": 4,
+        "w": 12,
+        "h": 2,
+        "type": "sample-editor",
+        "title": "Sample"
+      }
+    ]
+  }
+]
