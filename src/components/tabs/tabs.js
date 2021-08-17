@@ -22,6 +22,7 @@ import widgetTemplate from './templates/widget.marko';
 import tabHeaderTemplate from './templates/tab_header.marko';
 
 import defaultLayout from '../../default_layout.json';
+import DB from '../../utils/indexeddb';
 
 export default class Tabs {
   constructor(target) {
@@ -73,10 +74,18 @@ export default class Tabs {
       $('#tab-menu .background-overlay').toggleClass('show');
     });
 
-    $(this.target).find('#save-layout').on('click', (e) => {
+    $(this.target).find('#save-layout').on('click', async (e) => {
+      await this.saveLayout();
       $('#tab-menu-content').removeClass('show');
       $('#tab-menu .background-overlay').removeClass('show');
-      this.saveLayout();
+      e.preventDefault();
+      e.stopPropagation();
+    });
+
+    $(this.target).find('#load-layout').on('click', async (e) => {
+      await this.loadLayout();
+      $('#tab-menu-content').removeClass('show');
+      $('#tab-menu .background-overlay').removeClass('show');
       e.preventDefault();
       e.stopPropagation();
     });
@@ -111,7 +120,15 @@ export default class Tabs {
     this.render();
   }
 
-  saveLayout() {
+  async loadLayout() {
+    const layout = await DB.loadFromIndexedDB('settings', 'layout')
+      .catch((error) => {
+        console.error(error.message);
+      });
+    this.applyLayout(layout.layout);
+  }
+
+  async saveLayout() {
     const result = [];
     this.tabs.forEach((tab) => {
       const gridItems = tab.grid.getGridItems();
@@ -121,17 +138,19 @@ export default class Tabs {
         w: item.gridstackNode.w,
         h: item.gridstackNode.h,
         type: $(item.gridstackNode.el).find('.widget').data('widgetType'),
+        title: 'test',
       }));
       const tabData = {
+        title: tab.tabName,
         tabName: tab.tabName,
         widgets,
       };
       result.push(tabData);
     });
-    console.log(JSON.stringify(result));
+    await DB.saveToIndexedDB('settings', { id: 'layout', layout: result });
   }
 
-  loadLayout(layout) {
+  applyLayout(layout) {
     this.tabs = [];
     // Remove existing tabs
     $(this.target).find('#tabs').empty();
@@ -192,6 +211,6 @@ export default class Tabs {
   }
 
   loadDefaultLayout() {
-    this.loadLayout(defaultLayout);
+    this.applyLayout(defaultLayout);
   }
 }
