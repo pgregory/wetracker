@@ -45,9 +45,6 @@ $(document).ready(() => {
     let curXPos;
     let curDown;
 
-    // $('#song-view').append($(gridTemplate.renderToString()));
-    // $('#instruments-view').append($(instrumentsViewTemplate.renderToString()));
-
     MouseTrap.bind('space', (e) => {
       if (player.playing) {
         player.pause();
@@ -156,5 +153,20 @@ $(document).ready(() => {
 
   showWeTrackerInterface();
 
+  const filterStrength = 2;
+  let frameTime = 0; let lastLoop = new Date(); let
+    thisLoop;
+  requestAnimationFrame(
+    function loop() {
+      const thisFrameTime = (thisLoop = new Date()) - lastLoop;
+      frameTime += (thisFrameTime - frameTime) / filterStrength;
+      lastLoop = thisLoop;
+      requestAnimationFrame(loop);
+    }
+  );
+  const fpsElement = document.getElementById('fps');
+  setInterval(() => {
+    fpsElement.innerHTML = `${(1000 / frameTime).toFixed(1)} fps`;
+  }, 1000);
   router.init();
 });

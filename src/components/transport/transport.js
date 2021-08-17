@@ -177,7 +177,7 @@ export default class Transport {
   }
 
   onSongChanged() {
-    this.refresh();
+    $(this.target).find('#songname').val(song.getSongName());
   }
 
   onCursorChanged() {
