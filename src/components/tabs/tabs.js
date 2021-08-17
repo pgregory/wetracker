@@ -172,11 +172,14 @@ export default class Tabs {
         });
         const widgetContainer = tabContainer.find('.widget').last();
         const widgetContent = this.widgetTypes[w.type]($(widgetContainer));
-        grid.on('resizestop', () => {
-          widgetContent.refresh();
-        });
         widgetContent.refresh();
         this.widgets.push(widgetContent);
+      });
+
+      grid.on('resizestop', () => {
+        for (let i = 0; i < this.widgets.length; i += 1) {
+          this.widgets[i].refresh();
+        }
       });
 
       this.tabs.push({
