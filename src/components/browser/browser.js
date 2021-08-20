@@ -77,7 +77,7 @@ export default class Browser {
           ],
         },
       ],
-      dblclick: (event, data) => {
+      dblclick: async (event, data) => {
         const { node } = data;
 
         if ('_id' in node.data) {
@@ -110,7 +110,7 @@ export default class Browser {
             console.log(e);
           }
         } else if ('fileArrayBuffer' in node.data) {
-          const newSong = song.loadSongFromArrayBuffer(node.data.fileArrayBuffer);
+          const newSong = await song.loadSongFromArrayBuffer(node.data.fileArrayBuffer);
           if (newSong) {
             song.setSong(newSong);
           }

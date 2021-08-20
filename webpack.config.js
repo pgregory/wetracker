@@ -26,29 +26,34 @@ module.exports = [
 			'./src/app.js',
 		],
 		output: {
-			path: path.join(__dirname, '/bin/'),
+			path: path.resolve(__dirname, '/bin/'),
 			filename: 'app.bundle.js',
 			publicPath: '/bin/',
 		},
 		devServer: {
-			inline: true,
 			port: 8082,
 			hot: true,
+      historyApiFallback: {
+        index: path.resolve(__dirname, '/bin/index.html')
+      }
 		},
 		module: {
 			rules: [{
 				test: /\.js$/,
 				exclude: /node_modules/,
 				loader: 'babel-loader',
-				query: {
+				options: {
 					presets: ['@babel/env'],
 					plugins: [
 						"@babel/transform-exponentiation-operator"
 					]
 				}
 			}, {
-				test: /\.css$/,
-				loader: 'style-loader!css-loader',
+				test: /\.css$/i,
+				use: [
+          'style-loader',
+          'css-loader',
+        ]
 			}, {
         test: /\.(scss)$/,
         use: [
@@ -63,7 +68,15 @@ module.exports = [
 				loader: 'raw-loader',
 			},{
 				test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-				loader: "url-loader?limit=10000&mimetype=application/font-woff"
+        use: [
+          {
+            loader: "url-loader",
+            options: {
+              limit: 10000,
+              mimetype: "application/font-woff"
+            }
+          }
+        ]
 			}, {
 				test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
 				loader: "file-loader"
@@ -79,15 +92,17 @@ module.exports = [
 			}, {
 				test: /\.lz4$/,
 				loader: "arraybuffer-loader"
-			}]
-		},
-		node: {
-			fs: "empty",
+			}, {
+        test: /\.wasm$/,
+        loader: 'arraybuffer-loader'
+      }]
 		},
 		plugins: [
-			new CopyWebpackPlugin([
-				{from: 'index.html'},
-			]),
+			new CopyWebpackPlugin({
+				patterns: [
+					{ from: 'index.html' },
+				]
+			}),
 			new webpack.HotModuleReplacementPlugin(),
 			new webpack.DefinePlugin({
 				__API__: apiHost,
@@ -102,7 +117,13 @@ module.exports = [
 		resolve: {
 			alias: {
 					'jquery-ui': 'jquery-ui/ui'
-			}
+      },
+      fallback: {
+        "stream": require.resolve('stream-browserify'),
+        "path": require.resolve('path-browserify'),
+        "fs": false,
+        "buffer": require.resolve('buffer/'),
+      }
 		},
 		resolveLoader: {
 			alias: {

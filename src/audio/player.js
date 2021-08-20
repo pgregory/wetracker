@@ -1,5 +1,3 @@
-// eslint-disable-next-line import/no-webpack-loader-syntax
-import SharedWorker from 'sharedworker-loader!./timerworker';
 import Tuna from 'tunajs';
 
 import { signal, connect } from '../utils/signal';
@@ -148,18 +146,18 @@ class Player {
 
     this.XMView = new XMViewObject(this);
 
-    this.timerWorker = new SharedWorker();
-    this.timerWorker.port.postMessage({ interval: this.lookahead });
-    this.timerWorker.port.onmessage = this.onTimerMessage.bind(this);
+    this.timerWorker = new Worker(new URL('./timerworker.js', import.meta.url));
+    this.timerWorker.postMessage({ interval: this.lookahead });
+    this.timerWorker.onmessage = this.onTimerMessage.bind(this);
     this.timerWorker.onerror = function timerError(e) {
       throw new Error(`${e.message} (${e.filename}:${e.lineno})`);
     };
-    this.timerWorker.port.start();
+    // this.timerWorker.start();
 
-    this.interactiveTimerWorker = new SharedWorker();
-    this.interactiveTimerWorker.port.postMessage({ interval: this.interactiveLookahead });
-    this.interactiveTimerWorker.port.onmessage = this.onInteractiveTimerMessage.bind(this);
-    this.interactiveTimerWorker.port.start();
+    this.interactiveTimerWorker = new Worker(new URL('./timerworker.js', import.meta.url));
+    this.interactiveTimerWorker.postMessage({ interval: this.interactiveLookahead });
+    this.interactiveTimerWorker.onmessage = this.onInteractiveTimerMessage.bind(this);
+    // this.interactiveTimerWorker.start();
 
     this.playingInstruments = [];
 
@@ -752,7 +750,7 @@ class Player {
 
     const promise = new Promise((resolve) => {
       this.recordDoneResolve = resolve;
-      this.timerWorker.port.postMessage('start');
+      this.timerWorker.postMessage('start');
       this.playing = true;
     });
 
@@ -765,7 +763,7 @@ class Player {
       if (this.XMView.resume) this.XMView.resume();
       // start playing
       this.nextTickTime = this.audioctx.currentTime;
-      this.timerWorker.port.postMessage('start');
+      this.timerWorker.postMessage('start');
     }
     this.playing = true;
   }
@@ -776,7 +774,7 @@ class Player {
     }
     this.playing = false;
 
-    this.timerWorker.port.postMessage('stop');
+    this.timerWorker.postMessage('stop');
   }
 
   stop() {
@@ -785,7 +783,7 @@ class Player {
     }
     this.playing = false;
 
-    this.timerWorker.port.postMessage('stop');
+    this.timerWorker.postMessage('stop');
 
     for (let i = 0; i < this.tracks.length; i += 1) {
       const track = this.tracks[i];

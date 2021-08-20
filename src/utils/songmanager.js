@@ -1,4 +1,3 @@
-import LZ4 from 'lz4-asm';
 import textEncoding from 'text-encoding';
 
 import { encode, decode } from 'tab64';
@@ -9,6 +8,8 @@ import defsong from '../../data/defaultsong.lz4';
 import { signal, connect } from './signal';
 import { xmloader } from './xmloader';
 import { state } from '../state';
+
+import { getLz4js } from './lz4';
 
 export class SongManager {
   constructor() {
@@ -225,8 +226,8 @@ export class SongManager {
     }
   }
 
-  newSong() {
-    const newSong = this.loadSongFromArrayBuffer(defsong, 'claustrophobia.xm');
+  async newSong() {
+    const newSong = await this.loadSongFromArrayBuffer(defsong, 'claustrophobia.xm');
     if (newSong) {
       this.setSong(newSong);
     }
@@ -503,7 +504,7 @@ export class SongManager {
     return promise;
   }
 
-  saveSongToLocal() {
+  async saveSongToLocal() {
     function download(buffer, name, type) {
       const a = document.createElement('a');
       const file = new Blob([buffer], { type });
@@ -525,20 +526,21 @@ export class SongManager {
       return v;
     }));
 
-    const output = LZ4.compress(input);
+    const lz4js = await getLz4js();
+    const output = lz4js.compress(input);
 
     const name = state.song.get('name');
     download(output, name ? `${name.trim()}.lz4` : 'wetracker-song.lz4', 'application/octet-stream');
   }
 
-  loadSongFromFile(file, callback) {
+  async loadSongFromFile(file, callback) {
     if (!file) {
       return;
     }
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       const contents = e.target.result;
-      const song = this.loadSongFromArrayBuffer(contents, file.name);
+      const song = await this.loadSongFromArrayBuffer(contents, file.name);
       if (song) {
         if (callback) {
           callback(song);
@@ -548,11 +550,12 @@ export class SongManager {
     reader.readAsArrayBuffer(file);
   }
 
-  loadSongFromArrayBuffer(buffer, filename) {
+  async loadSongFromArrayBuffer(buffer, filename) {
     try {
       let json;
       try {
-        const decomped = LZ4.decompress(new Uint8Array(buffer));
+        const lz4js = await getLz4js();
+        const decomped = lz4js.decompress(new Uint8Array(buffer));
         json = new textEncoding.TextDecoder('utf-8').decode(decomped);
       } catch (e) {
         console.log(e);
