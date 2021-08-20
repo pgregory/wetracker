@@ -26,7 +26,7 @@ module.exports = [
 			'./src/app.js',
 		],
 		output: {
-			path: path.resolve(__dirname, '/bin/'),
+			path: path.resolve(__dirname, './bin/'),
 			filename: 'app.bundle.js',
 			publicPath: '/bin/',
 		},
