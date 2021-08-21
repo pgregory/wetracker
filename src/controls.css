@@ -17,7 +17,6 @@
   justify-content: center;
   flex-shrink: 0;
   padding: 2px;
-  width: 100%;
 }
 
 .control-group.left {
@@ -173,4 +172,8 @@ input.inline-editor:focus {
 
 .background-overlay.show {
   display: block;
+}
+
+#dialog .control-group {
+  width: 100%;
 }
