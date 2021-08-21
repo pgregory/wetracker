@@ -159,9 +159,6 @@ export default class PatternEditorCanvas {
     this.fontimg.onload = () => this.imageLoaded();
     this.fontimg.src = fontimage;
 
-    // canvas to render patterns onto
-    this.patternCanvases = [];
-
     this.emptyEventCanvas = document.createElement('canvas');
     this.emptyEventCanvas.height = this.patternRowHeight;
     this.emptyEventCanvas.width = this.patternCellWidth;
@@ -185,7 +182,6 @@ export default class PatternEditorCanvas {
     });
 
     MouseTrap.bind('alt+r', () => {
-      this.renderAllPatterns();
       this.redrawCanvas();
     });
 
@@ -194,8 +190,6 @@ export default class PatternEditorCanvas {
     connect(song, 'eventChanged', this, 'onEventChanged');
     connect(song, 'songChanged', this, 'onSongChanged');
     connect(song, 'patternChanged', this, 'onPatternChanged');
-    connect(song, 'sequenceChanged', this, 'onSequenceChanged');
-    connect(song, 'sequenceItemChanged', this, 'onSequenceItemChanged');
     connect(state, 'songChanged', this, 'onSongStateChanged');
     connect(player, 'trackStateChanged', this, 'onTrackStateChanged');
   }
@@ -323,20 +317,19 @@ export default class PatternEditorCanvas {
     const cw = this.patternCharacterWidth;
     // render note
     const { note } = col;
-    if (note == null || note === -1) {
-      // no note = ...
-      // ctx.drawImage(this.mixedFont, 8 * 39, 0, 8, 8, dx, dy, this.patternNoteWidth, 8);
-    } else if (note === 96) {
-      ctx.fillStyle = '#000';
-      ctx.fillRect(ddx, dy, this.patternNoteWidth, 8);
-      ctx.strokeStyle = '#FFF';
-      ctx.strokeRect(ddx + 1.5, dy + 1.5, this.patternNoteWidth - 3, 3);
-    } else {
-      const notechars = this.noteNames[note % 12];
-      const octavechar = ~~(note / 12) * 8; // eslint-disable-line no-bitwise
-      ctx.drawImage(this.mixedFont, notechars[0], this.noteFontOffset, 8, 8, ddx, dy, 8, 8);
-      ctx.drawImage(this.mixedFont, notechars[1], this.noteFontOffset, 8, 8, ddx + cw, dy, 8, 8);
-      ctx.drawImage(this.mixedFont, octavechar, this.noteFontOffset, 8, 8, ddx + (cw * 2), dy, 8, 8);
+    if (note != null && note !== -1) {
+      if (note === 96) {
+        ctx.fillStyle = '#000';
+        ctx.fillRect(ddx, dy, this.patternNoteWidth, 8);
+        ctx.strokeStyle = '#FFF';
+        ctx.strokeRect(ddx + 1.5, dy + 1.5, this.patternNoteWidth - 3, 3);
+      } else {
+        const notechars = this.noteNames[note % 12];
+        const octavechar = ~~(note / 12) * 8; // eslint-disable-line no-bitwise
+        ctx.drawImage(this.mixedFont, notechars[0], this.noteFontOffset, 8, 8, ddx, dy, 8, 8);
+        ctx.drawImage(this.mixedFont, notechars[1], this.noteFontOffset, 8, 8, ddx + cw, dy, 8, 8);
+        ctx.drawImage(this.mixedFont, octavechar, this.noteFontOffset, 8, 8, ddx + (cw * 2), dy, 8, 8);
+      }
     }
     ddx += this.patternNoteWidth + this.elementSpacing;
 
@@ -350,11 +343,7 @@ export default class PatternEditorCanvas {
 
     // render volume
     const vol = col.volume;
-    if (vol == null || vol < 0x10) {
-      // no volume = ..
-      // ctx.drawImage(this.mixedFont, 312, 0, 8, 8, ddx, dy, cw, 8);
-      // ctx.drawImage(this.mixedFont, 312, 0, 8, 8, ddx + cw, dy, cw, 8);
-    } else {
+    if (vol != null && vol >= 0x10) {
       // Draw the volume effect type
       const voltype = vol >> 4; // eslint-disable-line no-bitwise
       if (voltype >= 1 && voltype <= 5) {
@@ -376,60 +365,11 @@ export default class PatternEditorCanvas {
       // (hexadecimal 4-width font)
       ctx.drawImage(this.mixedFont, 8 * (effdata >> 4), this.fxFontOffset, 8, 8, ddx, dy, cw, 8); // eslint-disable-line no-bitwise
       ctx.drawImage(this.mixedFont, 8 * (effdata & 15), this.fxFontOffset, 8, 8, ddx + cw, dy, cw, 8); // eslint-disable-line no-bitwise
-    } else {
-      // no effect = ...
-      // ctx.drawImage(this.mixedFont, 312, 0, 8, 8, ddx, dy, cw, 8);
-      // ctx.drawImage(this.mixedFont, 312, 0, 8, 8, ddx + cw + 2, dy, cw, 8);
-      // ctx.drawImage(this.mixedFont, 312, 0, 8, 8, ddx + cw + 2 + cw, dy, cw, 8);
     }
   }
 
   clearEvent(ctx, dx, dy) {
-    // ctx.fillStyle = '#000';
-    // ctx.clearRect(dx, dy, this.patternCellWidth, this.patternRowHeight);
     ctx.drawImage(this.emptyEventCanvas, dx + this.eventLeftMargin, dy + ((this.patternRowHeight - 8) / 2));
-  }
-
-  getPatternCanvasForSequence(sequence) {
-    const patternIndex = song.getSequencePatternNumber(sequence);
-    return this.patternCanvases[patternIndex];
-  }
-
-  renderAllPatterns() {
-    /* const sequenceLength = song.getSequenceLength();
-    this.patternCanvases = [];
-    for (let s = 0; s < sequenceLength; s += 1) {
-      const patternIndex = song.getSequencePatternNumber(s);
-      this.patternCanvases[patternIndex] = this.renderPattern(patternIndex);
-    } */
-  }
-
-  renderSinglePattern(patternIndex) {
-    this.patternCanvases[patternIndex] = this.renderPattern(patternIndex);
-  }
-
-  renderPattern(index) {
-    const patternCanvas = document.createElement('canvas');
-
-    const ctx = patternCanvas.getContext('2d', { alpha: false });
-    ctx.imageSmoothingEnabled = false;
-
-    const rh = this.patternRowHeight;
-    // a pattern consists of NxM cells which look like
-    // N-O II VV EFF
-    const cellwidth = this.patternCellWidth;
-
-    const numtracks = song.getNumTracks();
-    let totalWidth = 0;
-    for (let tracki = 0; tracki < numtracks; tracki += 1) {
-      totalWidth += cellwidth * song.getTrackNumColumns(tracki);
-    }
-    const numrows = song.getPatternRowCount(index);
-    patternCanvas.width = totalWidth;
-    patternCanvas.height = numrows * rh;
-
-    this.renderPatternToCanvas(patternCanvas, index, 0);
-    return patternCanvas;
   }
 
   renderPatternToCanvas(patternCanvas, index, y) {
@@ -472,8 +412,8 @@ export default class PatternEditorCanvas {
                     this.clearEvent(ctx, dx, dy);
                   }
                 }
-                trackColumn += numcolumns;
               }
+              trackColumn += numcolumns;
             }
           }
         }
@@ -637,10 +577,6 @@ export default class PatternEditorCanvas {
     const sequence = state.cursor.get('sequence');
     const patternIndex = song.getSequencePatternNumber(sequence);
     this.renderPatternToCanvas(this.canvas, patternIndex, y);
-    // const patternCanvas = this.getPatternCanvasForSequence(state.cursor.get('sequence'));
-    // if (patternCanvas) {
-    //  ctx.drawImage(patternCanvas, 0, y);
-    // }
 
     let nextInSequence = state.cursor.get('sequence') + 1;
     if (nextInSequence >= song.getSequenceLength()) {
@@ -650,51 +586,6 @@ export default class PatternEditorCanvas {
     if (prevInSequence < 0) {
       prevInSequence = song.getSequenceLength() - 1;
     }
-
-    // Draw previous and next patterns, in grayscale and faded.
-    /* const nextPatternIndex = song.getSequencePatternNumber(nextInSequence);
-    const prevPatternIndex = song.getSequencePatternNumber(prevInSequence);
-    const nextPatternCanvas = this.getPatternCanvasForSequence(nextInSequence);
-    const prevPatternCanvas = this.getPatternCanvasForSequence(prevInSequence);
-    if (nextPatternCanvas || prevPatternCanvas) {
-      ctx.save();
-      ctx.filter = 'grayscale(100%)';
-      if (prevPatternCanvas) {
-        ctx.drawImage(prevPatternCanvas, 0, y - prevPatternCanvas.height);
-      }
-      if (nextPatternCanvas) {
-        ctx.drawImage(nextPatternCanvas, 0, y + patternCanvas.height);
-      }
-
-      for (let tl = 0, tle = this.timelines.length; tl < tle; tl += 1) {
-        const tctx = this.timelines[tl].getContext('2d');
-        const tlw = this.timelineCanvas.width;
-        const ntlh = this.patternRowHeight * song.getPatternRowCount(nextPatternIndex);
-        const ptlh = this.patternRowHeight * song.getPatternRowCount(prevPatternIndex);
-        tctx.drawImage(this.timelineCanvas, 0, 0, tlw, ntlh, 0, y + tlh, tlw, ntlh);
-        tctx.drawImage(this.timelineCanvas, 0, 0, tlw, ptlh, 0, y - ptlh, tlw, ptlh);
-      }
-
-      ctx.globalCompositeOperation = 'multiply';
-      ctx.fillStyle = '#888';
-      ctx.fillRect(0, y - prevPatternCanvas.height, prevPatternCanvas.width, prevPatternCanvas.height);
-      ctx.fillRect(0, y + patternCanvas.height, nextPatternCanvas.width, nextPatternCanvas.height);
-
-      for (let tl = 0, tle = this.timelines.length; tl < tle; tl += 1) {
-        const tctx = this.timelines[tl].getContext('2d');
-        tctx.save();
-        tctx.globalCompositeOperation = 'multiply';
-        tctx.fillStyle = '#888';
-        const tlw = this.timelineCanvas.width;
-        const ntlh = this.patternRowHeight * song.getPatternRowCount(nextPatternIndex);
-        tctx.fillRect(0, y + tlh, tlw, ntlh);
-        tctx.fillRect(0, y - ntlh, tlw, ntlh);
-        tctx.restore();
-      }
-
-      ctx.restore();
-    } */
-
     // Draw the timeline fixed to the left and right of the view.
     const tlh = this.patternRowHeight * song.getPatternRowCount(state.cursor.get('pattern'));
     for (let tl = 0, tle = this.timelines.length; tl < tle; tl += 1) {
@@ -848,7 +739,11 @@ export default class PatternEditorCanvas {
         for (let c = 0; c < this.copybuffer[r].length;) {
           while (column < maxcol) {
             const event = Object.assign(notedata[column] || {}, this.copybuffer[r][c]);
-            song.setEventAtPattarnRowTrackColumn(pattern, row + r, track, column, event);
+            try {
+              song.setEventAtPattarnRowTrackColumn(pattern, row + r, track, column, event);
+            } catch (e) {
+              console.log(e.message);
+            }
             column += 1;
             c += 1;
           }
@@ -863,7 +758,6 @@ export default class PatternEditorCanvas {
       }
       state.groupHistoryEnd();
 
-      this.renderSinglePattern(state.cursor.get('pattern'));
       this.redrawCanvas();
     }
   }
@@ -1010,28 +904,12 @@ export default class PatternEditorCanvas {
     this.redrawCanvas();
   }
 
-  onEventChanged(cursor, event) {
-    const pos = this.eventPositionInPatternCanvas(cursor);
-    const patternCanvas = this.getPatternCanvasForSequence(state.cursor.get('sequence'));
-    const ctx = patternCanvas.getContext('2d');
-    this.clearEvent(ctx, pos.cx, pos.cy);
-    this.renderEvent(ctx, event, pos.cx + this.eventLeftMargin, pos.cy + ((this.patternRowHeight - 8) / 2));
-    this.renderEventBeat(ctx, cursor, pos.cx, pos.cy);
+  onEventChanged() {
     this.redrawCanvas();
   }
 
   onPatternChanged() {
-    this.renderSinglePattern(state.cursor.get('pattern'));
     this.redrawCanvas();
-  }
-
-  onSequenceChanged() {
-    this.renderAllPatterns();
-  }
-
-  onSequenceItemChanged(sequence) {
-    const patternIndex = song.getSequencePatternNumber(sequence);
-    this.patternCanvases[patternIndex] = this.renderPattern(patternIndex);
   }
 
   onSongChanged() {
@@ -1042,7 +920,6 @@ export default class PatternEditorCanvas {
     }
     this.lastCursor = new Immutable.Map();
     this.renderEmptyPatternRow();
-    // this.renderAllPatterns();
     this.refresh();
   }
 
@@ -1053,7 +930,6 @@ export default class PatternEditorCanvas {
       return;
     }
     this.renderEmptyPatternRow();
-    // this.renderAllPatterns();
     this.refresh();
   }
 }
