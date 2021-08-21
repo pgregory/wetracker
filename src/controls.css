@@ -17,10 +17,16 @@
   justify-content: center;
   flex-shrink: 0;
   padding: 2px;
+  width: 100%;
+}
+
+.control-group.left {
+  justify-content: left;
 }
 
 .control-group.horizontal {
   flex-direction: row;
+  width: 100%;
 }
 
 .control-group.noborder {
@@ -39,6 +45,10 @@
   align-items: center;
   margin: 1px;
   font-size: 0.75em;
+}
+
+.control-group label {
+  margin-right: 10px;
 }
 
 button { /* stylelint-disable */

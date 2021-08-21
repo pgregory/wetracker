@@ -13,7 +13,7 @@
     "start": "node server.js",
     "lint:staged": "lint-staged",
     "lint": "npm run lint:js && npm run lint:css",
-    "lint:eslint": "eslint --ignore-path .gitignore --ignore-pattern server.js --ignore-pattern webpack.config.js",
+    "lint:eslint": "eslint --ignore-path .gitignore --ignore-pattern server.js --ignore-pattern webpack.config.js --ignore-pattern themes",
     "lint:js": "npm run lint:eslint -- . ",
     "lint:css": "stylelint ./src/**/*.css",
     "lint:fix": "npm run lint:eslint -- --fix ."

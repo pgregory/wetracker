@@ -462,12 +462,12 @@ export class SongManager {
     this.songChanged();
   }
 
-  downloadSong(uri) {
+  async downloadSong(uri) {
     const promise = new Promise((resolve, reject) => {
       const xmReq = new XMLHttpRequest();
       xmReq.open('GET', uri, true);
       xmReq.responseType = 'arraybuffer';
-      xmReq.onload = () => {
+      xmReq.onload = async () => {
         console.log(`xmReq.onload: ${xmReq.status}`);
         if (xmReq.status === 200 || xmReq.status === 304) {
           const arrayBuffer = xmReq.response;
@@ -479,7 +479,7 @@ export class SongManager {
             // Remove everything prior to final name
             filename = filename.substring(filename.lastIndexOf('/') + 1, filename.length);
             try {
-              const newSong = this.loadSongFromArrayBuffer(arrayBuffer, filename);
+              const newSong = await this.loadSongFromArrayBuffer(arrayBuffer, filename);
               if (newSong) {
                 song.setSong(newSong);
                 resolve();

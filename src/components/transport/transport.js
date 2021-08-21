@@ -10,6 +10,7 @@ import { player } from '../../audio/player';
 
 import transportTemplate from './templates/transport.marko';
 import recordTemplate from './templates/record.marko';
+import loadTemplate from './templates/load.marko';
 
 import './styles.css';
 
@@ -102,16 +103,39 @@ export default class Transport {
     });
     $(this.target).find('#load').click(() => {
       $('#dialog').empty();
-      $('#dialog').append($('<input type=\'file\' id=\'file-input\' />'));
+      $('#dialog').append(loadTemplate.renderToString());
+      const actualBtn = $('#dialog #file-input');
+      const fileChosen = $('#dialog #file-chosen');
+      actualBtn.on('change', (e) => {
+        fileChosen.text(e.target.files[0].name);
+      });
       $('#dialog').dialog({
         width: 500,
         modal: true,
         buttons: {
           Ok: function ok() {
             const { files } = $('#file-input')[0];
+            const url = $('#url-input').val();
             if (files.length > 0) {
               song.loadSongFromFile(files[0], (result) => {
                 song.setSong(result);
+              });
+            } else if (url !== '') {
+              song.downloadSong(url).then(() => {
+                $(this).dialog('close');
+              }, (msg) => {
+                $(this).dialog('close');
+                $('#dialog').empty();
+                $('#dialog').append($(`<p>${msg}</p>`));
+                const errorDialog = $('#dialog').dialog({
+                  width: 500,
+                  modal: true,
+                  buttons: {
+                    OK: () => {
+                      errorDialog.dialog('close');
+                    },
+                  },
+                });
               });
             }
             $(this).dialog('close');

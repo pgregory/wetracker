@@ -81,3 +81,14 @@ input#songname {
   color: #888;
   font-size: 12px;
 }
+
+#dialog .controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#url-input {
+  width: 100%;
+  background-color: #444;
+}
