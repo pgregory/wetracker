@@ -250,7 +250,7 @@ class Player {
 
     if (this.playingInstruments.length === 0) {
       this.nextInteractiveTickTime = this.audioctx.currentTime;
-      this.interactiveTimerWorker.port.postMessage('start');
+      this.interactiveTimerWorker.postMessage('start');
       this.XMView.start();
       this.playingInteractive = true;
     }
@@ -272,7 +272,7 @@ class Player {
         if (index !== -1) {
           this.playingInstruments.splice(index, 1);
           if (this.playingInstruments.length === 0) {
-            this.interactiveTimerWorker.port.postMessage('stop');
+            this.interactiveTimerWorker.postMessage('stop');
             // this.XMView.stop();
             this.XMView.pushEvent({
               t: -1,
