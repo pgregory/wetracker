@@ -1,4 +1,5 @@
 import textEncoding from 'text-encoding';
+import { Buffer } from 'buffer';
 
 import { encode, decode } from 'tab64';
 import Immutable from 'immutable';
@@ -513,7 +514,7 @@ export class SongManager {
       a.click();
     }
 
-    const input = Buffer.alloc(JSON.stringify(state.song.toJS(), (k, v) => {
+    const input = Buffer.from(JSON.stringify(state.song.toJS(), (k, v) => {
       // Deal with sampledata differently, as we encode the binary data for
       // efficient serialisation.
       if (k === 'sampledata') {
