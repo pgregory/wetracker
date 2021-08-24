@@ -149,7 +149,7 @@ export default class Transport {
     $(this.target).find('#save').click(() => {
       song.saveSongToLocal();
     });
-    $(this.target).find('#record').click(() => {
+    $(this.target).find('#export').click(() => {
       player.stop();
       player.reset();
       state.set({
@@ -181,6 +181,18 @@ export default class Transport {
         console.log(e);
       }
     });
+
+    $(this.target).find('#record').on('click', () => {
+      if (player.playing) {
+        player.pause();
+      } else {
+        state.set({
+          cursor: {
+            record: !state.cursor.get('record'),
+          },
+        });
+      }
+    });
   }
 
   onTransportChanged() {
@@ -205,6 +217,7 @@ export default class Transport {
   }
 
   onCursorChanged() {
+    $(this.target).find('#record').toggleClass('record', state.cursor.get('record'));
     if (state.cursor.get('saveStream')) {
       const sequence = state.cursor.get('recordSequence');
       $('#record-progress').val(sequence);
