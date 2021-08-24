@@ -183,15 +183,11 @@ export default class Transport {
     });
 
     $(this.target).find('#record').on('click', () => {
-      if (player.playing) {
-        player.pause();
-      } else {
-        state.set({
-          cursor: {
-            record: !state.cursor.get('record'),
-          },
-        });
-      }
+      state.set({
+        cursor: {
+          record: !state.cursor.get('record'),
+        },
+      });
     });
   }
 

@@ -100,11 +100,14 @@ class VirtualKeyboard {
         state.groupHistoryStart('Play note into pattern');
         song.addNoteToSong(state.cursor.toJS(), this.mappingTable[event.key] + (12 * currentOctave), state.cursor.get('instrument') + 1);
         state.groupHistoryEnd();
-        cursor.rowDown(state.transport.get('step'));
+        if (!player.playing) {
+          cursor.rowDown(state.transport.get('step'));
+        }
       } else if (event.key === '`') {
         song.addNoteToSong(state.cursor.toJS(), 96);
       }
-    } else if (event.key in this.mappingTable) {
+    }
+    if (event.key in this.mappingTable) {
       // Trigger note immediately if a VK note
       const currentOctave = state.transport.get('octave');
       if (event.key in this.playing && this.playing[event.key] != null) {
