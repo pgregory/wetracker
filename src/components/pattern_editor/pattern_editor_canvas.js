@@ -530,17 +530,17 @@ export default class PatternEditorCanvas {
 
     const result = {};
 
-    result.row_start = Math.min(cursor.row, cursor.row_start);
-    result.row_end = Math.max(cursor.row, cursor.row_start);
+    result.row_start = Math.min(cursor.row_end, cursor.row_start);
+    result.row_end = Math.max(cursor.row_end, cursor.row_start);
 
     let item1 = 0;
     let col1 = 0;
-    for (let t = 0; t < cursor.track; t += 1) {
+    for (let t = 0; t < cursor.track_end; t += 1) {
       col1 += song.getTrackNumColumns(t);
       item1 += song.getTrackNumColumns(t) * 8;
     }
-    col1 += cursor.column;
-    item1 += cursor.item;
+    col1 += cursor.column_end;
+    item1 += cursor.item_end;
 
     let item2 = 0;
     let col2 = 0;
@@ -551,14 +551,14 @@ export default class PatternEditorCanvas {
     col2 += cursor.column_start;
     item2 += cursor.item_start;
 
-    result.track_start = Math.min(cursor.track, cursor.track_start);
-    result.track_end = Math.max(cursor.track, cursor.track_start);
+    result.track_start = Math.min(cursor.track_end, cursor.track_start);
+    result.track_end = Math.max(cursor.track_end, cursor.track_start);
 
-    result.column_start = (col1 < col2) ? cursor.column : cursor.column_start;
-    result.column_end = (col1 < col2) ? cursor.column_start : cursor.column;
+    result.column_start = (col1 < col2) ? cursor.column_end : cursor.column_start;
+    result.column_end = (col1 < col2) ? cursor.column_start : cursor.column_end;
 
-    result.item_start = (item1 < item2) ? cursor.item : cursor.item_start;
-    result.item_end = (item1 < item2) ? cursor.item_start : cursor.item;
+    result.item_start = (item1 < item2) ? cursor.item_end : cursor.item_start;
+    result.item_end = (item1 < item2) ? cursor.item_start : cursor.item_end;
 
     return result;
   }
@@ -642,21 +642,34 @@ export default class PatternEditorCanvas {
     ctx.strokeRect(cx - 1, cy - 1, this.cursorSizes[state.cursor.get('item')] + 2, this.patternRowHeight + 2);
 
     // Draw select region
-    if (state.cursor.get('selecting')) {
+    const rowStart = state.cursor.get('row_start');
+    const rowEnd = state.cursor.get('row_end');
+    const trackStart = state.cursor.get('track_start');
+    const trackEnd = state.cursor.get('track_end');
+    const columnStart = state.cursor.get('column_start');
+    const columnEnd = state.cursor.get('column_end');
+    const itemStart = state.cursor.get('item_start');
+    const itemEnd = state.cursor.get('item_end');
+
+    if (rowStart !== rowEnd || trackStart !== trackEnd || columnStart !== columnEnd || itemStart !== itemEnd) {
       ctx.save();
 
-      const startCursorSY = cy - Math.round((state.cursor.get('row') - state.cursor.get('row_start')) * this.patternRowHeight);
+      const startCursorSY = y + Math.round(rowStart * this.patternRowHeight);
       let startCursorSX = this.eventLeftMargin;
-      startCursorSX += state.cursor.get('track_start') * this.patternCellWidth;
-      for (let i = 1; i <= state.cursor.get('item_start'); i += 1) {
+      startCursorSX += trackStart * this.patternCellWidth;
+      for (let i = 1; i <= itemStart; i += 1) {
         startCursorSX += this.cursorOffsets[i];
       }
-      const startCursorEX = startCursorSX + this.cursorSizes[state.cursor.get('item_start')];
+      const startCursorEX = startCursorSX + this.cursorSizes[itemStart];
       const startCursorEY = startCursorSY + this.patternRowHeight;
 
-      const endCursorSY = cy;
-      const endCursorSX = cx;
-      const endCursorEX = endCursorSX + this.cursorSizes[state.cursor.get('item')];
+      const endCursorSY = y + Math.round(rowEnd * this.patternRowHeight);
+      let endCursorSX = this.eventLeftMargin;
+      endCursorSX += trackEnd * this.patternCellWidth;
+      for (let i = 1; i <= itemEnd; i += 1) {
+        endCursorSX += this.cursorOffsets[i];
+      }
+      const endCursorEX = endCursorSX + this.cursorSizes[itemEnd];
       const endCursorEY = endCursorSY + this.patternRowHeight;
 
       const c1x = Math.min(startCursorSX, endCursorSX);

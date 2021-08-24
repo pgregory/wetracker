@@ -59,6 +59,9 @@ export class CursorManager {
         e.preventDefault();
       }
     });
+    MouseTrap.bind('esc', () => {
+      this.clearSelection();
+    });
   }
 
   storeStartCursor() {
@@ -75,13 +78,34 @@ export class CursorManager {
     }
   }
 
-  resetStartCursor() {
+  storeEndCursor() {
+    if (state.cursor.get('selecting')) {
+      state.set({
+        cursor: {
+          row_end: state.cursor.get('row'),
+          track_end: state.cursor.get('track'),
+          column_end: state.cursor.get('column'),
+          item_end: state.cursor.get('item'),
+        },
+      });
+    }
+  }
+
+  endSelection() {
     state.set({
       cursor: {
-        row_start: state.cursor.get('row'),
-        track_start: state.cursor.get('track'),
-        column_start: state.cursor.get('column'),
-        item_start: state.cursor.get('item'),
+        selecting: false,
+      },
+    });
+  }
+
+  clearSelection() {
+    state.set({
+      cursor: {
+        row_start: state.cursor.get('row_end'),
+        track_start: state.cursor.get('track_end'),
+        column_start: state.cursor.get('column_end'),
+        item_start: state.cursor.get('item_end'),
         selecting: false,
       },
     });
@@ -94,14 +118,16 @@ export class CursorManager {
     }
     if (selectMode) {
       this.storeStartCursor();
+    } else {
+      this.endSelection();
     }
     state.set({
       cursor: {
         row,
       },
     });
-    if (!selectMode) {
-      this.resetStartCursor();
+    if (selectMode) {
+      this.storeEndCursor();
     }
   }
 
@@ -113,14 +139,16 @@ export class CursorManager {
     }
     if (selectMode) {
       this.storeStartCursor();
+    } else {
+      this.endSelection();
     }
     state.set({
       cursor: {
         row,
       },
     });
-    if (!selectMode) {
-      this.resetStartCursor();
+    if (selectMode) {
+      this.storeEndCursor();
     }
   }
 
@@ -142,6 +170,8 @@ export class CursorManager {
     }
     if (selectMode) {
       this.storeStartCursor();
+    } else {
+      this.endSelection();
     }
     state.set({
       cursor: {
@@ -150,8 +180,8 @@ export class CursorManager {
         item,
       },
     });
-    if (!selectMode) {
-      this.resetStartCursor();
+    if (selectMode) {
+      this.storeEndCursor();
     }
   }
 
@@ -174,6 +204,8 @@ export class CursorManager {
     }
     if (selectMode) {
       this.storeStartCursor();
+    } else {
+      this.endSelection();
     }
     state.set({
       cursor: {
@@ -182,8 +214,8 @@ export class CursorManager {
         item,
       },
     });
-    if (!selectMode) {
-      this.resetStartCursor();
+    if (selectMode) {
+      this.storeEndCursor();
     }
   }
 }
