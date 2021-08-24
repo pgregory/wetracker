@@ -185,6 +185,10 @@ export default class PatternEditorCanvas {
       this.redrawCanvas();
     });
 
+    MouseTrap.bind('shift+p', () => {
+      this.focus();
+    });
+
     connect(state, 'cursorChanged', this, 'onCursorChanged');
     connect(state, 'transportChanged', this, 'onTransportChanged');
     connect(song, 'eventChanged', this, 'onEventChanged');
@@ -931,5 +935,9 @@ export default class PatternEditorCanvas {
     }
     this.renderEmptyPatternRow();
     this.refresh();
+  }
+
+  focus() {
+    $(this.target).parents('.chrome').trigger('focus');
   }
 }

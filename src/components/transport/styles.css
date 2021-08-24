@@ -24,6 +24,10 @@
   height: 32px;
 }
 
+.transport .item .record {
+  color: red;
+}
+
 #master-volume {
   min-width: 250px;
   background-color: #222;

@@ -182,12 +182,12 @@ export default class Tabs {
       const grid = GridStack.init(this.options, tabContainer[0]);
 
       tab.widgets.forEach((w) => {
-        const widget = widgetTemplate.renderToString({
+        const widgetHTML = widgetTemplate.renderToString({
           title: w.title,
           type: w.type,
         });
         grid.addWidget({
-          x: w.x, y: w.y, w: w.w, h: w.h, content: widget,
+          x: w.x, y: w.y, w: w.w, h: w.h, content: widgetHTML,
         });
         const widgetContainer = tabContainer.find('.widget').last();
         const widgetContent = this.widgetTypes[w.type]($(widgetContainer));
