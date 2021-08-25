@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import { signal } from './signal';
 import { eventSystem } from './events';
+import { state } from '../state';
 
 class VirtualKeyboard {
   constructor() {
@@ -88,8 +89,11 @@ class VirtualKeyboard {
     this.keys[event.keyCode] = event.timeStamp || (new Date()).getTime();
 
     if (event.key in this.mappingTable) {
-      this.noteDown(this.mappingTable[event.key].note);
-      eventSystem.raise('noteDown', this.mappingTable[event.key]);
+      const currentOctave = state.transport.get('octave');
+      const { noteA, special } = this.mappingTable[event.key];
+      const note = noteA + special ? 0 : (12 * currentOctave);
+      this.noteDown(note);
+      eventSystem.raise('noteDown', note);
     }
   }
 
@@ -105,7 +109,11 @@ class VirtualKeyboard {
     this.keys[event.keyCode] = 0;
 
     if (event.key in this.mappingTable) {
-      eventSystem.raise('noteUp', this.mappingTable[event.key]);
+      const currentOctave = state.transport.get('octave');
+      const { noteA, special } = this.mappingTable[event.key];
+      const note = noteA + special ? 0 : (12 * currentOctave);
+      this.noteUp(note);
+      eventSystem.raise('noteUp', note);
       return true;
     }
     return false;

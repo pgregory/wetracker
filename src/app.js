@@ -10,11 +10,6 @@ import '@fortawesome/fontawesome-free/js/solid';
 import '@fortawesome/fontawesome-free/js/regular';
 import '@fortawesome/fontawesome-free/js/brands';
 import 'jquery-ui/widgets/dialog';
-// import 'jquery-ui/../themes/base/base.css';
-// import 'jquery-ui/../themes/base/core.css';
-// import 'jquery-ui/../themes/base/theme.css';
-// import 'jquery-ui/../themes/base/dialog.css';
-// import 'jquery-ui/../themes/base/resizable.css';
 import '../themes/jquery-ui/ui-darkness/jquery-ui.css';
 import MouseTrap from 'mousetrap';
 import { Router } from 'director/build/director';
@@ -33,6 +28,7 @@ import { player } from './audio/player';
 // Importing these is enough to instantiate the singelton and therefore
 // bind the key handlers.
 import './utils/virtualkeyboard';
+import './utils/midi';
 import './utils/hexinput';
 import './utils/fxinput';
 
