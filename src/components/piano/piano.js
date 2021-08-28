@@ -251,12 +251,13 @@ export default class Piano {
   }
 
   onMouseUp() {
-    if (this.hitKey) {
+    if (this.hitKey !== null) {
       eventSystem.raise('noteUp', this.hitKey);
       this.hitKey = null;
     }
 
     this.mouseDown = false;
+    window.requestAnimationFrame(() => this.redrawGraph());
   }
 
   onMouseOut() {
