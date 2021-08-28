@@ -3,7 +3,7 @@ import $ from 'jquery';
 import { connect } from '../../utils/signal';
 import { state } from '../../state';
 import { song } from '../../utils/songmanager';
-import { virtualKeyboard } from '../../utils/virtualkeyboard';
+import { eventSystem } from '../../utils/events';
 
 import mapperTemplate from './templates/sample_mapper.marko';
 
@@ -31,8 +31,8 @@ export default class SampleMapper {
     connect(state, 'cursorChanged', this, 'onCursorChanged');
     connect(song, 'songChanged', this, 'onSongChanged');
     connect(song, 'instrumentChanged', this, 'onInstrumentChanged');
-    connect(virtualKeyboard, 'noteDown', this, 'onNoteDown');
-    connect(virtualKeyboard, 'noteUp', this, 'onNoteUp');
+    connect(eventSystem, 'noteDown', this, 'onNoteDown');
+    connect(eventSystem, 'noteUp', this, 'onNoteUp');
 
     this.setInstrument(state.cursor.get('instrument'));
     this.updateSegments();

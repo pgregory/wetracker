@@ -13,6 +13,7 @@ import InstrumentControls from '../instrument_editor/instrument_controls';
 import SampleMapper from '../sample_mapper/sample_mapper';
 import EffectsEditor from '../effects_editor/effects_editor';
 import Browser from '../browser/browser';
+import Piano from '../piano/piano';
 
 import './styles.css';
 
@@ -55,6 +56,7 @@ export default class Tabs {
       'sample-mapper': (t) => new SampleMapper(t),
       'effects-editor': (t) => new EffectsEditor(t),
       browser: (t) => new Browser(t),
+      piano: (t) => new Piano(t),
     };
 
     window.addEventListener('resize', () => {

@@ -1,0 +1,31 @@
+.piano {
+  display: flex;
+  flex-direction: row;
+  overflow: auto;
+  flex-grow: 1;
+}
+
+.piano .keys {
+  flex: 1 1 auto;
+}
+
+.piano .control-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 0 1 auto;
+  align-self: stretch;
+  background-color: #444;
+  border-radius: 3px;
+  align-items: stretch;
+}
+
+.piano .control-panel .octave-button {
+  height: 100%;
+}
+
+.piano .control-panel button {
+  width: 24px;
+  height: 100%;
+  flex: 1;
+  align-self: stretch;
+}

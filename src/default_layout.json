@@ -48,6 +48,52 @@
         "y": 6,
         "w": 10,
         "h": 2,
+        "type": "piano",
+        "title": "Piano"
+      }
+    ]
+  },
+  {
+    "title": "Mix",
+    "tabName": "mix-view",
+    "widgets": [
+      {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 2,
+        "type": "monitors",
+        "title": "Monitors"
+      },
+      {
+        "x": 2,
+        "y": 2,
+        "w": 8,
+        "h": 4,
+        "type": "pattern-editor",
+        "title": "Pattern Editor"
+      },
+      {
+        "x": 10,
+        "y": 2,
+        "w": 2,
+        "h": 6,
+        "type": "instrument-list",
+        "title": "Instruments"
+      },
+      {
+        "x": 0,
+        "y": 2,
+        "w": 2,
+        "h": 4,
+        "type": "sequence-editor",
+        "title": "Sequence"
+      },
+      {
+        "x": 0,
+        "y": 6,
+        "w": 10,
+        "h": 2,
         "type": "effects-editor",
         "title": "Effects"
       }

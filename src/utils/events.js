@@ -1,5 +1,6 @@
 import { song } from './songmanager';
 import { state } from '../state';
+import { signal } from './signal';
 import { player } from '../audio/player';
 import { cursor } from './cursor';
 
@@ -7,6 +8,9 @@ class EventSystem {
   constructor() {
     this.keys = {};
     this.playing = {};
+
+    this.noteDown = signal(false);
+    this.noteUp = signal(false);
 
     this.events = {
       noteDown: (args) => {
@@ -36,7 +40,7 @@ class EventSystem {
               delete this.playing[note];
             }
           });
-          // this.noteDown(note);
+          this.noteDown(note);
         }
       },
       noteUp: (args) => {
@@ -47,10 +51,7 @@ class EventSystem {
             if (note in this.playing && this.playing[note] != null) {
               player.releaseInteractiveInstrument(this.playing[note]);
             }
-            // const currentOctave = state.transport.get('octave');
-            // let { note } = noteConfig;
-            // note += noteConfig.special ? 0 : (12 * currentOctave);
-            // this.noteUp(note);
+            this.noteUp(note);
 
             return true;
           }

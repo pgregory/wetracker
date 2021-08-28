@@ -90,10 +90,10 @@ class VirtualKeyboard {
 
     if (event.key in this.mappingTable) {
       const currentOctave = state.transport.get('octave');
-      const { noteA, special } = this.mappingTable[event.key];
-      const note = noteA + special ? 0 : (12 * currentOctave);
-      this.noteDown(note);
-      eventSystem.raise('noteDown', note);
+      const { note, special } = this.mappingTable[event.key];
+      const noteA = note + (special ? 0 : (12 * currentOctave));
+      this.noteDown(noteA);
+      eventSystem.raise('noteDown', noteA);
     }
   }
 
@@ -110,10 +110,10 @@ class VirtualKeyboard {
 
     if (event.key in this.mappingTable) {
       const currentOctave = state.transport.get('octave');
-      const { noteA, special } = this.mappingTable[event.key];
-      const note = noteA + special ? 0 : (12 * currentOctave);
-      this.noteUp(note);
-      eventSystem.raise('noteUp', note);
+      const { note, special } = this.mappingTable[event.key];
+      const noteA = note + (special ? 0 : (12 * currentOctave));
+      this.noteUp(noteA);
+      eventSystem.raise('noteUp', noteA);
       return true;
     }
     return false;
