@@ -63,7 +63,7 @@
     "gridstack": "^4.2.6",
     "immutable": "^3.8.2",
     "jquery": "^3.6.0",
-    "jquery-ui": "^1.12.1",
+    "jquery-ui": "^1.13.2",
     "jquery.fancytree": "^2.38.0",
     "json-loader": "^0.5.7",
     "less": "^4.1.1",
