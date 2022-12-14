@@ -57,7 +57,7 @@
     "copy-webpack-plugin": "9.0.1",
     "core-js": "^3.16.2",
     "director": "^1.2.8",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "font-awesome": "^4.7.0",
     "font-awesome-webpack": "0.0.4",
     "gridstack": "^4.2.6",
